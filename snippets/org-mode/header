@@ -1,0 +1,23 @@
+# name: Org Headers for chinese orgmode users.
+# --
+#+STARTUP:  align fold nodlcheck oddeven intestate
+#+SEQ_TODO: TODO(t) INPROGRESS(i) WAITING(w@) | DONE(d) CANCELED(c@)
+#+TAGS:     R语言与统计分析[汤银才] 统计学[贾俊平]
+#+OPTIONS:    H:3 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:nil todo:nil
+# HTML设置
+#+LANGUAGE: zh-CN
+#+STYLE:    <link rel="stylesheet" type="text/css" href="style/worg.css" />
+#+OPTIONS:    H:5 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
+# Latex设置
+#+LaTeX_CLASS: ctexart
+#+LaTeX_CLASS_OPTIONS: [UTF8,cs4size,a4paper,fancyhdr,fntef,nofonts,SlantFont,hyperref]
+#LaTeX_CLASS_OPTIONS: [UTF8,cs4size,a4paper,fancyhdr,fntef,fontset=none,SlantFont,hyperref]
+#+LATEX_HEADER: \setCJKmainfont[ItalicFont={AR PL UKai CN}]{AR PL UMing CN}% 文鼎宋体和楷书
+#+LATEX_HEADER: \setCJKsansfont{WenQuanYi Zen Hei}% 文泉驿的黑体
+#+LATEX_HEADER: \setCJKmonofont{WenQuanYi Zen Hei}
+# R语言设置
+#+PROPERTY: results output
+#+PROPERTY: exports both
+#+PROPERTY: width 800
+#+PROPERTY: height 600
+#+PROPERTY: cache no

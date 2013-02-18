@@ -1,0 +1,4 @@
+# name: :HEADERS
+# --
+#+HEADERS: :results ${1:$$(yas/choose-value '("value" "output" "graphics :file" "silent"))} ${2:$$(yas/choose-value '(":session" ""))} $0
+
