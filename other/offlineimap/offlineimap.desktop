@@ -1,0 +1,8 @@
+[Desktop Entry]
+Exec="/usr/bin/lxterminal" "-e" "/home/feng/.offlineimap.sh"
+Icon=/home/feng/Picture/icons/offlineimap.png
+Name=OfflineIMAP
+Encoding=UTF-8
+Terminal=false
+Type=Application
+Categories=Application;Network;
