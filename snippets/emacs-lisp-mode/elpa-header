@@ -2,10 +2,10 @@
 # --
 ;;; ${1:`(file-name-nondirectory (buffer-file-name))`} --- ${2:Tumashu's emacs configuation}
 
-;; Copyright (c) 2011 2012, Feng Shu
+;; Copyright (c) 2011-2013, Feng Shu
 
 ;; Author: Feng Shu <tumashu@gmail.com>
-;; URL: https://github.com/tumashu/tumashu.github.com
+;; URL: https://github.com/tumashu/emacs-helper
 ;; Version: ${3:0.0.1}
 ;; Package-Requires: (${4:(eh-basic "0.0.1")})
 
