@@ -2,6 +2,10 @@
 # use crontab -e add like below:
 # */3 * * * * /home/feng/.offlineimap-cron.sh
 # * 5 * * * /usr/bin/pkill offlineimap
+#
+# 如果使用.start-daemon.sh, 使用下面的配置
+# */5 * * * * exec /home/feng/.start-daemon.sh -n19 -c2 -p7 python2 /usr/bin/offlineimap
+# * 5 * * * /usr/bin/pkill offlineimap
 
 # 读取环境变量
 if [ -f /home/user/.bashrc ]; then
