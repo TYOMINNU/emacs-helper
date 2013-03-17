@@ -35,6 +35,8 @@
 (require 'ox-latex)
 (require 'ox-beamer)
 (require 'ox-html)
+(require 'ox-deck)
+(require 'ox-s5)
 (require 'ox-md)
 
 ;; org-contrib
