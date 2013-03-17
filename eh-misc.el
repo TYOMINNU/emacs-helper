@@ -81,38 +81,6 @@
                                           (progn (bury-buffer) (other-window 1))))))
            (goto-char (point-min))))))))
 
-;; docview相关
-(defun doc-view-set-slice-using-mouse ()
-  "Set the slice of the images that should be displayed.
-You set the slice by pressing mouse-1 at its top-left corner and
-dragging it to its bottom-right corner.  See also
-`doc-view-set-slice' and `doc-view-reset-slice'."
-  (interactive)
-  (let (x y w h done)
-    (while (not done)
-      (let ((e (read-event
-		(concat "Press mouse-1 at the top-left corner and "
-			"drag it to the bottom-right corner!"))))
-	(when (eq (car e) 'drag-mouse-1)
-	  (setq x (car (posn-object-x-y (event-start e))))
-	  (setq y (cdr (posn-object-x-y (event-start e))))
-	  (setq w (- (car (posn-object-x-y (event-end e))) x))
-	  (setq h (- (cdr (posn-object-x-y (event-end e))) y))
-	  (setq done t))))
-    (message "Top-Left Corner: \(%s,%s\)" x y)
-    (message "Width: %s" w)
-    (message "Height: %s" h)
-    (doc-view-set-slice x y w h)))
-
-(defun eh-doc-view-set-slice-1 () 
-  "为\"R语言与统计分析(汤银才).pdf\"设置slice"
-  (interactive)
-  (doc-view-set-slice  165 190 760 950))
-
-(require 'doc-view)
-(define-key doc-view-mode-map (kbd "s 1") 'eh-doc-view-set-slice-1)
-
-
 ;;;autoload(require 'eh-misc)
 (provide 'eh-misc)
 ;;; eh-misc.el ends here
