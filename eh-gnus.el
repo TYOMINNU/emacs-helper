@@ -37,12 +37,11 @@
 
 ;; require
 (require 'gnus)
+(require 'mm-encode)
 (require 'mm-decode)
 (require 'rfc2047)
 (require 'nnir)
-(require 'offlineimap)
 (require 'gnus-demon)
-(require 'gnus-desktop-notify)
 
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
@@ -54,13 +53,11 @@
 
 (setq gnus-select-method '(nnimap "gmail"
 				  (nnimap-address "imap.gmail.com")
-				  (nnimap-server-port 993)
 				  (nnimap-stream ssl)))
-
-;; (add-to-list 'gnus-secondary-select-methods
-;;               '(nntp "news.gmane.org"))
 (add-to-list 'gnus-secondary-select-methods
-               '(nntp "news.newsfan.net"))
+              '(nntp "news.gmane.org"))
+(add-to-list 'gnus-secondary-select-methods
+              '(nntp "news.newsfan.net"))
 
 
 
@@ -87,9 +84,11 @@
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
 ;; 发送信件程序设置
-(setq sendmail-program "/usr/bin/msmtp")                             ;设置发送程序
+(setq sendmail-program "msmtp")                             ;设置发送程序
 ;; 当使用message-mode时的发信方式.
 (setq message-send-mail-function 'message-send-mail-with-sendmail)
+;; (setq message-send-mail-function 'message-send-mail-with-mailclient)
+
 ;; (setq message-sendmail-extra-arguments '("-a" "default"))
 ;; (setq message-sendmail-envelope-from 'header)
 
@@ -139,15 +138,18 @@
         (message-mail-p
          ("X-Message-SMTP-Method" "sendmail"))
         (".*"
+         (signature "")
          (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1   utf-8  gb2312  gbk  gb18030))))
+                     '(iso-8859-1  utf-8  gb2312  gbk  utf-8 gb18030))))
         (".*newsfan.*"
          (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1    gb2312  gbk   gb18030  utf-8))))
+                     '(iso-8859-1   gb2312  gbk   gb18030  utf-8))))
         (".*cn99.*"
          (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1    gb2312    gbk    gb18030   utf-8))))))
-;;指定附件文件名和subject的编码方式
+                     '(iso-8859-1    gb2312    gbk    gb18030  utf-8))))))
+
+
+;; 指定附件文件名和subject的编码方式
 (defalias 'mail-header-encode-parameter 'rfc2047-encode-parameter)
 (add-to-list 'rfc2047-charset-encoding-alist '(gbk . B))
 (add-to-list 'rfc2047-charset-encoding-alist '(gb18030 . B))
@@ -238,17 +240,18 @@
 
 (setq gnus-summary-make-false-root 'dummy)
 (setq gnus-summary-make-false-root-always t)
-(setq gnus-summary-dummy-line-format "   #     |->%-62,62S\n")
+(setq gnus-summary-dummy-line-format "    |->%-62,62S\n")
 (setq gnus-summary-line-format (concat 
-                                "%U%R "
-                                "%-5&user-date; |   "
+                                "%U%R  |"
+                                "    "
+                                "%2{%-5&user-date;%}    "
                                 "%B"
                                 "%I"
                                 "%2{%n%}---->"
                                 "\n"))
 
 (copy-face 'default 'eh-gnus-face-2)
-(set-face-foreground 'eh-gnus-face-2 "sky blue")
+(set-face-foreground 'eh-gnus-face-2 "orange")
 (setq gnus-face-2 'eh-gnus-face-2)
 
 ;; 设置user-date变量，自定义日期时间的显示格式
@@ -285,8 +288,11 @@
 ;; 时间显示
 (add-hook 'gnus-article-prepare-hook 'gnus-article-date-local) ;将邮件的发出时间转换为本地时间
 (add-hook 'gnus-select-group-hook 'gnus-group-set-timestamp)   ;跟踪组的时间轴
-;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)              ;新闻组分组
-
+(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)              ;新闻组分组
+(add-hook 'gnus-summary-mode-hook
+          (lambda ()
+            (local-set-key (kbd "<f1>") 'gnus-uu-mark-thread)
+            (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)))
 ;; visual
 (setq gnus-treat-emphasize t
       gnus-treat-buttonize t
@@ -348,24 +354,17 @@
 (add-hook 'message-mode-hook 'turn-on-orgstruct)
 (add-hook 'message-mode-hook 'turn-on-orgstruct++)
 
-;; 启用桌面提醒功能(gnus-desktop-notify)
-;; debian需要安装libnotify-bin软件包
-(gnus-desktop-notify-mode)
 
-;; 启动gnus的同时，启动offlineimap同步邮件
-(add-hook 'gnus-before-startup-hook 'offlineimap)
-
-;; 每隔10分钟运行一次offlineimap，
-;; 同步邮件并发送提醒消息到桌面。
-(defun eh-gnus-demon-run-offlineimap ()
-  (save-window-excursion
-    (progn (offlineimap)
-           (gnus-demon-scan-news))))
+;; 每隔10分钟刷新一下
 (add-hook 'gnus-startup-hook
-          '(lambda () (progn 
-                   (setq gnus-use-demon t)
-                   (gnus-demon-add-handler 'eh-gnus-demon-run-offlineimap  10  nil)
-                   (gnus-demon-init))))
+          '(lambda () (progn
+                    (setq gnus-use-demon t)
+                    (gnus-demon-add-handler 'gnus-demon-scan-news 10 nil))))
+
+
+;; 启用桌面提醒功能
+;; (add-hook 'gnus-after-getting-new-news-hook 'gnus-notifications)
+
 
 ;;;###autoload
 (add-hook 'gnus-before-startup-hook
