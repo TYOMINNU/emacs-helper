@@ -46,25 +46,6 @@
   (load "$HOME/.emacs"))
 
 ;; 公共使用的函数  
-(defun eh-increase-font-size ()
-  "放大字体的函数"
-  "来自: [sacha chua](http://sachachua.com/wp/2006/09/15/emacs-changing-the-font-size-on-the-fly/)"
-  (interactive)
-  (set-face-attribute 'default
-                      nil
-                      :height
-                      (ceiling (* 1.10
-                                  (face-attribute 'default :height)))))
-(defun eh-decrease-font-size ()
-  "缩小字体的函数"
-  "来自: [sacha chua](http://sachachua.com/wp/2006/09/15/emacs-changing-the-font-size-on-the-fly/)"
-  (interactive)
-  (set-face-attribute 'default
-                      nil
-                      :height
-                      (floor (* 0.9
-                                (face-attribute 'default :height)))))
-
 (defun eh-kill-ring-save (&optional n)
   "函数eh-kill-ring-save,当你没有选中一个区域的时候，"
   "eh-kill-ring-save会复制光标所在行，"
@@ -127,6 +108,29 @@
   (goto-char (point-min))
   (while (search-forward "\n" nil t) (replace-match "\r\n")))
 
+(defun eh-utf8-language-environment ()
+  "设置utf-8语言环境"
+  (interactive)
+  (set-language-environment "UTF-8")
+  (set-buffer-file-coding-system 'utf-8-unix)
+  (set-clipboard-coding-system 'utf-8-unix)
+  (set-file-name-coding-system 'utf-8-unix)
+  (set-keyboard-coding-system 'utf-8-unix)
+  (set-next-selection-coding-system 'utf-8-unix)
+  (set-selection-coding-system 'utf-8-unix)
+  (set-terminal-coding-system 'utf-8-unix))
+
+(defun eh-gbk-language-environment ()
+  "设置gbk语言环境"
+  (interactive)
+  (set-language-environment "Chinese-GBK")
+  (set-buffer-file-coding-system 'gbk-dos)
+  (set-clipboard-coding-system 'gbk-dos)
+  (set-file-name-coding-system 'gbk-dos)
+  (set-keyboard-coding-system 'gbk-dos)
+  (set-next-selection-coding-system 'gbk-dos)
+  (set-selection-coding-system 'gbk-dos)
+  (set-terminal-coding-system 'gbk-dos))
 
 ;;;###autoload(require 'eh-functions)
 
