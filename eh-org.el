@@ -32,17 +32,21 @@
 ;;; Code:
 
 (require 'org)
+(require 'ox-ascii)
 (require 'ox-latex)
 (require 'ox-beamer)
 (require 'ox-html)
 (require 'ox-deck)
 (require 'ox-s5)
+(require 'ox-rss)
 (require 'ox-md)
-
-;; org-contrib
+(require 'ox-odt)
 (require 'org-contacts)
 (require 'org-mime)
 (require 'org-bookmark)
+
+(setq org-export-backends
+      '(ascii beamer html latex md odt deck rss s5))
 
 (add-to-list 'auto-mode-alist '("\.\(org\|org_archive\)$" . org-mode))   
 (setq org-log-done t)   
