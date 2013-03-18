@@ -8,4 +8,8 @@
 (load-library "eh-keybindings")
 (load-library "eh-misc")
 
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
 (provide 'emacs-helper)

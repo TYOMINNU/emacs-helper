@@ -11,7 +11,7 @@
 
 ;;; Commentary:
 
-;;  Õâ¸öÎÄ¼şÊÇtumashu¸öÈË×¨ÓÃµÄemacsÅäÖÃÎÄ¼ş£¬emacsÖĞÎÄÓÃ»§¿ÉÒÔ²Î¿¼¡£
+;;  è¿™ä¸ªæ–‡ä»¶æ˜¯tumashuä¸ªäººä¸“ç”¨çš„emacsé…ç½®æ–‡ä»¶ï¼Œemacsä¸­æ–‡ç”¨æˆ·å¯ä»¥å‚è€ƒã€‚
 
 ;;; License:
 
@@ -33,10 +33,16 @@
 ;;; Code:
 (require 'helm-config)
 
-;; ido-mode ÊÊºÏºÍ helm-mode ³åÍ»£¬¹Ø±ÕËü¡£
+;; ido-mode é€‚åˆå’Œ helm-mode å†²çªï¼Œå…³é—­å®ƒã€‚
 (ido-mode nil)
 (helm-mode t)
 
 ;;;###autoload(require 'eh-helm)
 (provide 'eh-helm)
+
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
+
 ;;; eh-helm.el ends here

@@ -371,4 +371,9 @@
        '(lambda () (require 'eh-gnus)))
 
 (provide 'eh-gnus)
+
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
 ;;; eh-gnus.el ends here

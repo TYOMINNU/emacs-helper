@@ -223,6 +223,11 @@
 
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)
+
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
 ;;; eh-org.el ends here
 
 

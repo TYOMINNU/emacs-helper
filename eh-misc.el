@@ -83,6 +83,11 @@
 
 ;;;autoload(require 'eh-misc)
 (provide 'eh-misc)
+
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
 ;;; eh-misc.el ends here
 
 

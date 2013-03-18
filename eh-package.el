@@ -28,6 +28,10 @@
 ;;(dolist (p eh-packages-files)
 ;;    (package-install-file (locate-library p)))
 
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
 (provide 'eh-package)
 
 

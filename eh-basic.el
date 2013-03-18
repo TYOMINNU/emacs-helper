@@ -93,4 +93,9 @@
 ;;;###autoload(require 'eh-basic)
 
 (provide 'eh-basic)
+
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
 ;;; eh-basic.el ends here

@@ -135,6 +135,11 @@
 ;;;###autoload(require 'eh-functions)
 
 (provide 'eh-functions)
+
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
 ;;; eh-functions.el ends here
 
 

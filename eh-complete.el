@@ -121,6 +121,11 @@
 
 ;;;autoload(require 'eh-complete)
 (provide 'eh-complete)
+
+;; Local Variables:
+;; coding: utf-8-unix
+;; End:
+
 ;;; eh-complete.el ends here
 
 
