@@ -50,36 +50,21 @@
 ;; 无论table-insert还是org-mode都是基于这个假设之上。可是实际上，这个假设不成立。
 ;; 这又是字体的问题，我们如何使一个中文字符的宽度与两个英文字符的宽度相等？
 
-;; 1. 文泉驿等宽正黑12号字体可以实现中英文对齐，但显示效果没有微米黑好看！
-;; 2. 一位大牛编写了一个可以实现中英文对齐的补丁，但是现在似乎不维护了！
-;; 3. 找出一对中英字体搭配（固定一个试另一个）,已知的字体对有:
-;; 　　{"Dejavu Sans Mono 10" 与 "WenQuanyi Micro Hei Mono 12"}
-;; 　　{"Consolas 11" 与 "Microsoft Yahei 16"}
-;; 　　{"Liberation Mono 12" 与 "WenQuanYi Micro Hei Mono 15"}
-
-;; ;;这句指定默认英文字体为Dejavu Sans Mono，大小10
-;; (set-frame-font "Dejavu Sans Mono 10")
-
-;; ;;前面一串“(if...lambda...(with-select-frame frame ())...)"是个很好的
-;; ;;函数框架，意思是frame创建后载入，用这个框架可以解决--daemon启动的问题
-;; ;;只有set-frame-font一句指定修改字符集'unicode的字体为文泉驿等宽微米黑，大小为12
-;; (if (and (fboundp 'daemonp) (daemonp))
-;;     (add-hook 'after-make-frame-functions
-;;               (lambda (frame)
-;;                 (with-selected-frame frame
-;;                   (set-fontset-font "fontset-default" 
-;; 				    'unicode "WenQuanyi Micro Hei Mono 12"))))
-;;   (set-fontset-font "fontset-default" 'unicode "WenQuanYi Micro Hei Mono 12"))
-
+;; 1. 文泉驿等宽正黑12号字体可以实现中英文对齐.
+;; 2. 找出一对中英字体搭配使用（固定一个试另一个）,已知的字体对有:
+;; 　　{"Dejavu Sans Mono 10" 与 "文泉驿等宽微米黑 12"}
+;; 　　{"Consolas 11" 与 "微软雅黑 16"}
+;; 　　{"Liberation Mono 12" 与 "文泉驿等宽微米黑 15"}
+;;     {"M+ 1m 12" 与 “文泉驿等宽微米黑 12”}
 
 
 ;; 设置字体的函数
 (defun eh-default-font ()
   (interactive)
   (when window-system
-    (set-frame-font "M+ 1m:style=Regular")
-    (set-fontset-font (frame-parameter nil 'font)
-                      'han '("WenQuanYi Micro Hei Mono" . "unicode-bmp"))))
+    (set-frame-font "M+ 1m 12")
+    (set-fontset-font "fontset-default"
+                      'unicode "文泉驿等宽微米黑 12")))
 
 ;; 设置默认字体
 (eh-default-font)
