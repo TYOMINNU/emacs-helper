@@ -45,26 +45,32 @@
 ;; 默认显示菜单栏
 (menu-bar-mode t)
 
-;; ;; Emacs中英文字体混排对齐问题
-;; Emacs的设计里，假设一个双字节字符和两个半角英文字符是等宽的。所有的表格对齐之类的问题，
-;; 无论table-insert还是org-mode都是基于这个假设之上。可是实际上，这个假设不成立。
-;; 这又是字体的问题，我们如何使一个中文字符的宽度与两个英文字符的宽度相等？
 
-;; 1. 文泉驿等宽正黑12号字体可以实现中英文对齐.
-;; 2. 找出一对中英字体搭配使用（固定一个试另一个）,已知的字体对有:
-;; 　　{"Dejavu Sans Mono 10" 与 "文泉驿等宽微米黑 12"}
-;; 　　{"Consolas 11" 与 "微软雅黑 16"}
-;; 　　{"Liberation Mono 12" 与 "文泉驿等宽微米黑 15"}
-;;     {"M+ 1m 12" 与 “文泉驿等宽微米黑 12”}
+(defcustom eh-default-fonts-list '("M+ 1m 12" "文泉驿等宽微米黑 12")
+  "Emacs的设计里，假设一个双字节字符和两个半角英文字符是等宽的。
+所有的表格对齐之类的问题，无论table-insert还是org-mode都是基于这个假设之上。
+可是实际上，这个假设不成立(字体问题)。我们一般找一对中英字体搭配使用，
+从而实现中英文对齐。
+
+下面四对字体组合可以实现中英文对齐:
+
+   '(\"Dejavu Sans Mono 10\"  \"文泉驿等宽微米黑 12\")
+   '(\"Consolas 11\"  \"微软雅黑 16\")
+   '(\"Liberation Mono 12\"  \"文泉驿等宽微米黑 15\")
+   '(\"M+ 1m 12\" \"文泉驿等宽微米黑 12\")
+
+注1: 文泉驿等宽正黑12号字体本身可以实现中英文对齐，
+     不过显示效果没有文泉驿等宽微米黑好
+注2: WindowXP用户可以安装MacType软件，字体渲染效果较好！")
 
 
 ;; 设置字体的函数
 (defun eh-default-font ()
   (interactive)
   (when window-system
-    (set-frame-font "M+ 1m 12")
+    (set-frame-font (car eh-default-fonts-list))
     (set-fontset-font "fontset-default"
-                      'unicode "文泉驿等宽微米黑 12")))
+                      'unicode (cdr eh-default-fonts-list))))
 
 ;; 设置默认字体
 (eh-default-font)
