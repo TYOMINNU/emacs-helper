@@ -238,21 +238,68 @@
 ;;                                 "%)"
 ;;                                 "\n"))
 
-(setq gnus-summary-make-false-root 'dummy)
-(setq gnus-summary-make-false-root-always t)
-(setq gnus-summary-dummy-line-format "    |->%-62,62S\n")
+;; (setq gnus-summary-make-false-root 'dummy)
+;; (setq gnus-summary-make-false-root-always nil)
+;; (setq gnus-summary-dummy-line-format "    |->%-62,62S\n")
+
+(setq gnus-summary-make-false-root 'adopt)
 (setq gnus-summary-line-format (concat 
                                 "%U%R  |"
-                                "    "
-                                "%2{%-5&user-date;%}    "
+                                "%ua"
+                                "%2{%ub%}"
+                                "%uc"
                                 "%B"
                                 "%I"
-                                "%2{%n%}---->"
+                                "%2{%ud%}"
+                                "%ue"
                                 "\n"))
 
 (copy-face 'default 'eh-gnus-face-2)
 (set-face-foreground 'eh-gnus-face-2 "orange")
 (setq gnus-face-2 'eh-gnus-face-2)
+
+;; 显示箭头设置
+(defun gnus-user-format-function-a (header)
+   (let ((date (mail-header-date header)))
+     (if (zerop gnus-tmp-level)
+         "-> " "")))
+
+;; 显示时间设置
+(defun gnus-user-format-function-b (header)
+   (let ((date (mail-header-date header)))
+     (if (zerop gnus-tmp-level)
+         "" (concat "      " (gnus-user-date date)))))
+
+;; 显示主题设置
+(defun gnus-user-format-function-c (header)
+   (let ((subject (mail-header-subject header)))
+     (if (zerop gnus-tmp-level)
+         subject "")))
+
+;; 提取From名字
+(defun eh-mail-header-from-name (from)
+  (cond
+   ((string-match "<[^>]+> *$" from)
+    (let ((beg (match-beginning 0)))
+      (or (and (string-match "^\".+\"" from)
+               (substring from 1 (1- (match-end 0))))
+          (substring from 0 beg))))
+   ((string-match "(.+)" from)
+    (substring from
+               (1+ (match-beginning 0)) (1- (match-end 0))))
+   (t from)))
+
+;; 显示发件人设置
+(defun gnus-user-format-function-d (header)
+  (let ((from (mail-header-from header)))
+     (if (zerop gnus-tmp-level)
+         "" (eh-mail-header-from-name from))))
+
+;; 显示箭头设置
+(defun gnus-user-format-function-e (header)
+  (if (zerop gnus-tmp-level)
+      "" "---->"))
+
 
 ;; 设置user-date变量，自定义日期时间的显示格式
 ;; (setq gnus-user-date-format-alist
@@ -277,9 +324,9 @@
 ;; 线程的可视化外观, `%B'
 (setq gnus-summary-same-subject "")
 (setq gnus-sum-thread-tree-indent "    ")
-(setq gnus-sum-thread-tree-single-indent "〇")
-(setq gnus-sum-thread-tree-root "●")
-(setq gnus-sum-thread-tree-false-root "☆")
+(setq gnus-sum-thread-tree-single-indent "")
+(setq gnus-sum-thread-tree-root "")
+(setq gnus-sum-thread-tree-false-root "")
 (setq gnus-sum-thread-tree-vertical "|")
 (setq gnus-sum-thread-tree-leaf-with-other "|----")
 (setq gnus-sum-thread-tree-single-leaf " `----")
@@ -291,6 +338,7 @@
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)              ;新闻组分组
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
+            (setq line-spacing 3)
             (local-set-key (kbd "<f1>") 'gnus-uu-mark-thread)
             (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)))
 ;; visual
