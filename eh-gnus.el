@@ -244,7 +244,7 @@
 
 (setq gnus-summary-make-false-root 'adopt)
 (setq gnus-summary-line-format (concat 
-                                "%U%R  |"
+                                "%U%R |"
                                 "%ua"
                                 "%2{%ub%}"
                                 "%uc"
@@ -268,13 +268,16 @@
 (defun gnus-user-format-function-b (header)
    (let ((date (mail-header-date header)))
      (if (zerop gnus-tmp-level)
-         "" (concat "      " (gnus-user-date date)))))
+         "" (concat "     " (gnus-user-date date)))))
 
 ;; 显示主题设置
 (defun gnus-user-format-function-c (header)
-   (let ((subject (mail-header-subject header)))
-     (if (zerop gnus-tmp-level)
-         subject "")))
+  (let ((date (mail-header-date header))
+        (subject (mail-header-subject header)))
+    (if (zerop gnus-tmp-level)
+        (concat subject
+                " ("
+                (gnus-user-date date)")") "")))
 
 ;; 提取From名字
 (defun eh-mail-header-from-name (from)
