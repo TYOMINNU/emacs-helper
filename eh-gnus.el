@@ -342,8 +342,9 @@
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
             (setq line-spacing 3)
-            (local-set-key (kbd "<f1>") 'gnus-uu-mark-thread)
-            (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)))
+            (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
+            (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
+            (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
 ;; visual
 (setq gnus-treat-emphasize t
       gnus-treat-buttonize t
