@@ -268,7 +268,7 @@
 (defun gnus-user-format-function-b (header)
    (let ((date (mail-header-date header)))
      (if (zerop gnus-tmp-level)
-         "" (concat "     " (gnus-user-date date)))))
+         "" (concat "     " (concat (gnus-user-date date) "  ")))))
 
 ;; 显示主题设置
 (defun gnus-user-format-function-c (header)
