@@ -372,6 +372,19 @@
                    "X-Attachments" "X-Diagnostic")
                  "\\|"))
 
+;; 设置邮件日期显示格式
+(setq gnus-article-date-headers '(user-defined))
+(setq gnus-article-time-format
+      (lambda (time)
+	(concat "X-Sent: "
+                (format-time-string "%Y年%m月%d日 星期%u %T" time)
+                " "
+                "("
+                (article-lapsed-string time)
+                ")"
+                )))
+
+
 ;; 用 Supercite 显示多种多样的引文形式
 (setq sc-attrib-selection-list nil
       sc-auto-fill-region-p nil
