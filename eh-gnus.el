@@ -372,16 +372,16 @@
                    "X-Attachments" "X-Diagnostic")
                  "\\|"))
 
-;; 设置邮件日期显示格式
+;; 设置邮件日期显示格式,使用两行日期，一行具体日期时间，另一行显示article
+;; 距现在多长时间
 (setq gnus-article-date-headers '(user-defined))
 (setq gnus-article-time-format
       (lambda (time)
-	(concat "X-Sent: "
-                (format-time-string "%Y年%m月%d日 星期%u %T" time)
-                " "
-                "("
+	(concat "X-Sent:   "
+                (format-time-string "%Y年%m月%d日 星期%u %R" time)
+                "\n"
+                "X-Lasped: "
                 (article-lapsed-string time)
-                ")"
                 )))
 
 
