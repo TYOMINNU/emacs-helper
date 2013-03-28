@@ -46,7 +46,7 @@
 (menu-bar-mode t)
 
 
-(defcustom eh-default-fonts-list '("M+ 1m 12" "文泉驿等宽微米黑 12")
+(defvar eh-default-fonts-list '("M+ 1m 12" "文泉驿等宽微米黑 12")
   "Emacs的设计里，假设一个双字节字符和两个半角英文字符是等宽的。
 所有的表格对齐之类的问题，无论table-insert还是org-mode都是基于这个假设之上。
 可是实际上，这个假设不成立(字体问题)。我们一般找一对中英字体搭配使用，
@@ -69,8 +69,9 @@
   (interactive)
   (when window-system
     (set-frame-font (car eh-default-fonts-list))
-    (set-fontset-font "fontset-default"
-                      'unicode (cdr eh-default-fonts-list))))
+    (dolist (charset '(kana han symbol cjk-misc bopomofo unicode)) 
+      (set-fontset-font (frame-parameter nil 'font) 
+                        charset (cdr eh-default-fonts-list)))))
 
 ;; 设置默认字体
 (eh-default-font)
