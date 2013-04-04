@@ -1,0 +1,7 @@
+# name: Org LATEX Headers for chinese orgmode users.
+# --
+#+LaTeX_CLASS: ctexart
+#+LaTeX_CLASS_OPTIONS: [UTF8,cs4size,a4paper,fancyhdr,fntef,fontset=none,SlantFont,hyperref]
+#+LATEX_HEADER: \setCJKmainfont[ItalicFont={AR PL UKai CN}]{AR PL UMing CN}% 文鼎宋体和楷书
+#+LATEX_HEADER: \setCJKsansfont{WenQuanYi Micro Hei}% 文泉驿的黑体
+#+LATEX_HEADER: \setCJKmonofont{WenQuanYi Micro Hei}

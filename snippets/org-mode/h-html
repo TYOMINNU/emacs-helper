@@ -1,0 +1,5 @@
+# name: Org HTML Headers for chinese orgmode users.
+# --
+#+LANGUAGE: zh-CN
+#+HTML_HEADER:  <link rel="stylesheet" type="text/css" href="style/worg.css" />
+#+OPTIONS:    H:5 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
