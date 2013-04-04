@@ -1,7 +1,6 @@
 (load-library "eh-package")
 (load-library "eh-basic")
 (load-library "eh-org")
-(load-library "eh-helm")
 (load-library "eh-complete")
 (load-library "eh-gnus")
 (load-library "eh-functions")

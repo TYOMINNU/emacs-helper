@@ -31,19 +31,29 @@
 
 ;;; Code:
 
+;; helm模式
+(require 'helm-config)
+(require 'ac-helm)
 
+;; ido-mode 适合和 helm-mode 冲突，关闭它。
+(ido-mode nil)
+(helm-mode t)
+
+
+;; 打开auto-complete-mode模式
 (require 'auto-complete)
 (require 'auto-complete-config)
 
-;; 打开auto-complete-mode模式
+
 (global-auto-complete-mode 1)
 (add-to-list 'ac-modes 'emacs-lisp-mode)
 (add-to-list 'ac-modes 'org-mode)
 (add-to-list 'ac-modes 'text-mode)
 (add-to-list 'ac-modes 'message-mode)
 ;; 不要自动激活，用快捷键激活。
-(setq ac-auto-start nil)
+(setq ac-auto-start t)
 (setq ac-dwim t)
+
 ;; 设置菜单长度
 (setq ac-candidate-menu-height 20)
 (setq ac-candidate-max ac-candidate-menu-height)
@@ -96,29 +106,27 @@
 
 
 (require 'yasnippet)
-
-(add-to-list 'yas/root-directory (file-name-as-directory 
-                                  (concat  (file-name-directory
-                                            (locate-library "eh-complete.el")) "snippets")))
-(mapc 'yas/load-directory yas/root-directory)
-(yas/global-mode 1)
-(setq yas/trigger-key nil )
+(add-to-list 'yas-snippet-dirs (file-name-as-directory 
+                                (concat  (file-name-directory
+                                          (locate-library "eh-complete.el")) "snippets")))
+(yas-reload-all)
+(yas-global-mode 1)
+(setq yas-trigger-key nil )
 
 ;; 使org-contact,gnus,yasnippet在一起时正常工作.
-(defun org-contacts-yas/fallback-behavior ()
-    (setq yas/fallback-behavior '(apply completion-at-point)))
+(defun org-contacts-yas-fallback-behavior ()
+    (setq yas-fallback-behavior '(apply completion-at-point)))
 
-(add-hook 'message-mode-hook 'org-contacts-yas/fallback-behavior)
+(add-hook 'message-mode-hook 'org-contacts-yas-fallback-behavior)
 
 
 ;; completion keybindings
-(global-set-key (kbd "M-i") 'yas/expand)
+(global-set-key (kbd "M-i") 'yas-expand)
 (global-set-key (kbd "M-/") 'auto-complete)
 ;; (global-set-key (kbd "M-i") 'hippie-expand)
 (define-key ac-menu-map (kbd "M-i") 'ac-complete)
 (define-key ac-menu-map (kbd "M-n") 'ac-next)
 (define-key ac-menu-map (kbd "M-p")'ac-previous)
-
 ;;;autoload(require 'eh-complete)
 (provide 'eh-complete)
 
