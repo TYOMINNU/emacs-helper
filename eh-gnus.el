@@ -45,19 +45,23 @@
 
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
-;; (setq gnus-select-method
-;;       '(nnimap "Mail"
-;; 	       (nnimap-address "localhost")
-;; 	       (nnimap-stream shell)
-;;                (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir")))
+(setq gnus-select-method
+      '(nnimap "OfflineImap"
+	       (nnimap-address "localhost")
+	       (nnimap-stream shell)
+               (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir")))
 
-(setq gnus-select-method '(nnimap "gmail"
-				  (nnimap-address "imap.gmail.com")
-				  (nnimap-stream ssl)))
 (add-to-list 'gnus-secondary-select-methods
-              '(nntp "news.gmane.org"))
-(add-to-list 'gnus-secondary-select-methods
-              '(nntp "news.newsfan.net"))
+               '(nntp "localhost"))
+
+;; (setq gnus-select-method '(nnimap "gmail"
+;; 				  (nnimap-address "imap.gmail.com")
+;; 				  (nnimap-stream ssl)))
+
+;; (add-to-list 'gnus-secondary-select-methods
+;;               '(nntp "news.gmane.org"))
+;; (add-to-list 'gnus-secondary-select-methods
+;;               '(nntp "news.newsfan.net"))
 
 
 
