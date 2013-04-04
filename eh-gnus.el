@@ -88,7 +88,7 @@
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
 ;; 发送信件程序设置
-(setq sendmail-program "msmtp")                             ;设置发送程序
+;; (setq sendmail-program "msmtp")                             ;设置发送程序
 ;; 当使用message-mode时的发信方式.
 (setq message-send-mail-function 'message-send-mail-with-sendmail)
 ;; (setq message-send-mail-function 'message-send-mail-with-mailclient)
