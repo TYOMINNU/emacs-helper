@@ -169,49 +169,6 @@
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cb" 'org-iswitchb)
 
-;; org-contacts
-
-(setq org-contacts-tel-property "PHONE")
-(setq org-contacts-note-property "NOTE")
-(defun org-contacts-vcard-format (contact)
-  "Formats CONTACT in VCard 3.0 format."
-  (let* ((properties (caddr contact))
-	 (name (org-contacts-vcard-escape (car contact)))
-	 (n (org-contacts-vcard-encode-name name))
-	 (email (cdr (assoc-string org-contacts-email-property properties)))
-	 (bday (org-contacts-vcard-escape (cdr (assoc-string org-contacts-birthday-property properties))))
-	 (addr (cdr (assoc-string org-contacts-address-property properties)))
-	 (nick (org-contacts-vcard-escape (cdr (assoc-string org-contacts-nickname-property properties))))
-	 (tel (cdr (assoc-string org-contacts-tel-property properties)))
-	 (note (org-contacts-vcard-escape (cdr (assoc-string org-contacts-note-property properties))))
-	 (head (format "BEGIN:VCARD\nVERSION:3.0\nN:%s\nFN:%s\n" n name)))
-    (concat head
-	    (when email (progn 
-			  (setq emails-list (split-string email "[,;: ]+"))
-			  (setq result "")
-			  (while emails-list
-			    (setq result (concat result  "EMAIL:" (car emails-list) "\n"))
-			    (setq emails-list (cdr emails-list)))
-			  result))
-	    (when addr
-	      (format "ADR:;;%s\n" (replace-regexp-in-string "\\, ?" ";" addr)))
-	    (when tel (progn 
-			(setq phones-list (split-string tel "[,;: ]+"))
-			(setq result "")
-			(while phones-list
-			  (setq result (concat result  "TEL:" (car phones-list) "\n"))
-			  (setq phones-list (cdr phones-list)))
-			result))
-	    (when bday
-	      (let ((cal-bday (calendar-gregorian-from-absolute (org-time-string-to-absolute bday))))
-		(format "BDAY:%04d-%02d-%02d\n"
-			(calendar-extract-year cal-bday)
-			(calendar-extract-month cal-bday)
-			(calendar-extract-day cal-bday))))
-	    (when nick (format "NICKNAME:%s\n" nick))
-	    (when note (format "NOTE:%s\n" note))
-	    "END:VCARD\n\n")))
-
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)
 
