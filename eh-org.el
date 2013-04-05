@@ -86,8 +86,8 @@
 
 ;; html
 (setq org-html-coding-system 'utf-8)
-(setq org-html-style-include-default nil)
-(setq org-html-style-include-scripts nil)
+(setq org-html-head-include-default-style nil)
+(setq org-html-head-include-scripts nil)
 
 ;; latex
 (setq org-latex-coding-system 'utf-8)
@@ -139,7 +139,7 @@
 ;; latex公式预览
 
 ;; 设置默认缩放比例为1.2.
-(setq org-format-latex-options 
+(setq org-format-latex-options
       (plist-put org-format-latex-options :scale 1.2))
 
 (setq org-format-latex-header "\\documentclass{ctexart}
