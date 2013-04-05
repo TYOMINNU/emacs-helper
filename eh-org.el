@@ -44,6 +44,7 @@
 (require 'org-contacts)
 (require 'org-mime)
 (require 'org-bookmark)
+(require 'org-protocol)
 
 (setq org-export-backends
       '(ascii beamer html latex md odt deck rss s5))
