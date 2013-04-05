@@ -20,6 +20,7 @@ remoteuser = USERNAME@gmail.com
 # import keyring
 # keyring.set_password("imap.gmail.com","username@host.net", "MYPASSWORD")
 remotepasseval = keyring.get_password("imap.gmail.com","USERNAME@gmail.com")
+# remotepass = yourpasswd
 ssl = yes
 cert_fingerprint=f3043dd689a2e7dddfbef82703a6c65ea9b634c1 
 maxconnections = 3
