@@ -76,19 +76,9 @@
    (sqlite . nil)))
 
 ;; org-babel hook
-;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+(add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 
-;; capture模板
-;; (setq org-capture-templates
-;;       '(("t" "Todo" entry (file+headline "~/documents/site.tumashu.org/todo.org" "Tasks")
-;;          "* TODO %?\n %i\n %a")
-;;         ("j" "Journal" entry (file+datetree "~/documents/site.tumashu.org/journal.org")
-;;          "* %?\n %U\n %i\n  %a")
-;;         ("c" "Contacts" entry (file "~/contacts.org")
-;;                "* %(org-contacts-template-name)
-;;   :PROPERTIES:
-;;   :EMAIL: %(org-contacts-template-email)
-;;   :END:")))
+
 
 ;;export
 (setq org-default-language "zh-CN")
