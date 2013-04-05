@@ -42,6 +42,7 @@
 (require 'rfc2047)
 (require 'nnir)
 (require 'gnus-demon)
+(require 'notifications)
 
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
@@ -432,7 +433,8 @@
 
 
 ;; 启用桌面提醒功能
-;; (add-hook 'gnus-after-getting-new-news-hook 'gnus-notifications)
+(add-hook 'gnus-after-getting-new-news-hook 'gnus-notifications)
+
 
 
 ;;;###autoload
