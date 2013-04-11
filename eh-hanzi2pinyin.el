@@ -5,6 +5,7 @@
 ;; through quail's structure, but gave up on that for now.
 
 (require 'cl-lib)
+(require 'org)
 
 (defvar eh-hanzi2pinyin-table (make-hash-table))
 
@@ -2640,7 +2641,7 @@
                       (puthash hanzi
                                (if (and existing 
                                         (not (string-equal (substring pinyin 0 1)(substring existing 0 1))))
-                                   (concat (substring pinyin 0 1) "|"(substring existing 0 1))
+                                   (concat (substring pinyin 0 1) "|" (substring existing 0 1))
                                  (substring pinyin 0 1))
                                eh-hanzi2pinyin-table)))))
 
@@ -2649,6 +2650,12 @@
          (loop for c across string
                collecting (concat  (or (gethash c eh-hanzi2pinyin-table)
                                           c)))))
+
+(defun org-contacts-add-pinyin-alias ()
+  "Add pinyin alias to current contact"
+  (interactive)
+  (let ((pinyin-alias (eh-hanzi2pinyin (org-get-heading 1 1))))
+    (org-set-property org-contacts-alias-property pinyin-alias)))
 
 
 (provide 'eh-hanzi2pinyin)
