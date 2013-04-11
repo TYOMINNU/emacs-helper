@@ -2638,12 +2638,10 @@
         do (loop for hanzi across hanzi-string
                  do (let ((existing (gethash hanzi eh-hanzi2pinyin-table)))
                       (puthash hanzi
-                               (let ((first-character-of-existing (substring existing 0 1))
-                                     (first-character-of-pinyin (substring pinyin 0 1)))
-                                 (if (and existing
-                                          (not (string-equal first-character-of-existing first-character-of-pinyin)))
-                                     (concat first-character-of-pinyin "|" first-character-of-existing)
-                                   (substring pinyin 0 1)))
+                               (if (and existing 
+                                        (not (string-equal (substring pinyin 0 1)(substring existing 0 1))))
+                                   (concat (substring pinyin 0 1) "|"(substring existing 0 1))
+                                 (substring pinyin 0 1))
                                eh-hanzi2pinyin-table)))))
 
 (defun eh-hanzi2pinyin (string)
@@ -2651,5 +2649,6 @@
          (loop for c across string
                collecting (concat  (or (gethash c eh-hanzi2pinyin-table)
                                           c)))))
+
 
 (provide 'eh-hanzi2pinyin)
