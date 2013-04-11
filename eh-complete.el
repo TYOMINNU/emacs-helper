@@ -51,7 +51,7 @@
 (add-to-list 'ac-modes 'text-mode)
 (add-to-list 'ac-modes 'message-mode)
 ;; 不要自动激活，用快捷键激活。
-(setq ac-auto-start t)
+(setq ac-auto-start nil)
 (setq ac-dwim t)
 
 ;; 设置菜单长度

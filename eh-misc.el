@@ -31,16 +31,16 @@
 
 ;;; Code:
 ;; 在emacs中使用ibus
-;; (require 'ibus)
-;; (add-hook 'after-init-hook 'ibus-mode-on)
+(require 'ibus)
+(add-hook 'after-init-hook 'ibus-mode-on)
 ;; Change cursor color depending on IBus status
-;; (setq ibus-cursor-color "red")
-;; ;; daemon模式下使用ibus
-;; (if (and (fboundp 'daemonp) (daemonp))
-;;     (add-hook 'after-make-frame-functions
-;; 	      (lambda (frame)
-;; 		(with-selected-frame frame
-;;                   (or ibus-mode (ibus-mode-on))))))
+(setq ibus-cursor-color "red")
+;; daemon模式下使用ibus
+(if (and (fboundp 'daemonp) (daemonp))
+    (add-hook 'after-make-frame-functions
+	      (lambda (frame)
+		(with-selected-frame frame
+                  (or ibus-mode (ibus-mode-on))))))
 
 ;; 查字典
 (global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
