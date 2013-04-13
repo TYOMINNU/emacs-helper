@@ -2651,11 +2651,11 @@
                collecting (concat  (or (gethash c eh-hanzi2pinyin-table)
                                           c)))))
 
-(defun org-contacts-add-pinyin-alias ()
-  "Add pinyin alias to current contact"
-  (interactive)
-  (let ((pinyin-alias (eh-hanzi2pinyin (org-get-heading 1 1))))
-    (org-set-property org-contacts-alias-property pinyin-alias)))
 
+(defun org-contacts-add-pinyin-alias ()
+  "Add pinyin alias to all head of current buffer"
+  (interactive)
+  (org-map-entries '(lambda () (let ((pinyin-alias (eh-hanzi2pinyin (org-get-heading 1 1))))
+                            (org-set-property org-contacts-alias-property pinyin-alias)))))
 
 (provide 'eh-hanzi2pinyin)
