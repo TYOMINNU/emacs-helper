@@ -45,6 +45,7 @@
 (require 'org-mime)
 (require 'org-bookmark)
 (require 'org-protocol)
+(require 'ob-R)
 
 (setq org-export-backends
       '(ascii beamer html latex md odt deck rss s5))
@@ -79,7 +80,19 @@
 ;; org-babel hook
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 
-
+;; use Cairo graphics device by default,which can get better graphics quality.
+;; you shoule add require("Cairo") to you ~/.Rprofile
+(setq org-babel-R-graphics-devices
+  '((:bmp "bmp" "filename")
+    (:jpg "jpeg" "filename")
+    (:jpeg "jpeg" "filename")
+    (:tikz "tikz" "file")
+    (:tiff "tiff" "filename")
+    (:png "CairoPNG" "filename")
+    (:svg "CairoSVG" "file")
+    (:pdf "CairoPDF" "file")
+    (:ps "CairoPS" "file")
+    (:postscript "postscript" "file")))
 
 ;;export
 (setq org-default-language "zh-CN")
