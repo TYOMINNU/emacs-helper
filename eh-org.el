@@ -147,6 +147,7 @@
 \\setCJKmainfont[ItalicFont={AR PL UKai CN}]{AR PL UMing CN}% 文鼎宋体和楷书
 \\setCJKsansfont{WenQuanYi Zen Hei}% 文泉驿的黑体
 \\setCJKmonofont{WenQuanYi Zen Hei}
+\\usepackage{tikz}
 "))
 
 ;; latex公式预览
