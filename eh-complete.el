@@ -113,12 +113,6 @@
 (yas-global-mode 1)
 (setq yas-trigger-key nil )
 
-;; 使org-contact,gnus,yasnippet在一起时正常工作.
-(defun org-contacts-yas-fallback-behavior ()
-    (setq yas-fallback-behavior '(apply completion-at-point)))
-
-(add-hook 'message-mode-hook 'org-contacts-yas-fallback-behavior)
-
 
 ;; completion keybindings
 (global-set-key (kbd "M-i") 'yas-expand)
