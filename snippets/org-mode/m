@@ -1,0 +1,5 @@
+# name: \begin{displaymath} ... \end{displaymath}
+# --
+\begin{displaymath}
+$0
+\end{displaymath}

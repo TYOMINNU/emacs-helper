@@ -1,0 +1,10 @@
+# name: Org BEAMER Headers for chinese orgmode users.
+# --
+#+LaTeX_CLASS: beamer
+#+BEAMER_FRAME_LEVEL: 2
+#+BEAMER_THEME: Montpellier
+#+BEAMER_COLOR_THEME: default
+#+LATEX_HEADER: \setCJKmainfont[ItalicFont={AR PL UKai CN}]{SimSun}% 文鼎宋体和楷书
+#+LATEX_HEADER: \setCJKsansfont{WenQuanYi Micro Hei}% 文泉驿的黑体
+#+LATEX_HEADER: \setCJKmonofont{WenQuanYi Micro Hei}
+#+OPTIONS: TOC:nil

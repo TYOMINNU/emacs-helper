@@ -1,4 +1,4 @@
-# name: #+begin_src R :results graphics :file  ,,, #+end_src
+# name: #+begin_src R :results graphics :file  ...  #+end_src
 # --
 #+begin_src R :results graphics :file pic/${1:FILENAME}.png
 $0
