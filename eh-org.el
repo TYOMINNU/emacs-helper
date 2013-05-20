@@ -45,6 +45,7 @@
 (require 'org-mime)
 (require 'org-bookmark)
 (require 'org-protocol)
+(require 'org-screenshot)
 (require 'ob-R)
 
 (setq org-export-backends
