@@ -85,6 +85,9 @@
 (setq nnml-newsgroups-file "~/Gnus/Mail/newsgroup")        ;邮件新闻组解释文件
 (setq nntp-marks-directory "~/Gnus/News/marks")            ;nntp组存储目录
 (setq mml-default-directory "~/")                          ;附件的存储位置
+(setq gnus-notifications-minimum-level 3)                  ;桌面提醒功能
+(setq gnus-notifications-use-google-contacts nil)
+(setq gnus-notifications-use-gravatar nil)
 
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
