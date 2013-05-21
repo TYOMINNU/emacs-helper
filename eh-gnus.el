@@ -42,7 +42,6 @@
 (require 'rfc2047)
 (require 'nnir)
 (require 'gnus-demon)
-(require 'notifications)
 
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
@@ -85,7 +84,7 @@
 (setq nnml-newsgroups-file "~/Gnus/Mail/newsgroup")        ;邮件新闻组解释文件
 (setq nntp-marks-directory "~/Gnus/News/marks")            ;nntp组存储目录
 (setq mml-default-directory "~/")                          ;附件的存储位置
-(setq gnus-notifications-minimum-level 3)                  ;桌面提醒功能
+(setq gnus-notifications-minimum-level 1)                  ;桌面提醒功能
 (setq gnus-notifications-use-google-contacts nil)
 (setq gnus-notifications-use-gravatar nil)
 
