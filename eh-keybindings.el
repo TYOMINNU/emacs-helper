@@ -37,20 +37,8 @@
 ;; 设置键盘绑定,使用Ctrl-x <SPC>设置mark
 (global-set-key (kbd "C-x <SPC>") 'set-mark-command)
 
-;; 设置键盘绑定,使用<F7>调整行间距,从1像素到5像素
-(global-set-key (kbd "<f7>") 'eh-toggle-line-spacing)
-
-;; 设置键盘绑定,使用Ctrl-"+"放大字体
-(global-set-key (kbd "C-+") 'eh-increase-font-size)
-
-;; 设置键盘绑定,使用Ctrl-"-"缩小字体
-(global-set-key (kbd "C--") 'eh-decrease-font-size)
-
 ;; 设置键盘绑定,使用Ctrl-x b激活ibuffer函数
 (global-set-key (kbd "C-x b") 'ibuffer)
-
-;; 设置键盘绑定,使用Ctrl-<tab>激活下一个buffer
-(global-set-key (kbd "C-<tab>") 'next-buffer)
 
 ;; 设置键盘绑定,使用Ctrl-x k删除当前缓存
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
@@ -59,7 +47,6 @@
 (global-set-key (kbd "C-c k") 'browse-kill-ring)
 
 ;; Helm
-
 (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
 (define-key helm-map (kbd "C-u") 'helm-select-action)
 ;; (global-set-key (kbd "C-x C-b") 'ido-display-buffer)
