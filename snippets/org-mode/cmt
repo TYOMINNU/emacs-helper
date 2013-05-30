@@ -1,0 +1,5 @@
+# name: #+begin_comment ... #+end_comment
+# --
+#+begin_comment
+$0
+#+end_comment
