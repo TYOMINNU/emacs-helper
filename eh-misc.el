@@ -46,11 +46,11 @@
 (global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
 (defun kid-sdcv-to-buffer ()
   (interactive)
-  (let ((point (point))
-        (string (if mark-active
+  (let ((string (if mark-active
                     (buffer-substring-no-properties (region-beginning) (region-end))
                   (current-word nil t))))
     (setq old-buffer (current-buffer))
+    (setq old-point (point))
     (setq word
           (if string string
             (read-string
@@ -72,6 +72,18 @@
            (unless (string= (buffer-name) "*sdcv*")
              (setq kid-sdcv-window-configuration (current-window-configuration))
              (switch-to-buffer-other-window "*sdcv*")
+             (goto-char 1)
+             (while (search-forward-regexp "\\(-->.*\\)" nil t)
+               (replace-match "" t nil))
+             (goto-char 1)
+             (while (search-forward-regexp "\\(^int\\)\. *\\|\\(^n\\)\. *\\|\\(^vt\\)\. *\\|\\(^v\\)\. *\\|\\(^prep\\)\. *" nil t)
+               (replace-match "" nil t))
+             (goto-char 1)
+             (while (search-forward-regexp "\\(\\[.*\\]\\)" nil t)
+               (replace-match "" nil t))
+             (goto-char 1)
+             (while (search-forward-regexp "\n\\{3,\\}" nil t)
+               (replace-match "\n\n" nil t))
              (local-set-key (kbd "d") 'kid-sdcv-to-buffer)
              (local-set-key (kbd "i") (lambda ()
                                          (interactive)
@@ -82,6 +94,7 @@
                                                      (region-end))
                                                   (current-word nil t))))
                                            (set-buffer (get-buffer-create old-buffer))
+                                           (goto-char old-point)
                                            (insert (concat "(" sdcv-word ")")))))
              (local-set-key (kbd "n") 'next-line)
              (local-set-key (kbd "j") 'next-line)
