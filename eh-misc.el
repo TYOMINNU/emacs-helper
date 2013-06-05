@@ -46,16 +46,21 @@
 (global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
 (defun kid-sdcv-to-buffer ()
   (interactive)
-  (let ((word (if mark-active
-                  (buffer-substring-no-properties (region-beginning) (region-end))
-                (current-word nil t))))
-    (setq word (read-string (format "查字典 (默认 %s): " word)
-                            nil nil word))
+  (let ((point (point))
+        (string (if mark-active
+                    (buffer-substring-no-properties (region-beginning) (region-end))
+                  (current-word nil t))))
+    (setq old-buffer (current-buffer))
+    (setq word
+          (if string string
+            (read-string
+             (format "查字典 (默认 %s): " string)
+             nil nil nil)))
     (set-buffer (get-buffer-create "*sdcv*"))
     (buffer-disable-undo)
     (erase-buffer)
-                                        ; 在没有创建 *sdcv* windows 之前检查是否有分屏(是否为一个window)
-                                        ; 缺憾就是不能自动开出一个小屏幕，自己注销
+    ;; 在没有创建 *sdcv* windows 之前检查是否有分屏(是否为一个window)
+    ;; 缺憾就是不能自动开出一个小屏幕，自己注销
     (if (null (cdr (window-list)))
         (setq onewindow t)
       (setq onewindow nil))
@@ -68,6 +73,16 @@
              (setq kid-sdcv-window-configuration (current-window-configuration))
              (switch-to-buffer-other-window "*sdcv*")
              (local-set-key (kbd "d") 'kid-sdcv-to-buffer)
+             (local-set-key (kbd "i") (lambda ()
+                                         (interactive)
+                                         (let ((sdcv-word 
+                                                (if mark-active
+                                                    (buffer-substring-no-properties 
+                                                     (region-beginning)
+                                                     (region-end))
+                                                  (current-word nil t))))
+                                           (set-buffer (get-buffer-create old-buffer))
+                                           (insert (concat "(" sdcv-word ")")))))
              (local-set-key (kbd "n") 'next-line)
              (local-set-key (kbd "j") 'next-line)
              (local-set-key (kbd "p") 'previous-line)
