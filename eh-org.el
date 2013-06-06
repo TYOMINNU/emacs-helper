@@ -115,7 +115,7 @@
 
 (add-to-list 'org-latex-classes
              '("ctexart"
-               "\\documentclass{ctexart}"
+               "\\documentclass[nofonts,UTF8,a4paper,cs4size]{ctexart}"
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -123,7 +123,7 @@
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 (add-to-list 'org-latex-classes
              '("ctexrep"
-               "\\documentclass{ctexrep}"
+               "\\documentclass[nofonts,UTF8,a4paper,cs4size]{ctexrep}"
                ("\\part{%s}" . "\\part*{%s}")
                ("\\chapter{%s}" . "\\chapter*{%s}")
                ("\\section{%s}" . "\\section*{%s}")
@@ -131,7 +131,7 @@
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 (add-to-list 'org-latex-classes
              '("ctexbook"
-               "\\documentclass{ctexbook}"
+               "\\documentclass[nofonts,UTF8,a4paper,cs4size]{ctexbook}"
                ("\\part{%s}" . "\\part*{%s}")
                ("\\chapter{%s}" . "\\chapter*{%s}")
                ("\\section{%s}" . "\\section*{%s}")
