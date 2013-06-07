@@ -145,9 +145,9 @@
 
 (setq  org-latex-packages-alist
        '("
-\\setCJKmainfont[ItalicFont={AR PL UKai CN}]{AR PL UMing CN}% 文鼎宋体和楷书
-\\setCJKsansfont{WenQuanYi Zen Hei}% 文泉驿的黑体
-\\setCJKmonofont{WenQuanYi Zen Hei}
+\\setCJKmainfont[ItalicFont={KaiTi_GB2312}]{SimSun}% 文鼎宋体和楷书
+\\setCJKsansfont{WenQuanYi Micro Hei}% 文泉驿的黑体
+\\setCJKmonofont{WenQuanYi Micro Hei}
 \\usepackage{tikz}
 "))
 
