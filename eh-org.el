@@ -143,6 +143,24 @@
                \\usepackage{ctex}"
                org-beamer-sectioning))
 
+;; org不建议自定义这个变量，但"inputenc" and "fontenc"两个宏包似乎和
+;; xelatex有冲突，如果使用xelatex的话，这个变量还得重新定义！
+(setq  org-latex-default-packages-alist
+  '((""     "fixltx2e"  nil)
+    (""     "graphicx"  t)
+    (""     "longtable" nil)
+    (""     "float"     nil)
+    (""     "wrapfig"   nil)
+    (""     "soul"      t)
+    (""     "textcomp"  t)
+    (""     "marvosym"  t)
+    (""     "wasysym"   t)
+    (""     "latexsym"  t)
+    (""     "amssymb"   t)
+    (""     "amstext"   nil)
+    (""     "hyperref"  nil)
+    "\\tolerance=1000"))
+
 (setq  org-latex-packages-alist
        '("
 \\setCJKmainfont[ItalicFont={KaiTi_GB2312}]{SimSun}% 文鼎宋体和楷书
