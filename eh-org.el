@@ -115,7 +115,7 @@
 
 (add-to-list 'org-latex-classes
              '("ctexart"
-               "\\documentclass[nofonts,UTF8,a4paper,cs4size]{ctexart}"
+               "\\documentclass[fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -123,7 +123,7 @@
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 (add-to-list 'org-latex-classes
              '("ctexrep"
-               "\\documentclass[nofonts,UTF8,a4paper,cs4size]{ctexrep}"
+               "\\documentclass[fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
                ("\\part{%s}" . "\\part*{%s}")
                ("\\chapter{%s}" . "\\chapter*{%s}")
                ("\\section{%s}" . "\\section*{%s}")
@@ -131,7 +131,7 @@
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 (add-to-list 'org-latex-classes
              '("ctexbook"
-               "\\documentclass[nofonts,UTF8,a4paper,cs4size]{ctexbook}"
+               "\\documentclass[fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
                ("\\part{%s}" . "\\part*{%s}")
                ("\\chapter{%s}" . "\\chapter*{%s}")
                ("\\section{%s}" . "\\section*{%s}")
@@ -140,7 +140,7 @@
 (add-to-list 'org-latex-classes
              '("beamer"
                "\\documentclass{beamer}
-               \\usepackage{ctex}"
+               \\usepackage[fntef,nofonts]{ctex}"
                org-beamer-sectioning))
 
 ;; org不建议自定义这个变量，但"inputenc" and "fontenc"两个宏包似乎和
@@ -167,7 +167,19 @@
 \\setCJKsansfont{WenQuanYi Micro Hei}% 文泉驿的黑体
 \\setCJKmonofont{WenQuanYi Micro Hei}
 \\usepackage{tikz}
+\\usepackage{ulem}
 "))
+
+
+;; 中文下划线使用\CJKunderline效果比较好,
+;; 这个命令需要CJKfntef宏包，如果使用ctex，可以添加fntef选项
+(setq org-latex-text-markup-alist 
+      '((bold . "\\textbf{%s}")
+        (code . verb)
+        (italic . "\\emph{%s}")
+        (strike-through . "\\sout{%s}")
+        (underline . "\\uline{%s}")
+        (verbatim . protectedtexttt)))
 
 ;; latex公式预览
 
