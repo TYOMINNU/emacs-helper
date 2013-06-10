@@ -113,6 +113,7 @@
                                  "xelatex -interaction nonstopmode -output-directory %o %f"))
 
 
+(setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
              '("ctexart"
                "\\documentclass[fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
