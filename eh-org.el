@@ -112,38 +112,6 @@
                                  "xelatex -interaction nonstopmode -output-directory %o %f" 
                                  "xelatex -interaction nonstopmode -output-directory %o %f"))
 
-
-(setq org-latex-default-class "ctexart")
-(add-to-list 'org-latex-classes
-             '("ctexart"
-               "\\documentclass[twoside,fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-               ("\\paragraph{%s}" . "\\paragraph*{%s}")
-               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-(add-to-list 'org-latex-classes
-             '("ctexrep"
-               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
-               ("\\part{%s}" . "\\part*{%s}")
-               ("\\chapter{%s}" . "\\chapter*{%s}")
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-(add-to-list 'org-latex-classes
-             '("ctexbook"
-               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
-               ("\\part{%s}" . "\\part*{%s}")
-               ("\\chapter{%s}" . "\\chapter*{%s}")
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-(add-to-list 'org-latex-classes
-             '("beamer"
-               "\\documentclass{beamer}
-               \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
-               org-beamer-sectioning))
-
 ;; org不建议自定义这个变量，但"inputenc" and "fontenc"两个宏包似乎和
 ;; xelatex有冲突，如果使用xelatex的话，这个变量还得重新定义！
 (setq  org-latex-default-packages-alist
@@ -164,17 +132,24 @@
 
 (setq  org-latex-packages-alist
        '("
-\\setCJKmainfont[ItalicFont={KaiTi_GB2312}]{SimSun}% 文鼎宋体和楷书
-\\setCJKsansfont{WenQuanYi Micro Hei}% 文泉驿的黑体
-\\setCJKmonofont{WenQuanYi Micro Hei}
+%% 默认使用的latex宏包
+\\usepackage[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctex}
 \\usepackage{tikz}
 \\usepackage{ulem}
 \\usepackage{amsmath,amsfonts,amsthm}
 \\usepackage{graphicx}
 \\usepackage{multicol}
 
+%% 设置中文字体
+\\setCJKmainfont[ItalicFont={KaiTi_GB2312}]{SimSun}% 文鼎宋体和楷书
+\\setCJKsansfont{WenQuanYi Micro Hei}% 文泉驿的黑体
+\\setCJKmonofont{WenQuanYi Micro Hei}
+
+%% 设置页面边距
 %\\usepackage[top=1.55cm, bottom=2.29cm, left=1.6cm, right=1.47cm]{geometry} % 
 \\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} % 
+
+%% 设置段落与段落，段落与标题之间的间隔
 \\setlength{\\parindent}{0pt}		% indentation on new paragraph
 \\setlength{\\parskip}{0pt}		% vertical spacing on new paragraph
 \\setlength{\\lineskip}{1pt}		% vertical spacing between lines
@@ -182,6 +157,12 @@
 \\setlength{\\belowcaptionskip}{0pt}	% spacing below captions
 \\setlength{\\abovecaptionskip}{5pt}	% spacong above captions
 
+%% ctex相关设置
+\\CTEXsetup[name={第,章},number={\\chinese{chapter}}]{chapter}
+\\CTEXsetup[name={第,节}]{section}
+\\CTEXsetup[name={第,部分}]{part}
+
+%% 设置页眉页脚
 \\pagestyle{fancy}
 \\fancyhead{} % clear all fields
 \\fancyhead[CO]{河北联合大学硕士论文}
@@ -208,13 +189,15 @@
 (setq org-format-latex-options
       (plist-put org-format-latex-options :scale 1.2))
 
-(setq org-format-latex-header "\\documentclass{ctexart}
+(setq org-format-latex-header "\\documentclass{article}
+\\usepackage[fancyhdr,fntef,nofonts]{ctex}
 \\usepackage[usenames]{color}
 \\usepackage{amsmath}
 \\usepackage[mathscr]{eucal}
 \\pagestyle{empty}             % do not remove
 \[PACKAGES]
 \[DEFAULT-PACKAGES]
+\\pagestyle{empty}             % do not remove too
 % The settings below are copied from fullpage.sty
 \\setlength{\\textwidth}{\\paperwidth}
 \\addtolength{\\textwidth}{-3cm}
