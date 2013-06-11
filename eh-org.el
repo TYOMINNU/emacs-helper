@@ -133,10 +133,10 @@
 (setq  org-latex-packages-alist
        '("
 %%% 默认使用的latex宏包 %%%
-\\usepackage[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctex}
+\\usepackage[fancyhdr,fntef,nofonts,UTF8]{ctex}
 \\usepackage{tikz}
-\\usepackage{ulem}
-\\usepackage{amsmath,amsfonts,amsthm}
+\\usepackage{CJKulem}
+%\\usepackage{amsmath,amsfonts,amsthm}
 \\usepackage{graphicx}
 \\usepackage{multicol}
 \\usepackage{titlesec}
