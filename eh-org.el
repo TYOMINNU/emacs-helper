@@ -116,7 +116,7 @@
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
              '("ctexart"
-               "\\documentclass[fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
+               "\\documentclass[twoside,fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -124,7 +124,7 @@
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 (add-to-list 'org-latex-classes
              '("ctexrep"
-               "\\documentclass[fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
                ("\\part{%s}" . "\\part*{%s}")
                ("\\chapter{%s}" . "\\chapter*{%s}")
                ("\\section{%s}" . "\\section*{%s}")
@@ -132,7 +132,7 @@
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 (add-to-list 'org-latex-classes
              '("ctexbook"
-               "\\documentclass[fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
                ("\\part{%s}" . "\\part*{%s}")
                ("\\chapter{%s}" . "\\chapter*{%s}")
                ("\\section{%s}" . "\\section*{%s}")
@@ -141,7 +141,7 @@
 (add-to-list 'org-latex-classes
              '("beamer"
                "\\documentclass{beamer}
-               \\usepackage[fntef,nofonts]{ctex}"
+               \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
                org-beamer-sectioning))
 
 ;; org不建议自定义这个变量，但"inputenc" and "fontenc"两个宏包似乎和
@@ -169,6 +169,26 @@
 \\setCJKmonofont{WenQuanYi Micro Hei}
 \\usepackage{tikz}
 \\usepackage{ulem}
+\\usepackage{amsmath,amsfonts,amsthm}
+\\usepackage{graphicx}
+\\usepackage{multicol}
+
+%\\usepackage[top=1.55cm, bottom=2.29cm, left=1.6cm, right=1.47cm]{geometry} % 
+\\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} % 
+\\setlength{\\parindent}{0pt}		% indentation on new paragraph
+\\setlength{\\parskip}{0pt}		% vertical spacing on new paragraph
+\\setlength{\\lineskip}{1pt}		% vertical spacing between lines
+\\setlength{\\columnsep}{1cm}		% spacing between columns
+\\setlength{\\belowcaptionskip}{0pt}	% spacing below captions
+\\setlength{\\abovecaptionskip}{5pt}	% spacong above captions
+
+\\pagestyle{fancy}
+\\fancyhead{} % clear all fields
+\\fancyhead[CO]{河北联合大学硕士论文}
+\\fancyhead[CE]{\\leftmark}
+\\fancyfoot[CO,CE]{-~\\thepage~-}
+\\renewcommand{\\headrulewidth}{0.4pt}
+\\renewcommand{\\footrulewidth}{0pt}
 "))
 
 
