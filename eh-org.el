@@ -132,24 +132,26 @@
 
 (setq  org-latex-packages-alist
        '("
-%% 默认使用的latex宏包
+%%% 默认使用的latex宏包 %%%
 \\usepackage[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctex}
 \\usepackage{tikz}
 \\usepackage{ulem}
 \\usepackage{amsmath,amsfonts,amsthm}
 \\usepackage{graphicx}
 \\usepackage{multicol}
+\\usepackage{titlesec}
 
-%% 设置中文字体
+%%% 设置中文字体 %%%
 \\setCJKmainfont[ItalicFont={KaiTi_GB2312}]{SimSun}% 文鼎宋体和楷书
 \\setCJKsansfont{WenQuanYi Micro Hei}% 文泉驿的黑体
 \\setCJKmonofont{WenQuanYi Micro Hei}
 
-%% 设置页面边距
+%%% 设置页面边距 %%%
 %\\usepackage[top=1.55cm, bottom=2.29cm, left=1.6cm, right=1.47cm]{geometry} % 
 \\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} % 
 
-%% 设置段落与段落，段落与标题之间的间隔
+
+%%% 设置段落与段落，段落与标题之间的间隔 %%%
 \\setlength{\\parindent}{0pt}		% indentation on new paragraph
 \\setlength{\\parskip}{0pt}		% vertical spacing on new paragraph
 \\setlength{\\lineskip}{1pt}		% vertical spacing between lines
@@ -157,12 +159,13 @@
 \\setlength{\\belowcaptionskip}{0pt}	% spacing below captions
 \\setlength{\\abovecaptionskip}{5pt}	% spacong above captions
 
-%% ctex相关设置
-\\CTEXsetup[name={第,章},number={\\chinese{chapter}}]{chapter}
-\\CTEXsetup[name={第,节}]{section}
-\\CTEXsetup[name={第,部分}]{part}
+%%% 章节相关设置 %%%
+\\titleformat{\\chapter}{\\centering\\Huge\\bfseries}{第\\,\\thechapter\\,章}{1em}{}
+\\titleformat{\\section}{\\centering\\Large\\bfseries}{\\thesection}{1em}{}
+\\titleformat{\\subsection}{\\large\\bfseries}{\\thesubsection}{1em}{}
 
-%% 设置页眉页脚
+
+%%% 设置页眉页脚 %%%
 \\pagestyle{fancy}
 \\fancyhead{} % clear all fields
 \\fancyhead[CO]{河北联合大学硕士论文}
