@@ -31,15 +31,6 @@
 
 ;;; Code:
 
-;; helm模式
-(require 'helm-config)
-(require 'ac-helm)
-
-;; ido-mode 适合和 helm-mode 冲突，关闭它。
-(ido-mode nil)
-(helm-mode t)
-
-
 ;; 打开auto-complete-mode模式
 (require 'auto-complete)
 (require 'auto-complete-config)

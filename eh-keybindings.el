@@ -46,16 +46,9 @@
 ;; 设置键盘绑定,使用Ctrl-c k激活browese-kill-ring函数
 (global-set-key (kbd "C-c k") 'browse-kill-ring)
 
-;; Helm
-(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-(define-key helm-map (kbd "C-u") 'helm-select-action)
-;; (global-set-key (kbd "C-x C-b") 'ido-display-buffer)
-(global-set-key (kbd "C-x C-b") 'helm-mini)
-(global-set-key (kbd "C-x b") 'ibuffer)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-x f") 'helm-recentf)
-(global-set-key (kbd "C-c <SPC>") 'helm-all-mark-rings)
-(global-set-key (kbd "M-x") 'helm-M-x)
+
+(global-set-key (kbd "C-x C-b") 'ido-display-buffer)
+
 
 
 ;; 设置键盘绑定,使用Meta-w激活eh-kill-ring-save
