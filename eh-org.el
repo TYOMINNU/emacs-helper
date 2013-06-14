@@ -112,24 +112,6 @@
                                  "xelatex -interaction nonstopmode -output-directory %o %f" 
                                  "xelatex -interaction nonstopmode -output-directory %o %f"))
 
-;; org不建议自定义这个变量，但"inputenc" and "fontenc"两个宏包似乎和
-;; xelatex有冲突，如果使用xelatex的话，这个变量还得重新定义！
-(setq  org-latex-default-packages-alist
-  '((""     "fixltx2e"  nil)
-    (""     "graphicx"  t)
-    (""     "longtable" nil)
-    (""     "float"     nil)
-    (""     "wrapfig"   nil)
-    (""     "soul"      t)
-    (""     "textcomp"  t)
-    (""     "marvosym"  t)
-    (""     "wasysym"   t)
-    (""     "latexsym"  t)
-    (""     "amssymb"   t)
-    (""     "amstext"   nil)
-    (""     "hyperref"  nil)
-    "\\tolerance=1000"))
-
 (setq  org-latex-packages-alist
        '("
 %%% 默认使用的latex宏包 %%%
@@ -176,15 +158,6 @@
 "))
 
 
-;; 中文下划线使用\CJKunderline效果比较好,
-;; 这个命令需要CJKfntef宏包，如果使用ctex，可以添加fntef选项
-(setq org-latex-text-markup-alist 
-      '((bold . "\\textbf{%s}")
-        (code . verb)
-        (italic . "\\emph{%s}")
-        (strike-through . "\\sout{%s}")
-        (underline . "\\uline{%s}")
-        (verbatim . protectedtexttt)))
 
 ;; latex公式预览
 
