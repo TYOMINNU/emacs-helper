@@ -112,6 +112,39 @@
                                  "xelatex -interaction nonstopmode -output-directory %o %f" 
                                  "xelatex -interaction nonstopmode -output-directory %o %f"))
 
+
+(setq org-latex-default-class "ctexart")
+(add-to-list 'org-latex-classes
+             '("ctexart"
+               "\\documentclass[twoside,fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+(add-to-list 'org-latex-classes
+             '("ctexrep"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
+               ("\\part{%s}" . "\\part*{%s}")
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+(add-to-list 'org-latex-classes
+             '("ctexbook"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
+               ("\\part{%s}" . "\\part*{%s}")
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+(add-to-list 'org-latex-classes
+             '("beamer"
+               "\\documentclass{beamer}
+               \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
+               org-beamer-sectioning))
+
+
 (setq  org-latex-packages-alist
        '("
 %%% 默认使用的latex宏包 %%%
