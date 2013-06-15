@@ -113,6 +113,29 @@
                                  "xelatex -interaction nonstopmode -output-directory %o %f"))
 
 
+
+(defun org-latex-derived-class (class class-options template-class)
+  "build  a new `org-latex-class item with exist item's information"
+  (let* ((template-class
+          (if (stringp template-class)
+              template-class "article"))
+         (template-class-header
+          (nth 1 (assoc template-class org-latex-classes)))
+         (template-class-rest
+          (cdr (cdr (assoc template-class org-latex-classes))))
+         (class-header-tmp
+          (and (stringp template-class-header)
+               (if (stringp class-options)
+                   (replace-regexp-in-string
+                    "^[ \t]*\\\\documentclass\\(\\(\\[[^]]*\\]\\)?\\)"
+                    class-options template-class-header t nil 1)
+                 template-class-header)))
+         (class-header
+          (replace-regexp-in-string
+           "^[ \t]*\\\\documentclass\\[[^]]*\\]?{\\(.*\\)}"
+           class class-header-tmp t nil 1)))
+    (append (list class) (list class-header) template-class-rest)))
+
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
              '("ctexart"
