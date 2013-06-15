@@ -189,7 +189,6 @@
 (setq  org-latex-packages-alist
        '("
 %%% 默认使用的latex宏包 %%%
-\\usepackage[fancyhdr,fntef,nofonts,UTF8]{ctex}
 \\usepackage{tikz}
 \\usepackage{CJKulem}
 %\\usepackage{amsmath,amsfonts,amsthm}
@@ -248,8 +247,7 @@
 (setq org-format-latex-options
       (plist-put org-format-latex-options :scale 1.2))
 
-(setq org-format-latex-header "\\documentclass{article}
-\\usepackage[fancyhdr,fntef,nofonts]{ctex}
+(setq org-format-latex-header "\\documentclass{ctexart}
 \\usepackage[usenames]{color}
 \\usepackage{amsmath}
 \\usepackage[mathscr]{eucal}
