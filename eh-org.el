@@ -139,7 +139,7 @@
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
              '("ctexart"
-               "\\documentclass[twoside,fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
