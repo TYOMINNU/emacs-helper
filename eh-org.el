@@ -312,7 +312,10 @@
            (if (or (not desc) 
                    (equal 0 (search "rtcite:" desc)))
                (format "\\cite{%s}" search)
-             (format "\\cite[%s]{%s}" desc search))))))
+             ;; 在中国\cite使用可选参数的情况似乎不太常见
+             ;; (format "\\cite[%s]{%s}" desc search)
+             (format "\\cite{%s}" search)
+             )))))
 
 (org-add-link-type "rtcite" 
                    'org-bibtex-open
