@@ -269,6 +269,55 @@
 \\setlength{\\topmargin}{1.5cm}
 \\addtolength{\\topmargin}{-2.54cm}")
 
+
+;; org-mode和reftex的集成,添加下面的配置到org文件头。
+;; #+LINK: bib rtcite:./filename.bib::%s
+;; #+LINK: note rtcite:./filename.org::#%s
+;; # \bibliography{./filename.bib}
+
+
+(defun eh-org-mode-reftex-setup ()
+  (load-library "reftex")
+  (and (buffer-file-name) (file-exists-p (buffer-file-name))
+       (progn
+         ; enable auto-revert-mode to update reftex when bibtex file changes on disk
+	 (global-auto-revert-mode t)
+	 (reftex-parse-all)
+         ; add a custom reftex cite format to insert links
+	 (reftex-set-cite-format
+	  '((?b . "[[bib:%l][%l-bib]]")
+            (?c . "\\cite{%l}")
+	    (?n . "[[notes:%l][%l-notes]]")
+	    (?p . "[[papers:%l][%l-paper]]")
+	    (?t . "%t")
+	    (?h . "** %t\n:PROPERTIES:\n:Custom_ID: %l\n:END:\n[[papers:%l][%l-paper]]")))))
+  (define-key org-mode-map (kbd "C-c )") 'reftex-citation)
+  (define-key org-mode-map (kbd "C-c (") 'eh-org-mode-reftex-search))
+
+(add-hook 'org-mode-hook 'eh-org-mode-reftex-setup)
+
+(defun eh-org-mode-reftex-search ()
+  ;;jump to the notes for the paper pointed to at from reftex search
+  (interactive)
+  (org-open-link-from-string (format "[[notes:%s]]" (reftex-citation t))))
+
+
+;; 自定义org-mode链接类型: "rtcite" , 这个链接在导出为latex时转化成\cite{...}
+(defun eh-reftex-cite-export-handler (path desc format)
+  (message "eh-reftex-cite-export-handler is called : path = %s, desc = %s, format = %s" path desc format)
+  (let* ((search (when (string-match "::#?\\(.+\\)\\'" path)
+                   (match-string 1 path)))
+         (path (substring path 0 (match-beginning 0))))
+    (cond ((eq format 'latex)
+           (if (or (not desc) 
+                   (equal 0 (search "rtcite:" desc)))
+               (format "\\cite{%s}" search)
+             (format "\\cite[%s]{%s}" desc search))))))
+
+(org-add-link-type "rtcite" 
+                   'org-bibtex-open
+                   'eh-reftex-cite-export-handler)
+
 ;; org-mode global keybindings
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-cc" 'org-capture)
