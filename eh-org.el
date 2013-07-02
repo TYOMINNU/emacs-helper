@@ -281,6 +281,18 @@
 \\addtolength{\\topmargin}{-2.54cm}")
 
 
+;; 如果一个标题包含TAG: “ignoreheading” ,导出latex时直接忽略这个标题，
+;; 但对它的内容没有影响，这个可以使用在这种情况下：
+;; * 摘要
+;; #+LATEX: \abstract{摘\quad要}
+
+(defadvice org-latex-headline (around my-latex-skip-headlines
+                                      (headline contents info) activate)
+  (if (member "ignoreheading" (org-element-property :tags headline))
+      (setq ad-return-value contents)
+    ad-do-it))
+
+
 ;; org-mode和reftex的集成,添加下面的配置到org文件头。
 ;; #+LINK: bib rtcite:./filename.bib::%s
 ;; #+LINK: note rtcite:./filename.org::#%s
