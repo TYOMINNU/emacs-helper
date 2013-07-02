@@ -167,6 +167,17 @@
                \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
                org-beamer-sectioning))
 
+(add-to-list 'org-latex-classes
+             '("hbuuthesis"
+               "\\documentclass[unicode]{hbuuthesis}
+ [DEFAULT-PACKAGES]
+ [NO-PACKAGES]
+ [EXTRA]"
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+
 ;; org不建议自定义这个变量，但"inputenc" and "fontenc"两个宏包似乎和
 ;; xelatex有冲突，如果使用xelatex的话，这个变量还得重新定义！
 (setq  org-latex-default-packages-alist
