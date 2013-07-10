@@ -47,6 +47,7 @@
 (require 'org-protocol)
 (require 'org-screenshot)
 (require 'ob-R)
+(require 'ox-bibtex)
 
 (setq org-export-backends
       '(ascii beamer html latex md odt deck rss s5))
@@ -83,17 +84,17 @@
 
 ;; use Cairo graphics device by default,which can get better graphics quality.
 ;; you shoule add require("Cairo") to you ~/.Rprofile
-(setq org-babel-R-graphics-devices
-  '((:bmp "bmp" "filename")
-    (:jpg "jpeg" "filename")
-    (:jpeg "jpeg" "filename")
-    (:tikz "tikz" "file")
-    (:tiff "tiff" "filename")
-    (:png "CairoPNG" "filename")
-    (:svg "CairoSVG" "file")
-    (:pdf "CairoPDF" "file")
-    (:ps "CairoPS" "file")
-    (:postscript "postscript" "file")))
+;; (setq org-babel-R-graphics-devices
+;;   '((:bmp "bmp" "filename")
+;;     (:jpg "jpeg" "filename")
+;;     (:jpeg "jpeg" "filename")
+;;     (:tikz "tikz" "file")
+;;     (:tiff "tiff" "filename")
+;;     (:png "CairoPNG" "filename")
+;;     (:svg "CairoSVG" "file")
+;;     (:pdf "CairoPDF" "file")
+;;     (:ps "CairoPS" "file")
+;;     (:postscript "postscript" "file")))
 
 ;;export
 (setq org-default-language "zh-CN")
@@ -267,8 +268,7 @@
 
 
 ;; org-mode和reftex的集成,添加下面的配置到org文件头。
-;; #+LINK: bib rtcite:./filename.bib::%s
-;; #+LINK: note rtcite:./filename.org::#%s
+;; #+LINK: bib cite:%s
 ;; # \bibliography{./filename.bib}
 
 
@@ -281,41 +281,15 @@
 	 (reftex-parse-all)
          ; add a custom reftex cite format to insert links
 	 (reftex-set-cite-format
-	  '((?b . "[[bib:%l][%l-bib]]")
+	  '((?b . "[[cite:%l]]")
             (?c . "\\cite{%l}")
 	    (?n . "[[notes:%l][%l-notes]]")
 	    (?p . "[[papers:%l][%l-paper]]")
 	    (?t . "%t")
 	    (?h . "** %t\n:PROPERTIES:\n:Custom_ID: %l\n:END:\n[[papers:%l][%l-paper]]")))))
-  (define-key org-mode-map (kbd "C-c )") 'reftex-citation)
-  (define-key org-mode-map (kbd "C-c (") 'eh-org-mode-reftex-search))
+  (define-key org-mode-map (kbd "C-c )") 'reftex-citation))
 
 (add-hook 'org-mode-hook 'eh-org-mode-reftex-setup)
-
-(defun eh-org-mode-reftex-search ()
-  ;;jump to the notes for the paper pointed to at from reftex search
-  (interactive)
-  (org-open-link-from-string (format "[[notes:%s]]" (reftex-citation t))))
-
-
-;; 自定义org-mode链接类型: "rtcite" , 这个链接在导出为latex时转化成\cite{...}
-(defun eh-reftex-cite-export-handler (path desc format)
-  (message "eh-reftex-cite-export-handler is called : path = %s, desc = %s, format = %s" path desc format)
-  (let* ((search (when (string-match "::#?\\(.+\\)\\'" path)
-                   (match-string 1 path)))
-         (path (substring path 0 (match-beginning 0))))
-    (cond ((eq format 'latex)
-           (if (or (not desc) 
-                   (equal 0 (search "rtcite:" desc)))
-               (format "\\cite{%s}" search)
-             ;; 在中国\cite使用可选参数的情况似乎不太常见
-             ;; (format "\\cite[%s]{%s}" desc search)
-             (format "\\cite{%s}" search)
-             )))))
-
-(org-add-link-type "rtcite" 
-                   'org-bibtex-open
-                   'eh-reftex-cite-export-handler)
 
 ;; org-mode global keybindings
 (global-set-key "\C-cl" 'org-store-link)
