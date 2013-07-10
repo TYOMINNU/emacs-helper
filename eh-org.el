@@ -283,13 +283,17 @@
 	 (reftex-set-cite-format
 	  '((?b . "[[cite:%l]]")
             (?c . "\\cite{%l}")
-	    (?n . "[[notes:%l][%l-notes]]")
-	    (?p . "[[papers:%l][%l-paper]]")
-	    (?t . "%t")
-	    (?h . "** %t\n:PROPERTIES:\n:Custom_ID: %l\n:END:\n[[papers:%l][%l-paper]]")))))
+	    (?t . "%t")))))
   (define-key org-mode-map (kbd "C-c )") 'reftex-citation))
 
 (add-hook 'org-mode-hook 'eh-org-mode-reftex-setup)
+
+(defun eh-bibtex-open (key)
+  "Get bibfile from \\bibliography{...} and open it with function `org-open-file'"
+  (let* ((path (car (reftex-get-bibfile-list))))
+    (org-open-file path t nil key)))
+
+(org-add-link-type "cite" 'eh-bibtex-open)
 
 ;; org-mode global keybindings
 (global-set-key "\C-cl" 'org-store-link)
