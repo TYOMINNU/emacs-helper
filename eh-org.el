@@ -96,8 +96,8 @@
 ;;     (:ps "CairoPS" "file")
 ;;     (:postscript "postscript" "file")))
 
-;;export
-(setq org-default-language "zh-CN")
+;; Export language
+(setq org-export-default-language "zh-CN")
 
 ;; html
 (setq org-html-coding-system 'utf-8)
@@ -105,37 +105,12 @@
 (setq org-html-head-include-scripts nil)
 
 ;; latex
-(setq org-latex-coding-system 'utf-8)
-(setq org-latex-date-format "%Y-%m-%d")
-(setq org-export-with-LaTeX-fragments 'imagemagick)
 (setq org-latex-create-formula-image-program 'imagemagick)
 (setq org-latex-pdf-process '("xelatex -interaction nonstopmode -output-directory %o %f" 
                                  "xelatex -interaction nonstopmode -output-directory %o %f" 
                                  "xelatex -interaction nonstopmode -output-directory %o %f"))
 
 
-
-(defun org-latex-derived-class (class class-options template-class)
-  "build  a new `org-latex-class item with exist item's information"
-  (let* ((template-class
-          (if (stringp template-class)
-              template-class "article"))
-         (template-class-header
-          (nth 1 (assoc template-class org-latex-classes)))
-         (template-class-rest
-          (cdr (cdr (assoc template-class org-latex-classes))))
-         (class-header-tmp
-          (and (stringp template-class-header)
-               (if (stringp class-options)
-                   (replace-regexp-in-string
-                    "^[ \t]*\\\\documentclass\\(\\(\\[[^]]*\\]\\)?\\)"
-                    class-options template-class-header t nil 1)
-                 template-class-header)))
-         (class-header
-          (replace-regexp-in-string
-           "^[ \t]*\\\\documentclass\\[[^]]*\\]?{\\(.*\\)}"
-           class class-header-tmp t nil 1)))
-    (append (list class) (list class-header) template-class-rest)))
 
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
@@ -179,23 +154,15 @@
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 
-;; org不建议自定义这个变量，但"inputenc" and "fontenc"两个宏包似乎和
-;; xelatex有冲突，如果使用xelatex的话，这个变量还得重新定义！
-(setq  org-latex-default-packages-alist
-  '((""     "fixltx2e"  nil)
-    (""     "graphicx"  t)
-    (""     "longtable" nil)
-    (""     "float"     nil)
-    (""     "wrapfig"   nil)
-    (""     "soul"      t)
-    (""     "textcomp"  t)
-    (""     "marvosym"  t)
-    (""     "wasysym"   t)
-    (""     "latexsym"  t)
-    (""     "amssymb"   t)
-    (""     "amstext"   nil)
-    (""     "hyperref"  nil)
-    "\\tolerance=1000"))
+
+;; org不建议自定义org-latex-default-package-alist变量，但"inputenc" and "fontenc"两个宏包似乎和
+;; xelatex有冲突，调整默认值！
+(setcar (rassoc '("wasysym" t)
+                org-latex-default-packages-alist) "nointegrals")
+(setf org-latex-default-packages-alist
+      (remove '("AUTO" "inputenc" t) org-latex-default-packages-alist))
+(setf org-latex-default-packages-alist
+      (remove '("T1" "fontenc" t) org-latex-default-packages-alist))
 
 
 (setq  org-latex-packages-alist
@@ -215,45 +182,13 @@
 \\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} % 
 "))
 
-
-;; 中文下划线使用\CJKunderline效果比较好,
-;; 这个命令需要CJKfntef宏包，如果使用ctex，可以添加fntef选项
-(setq org-latex-text-markup-alist 
-      '((bold . "\\textbf{%s}")
-        (code . verb)
-        (italic . "\\emph{%s}")
-        (strike-through . "\\sout{%s}")
-        (underline . "\\uline{%s}")
-        (verbatim . protectedtexttt)))
-
 ;; latex公式预览
 
-;; 设置默认缩放比例为1.2.
-(setq org-format-latex-options
-      (plist-put org-format-latex-options :scale 1.2))
-
-(setq org-format-latex-header "\\documentclass{ctexart}
-\\usepackage[usenames]{color}
-\\usepackage{amsmath}
-\\usepackage[mathscr]{eucal}
-\\pagestyle{empty}             % do not remove
-\[PACKAGES]
-\[DEFAULT-PACKAGES]
-\\pagestyle{empty}             % do not remove too
-% The settings below are copied from fullpage.sty
-\\setlength{\\textwidth}{\\paperwidth}
-\\addtolength{\\textwidth}{-3cm}
-\\setlength{\\oddsidemargin}{1.5cm}
-\\addtolength{\\oddsidemargin}{-2.54cm}
-\\setlength{\\evensidemargin}{\\oddsidemargin}
-\\setlength{\\textheight}{\\paperheight}
-\\addtolength{\\textheight}{-\\headheight}
-\\addtolength{\\textheight}{-\\headsep}
-\\addtolength{\\textheight}{-\\footskip}
-\\addtolength{\\textheight}{-3cm}
-\\setlength{\\topmargin}{1.5cm}
-\\addtolength{\\topmargin}{-2.54cm}")
-
+;; 调整latex预览时使用的header
+(setq org-format-latex-header
+      (replace-regexp-in-string 
+       "\\\\documentclass{.*}" "\\\\documentclass{ctexart}"
+       org-format-latex-header))
 
 ;; 如果一个标题包含TAG: “ignoreheading” ,导出latex时直接忽略这个标题，
 ;; 但对它的内容没有影响，这个可以使用在这种情况下：
