@@ -107,8 +107,8 @@
 ;; latex
 (setq org-latex-create-formula-image-program 'imagemagick)
 (setq org-latex-pdf-process '("xelatex -interaction nonstopmode -output-directory %o %f" 
-                                 "xelatex -interaction nonstopmode -output-directory %o %f" 
-                                 "xelatex -interaction nonstopmode -output-directory %o %f"))
+                              "xelatex -interaction nonstopmode -output-directory %o %f" 
+                              "xelatex -interaction nonstopmode -output-directory %o %f"))
 
 
 
@@ -157,13 +157,12 @@
 
 ;; org不建议自定义org-latex-default-package-alist变量，但"inputenc" and "fontenc"两个宏包似乎和
 ;; xelatex有冲突，调整默认值！
-(setcar (rassoc '("wasysym" t)
-                org-latex-default-packages-alist) "nointegrals")
 (setf org-latex-default-packages-alist
       (remove '("AUTO" "inputenc" t) org-latex-default-packages-alist))
 (setf org-latex-default-packages-alist
       (remove '("T1" "fontenc" t) org-latex-default-packages-alist))
-
+(setcar (rassoc '("wasysym" t)
+                org-latex-default-packages-alist) "nointegrals")
 
 (setq  org-latex-packages-alist
        '("
@@ -184,10 +183,11 @@
 
 ;; latex公式预览
 
-;; 调整latex预览时使用的header
+;; 调整latex预览时使用的header,默认使用ctexart类
 (setq org-format-latex-header
       (replace-regexp-in-string 
-       "\\\\documentclass{.*}" "\\\\documentclass{ctexart}"
+       "\\\\documentclass{.*}" 
+       "\\\\documentclass{ctexart}"
        org-format-latex-header))
 
 ;; 如果一个标题包含TAG: “ignoreheading” ,导出latex时直接忽略这个标题，
@@ -203,8 +203,7 @@
 
 
 ;; org-mode和reftex的集成,添加下面的配置到org文件头。
-;; #+LINK: bib cite:%s
-;; # \bibliography{./filename.bib}
+;; # \bibliography{bibfilename}
 
 
 (defun eh-org-mode-reftex-setup ()
@@ -212,14 +211,14 @@
   (and (buffer-file-name) (file-exists-p (buffer-file-name))
        (progn
          ; enable auto-revert-mode to update reftex when bibtex file changes on disk
-	 (global-auto-revert-mode t)
+ 	 (global-auto-revert-mode t)
 	 (reftex-parse-all)
          ; add a custom reftex cite format to insert links
 	 (reftex-set-cite-format
 	  '((?b . "[[cite:%l]]")
             (?c . "\\cite{%l}")
 	    (?t . "%t")))))
-  (define-key org-mode-map (kbd "C-c )") 'reftex-citation))
+  (define-key org-mode-map (kbd "C-c (") 'reftex-citation))
 
 (add-hook 'org-mode-hook 'eh-org-mode-reftex-setup)
 
@@ -229,12 +228,6 @@
     (org-open-file path t nil key)))
 
 (org-add-link-type "cite" 'eh-bibtex-open)
-
-;; org-mode global keybindings
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cb" 'org-iswitchb)
 
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)
