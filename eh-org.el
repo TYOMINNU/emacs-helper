@@ -161,12 +161,15 @@
       (remove '("AUTO" "inputenc" t) org-latex-default-packages-alist))
 (setf org-latex-default-packages-alist
       (remove '("T1" "fontenc" t) org-latex-default-packages-alist))
+(setf org-latex-default-packages-alist
+      (remove '("normalem" "ulem" t) org-latex-default-packages-alist))
 (setcar (rassoc '("wasysym" t)
                 org-latex-default-packages-alist) "nointegrals")
 
 (setq  org-latex-packages-alist
        '("
 %%% 默认使用的latex宏包 %%%
+\\usepackage{xeCJK}
 \\usepackage{tikz}
 \\usepackage{CJKulem}
 \\usepackage{graphicx}
@@ -177,18 +180,16 @@
 \\setCJKmonofont{WenQuanYi Micro Hei}
 
 %%% 设置页面边距 %%%
-%\\usepackage[top=1.55cm, bottom=2.29cm, left=1.6cm, right=1.47cm]{geometry} % 
 \\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} % 
 "))
 
-;; latex公式预览
 
-;; 调整latex预览时使用的header,默认使用ctexart类
-(setq org-format-latex-header
-      (replace-regexp-in-string 
-       "\\\\documentclass{.*}" 
-       "\\\\documentclass{ctexart}"
-       org-format-latex-header))
+;; latex公式预览, 调整latex预览时使用的header,默认使用ctexart类
+;; (setq org-format-latex-header
+;;       (replace-regexp-in-string
+;;        "\\\\documentclass{.*}"
+;;        "\\\\documentclass{ctexart}"
+;;        org-format-latex-header))
 
 ;; 如果一个标题包含TAG: “ignoreheading” ,导出latex时直接忽略这个标题，
 ;; 但对它的内容没有影响，这个可以使用在这种情况下：
