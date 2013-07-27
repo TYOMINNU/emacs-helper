@@ -87,6 +87,7 @@
 (setq gnus-notifications-minimum-level 1)                  ;桌面提醒功能
 (setq gnus-notifications-use-google-contacts nil)
 (setq gnus-notifications-use-gravatar nil)
+(setq gnus-sort-threads-recursively nil)                   ;只对threads roots排序
 
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
