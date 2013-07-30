@@ -87,7 +87,6 @@
 (setq gnus-notifications-minimum-level 1)                  ;桌面提醒功能
 (setq gnus-notifications-use-google-contacts nil)
 (setq gnus-notifications-use-gravatar nil)
-(setq gnus-sort-threads-recursively nil)                   ;只对threads roots排序
 
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
@@ -414,10 +413,15 @@
  gnus-generate-tree-function 'gnus-generate-horizontal-tree             ;生成水平树
  gnus-summary-thread-gathering-function 'gnus-gather-threads-by-subject ;聚集函数根据标题聚集
  )
-;; 排序
+;; Thread root排序
 (setq gnus-thread-sort-functions
       '((not gnus-thread-sort-by-number)
         (not gnus-thread-sort-by-date)))
+
+;; Subthread排序
+(setq gnus-subthread-sort-functions
+      '(gnus-thread-sort-by-number
+        gnus-thread-sort-by-date))
 
 ;; 自动跳到第一个没有阅读的组
 (add-hook 'gnus-switch-on-after-hook 'gnus-group-first-unread-group) ;gnus切换时
