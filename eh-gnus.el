@@ -415,8 +415,8 @@
  )
 ;; Thread root排序
 (setq gnus-thread-sort-functions
-      '((not gnus-thread-sort-by-number)
-        (not gnus-thread-sort-by-date)))
+      '(gnus-thread-sort-by-most-recent-number
+        gnus-thread-sort-by-most-recent-date))
 
 ;; Subthread排序
 (setq gnus-subthread-sort-functions
