@@ -259,11 +259,30 @@
                                 "%I"
                                 "%2{%ud%}"
                                 "%ue"
+                                "%3{%uf%}"
                                 "\n"))
 
 (copy-face 'default 'eh-gnus-face-2)
 (set-face-foreground 'eh-gnus-face-2 "orange")
 (setq gnus-face-2 'eh-gnus-face-2)
+
+(defun eh-gnus-find-invisible-foreground ()
+  (let ((candidates (remove
+		     "unspecified-bg"
+		     (nconc
+		      (list (face-background 'default))
+		      (mapcar
+		       (lambda (alist)
+			 (when (boundp alist)
+			   (cdr (assoc 'background-color (symbol-value alist)))))
+		       '(default-frame-alist initial-frame-alist window-system-default-frame-alist))
+		      (list (face-foreground 'eh-gnus-face-3))))))
+    (car (remove nil candidates))))
+
+(copy-face 'default 'eh-gnus-face-3)
+(set-face-foreground 'eh-gnus-face-3 (eh-gnus-find-invisible-foreground))
+(setq gnus-face-3 'eh-gnus-face-3)
+
 
 ;; 显示箭头设置
 (defun gnus-user-format-function-a (header)
@@ -310,6 +329,14 @@
   (if (zerop gnus-tmp-level)
       "" "---->"))
 
+;; 显示隐藏Subject, 用于搜索
+(defun gnus-user-format-function-f (header)
+  (let ((date (mail-header-date header))
+        (subject (mail-header-subject header)))
+    (if (zerop gnus-tmp-level)
+        ""
+        subject)))
+
 
 ;; 设置user-date变量，自定义日期时间的显示格式
 ;; (setq gnus-user-date-format-alist
@@ -349,6 +376,7 @@
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
             (setq line-spacing 3)
+            (set-face-foreground 'eh-gnus-face-3 (eh-gnus-find-invisible-foreground))
             (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
             (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
             (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
