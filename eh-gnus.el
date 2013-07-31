@@ -378,6 +378,16 @@
             (setq line-spacing 3)
             (set-face-foreground 'eh-gnus-face-3 (eh-gnus-find-invisible-foreground))
             (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
+            (local-set-key (kbd "SPC") (lambda ()
+                                         (interactive)
+                                         (progn
+                                           (gnus-summary-next-page)
+                                           (move-beginning-of-line 1))))
+            (local-set-key (kbd "RET") (lambda ()
+                                         (interactive)
+                                         (progn
+                                           (gnus-summary-scroll-up 3)
+                                           (move-beginning-of-line 1))))
             (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
             (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
 ;; visual
