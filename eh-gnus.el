@@ -68,8 +68,8 @@
 ;; 存储设置
 (setq gnus-startup-file "~/Gnus/.newsrc")                  ;初始文件
 (setq gnus-init-file "~/Gnus/.gnus")                       ;.gnus位置
-(setq gnus-default-directory "~/Gnus/")                    ;默认目录
-(setq gnus-home-directory "~/Gnus/")                       ;主目录
+(setq gnus-default-directory nil)                          ;默认目录
+(setq gnus-home-directory "~/")                            ;主目录
 (setq gnus-dribble-directory "~/Gnus/")                    ;恢复目录
 (setq gnus-directory "~/Gnus/News/")                       ;新闻组的存储目录
 (setq gnus-article-save-directory "~/Gnus/News/")          ;文章保存目录
@@ -233,22 +233,6 @@
       '(To From))
 (setq nnmail-extra-headers gnus-extra-headers)
 (setq gnus-summary-gather-subject-limit 'fuzzy) ;聚集题目用模糊算法
-;; (setq gnus-summary-line-format (concat 
-;;                                 "%4P "
-;;                                 "%("
-;;                                 "%U%R%z  "
-;;                                 "%4&user-date;  "
-;;                                 "%-12,12n  "
-;;                                 "%B " 
-;;                                 "%I "
-;;                                 "%-50,50s "
-;;                                 "%)"
-;;                                 "\n"))
-
-;; (setq gnus-summary-make-false-root 'dummy)
-;; (setq gnus-summary-make-false-root-always nil)
-;; (setq gnus-summary-dummy-line-format "    |->%-62,62S\n")
-
 (setq gnus-summary-make-false-root 'adopt)
 (setq gnus-summary-line-format (concat 
                                 "%U%R |"
@@ -337,16 +321,6 @@
         ""
         subject)))
 
-
-;; 设置user-date变量，自定义日期时间的显示格式
-;; (setq gnus-user-date-format-alist
-;;       '(((gnus-seconds-today) . "今天%d号")
-;;         ((+ (* 24 3600)    (gnus-seconds-today)) . "昨天%d号") 
-;;         ((+ (* 2  24 3600) (gnus-seconds-today)) . "前天%d号")
-;;         ((gnus-seconds-month) . "本月%d号")
-;;         ((gnus-seconds-year)  . "%m月%d号")
-;;         (t . "%y-%m-%d")))
-
 (setq gnus-user-date-format-alist
       '(((gnus-seconds-today) . "%H:%M")
         ((+ (* 24 3600)    (gnus-seconds-today)) . "YD   ")
@@ -375,19 +349,22 @@
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)              ;新闻组分组
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
+            ;; summary buffer行距设置
             (setq line-spacing 3)
+            ;; 设置一个face,用来隐藏不需要显示的文字
             (set-face-foreground 'eh-gnus-face-3 (eh-gnus-find-invisible-foreground))
-            (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
+            ;; summary buffer不显示右fringe
+            (set-fringe-style  '(nil . 0))
+            ;; 重新定义键盘绑定
             (local-set-key (kbd "SPC") (lambda ()
                                          (interactive)
-                                         (progn
-                                           (gnus-summary-next-page)
-                                           (move-beginning-of-line 1))))
+                                         (gnus-summary-next-page)
+                                         (move-beginning-of-line 1)))
             (local-set-key (kbd "RET") (lambda ()
                                          (interactive)
-                                         (progn
-                                           (gnus-summary-scroll-up 3)
-                                           (move-beginning-of-line 1))))
+                                         (gnus-summary-scroll-up 3)
+                                         (move-beginning-of-line 1)))
+            (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
             (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
             (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
 ;; visual
