@@ -311,7 +311,7 @@
 ;; 显示箭头设置
 (defun gnus-user-format-function-e (header)
   (if (zerop gnus-tmp-level)
-      "" "---->"))
+      "" "----> "))
 
 ;; 显示隐藏Subject, 用于搜索
 (defun gnus-user-format-function-f (header)
