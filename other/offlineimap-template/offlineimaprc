@@ -16,11 +16,12 @@ holdconnectionopen = yes
 type = IMAP
 remotehost = imap.gmail.com
 remoteuser = USERNAME@gmail.com
-# 安装包python-keyring,然后使用下的命令保存密码。
+# 方法1: 使用明文密码
+# remotepass = YOURPASSWORD
+# 方法二: 使用加密密码； 安装包python-keyring,然后使用下的命令保存密码。
 # import keyring
-# keyring.set_password("imap.gmail.com","username@host.net", "MYPASSWORD")
-remotepasseval = keyring.get_password("imap.gmail.com","USERNAME@gmail.com")
-# remotepass = yourpasswd
+# keyring.set_password("imap.gmail.com","USERNAME@gmail.com", "YOURPASSWORD")
+# remotepasseval = keyring.get_password("imap.gmail.com","USERNAME@gmail.com")
 ssl = yes
 cert_fingerprint=f3043dd689a2e7dddfbef82703a6c65ea9b634c1 
 maxconnections = 3
