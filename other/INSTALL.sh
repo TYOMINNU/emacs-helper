@@ -2,6 +2,7 @@
 
 USERNAME="$(id -u -n)"
 MSMTP_CONFIG=$HOME/.msmtprc
+ISYNC_CONFIG=$HOME/.mbsyncrc
 OFFLINEIMAP_CONFIG=$HOME/.offlineimaprc
 OFFLINEIMAP_PYCONFIG=$HOME/.offlineimap.py
 OFFLINEIMAP_HElPER_DIR=$HOME/.offlineimap_helper
@@ -13,21 +14,31 @@ OFFLINEIMAP_CRON="*/5 * * * * . $OFFLINEIMAP_BASHPROFILE; exec $OFFLINEIMAP_STAR
 # offlineimap configure template
 if [ -f "$OFFLINEIMAP_CONFIG" ]
 then
+    echo "$OFFLINEIMAP_CONFIG exist, do nothing!"
+else
     cp offlineimap-template/offlineimaprc   $OFFLINEIMAP_CONFIG
     cp offlineimap-template/offlineimap.py  $OFFLINEIMAP_PYCONFIG
     chmod 600 $OFFLINEIMAP_CONFIG
     chmod 600 $OFFLINEIMAP_PYCONFIG
-else
-    echo "$OFFLINEIMAP_CONFIG exist, do nothing!"
+
 fi
 
 # msmtp configure template
 if [ -f "$MSMTP_CONFIG" ]
 then
+    echo "$MSMTP_CONFIG exist, do nothing!"
+else
     cp msmtp-template/msmtprc               $MSMTP_CONFIG
     chmod 600 $MSMTP_CONFIG
+fi
+
+# isync configure template
+if [ -f "$ISYNC_CONFIG" ]
+then
+    echo "$ISYNC_CONFIG exist, do nothing!"
 else
-    echo "$MSMTP_CONFIG exist, do nothing!"
+    cp isync-template/mbsyncrc               $ISYNC_CONFIG
+    chmod 600 $ISYNC_CONFIG
 fi
 
 # offlineimap helper
