@@ -23,7 +23,8 @@ remoteuser = USERNAME@gmail.com
 # keyring.set_password("imap.gmail.com","USERNAME@gmail.com", "YOURPASSWORD")
 # remotepasseval = keyring.get_password("imap.gmail.com","USERNAME@gmail.com")
 ssl = yes
-cert_fingerprint=f3043dd689a2e7dddfbef82703a6c65ea9b634c1 
+# You should install package: ca-certificates.
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
 maxconnections = 3
 realdelete = no
 # holdconnectionopen = true

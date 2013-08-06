@@ -59,4 +59,4 @@ if ! crontab -l | grep "offlineimap"  > /dev/null; then
 fi
 
 echo "Install offlineimap configure template success!"
-echo "Please edit ~/.offlineimaprc and ~/.offlineimap.py"
+echo "Please edit: ~/.msmtprc , ~/mbsyncrc , ~/.offlineimaprc and  ~/.offlineimap.py"
