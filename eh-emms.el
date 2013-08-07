@@ -36,6 +36,7 @@
 (emms-default-players)
 
 (setq emms-source-file-default-directory "~/Music")
+(setq emms-playlist-buffer-name "*Music*")
 
 (setq emms-playlist-default-major-mode 'emms-playlist-mode)
 (add-to-list 'emms-track-initialize-functions 'emms-info-initialize-track)
@@ -44,14 +45,9 @@
 (when (fboundp 'emms-cache)
   (emms-cache 1))
 
-(setq emms-player-list
-      '(emms-player-mpg321
-        emms-player-ogg123
-        emms-player-mplayer))
-
 (setq emms-info-asynchronously nil)
 
-;; use faster finding facility if you have GNU find
+;; Use faster finding facility if you have "GNU find"
 (setq emms-source-file-directory-tree-function
       'emms-source-file-directory-tree-find)
 
@@ -61,20 +57,41 @@
 ;; mode line format
 (setq emms-mode-line-format "[ %s "
       emms-playing-time-display-format "%s ]")
-
 (setq global-mode-string
       '("" emms-mode-line-string " " emms-playing-time-string))
 
+;; lyrics
+(emms-lyrics 1)
+(setq emms-lyrics-display-on-modeline t)
+
+(setq emms-last-played-format-alist
+      '(((emms-last-played-seconds-today) . "%H:%M")
+	(604800                           . "%H:%M")
+	((emms-last-played-seconds-month) . "%d")
+	((emms-last-played-seconds-year)  . "%m-%d")
+	(t                                . "%Y")))
+
 (defun eh-emms-info-track-description (track)
   "Return a description of the current track."
-  (let ((type (emms-track-type track)))
-    (cond ((eq 'file type)
-           (file-relative-name (emms-track-name track)
-                               emms-source-file-default-directory))
-          ((eq 'url type)
-           (emms-format-url-track-name (emms-track-name track)))
-          (t (concat (symbol-name type)
-                     ": " (emms-track-name track))))))
+  (let ((type (emms-track-type track))
+        (play-count (or (emms-track-get track 'play-count) 0))
+        (last-played (or (emms-track-get track 'last-played) '(0 0 0))))
+    (if (eq 'file type)
+        (format "%s %-5s |-> %s"
+                play-count
+                (emms-last-played-format-date last-played)
+                (if (and (emms-track-get track 'info-artist)
+                         (emms-track-get track 'info-title))
+                    (let ((pmin (emms-track-get track 'info-playing-time-min))
+                          (psec (emms-track-get track 'info-playing-time-sec))
+                          (ptot (emms-track-get track 'info-playing-time))
+                          (art  (emms-track-get track 'info-artist))
+                          (tit  (emms-track-get track 'info-title)))
+                      (cond ((and pmin psec) (format "%s -- %s [%02d:%02d]" art tit pmin psec))
+                            (ptot (format  "%s -- %s [%02d:%02d]" art tit (/ ptot 60) (% ptot 60)))
+                            (t (format "%s -- %s" art tit))))
+                  (file-relative-name (emms-track-name track)
+                                      emms-source-file-default-directory))))))
 
 (defun eh-emms ()
   "Switch to the current emms-playlist buffer, use
@@ -86,6 +103,42 @@ to add to the playlist."
       (emms-add-directory-tree emms-source-file-default-directory ))
   (emms-playlist-mode-go))
 
+;; Global keybinding for emms
+(global-unset-key (kbd "C-c e"))
+;; (global-set-key (kbd "H-x") 'emms-playlist-mode-go)
+(global-set-key (kbd "C-c e t") 'emms-play-directory-tree)
+(global-set-key (kbd "C-c e s") 'emms-start)
+(global-set-key (kbd "C-c e q") 'emms-stop)
+(global-set-key (kbd "C-c e n") 'emms-next)
+(global-set-key (kbd "C-c e p") 'emms-previous)
+(global-set-key (kbd "C-c e o") 'emms-show)
+(global-set-key (kbd "C-c e h") 'emms-shuffle)
+(global-set-key (kbd "C-c e e") 'emms-play-file)
+(global-set-key (kbd "C-c e f") 'emms-play-playlist)
+(global-set-key (kbd "C-c e SPC") 'emms-pause)
+(global-set-key (kbd "C-c e a") 'emms-add-directory-tree)
+
+(global-set-key (kbd "C-c e r")   'emms-toggle-repeat-track)
+(global-set-key (kbd "C-c e R")   'emms-toggle-repeat-playlist)
+
+(global-set-key (kbd "C-c e S u") 'emms-score-up-playing)
+(global-set-key (kbd "C-c e S d") 'emms-score-down-playing)
+(global-set-key (kbd "C-c e S o") 'emms-score-show-playing)
+;; playlist-mode-map
+(define-key emms-playlist-mode-map (kbd "SPC") 'emms-pause)
+(define-key emms-playlist-mode-map (kbd "+") 'emms-volume-raise)
+(define-key emms-playlist-mode-map (kbd "-") 'emms-volume-lower)
+(define-key emms-playlist-mode-map (kbd "<right>") (lambda () (interactive) (emms-seek +10)))
+(define-key emms-playlist-mode-map (kbd "<left>") (lambda () (interactive) (emms-seek -10)))
+(define-key emms-playlist-mode-map (kbd "<up>") (lambda () (interactive) (emms-seek +60)))
+(define-key emms-playlist-mode-map (kbd "<down>") (lambda () (interactive) (emms-seek -60)))
+(define-key emms-playlist-mode-map (kbd "S u") 'emms-score-up-file-on-line)
+(define-key emms-playlist-mode-map (kbd "S d") 'emms-score-down-file-on-line)
+(define-key emms-playlist-mode-map (kbd "S o") 'emms-score-show-file-on-line)
+(define-key emms-playlist-mode-map (kbd "S l") 'emms-score-less-tolerant)
+(define-key emms-playlist-mode-map (kbd "S m") 'emms-score-more-tolerant)
+(define-key emms-playlist-mode-map (kbd "S t") 'emms-score-set-tolerance)
+(define-key emms-playlist-mode-map (kbd "S s") 'emms-score-show-playing)
 
 ;; Local Variables:
 ;; coding: utf-8-unix
