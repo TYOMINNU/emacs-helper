@@ -48,14 +48,30 @@
 (setq emms-source-file-directory-tree-function
       'emms-source-file-directory-tree-find)
 
+;; Show playing track in the minibuffer
 (add-hook 'emms-player-started-hook 'emms-show)
-(setq emms-show-format "正在播放: %s")
+(setq emms-show-format "正在播放: [%s]")
 
-;; mode line format
-(setq emms-mode-line-format "[ %s "
-      emms-playing-time-display-format "%s ]")
+;; Mode-line format
+(setq emms-mode-line-format "%s")
+(setq emms-playing-time-display-format "%s ]")
 (setq global-mode-string
-      '("" emms-mode-line-string " " emms-playing-time-string))
+      '(" " emms-mode-line-string " " emms-playing-time-string " "))
+(setq emms-mode-line-mode-line-function
+      'eh-emms-mode-line-playlist-current)
+
+(defun eh-emms-mode-line-playlist-current ()
+  "Format the currently playing."
+  (let ((track (emms-playlist-current-selected-track)))
+    (if (eq 'file (emms-track-type track))
+        (if (and (emms-track-get track 'info-artist)
+                 (emms-track-get track 'info-title))
+            (let ((art  (emms-track-get track 'info-artist))
+                  (tit  (emms-track-get track 'info-title)))
+              (format "[ %s -- %s" art tit))
+          (format "[ %s"
+                  (file-relative-name (emms-track-name track)
+                                      emms-source-file-default-directory))))))
 
 ;; lyrics
 (emms-lyrics 1)
@@ -74,9 +90,9 @@
         (play-count (or (emms-track-get track 'play-count) 0))
         (last-played (or (emms-track-get track 'last-played) '(0 0 0))))
     (if (eq 'file type)
-        (format "%s %-5s |-> %s"
-                play-count
+        (format "%5s %3s |-> %-s"
                 (emms-last-played-format-date last-played)
+                play-count
                 (if (and (emms-track-get track 'info-artist)
                          (emms-track-get track 'info-title))
                     (let ((pmin (emms-track-get track 'info-playing-time-min))
@@ -87,8 +103,9 @@
                       (cond ((and pmin psec) (format "%s -- %s [%02d:%02d]" art tit pmin psec))
                             (ptot (format  "%s -- %s [%02d:%02d]" art tit (/ ptot 60) (% ptot 60)))
                             (t (format "%s -- %s" art tit))))
-                  (file-relative-name (emms-track-name track)
-                                      emms-source-file-default-directory))))))
+                  (replace-regexp-in-string "\\([^\\.]\\)/.*/" "\\1/.../"
+                   (file-relative-name (emms-track-name track)
+                                       emms-source-file-default-directory)))))))
 
 (defun eh-emms ()
   "Switch to the current emms-playlist buffer, use
@@ -147,10 +164,10 @@ to add to the playlist."
 (define-key emms-playlist-mode-map (kbd "/") 'eh-emms-search)
 (define-key emms-playlist-mode-map (kbd "+") 'emms-volume-raise)
 (define-key emms-playlist-mode-map (kbd "-") 'emms-volume-lower)
-(define-key emms-playlist-mode-map (kbd "<right>") (lambda () (interactive) (emms-seek +10)))
-(define-key emms-playlist-mode-map (kbd "<left>") (lambda () (interactive) (emms-seek -10)))
-(define-key emms-playlist-mode-map (kbd "<up>") (lambda () (interactive) (emms-seek +60)))
-(define-key emms-playlist-mode-map (kbd "<down>") (lambda () (interactive) (emms-seek -60)))
+(define-key emms-playlist-mode-map (kbd "C-<right>") (lambda () (interactive) (emms-seek +10)))
+(define-key emms-playlist-mode-map (kbd "C-<left>") (lambda () (interactive) (emms-seek -10)))
+(define-key emms-playlist-mode-map (kbd "C-<right>") (lambda () (interactive) (emms-seek +60)))
+(define-key emms-playlist-mode-map (kbd "C-<left>") (lambda () (interactive) (emms-seek -60)))
 (define-key emms-playlist-mode-map (kbd "S u") 'emms-score-up-file-on-line)
 (define-key emms-playlist-mode-map (kbd "S d") 'emms-score-down-file-on-line)
 (define-key emms-playlist-mode-map (kbd "S o") 'emms-score-show-file-on-line)
