@@ -34,6 +34,7 @@
 (require 'emms-setup)
 (emms-devel)
 (emms-default-players)
+(when (fboundp 'emms-cache) (emms-cache 1))
 
 (setq emms-source-file-default-directory "~/Music")
 (setq emms-playlist-buffer-name "*Music*")
@@ -41,10 +42,6 @@
 (setq emms-playlist-default-major-mode 'emms-playlist-mode)
 (add-to-list 'emms-track-initialize-functions 'emms-info-initialize-track)
 (setq emms-track-description-function 'eh-emms-info-track-description)
-
-(when (fboundp 'emms-cache)
-  (emms-cache 1))
-
 (setq emms-info-asynchronously nil)
 
 ;; Use faster finding facility if you have "GNU find"
@@ -105,25 +102,30 @@ to add to the playlist."
 
 ;; Global keybinding for emms
 (global-unset-key (kbd "C-c e"))
-;; (global-set-key (kbd "H-x") 'emms-playlist-mode-go)
-(global-set-key (kbd "C-c e t") 'emms-play-directory-tree)
-(global-set-key (kbd "C-c e s") 'emms-start)
+(global-set-key (kbd "C-c e e") 'eh-emms)
+(global-set-key (kbd "C-c e f") 'emms-play-file)
+(global-set-key (kbd "C-c e l") 'emms-play-playlist)
+(global-set-key (kbd "C-c e d") 'emms-play-directory-tree)
+
+(global-set-key (kbd "C-c e a") 'emms-add-directory-tree)
+
+(global-set-key (kbd "C-c e RET") 'emms-start)
 (global-set-key (kbd "C-c e q") 'emms-stop)
+(global-set-key (kbd "C-c e SPC") 'emms-pause)
+
 (global-set-key (kbd "C-c e n") 'emms-next)
 (global-set-key (kbd "C-c e p") 'emms-previous)
 (global-set-key (kbd "C-c e o") 'emms-show)
+
 (global-set-key (kbd "C-c e h") 'emms-shuffle)
-(global-set-key (kbd "C-c e e") 'emms-play-file)
-(global-set-key (kbd "C-c e f") 'emms-play-playlist)
-(global-set-key (kbd "C-c e SPC") 'emms-pause)
-(global-set-key (kbd "C-c e a") 'emms-add-directory-tree)
 
 (global-set-key (kbd "C-c e r")   'emms-toggle-repeat-track)
 (global-set-key (kbd "C-c e R")   'emms-toggle-repeat-playlist)
 
-(global-set-key (kbd "C-c e S u") 'emms-score-up-playing)
-(global-set-key (kbd "C-c e S d") 'emms-score-down-playing)
-(global-set-key (kbd "C-c e S o") 'emms-score-show-playing)
+(global-set-key (kbd "C-c e s u") 'emms-score-up-playing)
+(global-set-key (kbd "C-c e s d") 'emms-score-down-playing)
+(global-set-key (kbd "C-c e s o") 'emms-score-show-playing)
+
 ;; playlist-mode-map
 (define-key emms-playlist-mode-map (kbd "SPC") 'emms-pause)
 (define-key emms-playlist-mode-map (kbd "+") 'emms-volume-raise)
