@@ -100,18 +100,34 @@ to add to the playlist."
       (emms-add-directory-tree emms-source-file-default-directory ))
   (emms-playlist-mode-go))
 
+(defun eh-emms-toggle-playing ()
+  (interactive)
+  (if emms-player-playing-p
+      (emms-pause)
+    (emms-start)))
+
+(defun eh-emms-add-directory ()
+  (interactive)
+  (call-interactively 'emms-add-directory-tree)
+  (emms-playlist-mode-go))
+
+(defun eh-emms-search ()
+  (interactive)
+  (goto-char (point-min))
+  (call-interactively 'isearch-forward))
+
 ;; Global keybinding for emms
 (global-unset-key (kbd "C-c e"))
-(global-set-key (kbd "C-c e e") 'eh-emms)
+(global-set-key (kbd "C-c e x") 'eh-emms)
 (global-set-key (kbd "C-c e f") 'emms-play-file)
 (global-set-key (kbd "C-c e l") 'emms-play-playlist)
 (global-set-key (kbd "C-c e d") 'emms-play-directory-tree)
 
-(global-set-key (kbd "C-c e a") 'emms-add-directory-tree)
+(global-set-key (kbd "C-c e a") 'eh-emms-add-directory)
 
-(global-set-key (kbd "C-c e RET") 'emms-start)
+(global-set-key (kbd "C-c e e") 'eh-emms-toggle-playing)
 (global-set-key (kbd "C-c e q") 'emms-stop)
-(global-set-key (kbd "C-c e SPC") 'emms-pause)
+
 
 (global-set-key (kbd "C-c e n") 'emms-next)
 (global-set-key (kbd "C-c e p") 'emms-previous)
@@ -128,6 +144,7 @@ to add to the playlist."
 
 ;; playlist-mode-map
 (define-key emms-playlist-mode-map (kbd "SPC") 'emms-pause)
+(define-key emms-playlist-mode-map (kbd "/") 'eh-emms-search)
 (define-key emms-playlist-mode-map (kbd "+") 'emms-volume-raise)
 (define-key emms-playlist-mode-map (kbd "-") 'emms-volume-lower)
 (define-key emms-playlist-mode-map (kbd "<right>") (lambda () (interactive) (emms-seek +10)))
