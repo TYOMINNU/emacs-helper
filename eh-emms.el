@@ -31,6 +31,7 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+(require 'dired)
 (require 'emms-setup)
 (emms-devel)
 (emms-default-players)
@@ -107,50 +108,55 @@
                    (file-relative-name (emms-track-name track)
                                        emms-source-file-default-directory)))))))
 
-(defun eh-emms ()
-  "Switch to the current emms-playlist buffer, use
-emms-playlist-mode and query for a directory tree
-to add to the playlist."
-  (interactive)
-  (if (or (null emms-playlist-buffer)
-	  (not (buffer-live-p emms-playlist-buffer)))
-      (emms-add-directory-tree emms-source-file-default-directory ))
-  (emms-playlist-mode-go))
-
 (defun eh-emms-toggle-playing ()
   (interactive)
   (if emms-player-playing-p
       (emms-pause)
     (emms-start)))
 
-(defun eh-emms-add-directory ()
+(defun eh-emms-add-dired ()
   (interactive)
-  (call-interactively 'emms-add-directory-tree)
-  (emms-playlist-mode-go))
+  (let ((buffer-dired (dired-noselect emms-source-file-default-directory)))
+    (if (eq major-mode 'dired-mode)
+      (progn
+        (emms-add-dired)
+        (emms-playlist-mode-go)
+        (kill-buffer buffer-dired))
+      (switch-to-buffer buffer-dired))))
 
 (defun eh-emms-search ()
   (interactive)
   (goto-char (point-min))
   (call-interactively 'isearch-forward))
 
+(defun eh-emms ()
+  (interactive)
+  (if (or (null emms-playlist-buffer)
+	  (not (buffer-live-p emms-playlist-buffer)))
+      (eh-emms-add-dired))
+  (emms-playlist-mode-go))
+
 ;; Global keybinding for emms
 (global-unset-key (kbd "C-c e"))
 (global-set-key (kbd "C-c e x") 'eh-emms)
-(global-set-key (kbd "C-c e f") 'emms-play-file)
-(global-set-key (kbd "C-c e l") 'emms-play-playlist)
-(global-set-key (kbd "C-c e d") 'emms-play-directory-tree)
+(global-set-key (kbd "C-c e d") 'eh-emms-add-dired)
+(global-set-key (kbd "C-c e f") 'emms-add-file)
+(global-set-key (kbd "C-c e l") 'emms-add-playlist)
+(global-set-key (kbd "C-c e a") 'emms-add-directory-tree)
 
-(global-set-key (kbd "C-c e a") 'eh-emms-add-directory)
+(global-set-key (kbd "C-c e F") 'emms-play-file)
+(global-set-key (kbd "C-c e L") 'emms-play-playlist)
+(global-set-key (kbd "C-c e A") 'emms-play-directory-tree)
 
 (global-set-key (kbd "C-c e e") 'eh-emms-toggle-playing)
 (global-set-key (kbd "C-c e q") 'emms-stop)
-
 
 (global-set-key (kbd "C-c e n") 'emms-next)
 (global-set-key (kbd "C-c e p") 'emms-previous)
 (global-set-key (kbd "C-c e o") 'emms-show)
 
 (global-set-key (kbd "C-c e h") 'emms-shuffle)
+(global-set-key (kbd "C-c e H") 'emms-sort)
 
 (global-set-key (kbd "C-c e r")   'emms-toggle-repeat-track)
 (global-set-key (kbd "C-c e R")   'emms-toggle-repeat-playlist)
