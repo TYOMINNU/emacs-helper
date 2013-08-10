@@ -176,14 +176,48 @@
 
 ;; 设置 emms buffer 显示格式
 (setq emms-browser-info-artist-format "* %n")
-(setq emms-browser-info-album-format  "   `-> %n")
-(setq emms-browser-info-title-format  "        %n")
-(setq emms-browser-playlist-info-artist-format
-      emms-browser-info-artist-format)
-(setq emms-browser-playlist-info-album-format
-      emms-browser-info-album-format)
-(setq emms-browser-playlist-info-title-format
-      emms-browser-info-title-format)
+(setq emms-browser-info-title-format  "  %n")
+(setq emms-browser-playlist-info-title-format " ... ... |-> %n")
+
+;; 更改已经存在的函数: 显示 artist->track
+;; 而不是 artist->album->track, 同时使变量:
+;; `emms-browser-info-album-format' 和
+;; `emms-browser-playlist-info-album-format'
+;; 失去作用。
+(defadvice emms-browser-next-mapping-type
+  (after no-album (current-mapping))
+  (when (eq ad-return-value 'info-album)
+    (setq ad-return-value 'info-title)))
+(ad-activate 'emms-browser-next-mapping-type)
+
+;; 更改已存在的函数: 不在playlist中插入artist行，
+;; 同时使title-format中"%i"，以及变量
+;; `emms-browser-playlist-info-artist-format' 失去作用。
+(defun emms-browser-playlist-insert-bdata (bdata starting-level)
+  "Add all tracks in BDATA to the playlist."
+  (let ((type (emms-browser-bdata-type bdata)))
+    ;; recurse or add tracks
+    (dolist (item (emms-browser-bdata-data bdata))
+      (if (not (eq type 'info-title))
+          (emms-browser-playlist-insert-bdata item starting-level)
+        (emms-browser-playlist-insert-track bdata)))))
+
+;; 更改已存在的函数: 如果音乐没有tag, 从目录名称中提取
+(defun emms-browser-make-name (entry type)
+  "Return a name for ENTRY, used for making a bdata object."
+  (let ((key (car entry))
+        (track (cadr entry))
+        artist title) ;; only the first track
+  (cond
+   ((eq type 'info-title)
+    (setq artist (eh-emms-track-get-artist track))
+    (setq title (eh-emms-track-get-title track))
+    (setq album (eh-emms-track-get-album track))
+    (if (not (and artist title))
+        key
+      (concat artist album " -- " title)))
+   (t key))))
+
 
 ;; 如果歌曲没有tag,在Emms browser中使用目录名代替
 (setq emms-browser-get-track-field-function
