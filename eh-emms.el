@@ -45,9 +45,6 @@
 (setq emms-stream-bookmarks-file "~/Music/emms/streams")
 (setq emms-score-file "~/Music/emms/scores")
 
-;;设置 emms buffer name
-(setq emms-playlist-buffer-name "*Music*")
-
 ;设定EMMS主模式为Playlist模式
 (setq emms-playlist-default-major-mode 'emms-playlist-mode)
 
@@ -103,7 +100,6 @@
 
 
 ;; 设置Playlist的显示方式
-(setq emms-track-description-function 'eh-emms-info-track-description)
 (setq emms-last-played-format-alist
       '(((emms-last-played-seconds-today) . "%H:%M")
 	(604800                           . "%H:%M")
@@ -140,9 +136,9 @@
         (file-name-nondirectory info)
         "")))
 
-(defun eh-emms-info-track-description (track)
+(defun eh-emms-make-track-description (track)
   "Return a description of the current track."
-  (let ((type (emms-track-type track))
+  (let ((track-type (emms-track-type track))
         (play-count (or (emms-track-get track 'play-count) 0))
         (last-played (or (emms-track-get track 'last-played) '(0 0 0)))
         (name (emms-track-name track))
@@ -152,13 +148,18 @@
         (title (eh-emms-track-get-title track))
         (artist (eh-emms-track-get-artist track))
         (album (eh-emms-track-get-album track)))
-    (if (eq 'file type)
+    (if (eq 'file track-type)
         (format "%5s %3s |-> %-s"
                 (emms-last-played-format-date last-played)
                 play-count
                 (cond ((and pmin psec) (format "%s %s -- %s [%02d:%02d]" artist album title pmin psec))
                       (ptot (format  "%s %s -- %s [%02d:%02d]" artist album title (/ ptot 60) (% ptot 60)))
                       (t (format "%s %s -- %s" artist album  title)))))))
+
+;; Hack: 使playlist from browser 和 playlist from file 对齐
+(setq emms-track-description-function
+      (lambda (track) (concat " " (eh-emms-make-track-description track))))
+
 
 ;;; 设置EMMS 浏览器
 ;; 默认显示方式为: 显示所有
@@ -177,7 +178,7 @@
 ;; 设置 emms buffer 显示格式
 (setq emms-browser-info-artist-format "* %n")
 (setq emms-browser-info-title-format  "  %n")
-(setq emms-browser-playlist-info-title-format " ... ... |-> %n")
+(setq emms-browser-playlist-info-title-format "%n")
 
 ;; 更改已经存在的函数: 显示 artist->track
 ;; 而不是 artist->album->track, 同时使变量:
@@ -202,20 +203,14 @@
           (emms-browser-playlist-insert-bdata item starting-level)
         (emms-browser-playlist-insert-track bdata)))))
 
-;; 更改已存在的函数: 如果音乐没有tag, 从目录名称中提取
+;; 更改已存在的函数: 使用`eh-emms-make-track-description‘函数生成name.
 (defun emms-browser-make-name (entry type)
   "Return a name for ENTRY, used for making a bdata object."
   (let ((key (car entry))
-        (track (cadr entry))
-        artist title) ;; only the first track
+        (track (cadr entry)))
   (cond
    ((eq type 'info-title)
-    (setq artist (eh-emms-track-get-artist track))
-    (setq title (eh-emms-track-get-title track))
-    (setq album (eh-emms-track-get-album track))
-    (if (not (and artist title))
-        key
-      (concat artist album " -- " title)))
+    (eh-emms-make-track-description track))
    (t key))))
 
 
@@ -272,7 +267,6 @@
 ;; Global keybinding for emms
 (global-unset-key (kbd "C-c e"))
 (global-set-key (kbd "C-c e e") 'eh-emms)
-(global-set-key (kbd "C-c e b") 'emms-smart-browse)
 (global-set-key (kbd "C-c e d") 'eh-emms-add-directory-tree)
 (global-set-key (kbd "C-c e f") 'eh-emms-add-file)
 
@@ -295,10 +289,19 @@
 
 ;; browser mode map
 (define-key emms-browser-mode-map (kbd "SPC") 'emms-browser-next-non-track)
+(define-key emms-browser-mode-map (kbd "<return>") (lambda ()
+                                                     (interactive)
+                                                     (emms-browser-add-tracks)
+                                                     (message "Add current track to playlist")))
 (define-key emms-browser-mode-map (kbd "C-SPC") 'emms-browser-next-non-track)
 (define-key emms-browser-mode-map (kbd "<tab>") 'emms-browser-toggle-subitems)
+(define-key emms-browser-mode-map (kbd "o") 'emms-playlist-mode-go)
+(define-key emms-browser-mode-map (kbd "w") 'emms-browser-show-LAST-WEEK)
+(define-key emms-browser-mode-map (kbd "a") 'emms-browser-show-EVERYTHING)
+(define-key emms-browser-mode-map (kbd "m") 'emms-browser-show-LAST-MONTH-NOT-PLAYED)
 
 ;; playlist-mode-map
+(define-key emms-playlist-mode-map (kbd "o") 'emms-browser-show-LAST-WEEK)
 (define-key emms-playlist-mode-map (kbd "SPC") 'emms-pause)
 (define-key emms-playlist-mode-map (kbd "/") 'eh-emms-search)
 (define-key emms-playlist-mode-map (kbd "+") 'emms-volume-raise)
