@@ -108,33 +108,35 @@
 	(t                                . "%Y")))
 
 (defun eh-emms-track-get-title (track)
-  (let ((name (emms-track-name track)))
-    (if (emms-track-get track 'info-title)
-        (emms-track-get track 'info-title)
+  (let ((name (emms-track-name track))
+        (title (emms-track-get track 'info-title)))
+    (if title title
       (file-name-nondirectory name))))
 
 (defun eh-emms-track-get-info (track)
   (let ((name-relative (file-relative-name
                         (emms-track-name track)
                         emms-source-file-default-directory)))
-    (if (emms-track-get track 'info-artist)
-        (emms-track-get track 'info-artist)
-      (if (file-name-directory name-relative)
-          (directory-file-name
-           (file-name-directory name-relative))
-        "未知"))))
+    (if (file-name-directory name-relative)
+        (directory-file-name
+         (file-name-directory name-relative))
+      "未知")))
 
 (defun eh-emms-track-get-artist (track)
-  (let ((info (eh-emms-track-get-info track)))
-    (if (file-name-directory info)
-        (directory-file-name (file-name-directory info))
-        info)))
+  (let ((info (eh-emms-track-get-info track))
+        (artist (emms-track-get track 'info-artist)))
+    (if artist artist
+      (if (file-name-directory info)
+          (directory-file-name (file-name-directory info))
+        info))))
 
 (defun eh-emms-track-get-album (track)
-  (let ((info (eh-emms-track-get-info track)))
+  (let ((info (eh-emms-track-get-info track))
+        (album (emms-track-get track 'info-album)))
+    (if album album
     (if (file-name-directory info)
         (file-name-nondirectory info)
-        "")))
+        ""))))
 
 (defun eh-emms-make-track-description (track)
   "Return a description of the current track."
