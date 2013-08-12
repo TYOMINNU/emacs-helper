@@ -158,9 +158,7 @@
                       (ptot (format  "%s %s -- %s [%02d:%02d]" artist album title (/ ptot 60) (% ptot 60)))
                       (t (format "%s %s -- %s" artist album  title)))))))
 
-;; Hack: 使playlist from browser 和 playlist from file 对齐
-(setq emms-track-description-function
-      (lambda (track) (concat " " (eh-emms-make-track-description track))))
+(setq emms-track-description-function 'eh-emms-make-track-description)
 
 
 ;;; 设置EMMS 浏览器
@@ -179,42 +177,45 @@
 
 ;; 设置 emms buffer 显示格式
 (setq emms-browser-info-artist-format "* %n")
-(setq emms-browser-info-title-format  "  %n")
+(setq emms-browser-info-album-format  "  - %n")
+(setq emms-browser-info-title-format  "    ♪. %n")
 (setq emms-browser-playlist-info-title-format "%n")
 
-;; 更改已经存在的函数: 显示 artist->track
-;; 而不是 artist->album->track, 同时使变量:
-;; `emms-browser-info-album-format' 和
-;; `emms-browser-playlist-info-album-format'
-;; 失去作用。
-(defadvice emms-browser-next-mapping-type
-  (after no-album (current-mapping))
-  (when (eq ad-return-value 'info-album)
-    (setq ad-return-value 'info-title)))
-(ad-activate 'emms-browser-next-mapping-type)
+;; 自定义emms-browser-add-tracks, 禁止在playlist文件中添加
+;; artist行 和 album行，同时使emacs-browser-playlist-*-*-format
+;; 中 "%i"位置符失效
+;;
+;; 注: emms-browser-playlist-info-artist-format
+;;     emms-browser-playlist-info-album-format
+;;     两个变量设置在这里不起作用
 
-;; 更改已存在的函数: 不在playlist中插入artist行，
-;; 同时使title-format中"%i"，以及变量
-;; `emms-browser-playlist-info-artist-format' 失去作用。
-(defun emms-browser-playlist-insert-bdata (bdata starting-level)
+(defun eh-emms-browser-add-tracks ()
+  "Add all tracks at point.
+Return the previous point-max before adding."
+  (interactive)
+  (let ((first-new-track (with-current-emms-playlist (point-max)))
+        (bdata (emms-browser-bdata-at-point)))
+    (eh-emms-browser-playlist-insert-bdata bdata)
+    (run-hook-with-args 'emms-browser-tracks-added-hook
+                        first-new-track)
+    first-new-track))
+
+(defun eh-emms-browser-playlist-insert-bdata (bdata)
   "Add all tracks in BDATA to the playlist."
   (let ((type (emms-browser-bdata-type bdata)))
     ;; recurse or add tracks
     (dolist (item (emms-browser-bdata-data bdata))
       (if (not (eq type 'info-title))
-          (emms-browser-playlist-insert-bdata item starting-level)
-        (emms-browser-playlist-insert-track bdata)))))
+          (eh-emms-browser-playlist-insert-bdata item)
+        (eh-emms-browser-playlist-insert-track bdata)))))
 
-;; 更改已存在的函数: 使用`eh-emms-make-track-description‘函数生成name.
-(defun emms-browser-make-name (entry type)
-  "Return a name for ENTRY, used for making a bdata object."
-  (let ((key (car entry))
-        (track (cadr entry)))
-  (cond
-   ((eq type 'info-title)
-    (eh-emms-make-track-description track))
-   (t key))))
-
+(defun eh-emms-browser-playlist-insert-track (bdata)
+  "Insert a track into the playlist buffer."
+  (let* ((track (car (emms-browser-bdata-data bdata)))
+         (name (eh-emms-make-track-description track)))
+    (with-current-emms-playlist
+      (goto-char (point-max))
+      (insert name "\n"))))
 
 ;; 如果歌曲没有tag,在Emms browser中使用目录名代替
 (setq emms-browser-get-track-field-function
@@ -228,7 +229,7 @@
       (case type
         ('info-artist artist)
         ('info-title  title)
-        ('info-album (if (eq album "") "misc" album))))))
+        ('info-album (if (eq album "") (concat "杂项(" artist ")") album))))))
 
 ;; 快捷函数
 (defun eh-emms-toggle-playing ()
@@ -293,7 +294,7 @@
 (define-key emms-browser-mode-map (kbd "SPC") 'emms-browser-next-non-track)
 (define-key emms-browser-mode-map (kbd "<return>") (lambda ()
                                                      (interactive)
-                                                     (emms-browser-add-tracks)
+                                                     (eh-emms-browser-add-tracks)
                                                      (message "Add current track to playlist")))
 (define-key emms-browser-mode-map (kbd "C-SPC") 'emms-browser-next-non-track)
 (define-key emms-browser-mode-map (kbd "<tab>") 'emms-browser-toggle-subitems)
