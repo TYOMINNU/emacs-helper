@@ -35,6 +35,7 @@
 (require 'emms-setup)
 (emms-devel)
 (emms-default-players)
+(require 'emms-info-libtag)
 (when (fboundp 'emms-cache) (emms-cache 1))
 
 ;; EMMS 目录
@@ -53,7 +54,7 @@
 
 ;; 设定音轨初始化信息
 (add-to-list 'emms-track-initialize-functions 'emms-info-initialize-track)
-(setq emms-track-description-function 'eh-emms-info-track-description)
+
 ;; 关闭EMMS信息异步模式
 (setq emms-info-asynchronously nil)
 
@@ -98,6 +99,8 @@
 (setq emms-lyrics-display-on-modeline t)
 
 
+;; Function used to format track
+(setq emms-track-description-function (lambda (track) (concat " " (eh-emms-make-track-description track))))
 
 ;; 设置Playlist的显示方式
 (setq emms-last-played-format-alist
@@ -106,37 +109,6 @@
 	((emms-last-played-seconds-month) . "%d")
 	((emms-last-played-seconds-year)  . "%m-%d")
 	(t                                . "%Y")))
-
-(defun eh-emms-track-get-title (track)
-  (let ((name (emms-track-name track))
-        (title (emms-track-get track 'info-title)))
-    (if title title
-      (file-name-nondirectory name))))
-
-(defun eh-emms-track-get-info (track)
-  (let ((name-relative (file-relative-name
-                        (emms-track-name track)
-                        emms-source-file-default-directory)))
-    (if (file-name-directory name-relative)
-        (directory-file-name
-         (file-name-directory name-relative))
-      "未知")))
-
-(defun eh-emms-track-get-artist (track)
-  (let ((info (eh-emms-track-get-info track))
-        (artist (emms-track-get track 'info-artist)))
-    (if artist artist
-      (if (file-name-directory info)
-          (directory-file-name (file-name-directory info))
-        info))))
-
-(defun eh-emms-track-get-album (track)
-  (let ((info (eh-emms-track-get-info track))
-        (album (emms-track-get track 'info-album)))
-    (if album album
-    (if (file-name-directory info)
-        (file-name-nondirectory info)
-        ""))))
 
 (defun eh-emms-make-track-description (track)
   "Return a description of the current track."
@@ -147,9 +119,9 @@
         (pmin (emms-track-get track 'info-playing-time-min))
         (psec (emms-track-get track 'info-playing-time-sec))
         (ptot (emms-track-get track 'info-playing-time))
-        (title (eh-emms-track-get-title track))
-        (artist (eh-emms-track-get-artist track))
-        (album (eh-emms-track-get-album track)))
+        (title (emms-track-get track 'info-title))
+        (artist (emms-track-get track 'info-artist))
+        (album (emms-track-get track 'info-album)))
     (if (eq 'file track-type)
         (format "%5s %3s |-> %-s"
                 (emms-last-played-format-date last-played)
@@ -158,8 +130,44 @@
                       (ptot (format  "%s %s -- %s [%02d:%02d]" artist album title (/ ptot 60) (% ptot 60)))
                       (t (format "%s %s -- %s" artist album  title)))))))
 
-(setq emms-track-description-function 'eh-emms-make-track-description)
 
+;; Function used to get music tags, for example IDv2.3!
+(setq emms-info-functions '(eh-emms-info-libtag))
+
+(defun eh-emms-info-libtag (track)
+  (when (and (eq 'file (emms-track-type track))
+             (string-match
+              "\\.\\([Mm][Pp]3\\|[oO][gG][gG]\\|[fF][lL][aA][cC]\\|[sS][pP][xX]\\)\\'"
+              (emms-track-name track)))
+    (let ((info-list
+           (split-string (file-relative-name
+                          (emms-track-name track)
+                          emms-source-file-default-directory) "/" t)))
+      (emms-track-set track 'info-artist (if (> (length info-list) 1) (nth 0 info-list) "未知艺术家"))
+      (emms-track-set track 'info-album  (if (> (length info-list) 2) (nth 1 info-list) "杂项"))
+      (emms-track-set track 'info-title (car (reverse info-list))))
+    (with-temp-buffer
+      (when (string= "0"
+             (format "%s" (let ((coding-system-for-read 'utf-8))
+                            (call-process emms-info-libtag-program-name
+                                          nil '(t nil) nil
+                                          (emms-track-name track)))))
+        (goto-char (point-min))
+        ;; Crush the trailing whitespace
+        (while (re-search-forward "[[:space:]]+$" nil t)
+          (replace-match "" nil nil))
+        (goto-char (point-min))
+        (while (looking-at "^\\([^=\n]+\\)=\\(.*\\)$")
+          (let ((name (intern-soft (match-string 1)))
+                (value (match-string 2)))
+            (when (> (length value)
+                     0)
+              (emms-track-set track
+                              name
+                              (if (eq name 'info-playing-time)
+                                  (string-to-number value)
+                                value))))
+          (forward-line 1))))))
 
 ;;; 设置EMMS 浏览器
 ;; 默认显示方式为: 显示所有
@@ -207,29 +215,18 @@ Return the previous point-max before adding."
     (dolist (item (emms-browser-bdata-data bdata))
       (if (not (eq type 'info-title))
           (eh-emms-browser-playlist-insert-bdata item)
-        (eh-emms-browser-playlist-insert-track bdata)))))
+        (emms-browser-playlist-insert-track bdata)))))
 
-(defun eh-emms-browser-playlist-insert-track (bdata)
-  "Insert a track into the playlist buffer."
-  (let* ((track (car (emms-browser-bdata-data bdata)))
-         (name (eh-emms-make-track-description track)))
-    (with-current-emms-playlist
-      (goto-char (point-max))
-      (insert name "\n"))))
-
-;; 如果歌曲没有tag,在Emms browser中使用目录名代替
-(setq emms-browser-get-track-field-function
-      'eh-emms-browser-get-track-field-simple)
-(defun eh-emms-browser-get-track-field-simple (track type)
-  (let ((title (eh-emms-track-get-title track))
-        (artist (eh-emms-track-get-artist track))
-        (album (eh-emms-track-get-album track)))
-    (if (emms-track-get track type)
-        (emms-track-get track type)
-      (case type
-        ('info-artist artist)
-        ('info-title  title)
-        ('info-album (if (eq album "") (concat "杂项(" artist ")") album))))))
+;; This overwrite the default function in emms-browser.el
+(defun emms-browser-make-name (entry type)
+  "Return a name for ENTRY, used for making a bdata object."
+  (let ((key (car entry))
+        (track (cadr entry))
+        artist title) ;; only the first track
+  (cond
+   ((eq type 'info-title)
+    (eh-emms-make-track-description track))
+   (t key))))
 
 ;; 快捷函数
 (defun eh-emms-toggle-playing ()
