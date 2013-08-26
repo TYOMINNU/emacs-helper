@@ -30,9 +30,7 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(if (featurep 'cl)
-    (require 'cl)
-  (require 'cl-lib))
+(require 'cl)
 
 (defun eh-build-hanzi2pinyin-hash-table ()
   "Build a hanzi to pinyin hashtable with the quail date file: quail/PY.el"

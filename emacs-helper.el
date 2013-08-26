@@ -1,6 +1,6 @@
 (load-library "eh-package")
 (load-library "eh-basic")
-;; (load-library "eh-hanzi2pinyin")
+(load-library "eh-hanzi2pinyin")
 (load-library "eh-emms")
 (load-library "eh-org")
 (load-library "eh-complete")
