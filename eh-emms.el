@@ -132,7 +132,7 @@
 
 
 ;; Function used to get music tags, for example IDv2.3!
-(setq emms-info-functions '(eh-emms-info-libtag))
+(setq emms-info-functions '(eh-emms-info-libtag eh-emms-info-add-pinyin-alias))
 
 (defun eh-emms-info-libtag (track)
   (when (and (eq 'file (emms-track-type track))
@@ -168,6 +168,14 @@
                                   (string-to-number value)
                                 value))))
           (forward-line 1))))))
+
+(defun eh-emms-info-add-pinyin-alias (track)
+  "Add pinyin alias to the track"
+  (when (and (featurep 'eh-hanzi2pinyin)
+             (eq 'file (emms-track-type track)))
+    (emms-track-set track 'info-artist-alias (eh-hanzi2pinyin (emms-track-get track 'info-artist) t))
+    (emms-track-set track 'info-album-alias (eh-hanzi2pinyin (emms-track-get track 'info-album) t))
+    (emms-track-set track 'info-title-alias (eh-hanzi2pinyin (emms-track-get track 'info-title) t))))
 
 ;;; 设置EMMS 浏览器
 ;; 默认显示方式为: 显示所有
@@ -264,6 +272,19 @@ Return the previous point-max before adding."
       (emms-add-playlist file))
      (t (emms-add-file file)))))
 
+(defun eh-emms-browser-search-by-names ()
+  (interactive)
+  (emms-browser-search '(info-artist info-artist-alias info-title info-title-alias info-album info-album-alias)))
+
+(defun eh-emms-browser-search-by-artist ()
+  (interactive)
+  (emms-browser-search '(info-artist info-artist-alias)))
+
+(defun eh-emms-browser-search-by-title ()
+  (interactive)
+  (emms-browser-search '(info-title info-title-alias)))
+
+
 ;; Global keybinding for emms
 (global-unset-key (kbd "C-c e"))
 (global-set-key (kbd "C-c e e") 'eh-emms)
@@ -299,6 +320,9 @@ Return the previous point-max before adding."
 (define-key emms-browser-mode-map (kbd "w") 'emms-browser-show-LAST-WEEK)
 (define-key emms-browser-mode-map (kbd "a") 'emms-browser-show-EVERYTHING)
 (define-key emms-browser-mode-map (kbd "m") 'emms-browser-show-LAST-MONTH-NOT-PLAYED)
+(define-key emms-browser-mode-map (kbd "s s") 'eh-emms-browser-search-by-names)
+(define-key emms-browser-mode-map (kbd "s a") 'eh-emms-browser-search-by-artist)
+(define-key emms-browser-mode-map (kbd "s t") 'eh-emms-browser-search-by-title)
 
 ;; playlist-mode-map
 (define-key emms-playlist-mode-map (kbd "o") 'emms-browser-show-LAST-WEEK)
