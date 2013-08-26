@@ -1,11 +1,3 @@
-##################################################################################################
-# dovecot need *USER* environment Variable when it launched from cron
-# run 'cp ./start_daemon.sh /usr/local/bin/start_daemon'
-# run 'echo "USER=feng\nexport USER" >> .profile'
-# run ' crontab -e ' and add line like below
-# */5 * * * * . $HOME/.profile;  exec /usr/local/bin/start_daemon -n19 -c2 -p7 python2.7 /usr/bin/offlineimap
-###################################################################################################
-
 [general]
 accounts = Gmail
 pythonfile = .offlineimap.py
@@ -24,13 +16,15 @@ holdconnectionopen = yes
 type = IMAP
 remotehost = imap.gmail.com
 remoteuser = USERNAME@gmail.com
-# 安装包python-keyring,然后使用下的命令保存密码。
+# 方法1: 使用明文密码
+# remotepass = YOURPASSWORD
+# 方法二: 使用加密密码； 安装包python-keyring,然后使用下的命令保存密码。
 # import keyring
-# keyring.set_password("imap.gmail.com","username@host.net", "MYPASSWORD")
-remotepasseval = keyring.get_password("imap.gmail.com","USERNAME@gmail.com")
-# remotepass = yourpasswd
+# keyring.set_password("imap.gmail.com","USERNAME@gmail.com", "YOURPASSWORD")
+# remotepasseval = keyring.get_password("imap.gmail.com","USERNAME@gmail.com")
 ssl = yes
-cert_fingerprint=f3043dd689a2e7dddfbef82703a6c65ea9b634c1 
+# You should install package: ca-certificates.
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
 maxconnections = 3
 realdelete = no
 # holdconnectionopen = true

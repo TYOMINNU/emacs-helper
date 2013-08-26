@@ -1,0 +1,47 @@
+IMAPAccount gmail-account
+Host imap.gmail.com
+User USERNAME@gmail.com
+UseIMAPS yes
+# RequireSSL yes
+# You should install package: ca-certificates.
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+Pass YOURPASSWORD
+
+IMAPStore gmail-store
+Account gmail-account
+
+IMAPAccount local-dovecot-account
+Host localhost
+User feng
+Tunnel "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir"
+
+IMAPStore local-dovecot-store
+Account local-dovecot-account
+
+Channel gmail-default
+Master :gmail-store:
+Slave :local-dovecot-store:
+# Exclude everything under the internal [Gmail] folder, except the interesting folders
+Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred"
+# Or include everything
+#Patterns *
+# Automatically create missing mailboxes, both locally and on the server
+Create Both
+# Save the synchronization state files in the relevant directory
+SyncState ~/.mbsyncstate/gmail-default
+
+Channel gmail-all-mail
+Master :gmail-store:
+Slave :local-dovecot-store:
+Patterns "[Gmail]/All Mail"
+Create Slave
+Sync New
+SyncState ~/.mbsyncstate/gmail-all-mail
+
+Channel gmail-spam
+Master :gmail-store:
+Slave :local-dovecot-store:
+Patterns "[Gmail]/Spam"
+Create Master
+Sync Push
+SyncState ~/.mbsyncstate/gmail-spam

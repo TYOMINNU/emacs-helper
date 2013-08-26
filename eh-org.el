@@ -47,6 +47,7 @@
 (require 'org-protocol)
 (require 'org-screenshot)
 (require 'ob-R)
+(require 'ox-bibtex)
 
 (setq org-export-backends
       '(ascii beamer html latex md odt deck rss s5))
@@ -83,20 +84,20 @@
 
 ;; use Cairo graphics device by default,which can get better graphics quality.
 ;; you shoule add require("Cairo") to you ~/.Rprofile
-(setq org-babel-R-graphics-devices
-  '((:bmp "bmp" "filename")
-    (:jpg "jpeg" "filename")
-    (:jpeg "jpeg" "filename")
-    (:tikz "tikz" "file")
-    (:tiff "tiff" "filename")
-    (:png "CairoPNG" "filename")
-    (:svg "CairoSVG" "file")
-    (:pdf "CairoPDF" "file")
-    (:ps "CairoPS" "file")
-    (:postscript "postscript" "file")))
+;; (setq org-babel-R-graphics-devices
+;;   '((:bmp "bmp" "filename")
+;;     (:jpg "jpeg" "filename")
+;;     (:jpeg "jpeg" "filename")
+;;     (:tikz "tikz" "file")
+;;     (:tiff "tiff" "filename")
+;;     (:png "CairoPNG" "filename")
+;;     (:svg "CairoSVG" "file")
+;;     (:pdf "CairoPDF" "file")
+;;     (:ps "CairoPS" "file")
+;;     (:postscript "postscript" "file")))
 
-;;export
-(setq org-default-language "zh-CN")
+;; Export language
+(setq org-export-default-language "zh-CN")
 
 ;; html
 (setq org-html-coding-system 'utf-8)
@@ -104,37 +105,12 @@
 (setq org-html-head-include-scripts nil)
 
 ;; latex
-(setq org-latex-coding-system 'utf-8)
-(setq org-latex-date-format "%Y-%m-%d")
-(setq org-export-with-LaTeX-fragments 'imagemagick)
 (setq org-latex-create-formula-image-program 'imagemagick)
 (setq org-latex-pdf-process '("xelatex -interaction nonstopmode -output-directory %o %f" 
-                                 "xelatex -interaction nonstopmode -output-directory %o %f" 
-                                 "xelatex -interaction nonstopmode -output-directory %o %f"))
+                              "xelatex -interaction nonstopmode -output-directory %o %f" 
+                              "xelatex -interaction nonstopmode -output-directory %o %f"))
 
 
-
-(defun org-latex-derived-class (class class-options template-class)
-  "build  a new `org-latex-class item with exist item's information"
-  (let* ((template-class
-          (if (stringp template-class)
-              template-class "article"))
-         (template-class-header
-          (nth 1 (assoc template-class org-latex-classes)))
-         (template-class-rest
-          (cdr (cdr (assoc template-class org-latex-classes))))
-         (class-header-tmp
-          (and (stringp template-class-header)
-               (if (stringp class-options)
-                   (replace-regexp-in-string
-                    "^[ \t]*\\\\documentclass\\(\\(\\[[^]]*\\]\\)?\\)"
-                    class-options template-class-header t nil 1)
-                 template-class-header)))
-         (class-header
-          (replace-regexp-in-string
-           "^[ \t]*\\\\documentclass\\[[^]]*\\]?{\\(.*\\)}"
-           class class-header-tmp t nil 1)))
-    (append (list class) (list class-header) template-class-rest)))
 
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
@@ -167,34 +143,36 @@
                \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
                org-beamer-sectioning))
 
-;; org不建议自定义这个变量，但"inputenc" and "fontenc"两个宏包似乎和
-;; xelatex有冲突，如果使用xelatex的话，这个变量还得重新定义！
-(setq  org-latex-default-packages-alist
-  '((""     "fixltx2e"  nil)
-    (""     "graphicx"  t)
-    (""     "longtable" nil)
-    (""     "float"     nil)
-    (""     "wrapfig"   nil)
-    (""     "soul"      t)
-    (""     "textcomp"  t)
-    (""     "marvosym"  t)
-    (""     "wasysym"   t)
-    (""     "latexsym"  t)
-    (""     "amssymb"   t)
-    (""     "amstext"   nil)
-    (""     "hyperref"  nil)
-    "\\tolerance=1000"))
+(add-to-list 'org-latex-classes
+             '("hbuuthesis"
+               "\\documentclass[unicode]{hbuuthesis}
+ [DEFAULT-PACKAGES]
+ [NO-PACKAGES]
+ [EXTRA]"
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 
+
+;; org不建议自定义org-latex-default-package-alist变量，但"inputenc" and "fontenc"两个宏包似乎和
+;; xelatex有冲突，调整默认值！
+(setf org-latex-default-packages-alist
+      (remove '("AUTO" "inputenc" t) org-latex-default-packages-alist))
+(setf org-latex-default-packages-alist
+      (remove '("T1" "fontenc" t) org-latex-default-packages-alist))
+(setf org-latex-default-packages-alist
+      (remove '("normalem" "ulem" t) org-latex-default-packages-alist))
+(setcar (rassoc '("wasysym" t)
+                org-latex-default-packages-alist) "nointegrals")
 
 (setq  org-latex-packages-alist
        '("
 %%% 默认使用的latex宏包 %%%
+\\usepackage{xeCJK}
 \\usepackage{tikz}
 \\usepackage{CJKulem}
-%\\usepackage{amsmath,amsfonts,amsthm}
 \\usepackage{graphicx}
-\\usepackage{multicol}
-\\usepackage{titlesec}
 
 %%% 设置中文字体 %%%
 \\setCJKmainfont[ItalicFont={KaiTi_GB2312}]{SimSun}% 文鼎宋体和楷书
@@ -202,72 +180,15 @@
 \\setCJKmonofont{WenQuanYi Micro Hei}
 
 %%% 设置页面边距 %%%
-%\\usepackage[top=1.55cm, bottom=2.29cm, left=1.6cm, right=1.47cm]{geometry} % 
 \\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} % 
-
-
-%%% 设置段落与段落，段落与标题之间的间隔 %%%
-\\setlength{\\parindent}{0pt}		% indentation on new paragraph
-\\setlength{\\parskip}{0pt}		% vertical spacing on new paragraph
-\\setlength{\\lineskip}{1pt}		% vertical spacing between lines
-\\setlength{\\columnsep}{1cm}		% spacing between columns
-\\setlength{\\belowcaptionskip}{0pt}	% spacing below captions
-\\setlength{\\abovecaptionskip}{5pt}	% spacong above captions
-
-%%% 章节相关设置 %%%
-\\titleformat{\\chapter}{\\centering\\Huge\\bfseries}{第\\,\\thechapter\\,章}{1em}{}
-\\titleformat{\\section}{\\centering\\Large\\bfseries}{\\thesection}{1em}{}
-\\titleformat{\\subsection}{\\large\\bfseries}{\\thesubsection}{1em}{}
-
-
-%%% 设置页眉页脚 %%%
-\\pagestyle{fancy}
-\\fancyhead{} % clear all fields
-\\fancyhead[CO]{河北联合大学硕士论文}
-\\fancyhead[CE]{\\leftmark}
-\\fancyfoot[CO,CE]{-~\\thepage~-}
-\\renewcommand{\\headrulewidth}{0.4pt}
-\\renewcommand{\\footrulewidth}{0pt}
 "))
 
-
-;; 中文下划线使用\CJKunderline效果比较好,
-;; 这个命令需要CJKfntef宏包，如果使用ctex，可以添加fntef选项
-(setq org-latex-text-markup-alist 
-      '((bold . "\\textbf{%s}")
-        (code . verb)
-        (italic . "\\emph{%s}")
-        (strike-through . "\\sout{%s}")
-        (underline . "\\uline{%s}")
-        (verbatim . protectedtexttt)))
-
-;; latex公式预览
-
-;; 设置默认缩放比例为1.2.
-(setq org-format-latex-options
-      (plist-put org-format-latex-options :scale 1.2))
-
-(setq org-format-latex-header "\\documentclass{ctexart}
-\\usepackage[usenames]{color}
-\\usepackage{amsmath}
-\\usepackage[mathscr]{eucal}
-\\pagestyle{empty}             % do not remove
-\[PACKAGES]
-\[DEFAULT-PACKAGES]
-\\pagestyle{empty}             % do not remove too
-% The settings below are copied from fullpage.sty
-\\setlength{\\textwidth}{\\paperwidth}
-\\addtolength{\\textwidth}{-3cm}
-\\setlength{\\oddsidemargin}{1.5cm}
-\\addtolength{\\oddsidemargin}{-2.54cm}
-\\setlength{\\evensidemargin}{\\oddsidemargin}
-\\setlength{\\textheight}{\\paperheight}
-\\addtolength{\\textheight}{-\\headheight}
-\\addtolength{\\textheight}{-\\headsep}
-\\addtolength{\\textheight}{-\\footskip}
-\\addtolength{\\textheight}{-3cm}
-\\setlength{\\topmargin}{1.5cm}
-\\addtolength{\\topmargin}{-2.54cm}")
+;; latex公式预览, 调整latex预览时使用的header,默认使用ctexart类
+;; (setq org-format-latex-header
+;;       (replace-regexp-in-string
+;;        "\\\\documentclass{.*}"
+;;        "\\\\documentclass{ctexart}"
+;;        org-format-latex-header))
 
 
 ;; 如果一个标题包含TAG: “ignoreheading” ,导出latex时直接忽略这个标题，
@@ -281,12 +202,34 @@
       (setq ad-return-value contents)
     ad-do-it))
 
+;; org-mode和reftex的集成,添加下面的配置到org文件头。
+;; # \bibliography{bibfilename}
 
-;; org-mode global keybindings
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cb" 'org-iswitchb)
+(defun eh-org-mode-reftex-setup ()
+  (load-library "reftex")
+  (and (buffer-file-name) (file-exists-p (buffer-file-name))
+       (progn
+         ;; enable auto-revert-mode to update reftex when bibtex file changes on disk
+ 	 (global-auto-revert-mode t)
+	 (reftex-parse-all)
+         ;; add a custom reftex cite format to insert links
+	 (setq reftex-cite-format
+               '((?b . "[[cite:%l]]")
+                 (?c . "\\cite{%l}")
+                 (?t . "%t")))))
+  (define-key org-mode-map (kbd "C-c (") 'reftex-citation)
+  (define-key org-mode-map (kbd "C-c )") (lambda () (interactive)
+                                           (let ((reftex-cite-format "[[cite:%l]]"))
+                                             (reftex-citation)))))
+
+(add-hook 'org-mode-hook 'eh-org-mode-reftex-setup)
+
+(defun eh-bibtex-open (key)
+  "Get bibfile from \\bibliography{...} and open it with function `org-open-file'"
+  (let* ((path (car (reftex-get-bibfile-list))))
+    (org-open-file path t nil key)))
+
+(org-add-link-type "cite" 'eh-bibtex-open)
 
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)
