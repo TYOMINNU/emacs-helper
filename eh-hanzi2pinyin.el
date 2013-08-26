@@ -35,7 +35,7 @@
   (require 'cl-lib))
 
 (defun eh-build-hanzi2pinyin-hash-table ()
-  "Build a hanzi to pinyin hashtable with the quail date file: "quail/PY.el""
+  "Build a hanzi to pinyin hashtable with the quail date file: quail/PY.el"
   (let ((hanzi2pinyin-hash-table (make-hash-table)))
     (with-temp-buffer
       (insert-file-contents (locate-library "quail/PY.el"))
