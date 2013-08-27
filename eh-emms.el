@@ -252,7 +252,12 @@ Return the previous point-max before adding."
   (interactive)
   (if (or (null emms-playlist-buffer)
 	  (not (buffer-live-p emms-playlist-buffer)))
-      (eh-emms-add-directory-tree))
+      (let ((playlist (concat
+                       (file-name-as-directory emms-source-file-default-directory)
+                       "default.playlist")))
+        (if (not (file-readable-p playlist))
+            (eh-emms-add-directory-tree)
+          (emms-add-playlist playlist))))
   (emms-playlist-mode-go))
 
 (defun eh-emms-add-directory-tree ()
