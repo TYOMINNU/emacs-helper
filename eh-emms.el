@@ -40,11 +40,11 @@
 
 ;; EMMS 目录
 (setq emms-source-file-default-directory "~/Music")
-(setq emms-directory "~/Music/emms/")
-(setq emms-history-file "~/Music/emms/history")
-(setq emms-cache-file "~/Music/emms/cache")
-(setq emms-stream-bookmarks-file "~/Music/emms/streams")
-(setq emms-score-file "~/Music/emms/scores")
+(setq emms-directory "~/Music/.emms/")
+(setq emms-history-file "~/Music/.emms/history")
+(setq emms-cache-file "~/Music/.emms/cache")
+(setq emms-stream-bookmarks-file "~/Music/.emms/streams")
+(setq emms-score-file "~/Music/.emms/scores")
 
 ;设定EMMS主模式为Playlist模式
 (setq emms-playlist-default-major-mode 'emms-playlist-mode)
