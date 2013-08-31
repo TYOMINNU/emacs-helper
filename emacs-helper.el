@@ -3,6 +3,7 @@
 (load-library "eh-hanzi2pinyin")
 (load-library "eh-emms")
 (load-library "eh-org")
+(load-library "eh-org-contacts")
 (load-library "eh-complete")
 (load-library "eh-gnus")
 (load-library "eh-functions")
