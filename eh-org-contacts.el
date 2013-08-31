@@ -117,11 +117,13 @@ is created and the VCard is written into that buffer."
   "Build a org contact from a csv line"
   (let ((list (split-string line ",")))
     (concat "* " (nth 0 list) "\n"
+            ":PROPERTIES:\n"
             ":PHONE: " (nth 1 list) "\n"
             ":EMAIL: " (let ((string (nth 2 list)))
                          (if (string-match-p "@" string) string
                            (if (> (length string) 0) (concat string "@qq.com")))) "\n"
-            ":NOTE: "  (mapconcat 'identity (nthcdr 3 list) " ") "\n")))
+            ":NOTE: "  (mapconcat 'identity (nthcdr 3 list) " ") "\n"
+            ":END:\n")))
 
 (defun eh-org-contacts-csv-import (&optional filename)
   "Convert a csv file to org contacts format and insert current point"
