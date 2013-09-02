@@ -40,7 +40,30 @@
 
 (defvar org-contacts-csv-line-prefix "")
 
-(defun org-contacts-export-as-csv (&optional name file to-buffer)
+(defun org-contacts-export-as-vcard (&optional name tags property file to-buffer)
+  "Export all contacts matching NAME as VCard 3.0.
+If TO-BUFFER is nil, the content is written to FILE or
+`org-contacts-vcard-file'.  If TO-BUFFER is non-nil, the buffer
+is created and the VCard is written into that buffer."
+  (interactive) ; TODO ask for name?
+  (let* ((filename (or file org-contacts-vcard-file))
+	 (buffer (if to-buffer
+		     (get-buffer-create to-buffer)
+		   (find-file-noselect filename))))
+    (message "Exporting...")
+    (set-buffer buffer)
+    (let ((inhibit-read-only t)) (erase-buffer))
+    (fundamental-mode)
+    (when (fboundp 'set-buffer-file-coding-system)
+      (set-buffer-file-coding-system coding-system-for-write))
+    (loop for contact in (org-contacts-filter name tags property)
+	  do (insert (org-contacts-vcard-format contact)))
+    (if to-buffer
+	(current-buffer)
+      (progn (save-buffer) (kill-buffer)))))
+
+
+(defun org-contacts-export-as-csv (&optional name tags property file to-buffer)
   "Export all contacts matching NAME as csv
 If TO-BUFFER is nil, the content is written to FILE or
 `org-contacts-vcard-file'.  If TO-BUFFER is non-nil, the buffer
@@ -56,7 +79,7 @@ is created and the VCard is written into that buffer."
     (fundamental-mode)
     (when (fboundp 'set-buffer-file-coding-system)
       (set-buffer-file-coding-system coding-system-for-write))
-    (loop for contact in (org-contacts-filter name)
+    (loop for contact in (org-contacts-filter name tags property)
 	  do (insert (org-contacts-csv-format contact)))
     (if to-buffer
 	(current-buffer)
