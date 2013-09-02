@@ -77,10 +77,10 @@ is created and the VCard is written into that buffer."
 	 (addr (cdr (assoc-string org-contacts-address-property properties)))
 	 (nick (org-contacts-vcard-escape (cdr (assoc-string org-contacts-nickname-property properties))))
 	 emails-list result phones-list)
-    (concat (when org-contacts-csv-line-prefix (format "%s, " org-contacts-csv-line-prefix))
-            (format "\"%s%s\", " name
-                    (when (featurep 'eh-hanzi2pinyin)
-                      (concat "(" (eh-hanzi2pinyin name t) ")")))
+    (concat (when org-contacts-csv-line-prefix (format "%s " org-contacts-csv-line-prefix))
+            ;; 中国人的名字一般是三个字，为实现对齐，两个字的姓名后面
+            ;; 添加一个全角空格
+            (format "\"%s\", " (if (< (length name) 3) (concat name "　") name))
             (when tel
               (format "\"%s\", "
                       (progn
@@ -111,6 +111,8 @@ is created and the VCard is written into that buffer."
 			(calendar-extract-day cal-bday))))
 	    (when nick (format "\"%s\", " nick))
 	    (when note (format "\"%s\"," note))
+            (when (featurep 'eh-hanzi2pinyin)
+              (format "\"%s\"" (eh-hanzi2pinyin name t)))
             "\n")))
 
 (defun eh-org-contacts-parse-csv-line (line)
