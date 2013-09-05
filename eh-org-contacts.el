@@ -168,6 +168,44 @@ is created and the VCard is written into that buffer."
   (goto-char point)
   (insert contacts-string)))
 
+(defun eh-org-contacts-merge-contacts ()
+  "Merge duplicate contacts"
+  (interactive)
+  (dolist (name (let ((contact-list (org-contacts-filter nil nil)))
+                  (delete-dups
+                   (loop for contact in contact-list
+                         collect (substring-no-properties
+                                  (org-contacts-vcard-escape (car contact)))))))
+    ;; let UPDATE be the first contact matching NAME
+    (let* ((contacts (org-contacts-filter (concat "\\b" name "\\b")))
+           (update (first contacts)))
+      (save-excursion
+        (with-current-buffer (marker-buffer (second update))
+          (goto-char (marker-position (second update)))
+          ;; for all other contacts matching NAME as CONTACT
+          (dolist (contact (rest contacts))
+            ;; add all properties to UPDATE
+            (loop with special-properties = (mapcar 'first (org-entry-properties nil 'special))
+                  for (property . value) in (third contact)
+                  unless (member property special-properties)
+                  do (if (or (string= property "TAGS") (string= property "ALLTAGS"))
+                         (org-set-tags-to (delete-dups
+                                           (nconc (org-get-tags-at)
+                                                  (split-string (if value value "") ":" t))))
+                       (let ((second-value (org-entry-get nil property)))
+                         (unless (string= (org-contacts-strip-link (if second-value second-value ""))
+                                          (org-contacts-strip-link (if value value "")))
+                           (org-entry-put nil property
+                                          (concat (org-entry-get nil property)
+                                                  " " value))))))
+            ;; delete CONTACT
+            (save-excursion
+              (with-current-buffer (marker-buffer (second contact))
+                (goto-char (marker-position (second contact)))
+                (let ((plist (second (org-element-at-point))))
+                  (delete-region (plist-get plist :begin)
+                                 (plist-get plist :end)))))))))))
+
 (provide 'eh-org-contacts)
 ;; Local Variables:
 ;; coding: utf-8-unix
