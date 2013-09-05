@@ -131,7 +131,7 @@ is created and the VCard is written into that buffer."
 			(calendar-extract-month cal-bday)
 			(calendar-extract-day cal-bday))))
 	    (when nick (format "\"%s\", " nick))
-	    (when note (format "\"%s\"," (replace-regexp-in-string "," ";" note)))
+	    (when note (format "\"%s\"," (replace-regexp-in-string "\\, ?" ";" note)))
             (when (featurep 'eh-hanzi2pinyin)
               (format "\"(%s)\"" (eh-hanzi2pinyin name t)))
             "\n")))
