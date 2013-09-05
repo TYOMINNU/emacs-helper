@@ -56,6 +56,9 @@
 (global-set-key (kbd "M-w") 'eh-kill-ring-save)
 (global-set-key (kbd "C-w") 'eh-kill-region)
 
+;; magit status
+(global-set-key (kbd "C-c g") 'magit-status)
+
 ;; 设置键盘绑定,使用Ctrl-;快速切换窗口
 (global-set-key (kbd "C-;") 'other-window)
 

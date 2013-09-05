@@ -32,7 +32,7 @@
 
 ;;; Code:
 ;; require
-(require 'starter-kit-defuns)
+;; (require 'starter-kit-defuns)
 
 ;; 超短函数
 (defun gg ()
