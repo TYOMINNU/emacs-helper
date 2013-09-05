@@ -145,7 +145,7 @@ is created and the VCard is written into that buffer."
             ":EMAIL: " (let ((string (nth 2 list)))
                          (if (string-match-p "@" string) string
                            (if (> (length string) 0) (concat string "@qq.com")))) "\n"
-            ":NOTE: "  (mapconcat 'identity (nthcdr 3 list) " ") "\n"
+            ":NOTE: "  (mapconcat 'identity (nthcdr 3 list) "; ") "\n"
             ":END:\n")))
 
 (defun eh-org-contacts-csv-import (&optional filename)
