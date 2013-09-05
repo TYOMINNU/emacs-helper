@@ -72,12 +72,6 @@ get pinyin shouzimu string"
                 :test (lambda (x y) (or (null y) (equal x y)))
                 :from-end t) " ")))
 
-(defun org-contacts-add-pinyin-alias ()
-  "Add pinyin alias to all head of current buffer"
-  (interactive)
-  (require 'org)
-  (org-map-entries '(lambda () (let ((pinyin-alias (eh-hanzi2pinyin (org-get-heading 1 1) t)))
-                            (org-set-property org-contacts-alias-property pinyin-alias)))))
 
 (provide 'eh-hanzi2pinyin)
 

@@ -110,8 +110,7 @@ is created and the VCard is written into that buffer."
 			(setq phones-list (org-contacts-remove-ignored-property-values ignore-list (org-contacts-split-property tel)))
 			(setq result "")
 			(while phones-list
-                          (setq result (concat result " "))
-			  (setq result (concat result "" (org-contacts-strip-link (car phones-list))))
+			  (setq result (concat result (org-contacts-strip-link (car phones-list)) "; "))
 			  (setq phones-list (cdr phones-list)))
 			result)))
 	    (when email
@@ -120,8 +119,7 @@ is created and the VCard is written into that buffer."
                         (setq emails-list (org-contacts-remove-ignored-property-values ignore-list (org-contacts-split-property email)))
                         (setq result "")
                         (while emails-list
-                          (setq result (concat result " "))
-                          (setq result (concat result (org-contacts-strip-link (car emails-list))))
+                          (setq result (concat result (org-contacts-strip-link (car emails-list)) "; "))
                           (setq emails-list (cdr emails-list)))
                         result)))
 	    (when addr
@@ -133,9 +131,9 @@ is created and the VCard is written into that buffer."
 			(calendar-extract-month cal-bday)
 			(calendar-extract-day cal-bday))))
 	    (when nick (format "\"%s\", " nick))
-	    (when note (format "\"%s\"," note))
+	    (when note (format "\"%s\"," (replace-regexp-in-string "," ";" note)))
             (when (featurep 'eh-hanzi2pinyin)
-              (format "\"%s\"" (eh-hanzi2pinyin name t)))
+              (format "\"(%s)\"" (eh-hanzi2pinyin name t)))
             "\n")))
 
 (defun eh-org-contacts-parse-csv-line (line)
@@ -205,6 +203,32 @@ is created and the VCard is written into that buffer."
                 (let ((plist (second (org-element-at-point))))
                   (delete-region (plist-get plist :begin)
                                  (plist-get plist :end)))))))))))
+
+(defun eh-org-contacts-add-pinyin-alias ()
+  "Add pinyin alias to all head of current buffer"
+  (interactive)
+  (if (featurep 'eh-hanzi2pinyin)
+      (org-map-entries '(lambda () (let ((pinyin-alias (eh-hanzi2pinyin (org-get-heading 1 1) t)))
+                                (org-set-property org-contacts-alias-property pinyin-alias))))))
+
+(defun eh-org-contacts-generate-phone-and-email-links ()
+  "Add pinyin alias to all head of current buffer"
+  (interactive)
+  (if (featurep 'eh-hanzi2pinyin)
+      (org-map-entries '(lambda () (let ((email (org-entry-get nil org-contacts-email-property ))
+                                    (tel (org-entry-get nil org-contacts-tel-property )))
+                                (when tel
+                                  (org-set-property org-contacts-tel-property
+                                                    (replace-regexp-in-string
+                                                     " +\\([0-9]\\{7,11\\}\\)"
+                                                     " [[tel:\\1]]"
+                                                     (concat " " (if tel tel "")))))
+                                (when email
+                                  (org-set-property org-contacts-email-property
+                                                  (replace-regexp-in-string
+                                                   " +\\([a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+.[a-zA-Z0-9]?\\)"
+                                                   " [[mailto:\\1]]"
+                                                   (concat " "(if email email ""))))))))))
 
 (provide 'eh-org-contacts)
 ;; Local Variables:
