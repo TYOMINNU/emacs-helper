@@ -46,10 +46,12 @@
 ;; 设置键盘绑定,使用Ctrl-c k激活browese-kill-ring函数
 (global-set-key (kbd "C-c k") 'browse-kill-ring)
 
-
+;; ido
 (global-set-key (kbd "C-x C-b") 'ido-display-buffer)
 
-
+;; 放大字体，缩小字体
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
 
 ;; 设置键盘绑定,使用Meta-w激活eh-kill-ring-save
 ;; 设置键盘绑定,使用Ctrl-w激活eh-kill-region
