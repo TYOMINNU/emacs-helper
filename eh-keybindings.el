@@ -73,6 +73,51 @@
 (global-set-key (kbd "M-O") 'vi-open-above)
 (global-set-key (kbd "M-o") 'vi-open-below)
 
+;; org-mode 相关快捷键
+(global-set-key (kbd "<f1>") '(lambda () (interactive) (progn (org-agenda nil "m") (org-agenda nil "l"))))
+(global-set-key (kbd "<f2>") '(lambda () (interactive) (org-agenda nil "s")))
+(global-set-key (kbd "<f3>") '(lambda () (interactive) (org-agenda nil "p")))
+(global-set-key (kbd "<f4>") '(lambda () (interactive) (org-agenda nil "t")))
+
+(global-set-key (kbd "<f7>") 'org-screenshot-take)
+(global-set-key (kbd "<f8>") 'org-capture)
+(global-set-key (kbd "<f9>") 'org-store-link)
+(global-set-key (kbd "<f11>") 'org-contacts)
+(global-set-key (kbd "<f12>") 'eh-org-mobile-sync-with-adb)
+
+;; (global-set-key (kbd "<f12>") 
+;;                 '(lambda () 
+;;                    (interactive)
+;;                    (progn (org-mobile-push)
+;;                           (org-contacts-export-as-vcard)
+;;                           ;;  (shell-command "scp ~/Documents/org-mobile/* root@192.168.1.234:/sdcard/org-mobile/")
+;;                           ;;  (start-process "org-mobile-push with scp" 
+;;                           ;;  (get-buffer-create "*scp-to-android*")              
+;;                           ;;  "/bin/bash"
+;;                           ;;  "-c" "scp ~/documents/org-mobile/* root@192.168.1.234:/sdcard/org-mobile/")
+;;                                                           )))
+
+
+(define-key global-map "\C-ct"
+  (lambda () (interactive) (org-capture nil "t")))
+(define-key global-map "\C-cj"
+  (lambda () (interactive) (org-capture nil "j")))
+(define-key global-map "\C-cs"
+  (lambda () (interactive) (org-capture nil "s")))
+(define-key global-map "\C-cl"
+  (lambda () (interactive) (org-capture nil "l")))
+(define-key global-map "\C-cw"
+  (lambda () (interactive) (org-capture nil "w")))
+(define-key global-map "\C-cx"
+  (lambda () (interactive) (org-capture nil "e")))
+(define-key global-map "\C-cv"
+  (lambda () (interactive) (org-capture nil "v")))
+(define-key global-map "\C-cc"
+  (lambda () (interactive) (org-capture nil "c")))
+(define-key global-map "\C-cm"
+  (lambda () (interactive) (org-capture nil "m")))
+
+
 ;;;###autoload(require 'eh-keybindings)
 (provide 'eh-keybindings)
 

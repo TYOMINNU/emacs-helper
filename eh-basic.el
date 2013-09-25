@@ -43,8 +43,11 @@
 (set-terminal-coding-system 'utf-8-unix)
 
 ;; 默认显示菜单栏
-(menu-bar-mode t)
+(menu-bar-mode 1)
+(tool-bar-mode -1)
 
+;; 设置emacs-daemon使用tcp模式
+(setq server-use-tcp t)
 
 (defvar eh-default-fonts-list '("WenQuanYi Zen Hei Mono 12" "WenQuanYi Zen Hei Mono 12")
   "Emacs的设计里，假设一个双字节字符和两个半角英文字符是等宽的。

@@ -31,6 +31,20 @@
 
 ;;; Code:
 
+;; ido模式
+(require 'ido)
+(if (featurep 'ido-vertical-mode) (ido-vertical-mode t))
+
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+(ido-mode t)
+(add-hook 'ido-setup-hook 'eh-ido-keybinding)
+(defun eh-ido-keybinding ()
+   (define-key ido-completion-map (kbd "C-SPC") nil)
+   (define-key ido-completion-map (kbd "C-@") nil)
+   (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
+   (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
+
 ;; 打开auto-complete-mode模式
 (require 'auto-complete)
 (require 'auto-complete-config)

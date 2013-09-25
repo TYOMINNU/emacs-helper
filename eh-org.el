@@ -31,6 +31,14 @@
 
 ;;; Code:
 
+;; org-odt-data-dir必须在load org之前定义！
+(setq org-odt-data-dir
+      (concat (file-name-directory
+ 	       (directory-file-name
+ 		(file-name-directory
+ 		 (locate-library "org.el")))) "etc"))
+
+;; require package
 (require 'org)
 (require 'ox-ascii)
 (require 'ox-latex)
@@ -47,7 +55,93 @@
 (require 'org-protocol)
 (require 'org-screenshot)
 (require 'ob-R)
-(require 'ox-bibtex)
+
+;; 变量设定
+(setq org-latex-to-mathml-convert-command
+      "java -jar %j -unicode -force -df %o %I"
+      org-latex-to-mathml-jar-file
+      "~/bin/mathtoweb.jar")
+
+(setq org-jabref-command '("java" "-jar" "/home/feng/bin/JabRef-2.9.2.jar" "-n" "true"))
+
+(setq org-agenda-files 
+      (append (file-expand-wildcards "~/org/*.org")))
+
+;; capture模板
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/org/i-todo.org" "Tasks")
+         "* TODO %? %^g\n %i \n %a")
+        ("u" "Notes: 直接保存" entry  (file+headline "~/org/i-notes-auto.org" "Notes")
+"** %c
+   :PROPERTIES:
+   :DATE: %u
+   :END:
+%i"
+:empty-lines 1
+:immediate-finish
+:kill-buffer)
+
+        ("w" "Notes: 一般事项" entry  (file+headline "~/org/i-notes.org" "Notes")
+"** %c
+   :PROPERTIES:
+   :DATE: %u
+   :END:
+%i"
+:empty-lines 1)
+
+        ("x" "Notes: 学习感悟" entry  (file+headline "~/org/i-notes-study.org" "Notes")
+"* %?
+   :PROPERTIES:
+   :DATE: %u
+   :LINK: %a
+   :END:
+%i"
+:empty-lines 1)
+
+        ("l" "Link" entry (file+olp "~/org/i-notes.org" "Web Links")
+         "* %a\n %?\n %i")
+        ("m" "account" table-line (file+headline "~/org/i-account.org" "account")
+         "|%?||||||%u|")
+        ("j" "Journal" entry (file+datetree "~/org/i-journal.org")
+         "* %?\n %U\n %i\n  %a")
+        ("s" "Schedule" entry (file+headline "~/org/i-schedule.org" "Schedule")
+         "* %?\n %T\n  %a")
+        ("v" "Contacts" entry (file "~/org/i-contacts.org")
+               "* %(org-contacts-template-name) %^G
+  :PROPERTIES:
+  :ALIAS: 
+  :NOTE:  
+  :EMAIL: %(org-contacts-template-email)
+  :PHONE: 
+  :IGNORE:
+  :END:")
+        ("c" "Contacts: 手动输入" entry (file "~/org/i-contacts.org")
+               "* %? %^g
+  :PROPERTIES:
+  :ALIAS: 
+  :NOTE: 
+  :EMAIL: %x
+  :PHONE: 
+  :IGNORE: 
+  :END:")))
+
+(setq org-agenda-custom-commands
+      '(("l" "agenda: 常用"
+         ((agenda  "" ((org-agenda-span 1)))
+          (tags-todo "生活|IT|购物")))
+        ("m" "agenda: org-mobile上使用"
+          ((agenda  "" ((org-agenda-overriding-header "Two-Days-Agenda")
+                        (org-agenda-span 2)))))
+        ("p" "agenda: 项目"
+         ((tags-todo "学习太极拳项目")
+          (tags-todo "三甲评审项目")))
+        ("s" "agenda: 学习相关+书籍杂志文献阅读"
+         ((tags-todo "学习")
+          (tags-todo "书籍杂志")
+          (tags-todo "文献")))))
+
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 
 (setq org-export-backends
       '(ascii beamer html latex md odt deck rss s5))
@@ -56,6 +150,7 @@
 (setq org-log-done t)   
 (setq org-startup-indented nil)
 (setq org-confirm-babel-evaluate nil)
+(setq org-agenda-remove-tags t)
 
 ;; org-bable设置
 ; font-lock in src code blocks
@@ -81,6 +176,33 @@
 
 ;; org-babel hook
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+
+;; org-mode hook
+(add-hook 'org-mode-hook 'turn-on-org-cdlatex)
+(add-hook 'org-mode-hook '(lambda ()
+ 			    (setq visual-line-fringe-indicators '(nil nil))
+ 			    (visual-line-mode)
+ 			    (if visual-line-mode
+ 				(setq word-wrap nil))))
+
+;; export时替换标点
+(defun eh-convert-punctuation (text backend info)
+  "将半角标点符号全部替换为全角标点符号"
+  (when (memq backend '(odt html))
+    (replace-regexp-in-string
+     ";" "；"
+     (replace-regexp-in-string
+      ":" "："
+      (replace-regexp-in-string
+       "·" "。"
+       (replace-regexp-in-string 
+	","  "，"
+	(replace-regexp-in-string 
+	 "\\."  "。"
+	 (replace-regexp-in-string "\n" "" text))))))))
+
+(add-to-list 'org-export-filter-plain-text-functions
+             'eh-convert-punctuation)
 
 ;; use Cairo graphics device by default,which can get better graphics quality.
 ;; you shoule add require("Cairo") to you ~/.Rprofile
@@ -202,6 +324,12 @@
       (setq ad-return-value contents)
     ad-do-it))
 
+(defadvice org-odt-headline (around my-odt-skip-headlines
+                                      (headline contents info) activate)
+  (if (member "ignoreheading" (org-element-property :tags headline))
+      (setq ad-return-value contents)
+    ad-do-it))
+
 ;; org-mode和reftex的集成,添加下面的配置到org文件头。
 ;; # \bibliography{bibfilename}
 
@@ -230,6 +358,10 @@
     (org-open-file path t nil key)))
 
 (org-add-link-type "cite" 'eh-bibtex-open)
+
+
+
+
 
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)

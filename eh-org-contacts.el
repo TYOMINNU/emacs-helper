@@ -33,6 +33,44 @@
 (require 'cl)
 (require 'org-contacts)
 
+(setq org-contacts-icon-use-gravatar nil)
+(setq org-contacts-csv-line-prefix "**")
+(setq org-mobile-directory "~/Documents/org-mobile/")
+(setq org-mobile-remote-directory "/sdcard/org-mobile/")
+(setq org-contacts-vcard-file "~/Documents/org-mobile/contacts.vcf")
+(setq org-contacts-csv-file "~/Documents/org-mobile/contacts.csv")
+(setq eh-org-mobile-sync-adb-cmd "sudo adb push %s %s >/dev/null 2>&1")
+
+;; Press G to sync org-contact in org-agenda buffer
+(org-defkey org-agenda-mode-map "G" 'eh-org-mobile-sync-with-adb)
+
+(defun eh-org-mobile-sync ()
+"sync org-mobile  with extra emacs process"
+(interactive)
+(let ((eh-org-mobile-sync-buffer-name "eh-org-mobile-sync")
+      (eh-org-mobile-sync-process-name "eh-org-mobile-sync")
+      (eh-org-mobile-sync-cmd "emacs --batch --load ~/.emacs --eval \"(progn (org-contacts-export-as-vcard) (org-contacts-export-as-csv) (org-mobile-push))\""))
+  (if (get-process eh-org-mobile-sync-process-name)
+      (kill-process eh-org-mobile-sync-process-name))
+  (progn (start-process eh-org-mobile-sync-process-name
+                        (get-buffer-create eh-org-mobile-sync-buffer-name)
+                        "/bin/bash"
+                        "-c" eh-org-mobile-sync-cmd))))
+
+(defun eh-org-mobile-sync-with-adb ()
+  "sync org-mobile with andoid-tools-adb"
+  (interactive)
+  (org-contacts-export-as-vcard nil "经常联系")
+  (org-contacts-export-as-csv)
+  (org-mobile-push)
+  (message "Push to Android...")
+  (shell-command (concat
+                  (format eh-org-mobile-sync-adb-cmd
+                          org-mobile-directory
+                          org-mobile-remote-directory))))
+
+
+
 (defcustom org-contacts-csv-file "contacts.csv"
   "Default file for csv export."
   :group 'org-contacts
