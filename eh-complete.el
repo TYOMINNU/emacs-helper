@@ -33,11 +33,12 @@
 
 ;; ido模式
 (require 'ido)
-(if (featurep 'ido-vertical-mode) (ido-vertical-mode t))
+(require 'ido-vertical-mode)
 
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
 (ido-mode t)
+(ido-vertical-mode t)
 (add-hook 'ido-setup-hook 'eh-ido-keybinding)
 (defun eh-ido-keybinding ()
    (define-key ido-completion-map (kbd "C-SPC") nil)

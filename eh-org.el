@@ -56,22 +56,44 @@
 (require 'org-screenshot)
 (require 'ob-R)
 
-;; 变量设定
+;; 自定义变量
+(setq eh-org-todo-file "~/org/i-tode.org")
+(setq eh-org-auto-todo-file "~/org/i-tode-auto.org")
+(setq eh-org-note-file "~/org/i-notes.org")
+(setq eh-org-auto-note-file "~/org/i-notes-auto.org")
+(setq eh-org-study-note-file "~/org/i-notes-study.org")
+(setq eh-org-contacts-file "~/org/i-contacts.org")
+(setq eh-org-account-file "~/org/i-account.org")
+(setq eh-org-journal-file "~/org/i-journal.org")
+(setq eh-org-schedule-file "~/org/i-schedule.org")
+(setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
+(setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
+(setq org-agenda-files
+      (append (file-expand-wildcards "~/org/*.org")))
+
+
+;; ox-jabref没有合并到官方master，所以首先检查是否存在
+;; ox-jabref.el这个文件, 另外ox-bibtex和ox-jabref冲突
+;; 不能同时加载
+(if (not (file-exists-p
+	  (concat (file-name-directory
+		   (file-name-directory
+		    (locate-library "org-contacts.el"))) "ox-jabref.el")))
+    (require 'ox-bibtex)
+  (require 'ox-jabref)
+  (setq org-jabref-command (list "java" "-jar" (expand-file-name eh-org-jabref-file) "-n" "true")))
+
+;; latex2mathml命令
 (setq org-latex-to-mathml-convert-command
       "java -jar %j -unicode -force -df %o %I"
       org-latex-to-mathml-jar-file
-      "~/bin/mathtoweb.jar")
-
-(setq org-jabref-command '("java" "-jar" "/home/feng/bin/JabRef-2.9.2.jar" "-n" "true"))
-
-(setq org-agenda-files 
-      (append (file-expand-wildcards "~/org/*.org")))
+      eh-org-mathtoweb-file)
 
 ;; capture模板
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/org/i-todo.org" "Tasks")
+      '(("t" "Todo" entry (file+headline eh-org-todo-file "Tasks")
          "* TODO %? %^g\n %i \n %a")
-        ("u" "Notes: 直接保存" entry  (file+headline "~/org/i-notes-auto.org" "Notes")
+        ("u" "Notes: 直接保存" entry  (file+headline eh-org-auto-note-file "Notes")
 "** %c
    :PROPERTIES:
    :DATE: %u
@@ -81,7 +103,7 @@
 :immediate-finish
 :kill-buffer)
 
-        ("w" "Notes: 一般事项" entry  (file+headline "~/org/i-notes.org" "Notes")
+        ("w" "Notes: 一般事项" entry  (file+headline eh-org-note-file "Notes")
 "** %c
    :PROPERTIES:
    :DATE: %u
@@ -89,7 +111,7 @@
 %i"
 :empty-lines 1)
 
-        ("x" "Notes: 学习感悟" entry  (file+headline "~/org/i-notes-study.org" "Notes")
+        ("x" "Notes: 学习感悟" entry  (file+headline eh-org-study-note-file "Notes")
 "* %?
    :PROPERTIES:
    :DATE: %u
@@ -98,15 +120,15 @@
 %i"
 :empty-lines 1)
 
-        ("l" "Link" entry (file+olp "~/org/i-notes.org" "Web Links")
+        ("l" "Link" entry (file+olp eh-org-note-file "Web Links")
          "* %a\n %?\n %i")
-        ("m" "account" table-line (file+headline "~/org/i-account.org" "account")
+        ("m" "account" table-line (file+headline eh-org-account-file "account")
          "|%?||||||%u|")
-        ("j" "Journal" entry (file+datetree "~/org/i-journal.org")
+        ("j" "Journal" entry (file+datetree eh-org-journal-file)
          "* %?\n %U\n %i\n  %a")
-        ("s" "Schedule" entry (file+headline "~/org/i-schedule.org" "Schedule")
+        ("s" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
          "* %?\n %T\n  %a")
-        ("v" "Contacts" entry (file "~/org/i-contacts.org")
+        ("v" "Contacts" entry (file eh-org-contacts-file)
                "* %(org-contacts-template-name) %^G
   :PROPERTIES:
   :ALIAS: 
@@ -115,7 +137,7 @@
   :PHONE: 
   :IGNORE:
   :END:")
-        ("c" "Contacts: 手动输入" entry (file "~/org/i-contacts.org")
+        ("c" "Contacts: 手动输入" entry (file eh-org-contacts-file)
                "* %? %^g
   :PROPERTIES:
   :ALIAS: 
@@ -140,6 +162,7 @@
           (tags-todo "书籍杂志")
           (tags-todo "文献")))))
 
+(setq org-agenda-remove-tags t)
 (setq org-todo-keywords
       '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 
@@ -150,7 +173,7 @@
 (setq org-log-done t)   
 (setq org-startup-indented nil)
 (setq org-confirm-babel-evaluate nil)
-(setq org-agenda-remove-tags t)
+
 
 ;; org-bable设置
 ; font-lock in src code blocks
@@ -177,32 +200,33 @@
 ;; org-babel hook
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 
-;; org-mode hook
+;; 开启cdlatex
 (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
+;; 开启自动断行
 (add-hook 'org-mode-hook '(lambda ()
  			    (setq visual-line-fringe-indicators '(nil nil))
  			    (visual-line-mode)
  			    (if visual-line-mode
  				(setq word-wrap nil))))
 
-;; export时替换标点
-(defun eh-convert-punctuation (text backend info)
-  "将半角标点符号全部替换为全角标点符号"
-  (when (memq backend '(odt html))
-    (replace-regexp-in-string
-     ";" "；"
-     (replace-regexp-in-string
-      ":" "："
-      (replace-regexp-in-string
-       "·" "。"
-       (replace-regexp-in-string 
-	","  "，"
-	(replace-regexp-in-string 
-	 "\\."  "。"
-	 (replace-regexp-in-string "\n" "" text))))))))
+;; export filter
+;; (defun eh-convert-punctuation (text backend info)
+;;   "将半角标点符号全部替换为全角标点符号"
+;;   (when (memq backend '(odt html))
+;;     (replace-regexp-in-string
+;;      ";" "；"
+;;      (replace-regexp-in-string
+;;       ":" "："
+;;       (replace-regexp-in-string
+;;        "·" "。"
+;;        (replace-regexp-in-string 
+;; 	","  "，"
+;; 	(replace-regexp-in-string 
+;; 	 "\\."  "。"
+;; 	 (replace-regexp-in-string "\n" "" text))))))))
 
-(add-to-list 'org-export-filter-plain-text-functions
-             'eh-convert-punctuation)
+;; (add-to-list 'org-export-filter-plain-text-functions
+;;              'eh-convert-punctuation)
 
 ;; use Cairo graphics device by default,which can get better graphics quality.
 ;; you shoule add require("Cairo") to you ~/.Rprofile
@@ -360,9 +384,6 @@
 (org-add-link-type "cite" 'eh-bibtex-open)
 
 
-
-
-
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)
 
@@ -371,15 +392,5 @@
 ;; End:
 
 ;;; eh-org.el ends here
-
-
-
-
-
-
-
-
-
-
 
 

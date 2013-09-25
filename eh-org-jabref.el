@@ -31,11 +31,6 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-
-
-
-(require 'ox-jabref)
-
 (setq org-jabref-odt-citation-transcoders
       '(org-odt-citation-reference/numbered
 	. org-jabref-odt-bibliography/numbered))
