@@ -461,6 +461,21 @@
           nconc (eh-directory-files-recursively file type regexp) into ret
           finally return ret)))
 
+(defun eh-add-bibtex-pinyin-alias ()
+  (interactive)
+  (if (featurep 'eh-hanzi2pinyin)
+      (progn
+	(goto-char (point-min))
+	(while (re-search-forward "\\( +\\)alias += +{\\([^}{]+\\)}, *\n" nil t)
+	  (replace-match ""))
+	(goto-char (point-min))
+	(while (re-search-forward "\\( +\\)author += +{\\([^}{]+\\)}, *\n" nil t)
+	  (let ((space (match-string 1))
+		(string (match-string 2)))
+	    (replace-match (concat space "author = {" string "}," "\n"
+				   space "alias = {" (eh-hanzi2pinyin string t) "},\n")))))
+    (message "Can't find eh-hanzi2pinyin")))
+
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)
 
