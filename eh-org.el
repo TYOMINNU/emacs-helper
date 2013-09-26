@@ -372,7 +372,7 @@
   (define-key org-mode-map (kbd "C-c ( )") 'reftex-citation)
   (define-key org-mode-map (kbd "C-c ( (") 'eh-org-open-cite-article-with-external-app)
   (define-key org-mode-map (kbd "C-c ( o") 'eh-org-search-cite-key)
-  (define-key org-mode-map (kbd "C-c )") (lambda () (interactive)
+  (define-key org-mode-map (kbd "C-c ) )") (lambda () (interactive)
                                            (let ((reftex-cite-format "\\cite{%l}"))
                                              (reftex-citation)))))
 
@@ -406,7 +406,14 @@
 	  (eh-directory-files-recursively
 	   (file-name-directory
 	    (car (reftex-get-bibfile-list))) t key)))
-    (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-list))))
+    (cond
+     ((> (length files-list) 1)
+      (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-list)))
+     ((= (length files-list) 1)
+      (message "Opening file: %s" (car files-list))
+      (start-process "" nil "xdg-open" (car files-list)))
+     ((< (length files-list) 1)
+      (message "Can't find the corresponding file")))))
 
 (defun eh-directory-files-recursively (directory &optional type regexp)
   "recursively list all the files in a directory"
