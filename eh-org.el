@@ -369,20 +369,64 @@
                '((?b . "[[cite:%l]]")
                  (?c . "\\cite{%l}")
                  (?t . "%t")))))
-  (define-key org-mode-map (kbd "C-c (") 'reftex-citation)
+  (define-key org-mode-map (kbd "C-c ( (") 'reftex-citation)
+  (define-key org-mode-map (kbd "C-c ( o") 'eh-org-open-cite-article-with-external-app)
+  (define-key org-mode-map (kbd "C-c ( s") 'eh-org-search-cite-key)
   (define-key org-mode-map (kbd "C-c )") (lambda () (interactive)
-                                           (let ((reftex-cite-format "[[cite:%l]]"))
+                                           (let ((reftex-cite-format "\\cite{%l}"))
                                              (reftex-citation)))))
 
 (add-hook 'org-mode-hook 'eh-org-mode-reftex-setup)
 
-(defun eh-bibtex-open (key)
+(defun eh-org-open-cite-link (key)
   "Get bibfile from \\bibliography{...} and open it with function `org-open-file'"
   (let* ((path (car (reftex-get-bibfile-list))))
     (org-open-file path t nil key)))
 
-(org-add-link-type "cite" 'eh-bibtex-open)
+(org-add-link-type "cite" 'eh-org-open-cite-link)
 
+(defun eh-org-search-cite-key ()
+  "Open cite article with external app"
+  (interactive)
+  (let* ((key (if mark-active
+		  (buffer-substring-no-properties (region-beginning) (region-end))
+		(current-word nil t)))
+	 (path (car (reftex-get-bibfile-list))))
+    (org-open-file path t nil key)))
+
+(defun eh-org-open-cite-article-with-external-app ()
+  "Open cite article with external app"
+  (interactive)
+  (let* ((key (replace-regexp-in-string
+		  "[0-9]+" ""
+		  (if mark-active
+		      (buffer-substring-no-properties (region-beginning) (region-end))
+		    (current-word nil t))))
+	 (files-list
+	  (eh-directory-files-recursively
+	   (file-name-directory
+	    (car (reftex-get-bibfile-list))) t key)))
+    (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-list))))
+
+(defun eh-directory-files-recursively (directory &optional type regexp)
+  "recursively list all the files in a directory"
+  (let* ((directory (or directory default-directory))
+         (predfunc (case type
+                     (dir 'file-directory-p)
+                     (file 'file-regular-p)
+                     (otherwise 'identity)))
+         (files (delete-if
+                 (lambda (s)
+                   (string-match (rx bol (repeat 1 2 ".") eol)
+                                 (file-name-nondirectory s)))
+                 (directory-files directory t nil t))))
+    (loop for file in files
+          when (and (funcall predfunc file)
+                    (string-match regexp (file-name-nondirectory file)))
+          collect file into ret
+          when (file-directory-p file)
+          nconc (eh-directory-files-recursively file type regexp) into ret
+          finally return ret)))
 
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)
@@ -392,5 +436,3 @@
 ;; End:
 
 ;;; eh-org.el ends here
-
-
