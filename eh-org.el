@@ -428,10 +428,16 @@
 		  (if mark-active
 		      (buffer-substring-no-properties (region-beginning) (region-end))
 		    (current-word nil t))))
-	 (files-list
-	  (eh-directory-files-recursively
-	   (file-name-directory
-	    (car (reftex-get-bibfile-list))) t key)))
+	 (files-list  (delete-if
+		       (lambda (s)
+			 (let ((case-fold-search t)
+			       (string (replace-regexp-in-string " +" "" s)))
+			   (not (or (string-match key string)
+				    (if (featurep 'eh-hanzi2pinyin)
+					(string-match key (eh-hanzi2pinyin string)))))))
+		       (eh-directory-files-recursively
+			(file-name-directory
+			(car (reftex-get-bibfile-list))) t))))
     (cond
      ((> (length files-list) 1)
       (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-list)))
@@ -444,6 +450,7 @@
 (defun eh-directory-files-recursively (directory &optional type regexp)
   "recursively list all the files in a directory"
   (let* ((directory (or directory default-directory))
+	 (regexp  (if regexp regexp ".*"))
          (predfunc (case type
                      (dir 'file-directory-p)
                      (file 'file-regular-p)
@@ -473,7 +480,30 @@
 	  (let ((space (match-string 1))
 		(string (match-string 2)))
 	    (replace-match (concat space "author = {" string "}," "\n"
-				   space "alias = {" (eh-hanzi2pinyin string t) "},\n")))))
+				   space "alias = {" (eh-hanzi2pinyin string t) "},\n")) t)))
+    (message "Can't find eh-hanzi2pinyin")))
+
+(defun eh-convert-bibtex-key-to-pinyin ()
+  "Convert bibtex key to pinyin"
+  (interactive)
+  (if (featurep 'eh-hanzi2pinyin)
+      (progn
+	(goto-char (point-min))
+	(while (re-search-forward "\\@\\([a-zA-Z]+\\){\\([^,]+\\)," nil t)
+	  (let ((bibtype (match-string 1))
+		(string (match-string 2)))
+	    (replace-match (concat "@" bibtype "{" (replace-regexp-in-string " +" "" (downcase (eh-hanzi2pinyin-simple string))) ",") t))))
+    (message "Can't find eh-hanzi2pinyin")))
+
+(defun eh-convert-cite-key-to-pinyin ()
+  "Convert bibtex key to pinyin"
+  (interactive)
+  (if (featurep 'eh-hanzi2pinyin)
+      (progn
+	(goto-char (point-min))
+	(while (re-search-forward "\\\\cite{\\([^{}]+\\)}" nil t)
+	  (let ((string (match-string 1)))
+	    (replace-match (concat "\\\\cite{" (downcase (eh-hanzi2pinyin-simple string)) "}") t))))
     (message "Can't find eh-hanzi2pinyin")))
 
 ;;;###autoload(require 'eh-org)
