@@ -253,7 +253,8 @@
 ;; latex
 (setq org-latex-create-formula-image-program 'imagemagick)
 (setq org-latex-pdf-process '("xelatex -interaction nonstopmode -output-directory %o %f" 
-                              "xelatex -interaction nonstopmode -output-directory %o %f" 
+                              "bibtex %b"
+			      "xelatex -interaction nonstopmode -output-directory %o %f"
                               "xelatex -interaction nonstopmode -output-directory %o %f"))
 
 
