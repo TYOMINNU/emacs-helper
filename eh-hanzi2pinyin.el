@@ -72,6 +72,16 @@ get pinyin shouzimu string"
                 :test (lambda (x y) (or (null y) (equal x y)))
                 :from-end t) " ")))
 
+(defun eh-hanzi2pinyin-simple (string &optional shou-zi-mu)
+  "This is a simple version of eh-hanzi2pinyin, and it only get the first pinyin of polyphones"
+  (mapconcat 'identity
+	     (mapcar
+	      (lambda (x) (if (gethash x eh-hanzi2pinyin-table)
+			      (let ((pinyin (car (gethash x eh-hanzi2pinyin-table))))
+				(if shou-zi-mu
+				    (substring pinyin 0 1)
+				  pinyin))
+			    (char-to-string x))) string) ""))
 
 (provide 'eh-hanzi2pinyin)
 
