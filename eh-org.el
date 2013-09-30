@@ -484,6 +484,18 @@
 				   space "alias = {" (eh-hanzi2pinyin string t) "},\n")) t)))
     (message "Can't find eh-hanzi2pinyin")))
 
+(defun eh-add-bibtex-language-field ()
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward "\\( +\\)language += +{\\([^}{]+\\)}, *\n" nil t)
+    (replace-match ""))
+  (goto-char (point-min))
+  (while (re-search-forward "\\( +\\)title += +{[^}{]+}," nil t)
+    (let ((title (match-string 0))
+	  (space (match-string 1)))
+      (if (string-match-p "\\cc+" title)
+	  (replace-match (concat title "\n" space "language  = {zh},")) t))))
+
 (defun eh-convert-bibtex-key-to-pinyin ()
   "Convert bibtex key to pinyin"
   (interactive)
