@@ -78,7 +78,7 @@
 :empty-lines 1)
 
         ("v" "Contacts" entry (file eh-org-contacts-file)
-	 "* %(org-contacts-template-name) %^G
+	 "* %(org-contacts-template-name)
   :PROPERTIES:
   :ALIAS: 
   :NOTE:  
@@ -91,7 +91,7 @@
   :PROPERTIES:
   :ALIAS: 
   :NOTE: 
-  :EMAIL: %x
+  :EMAIL: 
   :PHONE: 
   :IGNORE: 
   :END:")))
