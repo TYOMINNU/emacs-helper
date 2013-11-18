@@ -73,7 +73,8 @@
    :DATE: %u
    :LINK: %a
    :END:
-%i"
+%i
+%c"
 :empty-lines 1)
 
         ("v" "Contacts" entry (file eh-org-contacts-file)
