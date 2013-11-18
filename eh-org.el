@@ -89,63 +89,6 @@
       org-latex-to-mathml-jar-file
       eh-org-mathtoweb-file)
 
-;; capture模板
-(setq org-capture-templates
-      '(("t" "Todo" entry (file+headline eh-org-todo-file "Tasks")
-         "* TODO %? %^g\n %i \n %a")
-        ("u" "Notes: 直接保存" entry  (file+headline eh-org-auto-note-file "Notes")
-"** %c
-   :PROPERTIES:
-   :DATE: %u
-   :END:
-%i"
-:empty-lines 1
-:immediate-finish
-:kill-buffer)
-
-        ("w" "Notes: 一般事项" entry  (file+headline eh-org-note-file "Notes")
-"** %c
-   :PROPERTIES:
-   :DATE: %u
-   :END:
-%i"
-:empty-lines 1)
-
-        ("x" "Notes: 学习感悟" entry  (file+headline eh-org-study-note-file "Notes")
-"* %?
-   :PROPERTIES:
-   :DATE: %u
-   :LINK: %a
-   :END:
-%i"
-:empty-lines 1)
-
-        ("l" "Link" entry (file+olp eh-org-note-file "Web Links")
-         "* %a\n %?\n %i")
-        ("m" "account" table-line (file+headline eh-org-account-file "account")
-         "|%?||||||%u|")
-        ("j" "Journal" entry (file+datetree eh-org-journal-file)
-         "* %?\n %U\n %i\n  %a")
-        ("s" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
-         "* %?\n %T\n  %a")
-        ("v" "Contacts" entry (file eh-org-contacts-file)
-               "* %(org-contacts-template-name) %^G
-  :PROPERTIES:
-  :ALIAS: 
-  :NOTE:  
-  :EMAIL: %(org-contacts-template-email)
-  :PHONE: 
-  :IGNORE:
-  :END:")
-        ("c" "Contacts: 手动输入" entry (file eh-org-contacts-file)
-               "* %? %^g
-  :PROPERTIES:
-  :ALIAS: 
-  :NOTE: 
-  :EMAIL: %x
-  :PHONE: 
-  :IGNORE: 
-  :END:")))
 
 (setq org-agenda-custom-commands
       '(("l" "agenda: 常用"
