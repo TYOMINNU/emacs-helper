@@ -35,9 +35,22 @@
 ;; capture模板
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline eh-org-todo-file "Tasks")
-         "* TODO %? %^g\n %i \n %a")
-        ("u" "Notes: 直接保存" entry  (file+headline eh-org-auto-note-file "Notes")
-"** %c
+         "* TODO %? \n %i \n %a")
+
+        ("l" "Link" entry (file+olp eh-org-note-file "Web Links")
+         "* %a\n %?\n %i")
+
+        ("m" "account" table-line (file+headline eh-org-account-file "account")
+         "|%?||||||%u|")
+
+        ("j" "Journal" entry (file+datetree eh-org-journal-file)
+         "* %?\n %U\n %i\n  %a")
+
+        ("s" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
+         "* %?\n %T\n  %a")
+
+        ("u" "Notes: 直接保存" entry (file+headline eh-org-auto-note-file "Notes")
+	 "** %c
    :PROPERTIES:
    :DATE: %u
    :END:
@@ -60,21 +73,11 @@
    :DATE: %u
    :LINK: %a
    :END:
-%x
-
 %i"
 :empty-lines 1)
 
-        ("l" "Link" entry (file+olp eh-org-note-file "Web Links")
-         "* %a\n %?\n %i")
-        ("m" "account" table-line (file+headline eh-org-account-file "account")
-         "|%?||||||%u|")
-        ("j" "Journal" entry (file+datetree eh-org-journal-file)
-         "* %?\n %U\n %i\n  %a")
-        ("s" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
-         "* %?\n %T\n  %a")
         ("v" "Contacts" entry (file eh-org-contacts-file)
-               "* %(org-contacts-template-name) %^G
+	 "* %(org-contacts-template-name) %^G
   :PROPERTIES:
   :ALIAS: 
   :NOTE:  
@@ -83,7 +86,7 @@
   :IGNORE:
   :END:")
         ("c" "Contacts: 手动输入" entry (file eh-org-contacts-file)
-               "* %? %^g
+	 "* %?
   :PROPERTIES:
   :ALIAS: 
   :NOTE: 
@@ -92,24 +95,23 @@
   :IGNORE: 
   :END:")))
 
-(defadvice org-capture-finalize
-    (after delete-capture-frame activate)
+(setq eh-org-capture-frame-name "org-capture")
+
+(defadvice org-capture-finalize (after delete-capture-frame activate)
   "Advise capture-finalize to close the frame"
-  (if (equal "org-capture" (frame-parameter nil 'name))
+  (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
       (delete-frame)))
 
-(defadvice org-capture-destroy
-    (after delete-capture-frame activate)
+(defadvice org-capture-destroy (after delete-capture-frame activate)
   "Advise capture-destroy to close the frame"
-  (if (equal "org-capture" (frame-parameter nil 'name))
+  (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
       (delete-frame)))
 
 ;; make the frame contain a single window. by default org-capture
 ;; splits the window.
-(defadvice org-switch-to-buffer-other-window
-    (after supress-window-splitting activate)
+(defadvice org-switch-to-buffer-other-window (after supress-window-splitting activate)
   "Delete the extra window if we're in a capture frame"
-  (if (equal "org-capture" (frame-parameter nil 'name))
+  (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
       (delete-other-windows)))
 
 (defun eh-org-capture (&optional goto keys)
@@ -122,7 +124,7 @@
 	     (setq word-wrap 1)
 	     (setq truncate-lines nil)
 	     (org-capture goto keys)))))
-    (make-frame '((name . "org-capture")
+    (make-frame `((name . ,eh-org-capture-frame-name)
 		  (window-system . x)
 		  (width . 120)
 		  (height . 15)))))
