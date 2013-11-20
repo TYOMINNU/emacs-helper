@@ -71,9 +71,7 @@
 "* %?
    :PROPERTIES:
    :DATE: %u
-   :LINK: %a
    :END:
-%i
 %c"
 :empty-lines 1)
 
@@ -127,6 +125,7 @@
 	     (org-capture goto keys)))))
     (make-frame `((name . ,eh-org-capture-frame-name)
 		  (window-system . x)
+		  (font . "WenQuanYi Micro Hei Mono 18")
 		  (width . 120)
 		  (height . 15)))))
 
