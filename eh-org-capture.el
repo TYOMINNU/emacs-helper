@@ -97,13 +97,17 @@
 (setq eh-org-capture-frame-name "org-capture")
 
 (defun eh-org-capture-clean-text (text)
+  (replace-regexp-in-string
+   "\\(\\cc\\) *\n *\\(\\cc\\)" "\\1\\2"
+   (replace-regexp-in-string
+    " +" " "
+    (replace-regexp-in-string
+     "\\(\\cc\\) +" "\\1"
+     (replace-regexp-in-string
+      "^ +\\(\\cc\\)" "\\1"
       (replace-regexp-in-string
-       "\\(\\cc+\\) +" "\\1"
-       (replace-regexp-in-string
-	"^ +\\(\\cc+\\)" "\\1"
-	(replace-regexp-in-string
-	 "\r" ""
-	 text))))
+       "\r" ""
+       text))))))
 
 (defadvice org-capture-finalize (after delete-capture-frame activate)
   "Advise capture-finalize to close the frame"
