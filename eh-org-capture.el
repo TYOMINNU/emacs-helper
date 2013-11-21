@@ -72,7 +72,7 @@
    :PROPERTIES:
    :DATE: %u
    :END:
-%c"
+%(eh-org-capture-clean-text (current-kill 0))"
 :empty-lines 1)
 
         ("v" "Contacts" entry (file eh-org-contacts-file)
@@ -95,6 +95,15 @@
   :END:")))
 
 (setq eh-org-capture-frame-name "org-capture")
+
+(defun eh-org-capture-clean-text (text)
+      (replace-regexp-in-string
+       "\\(\\cc+\\) +" "\\1"
+       (replace-regexp-in-string
+	"^ +\\(\\cc+\\)" "\\1"
+	(replace-regexp-in-string
+	 "\r" ""
+	 text))))
 
 (defadvice org-capture-finalize (after delete-capture-frame activate)
   "Advise capture-finalize to close the frame"
