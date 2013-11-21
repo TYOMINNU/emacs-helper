@@ -108,6 +108,18 @@
   (goto-char (point-min))
   (while (search-forward "\n" nil t) (replace-match "\r\n")))
 
+(defun eh-remove-white-space ()
+  "删除多余空格"
+  (interactive)
+  ;; 删除行首空格
+  (goto-char (point-min))
+  (while (re-search-forward "^ +\\(\\cc+\\)" nil t)
+    (replace-match "\\1"))
+  ;; 删除汉字之间的空格
+  (goto-char (point-min))
+  (while (re-search-forward "\\(\\cc+\\) +" nil t)
+    (replace-match "\\1")))
+
 (defun eh-utf8-language-environment ()
   "设置utf-8语言环境"
   (interactive)
