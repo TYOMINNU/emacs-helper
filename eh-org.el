@@ -462,6 +462,12 @@
 	    (replace-match (concat "\\\\cite{" (downcase (eh-hanzi2pinyin-simple string)) "}") t))))
     (message "Can't find eh-hanzi2pinyin")))
 
+(defun eh-org-fill-paragraph ()
+  "Fill org paragraph"
+  (interactive)
+  (let ((fill-column 10000000))
+    (org-fill-paragraph)))
+
 ;;;###autoload(require 'eh-org)
 (provide 'eh-org)
 

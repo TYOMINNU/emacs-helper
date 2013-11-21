@@ -82,6 +82,7 @@
 (global-set-key (kbd "<f7>") 'org-screenshot-take)
 (global-set-key (kbd "<f8>") 'org-capture)
 (global-set-key (kbd "<f9>") 'org-store-link)
+(global-set-key (kbd "<f10>") 'eh-org-fill-paragraph)
 (global-set-key (kbd "<f11>") 'org-contacts)
 (global-set-key (kbd "<f12>") 'eh-org-mobile-sync-with-adb)
 
