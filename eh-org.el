@@ -57,15 +57,6 @@
 (require 'ob-R)
 
 ;; 自定义变量
-(setq eh-org-todo-file "~/org/i-tode.org")
-(setq eh-org-auto-todo-file "~/org/i-tode-auto.org")
-(setq eh-org-note-file "~/org/i-notes.org")
-(setq eh-org-auto-note-file "~/org/i-notes-auto.org")
-(setq eh-org-study-note-file "~/org/i-notes-study.org")
-(setq eh-org-contacts-file "~/org/i-contacts.org")
-(setq eh-org-account-file "~/org/i-account.org")
-(setq eh-org-journal-file "~/org/i-journal.org")
-(setq eh-org-schedule-file "~/org/i-schedule.org")
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
 (setq org-agenda-files

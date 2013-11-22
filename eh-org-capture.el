@@ -32,66 +32,52 @@
 
 ;;; Code:
 
+;; 自定义变量
+(setq eh-org-todo-file "~/org/i-tode.org")
+(setq eh-org-note-file "~/org/i-notes.org")
+(setq eh-org-contacts-file "~/org/i-contacts.org")
+(setq eh-org-account-file "~/org/i-account.org")
+(setq eh-org-journal-file "~/org/i-journal.org")
+(setq eh-org-schedule-file "~/org/i-schedule.org")
+
 ;; capture模板
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline eh-org-todo-file "Tasks")
+      '(("todo" "Todo" entry (file+headline eh-org-todo-file "Tasks")
          "* TODO %? \n %i \n %a")
 
-        ("l" "Link" entry (file+olp eh-org-note-file "Web Links")
+        ("link" "Link" entry (file+olp eh-org-note-file "Web Links")
          "* %a\n %?\n %i")
 
-        ("m" "account" table-line (file+headline eh-org-account-file "account")
+        ("account" "account" table-line (file+headline eh-org-account-file "Account")
          "|%?||||||%u|")
 
-        ("j" "Journal" entry (file+datetree eh-org-journal-file)
+        ("journal" "Journal" entry (file+datetree eh-org-journal-file)
          "* %?\n %U\n %i\n  %a")
 
-        ("s" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
+        ("schedule" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
          "* %?\n %T\n  %a")
 
-        ("u" "Notes: 直接保存" entry (file+headline eh-org-auto-note-file "Notes")
-	 "** %c
+        ("notes" "Notes" entry  (file+headline eh-org-note-file "Notes")
+"** %?
    :PROPERTIES:
    :DATE: %u
    :END:
-%i"
-:empty-lines 1
-:immediate-finish
-:kill-buffer)
-
-        ("w" "Notes: 一般事项" entry  (file+headline eh-org-note-file "Notes")
-"** %c
-   :PROPERTIES:
-   :DATE: %u
-   :END:
- %i"
+"
 :empty-lines 1)
-
-        ("x" "Notes: 学习感悟" entry  (file+headline eh-org-study-note-file "Notes")
-"* %?
+        ("notes-x-selection" "Notes" entry  (file+headline eh-org-note-file "Notes")
+"** %?
    :PROPERTIES:
    :DATE: %u
    :END:
 %(eh-org-capture-clean-text (current-kill 0))"
 :empty-lines 1)
-
-        ("v" "Contacts" entry (file eh-org-contacts-file)
-	 "* %(org-contacts-template-name)
-  :PROPERTIES:
-  :ALIAS: 
-  :NOTE:  
-  :EMAIL: %(org-contacts-template-email)
-  :PHONE: 
-  :IGNORE:
-  :END:")
-        ("c" "Contacts: 手动输入" entry (file eh-org-contacts-file)
+        ("contacts" "Contacts" entry (file eh-org-contacts-file)
 	 "* %?
   :PROPERTIES:
   :ALIAS: 
-  :NOTE: 
-  :EMAIL: 
   :PHONE: 
-  :IGNORE: 
+  :EMAIL:  
+  :NOTE: 
   :END:")))
 
 (setq eh-org-capture-frame-name "org-capture")
@@ -144,23 +130,19 @@
 
 ;; keybinding
 (define-key global-map "\C-ct"
-  (lambda () (interactive) (eh-org-capture nil "t")))
+  (lambda () (interactive) (eh-org-capture nil "todo")))
 (define-key global-map "\C-cj"
-  (lambda () (interactive) (eh-org-capture nil "j")))
+  (lambda () (interactive) (eh-org-capture nil "journal")))
 (define-key global-map "\C-cs"
-  (lambda () (interactive) (eh-org-capture nil "s")))
+  (lambda () (interactive) (eh-org-capture nil "schedule")))
 (define-key global-map "\C-cl"
-  (lambda () (interactive) (eh-org-capture nil "l")))
-(define-key global-map "\C-cw"
-  (lambda () (interactive) (eh-org-capture nil "w")))
-(define-key global-map "\C-cx"
-  (lambda () (interactive) (eh-org-capture nil "x")))
-(define-key global-map "\C-cv"
-  (lambda () (interactive) (eh-org-capture nil "v")))
+  (lambda () (interactive) (eh-org-capture nil "link")))
+(define-key global-map "\C-cn"
+  (lambda () (interactive) (eh-org-capture nil "notes")))
 (define-key global-map "\C-cc"
-  (lambda () (interactive) (eh-org-capture nil "c")))
-(define-key global-map "\C-cm"
-  (lambda () (interactive) (eh-org-capture nil "m")))
+  (lambda () (interactive) (eh-org-capture nil "contacts")))
+(define-key global-map "\C-ca"
+  (lambda () (interactive) (eh-org-capture nil "account")))
 
 (provide 'eh-org-capture)
 
