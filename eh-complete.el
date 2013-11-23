@@ -34,6 +34,7 @@
 ;; ido模式
 (require 'ido)
 (require 'ido-vertical-mode)
+(require 'smex)
 
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
@@ -45,6 +46,11 @@
    (define-key ido-completion-map (kbd "C-@") nil)
    (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
    (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
+
+;; ido completion in M-x
+(smex-initialize)
+(global-set-key "\M-x" 'smex)
+
 
 ;; 打开auto-complete-mode模式
 (require 'auto-complete)
