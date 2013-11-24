@@ -119,7 +119,7 @@
 	 (lambda (frame)
 	   (progn
 	     (select-frame frame)
-	     (setq word-wrap 1)
+	     (setq word-wrap nil)
 	     (setq truncate-lines nil)
 	     (org-capture goto keys)))))
     (make-frame `((name . ,eh-org-capture-frame-name)
