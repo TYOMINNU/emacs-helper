@@ -55,10 +55,12 @@
 (require 'org-protocol)
 (require 'org-screenshot)
 (require 'ob-R)
+(require 'ob-plantuml)
 
 ;; 自定义变量
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
+(setq org-plantuml-jar-path "~/bin/plantuml.jar")
 (setq org-agenda-files
       (append (file-expand-wildcards "~/org/*.org")))
 
