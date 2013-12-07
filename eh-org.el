@@ -187,13 +187,16 @@
 (setq org-html-head-include-scripts nil)
 
 ;; latex
+(setq org-latex-coding-system 'utf-8)
+;; 不要在latex输出文件中插入\maketitle
+(setq org-latex-title-command "")
+(setq org-latex-date-format "%Y-%m-%d")
+(setq org-export-with-LaTeX-fragments 'imagemagick)
 (setq org-latex-create-formula-image-program 'imagemagick)
-(setq org-latex-pdf-process '("xelatex -interaction nonstopmode -output-directory %o %f" 
-                              "bibtex %b"
-			      "xelatex -interaction nonstopmode -output-directory %o %f"
-                              "xelatex -interaction nonstopmode -output-directory %o %f"))
-
-
+(setq org-latex-pdf-process '("xelatex -interaction nonstopmode -output-directory %o %f"
+                               "bibtex %b"
+                               "xelatex -interaction nonstopmode -output-directory %o %f" 
+                               "xelatex -interaction nonstopmode -output-directory %o %f"))
 
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
@@ -236,7 +239,6 @@
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-
 
 ;; org不建议自定义org-latex-default-package-alist变量，但"inputenc" and "fontenc"两个宏包似乎和
 ;; xelatex有冲突，调整默认值！
