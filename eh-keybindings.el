@@ -32,9 +32,10 @@
 
 ;;; Code:
 ;; mark相关命令的键盘绑定
-(global-set-key (kbd "C-<SPC>") 'set-mark-command)
-(global-set-key (kbd "C-x <SPC>") 'rectangle-mark-mode)
-(global-set-key (kbd "C-\\") 'ibus-toggle)
+(global-unset-key (kbd "C-x C-x"))
+(global-set-key (kbd "C-x <SPC>") 'set-mark-command)
+(global-set-key (kbd "C-x C-x <SPC>") 'rectangle-mark-mode)
+(global-set-key (kbd "C-x C-x C-x") 'exchange-point-and-mark)
 
 ;; 设置键盘绑定,使用Ctrl-x b激活ibuffer函数
 (global-set-key (kbd "C-x b") 'ibuffer)
