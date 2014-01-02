@@ -31,9 +31,6 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-;; require
-(require 'vi)
-
 ;; 设置键盘绑定,使用Ctrl-x <SPC>设置mark
 (global-set-key (kbd "C-x <SPC>") 'set-mark-command)
 
@@ -44,7 +41,7 @@
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 
 ;; 设置键盘绑定,使用Ctrl-c k激活browese-kill-ring函数
-(global-set-key (kbd "C-c k") 'browse-kill-ring)
+(global-set-key (kbd "C-x K") 'browse-kill-ring)
 
 ;; ido
 (global-set-key (kbd "C-x C-b") 'ido-display-buffer)
@@ -53,25 +50,11 @@
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
-;; 设置键盘绑定,使用Meta-w激活eh-kill-ring-save
-;; 设置键盘绑定,使用Ctrl-w激活eh-kill-region
-(global-set-key (kbd "M-w") 'eh-kill-ring-save)
-(global-set-key (kbd "C-w") 'eh-kill-region)
-
 ;; magit status
 (global-set-key (kbd "C-c g") 'magit-status)
 
-;; 设置键盘绑定,使用Ctrl-;快速切换窗口
-(global-set-key (kbd "C-;") 'other-window)
-
 ;; 设置键盘绑定,发送邮件
 (global-set-key (kbd "C-x m") 'gnus-msg-mail)
-
-;; 设置键盘绑定,在当前行上下插入空白行
-(global-set-key (kbd "C-S-<return>") 'vi-open-above)
-(global-set-key (kbd "S-<return>") 'vi-open-below)
-(global-set-key (kbd "M-O") 'vi-open-above)
-(global-set-key (kbd "M-o") 'vi-open-below)
 
 ;; org-mode 相关快捷键
 (global-set-key (kbd "<f1>") '(lambda () (interactive) (progn (org-agenda nil "m") (org-agenda nil "l"))))
