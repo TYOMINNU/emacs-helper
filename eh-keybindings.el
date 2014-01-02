@@ -31,8 +31,10 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-;; 设置键盘绑定,使用Ctrl-x <SPC>设置mark
+;; mark相关命令的键盘绑定
 (global-set-key (kbd "C-x <SPC>") 'set-mark-command)
+(global-set-key (kbd "C-c <SPC>") 'rectangle-mark-mode)
+(global-set-key (kbd "C-<SPC>") 'ibus-toggle)
 
 ;; 设置键盘绑定,使用Ctrl-x b激活ibuffer函数
 (global-set-key (kbd "C-x b") 'ibuffer)
