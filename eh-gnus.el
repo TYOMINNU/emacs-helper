@@ -342,11 +342,15 @@
 (setq gnus-sum-thread-tree-leaf-with-other "|----")
 (setq gnus-sum-thread-tree-single-leaf " `----")
 
+;; 将邮件的发出时间转换为本地时间
+(add-hook 'gnus-article-prepare-hook 'gnus-article-date-local)
 
-;; 时间显示
-(add-hook 'gnus-article-prepare-hook 'gnus-article-date-local) ;将邮件的发出时间转换为本地时间
-(add-hook 'gnus-select-group-hook 'gnus-group-set-timestamp)   ;跟踪组的时间轴
-(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)              ;新闻组分组
+;; 跟踪组的时间轴
+(add-hook 'gnus-select-group-hook 'gnus-group-set-timestamp)
+
+;; 将新闻组分组
+;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
             ;; summary buffer行距设置
