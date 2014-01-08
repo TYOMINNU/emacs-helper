@@ -30,15 +30,6 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-
-;; org-odt-data-dir必须在load org之前定义！
-(setq org-odt-data-dir
-      (concat (file-name-directory
- 	       (directory-file-name
- 		(file-name-directory
- 		 (locate-library "org.el")))) "etc"))
-
-;; require package
 (require 'org)
 (require 'ox-ascii)
 (require 'ox-latex)
@@ -56,32 +47,19 @@
 (require 'org-screenshot)
 (require 'ob-R)
 (require 'ob-plantuml)
+(require 'ox-bibtex)
 
 ;; 自定义变量
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
 (setq org-plantuml-jar-path "~/bin/plantuml.jar")
-(setq org-agenda-files
-      (append (file-expand-wildcards "~/org/*.org")))
-
-
-;; ox-jabref没有合并到官方master，所以首先检查是否存在
-;; ox-jabref.el这个文件, 另外ox-bibtex和ox-jabref冲突
-;; 不能同时加载
-(if (not (file-exists-p
-	  (concat (file-name-directory
-		   (file-name-directory
-		    (locate-library "org-contacts.el"))) "ox-jabref.el")))
-    (require 'ox-bibtex)
-  (require 'ox-jabref)
-  (setq org-jabref-command (list "java" "-jar" (expand-file-name eh-org-jabref-file) "-n" "true")))
-
-;; latex2mathml命令
 (setq org-latex-to-mathml-convert-command
       "java -jar %j -unicode -force -df %o %I"
       org-latex-to-mathml-jar-file
       eh-org-mathtoweb-file)
 
+(setq org-agenda-files
+      (append (file-expand-wildcards "~/org/*.org")))
 
 (setq org-agenda-custom-commands
       '(("l" "agenda: 常用"
@@ -129,7 +107,7 @@
    (python . t)
    (ruby . nil)
    (screen . nil)
-   (sh . t)
+   (sh . nil)
    (sql . nil)
    (sqlite . nil)))
 
