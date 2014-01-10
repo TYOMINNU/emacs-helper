@@ -60,12 +60,37 @@
                       entry-key
 		      (car (split-string
 			    (or (ebib-db-get-field-value 'author entry-key ebib-cur-db 'noerror 'unbraced)
-				"    ") "[ \t\n]+and[ \t\n]+\\|," ))
+				"  ") "[ \t\n]+and[ \t\n]+\\|," ))
 		      (let ((title (ebib-db-get-field-value 'title entry-key ebib-cur-db 'noerror 'unbraced)))
 			(if (> (length title) 60)
 			    (concat (substring title 0 60) "...")
 			  title))
 		      "")))))
+
+(defun eh-ebib-view-file ()
+  (interactive)
+  (ebib-execute-when
+    ((entries)
+     (let* ((name-string (car (split-string
+				(or (car (ebib-db-get-field-value 'author (ebib-cur-entry-key) ebib-cur-db 'noerror 'unbraced 'xref))
+				    "  ") "[ \t\n]+and[ \t\n]+\\|," )))
+	   (files-list  (delete-if
+			 (lambda (s)
+			   (let ((case-fold-search t)
+				 (string (replace-regexp-in-string " +" "" s)))
+			     (not (or (string-match name-string string)
+				      (if (featurep 'eh-hanzi2pinyin)
+					  (string-match name-string (eh-hanzi2pinyin string)))))))
+			 (eh-directory-files-recursively
+			  (file-name-directory (ebib-db-get-filename ebib-cur-db)) t))))
+       (cond
+	((> (length files-list) 1)
+	 (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-list)))
+	((= (length files-list) 1)
+	 (message "Opening file: %s" (car files-list))
+	 (start-process "" nil "xdg-open" (car files-list)))
+	((< (length files-list) 1)
+	 (message "Can't find the corresponding file")))))))
 
 (defun eh-ebib-generate-all-entries-autokeys ()
   "generate autokeys for all entries and overwrite the exists."
@@ -119,6 +144,7 @@
 			  (ibuffer)))
 (ebib-key index "\C-xk" ebib-leave-ebib-windows)
 (ebib-key index "\C-xq" ebib-quit)
+(ebib-key index "f" eh-ebib-view-file)
 
 ;; Local Variables:
 ;; coding: utf-8-unix
