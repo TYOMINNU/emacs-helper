@@ -59,6 +59,9 @@
 ;; 设置键盘绑定,发送邮件
 (global-set-key (kbd "C-x m") 'gnus-msg-mail)
 
+;; ebib 相关快捷键
+(global-set-key (kbd "C-c b") 'ebib)
+
 ;; org-mode 相关快捷键
 (global-set-key (kbd "<f1>") '(lambda () (interactive) (progn (org-agenda nil "m") (org-agenda nil "l"))))
 (global-set-key (kbd "<f2>") '(lambda () (interactive) (org-agenda nil "s")))

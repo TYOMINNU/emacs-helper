@@ -5,6 +5,7 @@
 (load-library "eh-org")
 (load-library "eh-org-capture")
 (load-library "eh-org-contacts")
+(load-library "eh-bibtex")
 (load-library "eh-complete")
 (load-library "eh-gnus")
 (load-library "eh-functions")

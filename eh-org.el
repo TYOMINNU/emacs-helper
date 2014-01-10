@@ -385,55 +385,6 @@
           nconc (eh-directory-files-recursively file type regexp) into ret
           finally return ret)))
 
-(defun eh-add-bibtex-pinyin-alias ()
-  (interactive)
-  (if (featurep 'eh-hanzi2pinyin)
-      (progn
-	(goto-char (point-min))
-	(while (re-search-forward "\\( +\\)alias += +{\\([^}{]+\\)}, *\n" nil t)
-	  (replace-match ""))
-	(goto-char (point-min))
-	(while (re-search-forward "\\( +\\)author += +{\\([^}{]+\\)}, *\n" nil t)
-	  (let ((space (match-string 1))
-		(string (match-string 2)))
-	    (replace-match (concat space "author = {" string "}," "\n"
-				   space "alias = {" (eh-hanzi2pinyin string t) "},\n")) t)))
-    (message "Can't find eh-hanzi2pinyin")))
-
-(defun eh-add-bibtex-language-field ()
-  (interactive)
-  (goto-char (point-min))
-  (while (re-search-forward "\\( +\\)language += +{\\([^}{]+\\)}, *\n" nil t)
-    (replace-match ""))
-  (goto-char (point-min))
-  (while (re-search-forward "\\( +\\)title += +{[^}{]+}," nil t)
-    (let ((title (match-string 0))
-	  (space (match-string 1)))
-      (if (string-match-p "\\cc+" title)
-	  (replace-match (concat title "\n" space "language  = {zh},")) t))))
-
-(defun eh-convert-bibtex-key-to-pinyin ()
-  "Convert bibtex key to pinyin"
-  (interactive)
-  (if (featurep 'eh-hanzi2pinyin)
-      (progn
-	(goto-char (point-min))
-	(while (re-search-forward "\\@\\([a-zA-Z]+\\){\\([^,]+\\)," nil t)
-	  (let ((bibtype (match-string 1))
-		(string (match-string 2)))
-	    (replace-match (concat "@" bibtype "{" (replace-regexp-in-string " +" "" (downcase (eh-hanzi2pinyin-simple string))) ",") t))))
-    (message "Can't find eh-hanzi2pinyin")))
-
-(defun eh-convert-cite-key-to-pinyin ()
-  "Convert bibtex key to pinyin"
-  (interactive)
-  (if (featurep 'eh-hanzi2pinyin)
-      (progn
-	(goto-char (point-min))
-	(while (re-search-forward "\\\\cite{\\([^{}]+\\)}" nil t)
-	  (let ((string (match-string 1)))
-	    (replace-match (concat "\\\\cite{" (downcase (eh-hanzi2pinyin-simple string)) "}") t))))
-    (message "Can't find eh-hanzi2pinyin")))
 
 (defun eh-org-fill-paragraph ()
   "Fill org paragraph"
