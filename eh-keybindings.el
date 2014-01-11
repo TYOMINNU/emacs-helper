@@ -60,7 +60,7 @@
 (global-set-key (kbd "C-x m") 'gnus-msg-mail)
 
 ;; ebib 相关快捷键
-(global-set-key (kbd "C-c b") 'ebib)
+(global-set-key (kbd "C-c b") 'eh-ebib)
 
 ;; org-mode 相关快捷键
 (global-set-key (kbd "<f1>") '(lambda () (interactive) (progn (org-agenda nil "m") (org-agenda nil "l"))))

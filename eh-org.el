@@ -286,10 +286,8 @@
                '((?b . "[[cite:%l]]")
                  (?c . "\\cite{%l}")
                  (?t . "%t")))))
-  (define-key org-mode-map (kbd "C-c ( )") 'reftex-citation)
-  (define-key org-mode-map (kbd "C-c ( (") 'eh-org-open-cite-article-with-external-app)
-  (define-key org-mode-map (kbd "C-c ( o") 'eh-org-search-cite-key)
-  (define-key org-mode-map (kbd "C-c ) )") 'eh-reftex-citation))
+  (define-key org-mode-map (kbd "C-c (") 'reftex-citation)
+  (define-key org-mode-map (kbd "C-c )") 'eh-reftex-citation))
 
 (add-hook 'org-mode-hook 'eh-org-mode-reftex-setup)
 
@@ -324,67 +322,11 @@
 (defun eh-org-open-cite-link (key)
   "Get bibfile from \\bibliography{...} and open it with function `org-open-file'"
   (let* ((path (car (reftex-get-bibfile-list))))
-    (org-open-file path t nil key)))
+    (ebib path)
+    (eh-isearch-string key)
+    (ebib-select-and-popup-entry)))
 
 (org-add-link-type "cite" 'eh-org-open-cite-link)
-
-(defun eh-org-search-cite-key ()
-  "Open cite article with external app"
-  (interactive)
-  (let* ((key (if mark-active
-		  (buffer-substring-no-properties (region-beginning) (region-end))
-		(current-word nil t)))
-	 (path (car (reftex-get-bibfile-list))))
-    (org-open-file path t nil key)))
-
-(defun eh-org-open-cite-article-with-external-app ()
-  "Open cite article with external app"
-  (interactive)
-  (let* ((key (replace-regexp-in-string
-		  "[0-9]+" ""
-		  (if mark-active
-		      (buffer-substring-no-properties (region-beginning) (region-end))
-		    (current-word nil t))))
-	 (files-list  (delete-if
-		       (lambda (s)
-			 (let ((case-fold-search t)
-			       (string (replace-regexp-in-string " +" "" s)))
-			   (not (or (string-match key string)
-				    (if (featurep 'eh-hanzi2pinyin)
-					(string-match key (eh-hanzi2pinyin string)))))))
-		       (eh-directory-files-recursively
-			(file-name-directory
-			(car (reftex-get-bibfile-list))) t))))
-    (cond
-     ((> (length files-list) 1)
-      (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-list)))
-     ((= (length files-list) 1)
-      (message "Opening file: %s" (car files-list))
-      (start-process "" nil "xdg-open" (car files-list)))
-     ((< (length files-list) 1)
-      (message "Can't find the corresponding file")))))
-
-(defun eh-directory-files-recursively (directory &optional type regexp)
-  "recursively list all the files in a directory"
-  (let* ((directory (or directory default-directory))
-	 (regexp  (if regexp regexp ".*"))
-         (predfunc (case type
-                     (dir 'file-directory-p)
-                     (file 'file-regular-p)
-                     (otherwise 'identity)))
-         (files (delete-if
-                 (lambda (s)
-                   (string-match (rx bol (repeat 1 2 ".") eol)
-                                 (file-name-nondirectory s)))
-                 (directory-files directory t nil t))))
-    (loop for file in files
-          when (and (funcall predfunc file)
-                    (string-match regexp (file-name-nondirectory file)))
-          collect file into ret
-          when (file-directory-p file)
-          nconc (eh-directory-files-recursively file type regexp) into ret
-          finally return ret)))
-
 
 (defun eh-org-fill-paragraph ()
   "Fill org paragraph"

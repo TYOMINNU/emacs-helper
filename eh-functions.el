@@ -34,7 +34,34 @@
 ;; require
 ;; (require 'starter-kit-defuns)
 
-;; 常用函数  
+;; 常用函数
+(defun eh-isearch-string (string)
+  "search a string with isearch"
+  (isearch-mode t nil nil nil)
+  (isearch-yank-string string)
+  (isearch-exit))
+
+(defun eh-directory-files-recursively (directory &optional type regexp)
+  "recursively list all the files in a directory"
+  (let* ((directory (or directory default-directory))
+	 (regexp  (if regexp regexp ".*"))
+         (predfunc (case type
+                     (dir 'file-directory-p)
+                     (file 'file-regular-p)
+                     (otherwise 'identity)))
+         (files (delete-if
+                 (lambda (s)
+                   (string-match (rx bol (repeat 1 2 ".") eol)
+                                 (file-name-nondirectory s)))
+                 (directory-files directory t nil t))))
+    (loop for file in files
+          when (and (funcall predfunc file)
+                    (string-match regexp (file-name-nondirectory file)))
+          collect file into ret
+          when (file-directory-p file)
+          nconc (eh-directory-files-recursively file type regexp) into ret
+          finally return ret)))
+
 (defun eh-dos2unix () 
   "将dos换行方式转换为unix的换行方式,用于去除^M"
   (interactive)

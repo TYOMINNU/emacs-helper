@@ -92,6 +92,44 @@
 	((< (length files-list) 1)
 	 (message "Can't find the corresponding file")))))))
 
+
+(defun eh-reftex-get-bibfile-list ()
+  "Return list of bibfiles for current document.
+When using the chapterbib or bibunits package you should either
+use the same database files everywhere, or separate parts using
+different databases into different files (included into the mater file).
+Then this function will return the applicable database files."
+
+  ;; Ensure access to scanning info
+  (reftex-access-scan-info)
+  (or
+   ;; Try inside this file (and its includes)
+   (cdr (reftex-last-assoc-before-elt
+         'bib (list 'eof (buffer-file-name))
+         (member (list 'bof (buffer-file-name))
+                 (symbol-value reftex-docstruct-symbol))))
+   ;; Try after the beginning of this file
+   (cdr (assq 'bib (member (list 'bof (buffer-file-name))
+                           (symbol-value reftex-docstruct-symbol))))
+   ;; Anywhere in the entire document
+   (cdr (assq 'bib (symbol-value reftex-docstruct-symbol)))))
+
+(defun eh-ebib ()
+  "Open ebib then search the marked string"
+  (interactive)
+  (let* ((path (car (eh-reftex-get-bibfile-list)))
+	 (word (current-word nil t))
+	 (length (length word))
+	 (key (if mark-active
+		  (buffer-substring-no-properties (region-beginning) (region-end))
+		(if (and (string-match-p "\\cc+" word) (> length 3))
+		    (buffer-substring-no-properties (- (point) 2) (point))
+		  word))))
+    (ebib path)
+    (when key
+      (eh-isearch-string key)
+      (ebib-select-and-popup-entry))))
+
 (defun eh-ebib-generate-all-entries-autokeys ()
   "generate autokeys for all entries and overwrite the exists."
   (interactive)
