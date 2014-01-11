@@ -271,56 +271,8 @@
       (setq ad-return-value contents)
     ad-do-it))
 
-;; org-mode和reftex的集成,添加下面的配置到org文件头。
-;; # \bibliography{bibfilename}
-
-(defun eh-org-mode-reftex-setup ()
-  (load-library "reftex")
-  (and (buffer-file-name) (file-exists-p (buffer-file-name))
-       (progn
-         ;; enable auto-revert-mode to update reftex when bibtex file changes on disk
- 	 (global-auto-revert-mode t)
-	 (reftex-parse-all)
-         ;; add a custom reftex cite format to insert links
-	 (setq reftex-cite-format
-               '((?b . "[[cite:%l]]")
-                 (?c . "\\cite{%l}")
-                 (?t . "%t")))))
-  (define-key org-mode-map (kbd "C-c (") 'reftex-citation)
-  (define-key org-mode-map (kbd "C-c )") 'eh-reftex-citation))
-
-(add-hook 'org-mode-hook 'eh-org-mode-reftex-setup)
-
-(defun eh-reftex-citation ()
-  (interactive)
-  (let* ((current-point (point))
-	 (point1
-	  (progn
-	    (goto-char current-point)
-	    (search-forward "{" nil t)))
-	 (point1 (if point1 point1 (+ 1 (point-max))))
-	 (point2
-	  (progn
-	    (goto-char current-point)
-	    (search-forward "}" nil t)))
-	 (point3
-	  (progn
-	    (goto-char current-point)
-	    (search-backward "{" nil t)))
-	 (point4
-	  (progn
-	    (goto-char current-point)
-	    (search-backward "}" nil t)))
-	 (point4 (if point4 point4 -1)))
-    (goto-char current-point)
-    (if (and point2 point3 (> point1 point2) (> point3 point4))
-	(progn (goto-char (1- (search-forward "}" nil t)))
-	       (reftex-citation))
-      (let ((reftex-cite-format "\\cite{%l}"))
-	(reftex-citation)))))
-
 (defun eh-org-open-cite-link (key)
-  "Get bibfile from \\bibliography{...} and open it with function `org-open-file'"
+  "Get bibfile from \\bibliography{...} and open it with ebib"
   (let* ((path (car (reftex-get-bibfile-list))))
     (ebib path)
     (eh-isearch-string key)

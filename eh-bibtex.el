@@ -125,10 +125,61 @@ Then this function will return the applicable database files."
 		(if (and (string-match-p "\\cc+" word) (> length 3))
 		    (buffer-substring-no-properties (- (point) 2) (point))
 		  word))))
+    (setq eh-ebib-push-buffer (current-buffer))
     (ebib path)
     (when key
       (eh-isearch-string key)
       (ebib-select-and-popup-entry))))
+
+(defun eh-ebib-push-bibtex-key ()
+  "Pushes the current entry to a LaTeX buffer.
+The user is prompted for the buffer to push the entry into."
+  (interactive)
+  (let ((called-with-prefix (ebib-called-with-prefix)))
+    (ebib-execute-when
+      ((entries)
+       (let ((citation-string
+	      ;; 获取当前的entry-key
+	      (if (ebib-db-marked-entries-p ebib-cur-db)
+		  (mapconcat #'(lambda (key)
+				 key)
+			     (ebib-db-list-marked-entries ebib-cur-db)
+			     ", ")
+		(ebib-cur-entry-key))))
+	 ;; 将citation-string插入到eh-ebib-push-buffer变量所
+	 ;; 对应的buffer, (调用eh-ebib命令时,会设置eh-ebib-push-buffer变量)
+	 (when citation-string
+	   (with-current-buffer eh-ebib-push-buffer
+	     (let* ((current-point (point))
+		    (point1
+		     (progn
+		       (goto-char current-point)
+		       (search-forward "{" nil t)))
+		    (point1 (if point1 point1 (+ 1 (point-max))))
+		    (point2
+		     (progn
+		       (goto-char current-point)
+		       (search-forward "}" nil t)))
+		    (point3
+		     (progn
+		       (goto-char current-point)
+		       (search-backward "{" nil t)))
+		    (point4
+		     (progn
+		       (goto-char current-point)
+		       (search-backward "}" nil t)))
+		    (point4 (if point4 point4 -1)))
+	       (goto-char current-point)
+	       (if (and point2 point3 (> point1 point2) (> point3 point4))
+		   (progn (goto-char (1- (search-forward "}" nil t)))
+			  (insert (concat ", " citation-string)))
+		 (insert (format "\\cite{%s}" citation-string)))))
+	   (message "Pushed entries to buffer %s" eh-ebib-push-buffer)
+	   (setq eh-ebib-push-buffer nil)
+	   ;; 隐藏ebib窗口
+	   (ebib-leave-ebib-windows))))
+      ((default)
+       (beep)))))
 
 (defun eh-ebib-generate-all-entries-autokeys ()
   "generate autokeys for all entries and overwrite the exists."
@@ -184,6 +235,7 @@ Then this function will return the applicable database files."
 (ebib-key index "\C-xq" ebib-quit)
 (ebib-key index "q" ebib-leave-ebib-windows)
 (ebib-key index "f" eh-ebib-view-file)
+(ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
 
 ;; Local Variables:
 ;; coding: utf-8-unix
