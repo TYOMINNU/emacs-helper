@@ -172,8 +172,11 @@ The user is prompted for the buffer to push the entry into."
 		    (point4 (if point4 point4 -1)))
 	       (goto-char current-point)
 	       (if (and point2 point3 (> point1 point2) (> point3 point4))
-		   (progn (goto-char (1- (search-forward "}" nil t)))
-			  (insert (concat ", " citation-string)))
+		   (let ((old-cite (buffer-substring-no-properties (+ point3 1) (- point2 1))))
+		     (insert
+		      (if (> (length (replace-regexp-in-string " " "" old-cite)) 0)
+			  (concat ", " citation-string)
+			citation-string)))
 		 (insert (format "\\cite{%s}" citation-string)))))
 	   (message "Pushed entries to buffer %s" eh-ebib-push-buffer)
 	   (setq eh-ebib-push-buffer nil)
