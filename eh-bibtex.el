@@ -119,7 +119,7 @@ Then this function will return the applicable database files."
   "Open ebib then search the marked string"
   (interactive)
   (let* ((path (car (eh-reftex-get-bibfile-list)))
-	 (word (current-word nil t))
+	 (word (or (current-word nil t) ""))
 	 (length (length word))
 	 (key (if mark-active
 		  (buffer-substring-no-properties (region-beginning) (region-end))
