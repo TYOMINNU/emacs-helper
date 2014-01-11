@@ -32,6 +32,7 @@
 
 ;;; Code:
 (require 'bibtex)
+(require 'reftex)
 (require 'ebib)
 (require 'eh-hanzi2pinyin)
 
