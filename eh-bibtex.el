@@ -182,6 +182,7 @@ Then this function will return the applicable database files."
 			  (ibuffer)))
 (ebib-key index "\C-xk" ebib-leave-ebib-windows)
 (ebib-key index "\C-xq" ebib-quit)
+(ebib-key index "q" ebib-leave-ebib-windows)
 (ebib-key index "f" eh-ebib-view-file)
 
 ;; Local Variables:
