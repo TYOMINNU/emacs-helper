@@ -44,19 +44,22 @@
 (setq bibtex-autokey-year-title-separator "")
 (setq bibtex-autokey-before-presentation-function '(lambda (x) (downcase (eh-hanzi2pinyin-simple x))))
 
-(defun eh-ebib-clean-all-entries ()
+(defun eh-ebib-auto-generate-fields-to-all-entries ()
+  "1. Add autokey field to all entries.
+   2. Add language field to all entries.
+   3. Add alias field to all entries. "
   (interactive)
   (let ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
     (ebib-execute-when
       ((entries)
-       (when (yes-or-no-p "Generate autokeys and add language fields to all entries?  ")
+       (when (yes-or-no-p "Auto generate fields (key language and alias) to all entries? ")
 	 (ebib-save-current-database)
 	 (with-current-buffer (find-file-noselect current-bib-file)
 	   (goto-char (point-min))
-	   (message "Add autokey to all entries in %s" current-bib-file)
+	   (message "Auto generate fields (key language and alias) to all entries in %s" current-bib-file)
 	   (eh-bibtex-add-language-field-to-all-entries)
-	   (message "Add language field to all entries in %s" current-bib-file)
 	   (eh-bibtex-add-autokeys-to-all-entries)
+	   (eh-bibtex-add-alias-field-to-all-entries)
 	   (save-buffer)
 	   (kill-buffer))
 	 ;; reload the current database
@@ -80,6 +83,23 @@
 	     (bibtex-kill-field)))
 	 (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
 	   (bibtex-make-field '("language" nil "Chinese" nil) t)))))))
+
+
+(defun eh-bibtex-add-alias-field-to-all-entries ()
+  (interactive)
+  (bibtex-map-entries
+   (lambda (key begin end)
+     (let ((case-fold-search t))
+       (save-excursion
+	 (goto-char begin)
+	 (let ((alias-field (bibtex-search-forward-field "alias" t))
+	       (title (bibtex-autokey-get-field "title"))
+	       (author (bibtex-autokey-get-field "author")))
+	   (when alias-field
+	     (goto-char (car (cdr alias-field)))
+	     (bibtex-kill-field))
+	   (bibtex-make-field (list "alias" nil (eh-hanzi2pinyin-simple (concat author ", " title) t) nil) t)))))))
+
 
 (defun eh-bibtex-add-autokeys-to-all-entries ()
   (interactive)
@@ -269,7 +289,7 @@ The user is prompted for the buffer to push the entry into."
 (ebib-key index "q" ebib-quit)
 (ebib-key index "f" eh-ebib-view-file)
 (ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
-(ebib-key index [(control k)] eh-ebib-clean-all-entries)
+(ebib-key index [(control k)] eh-ebib-auto-generate-fields-to-all-entries)
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:
