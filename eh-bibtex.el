@@ -187,7 +187,10 @@ Then this function will return the applicable database files."
 		    (buffer-substring-no-properties (- (point) 2) (point))
 		  word))))
     (setq eh-ebib-push-buffer (current-buffer))
-    (ebib path)
+    (ebib (or path
+	   (ido-read-file-name
+               "Open bibtex file: "
+               (car ebib-file-search-dirs))))
     (when key
       (eh-isearch-string key)
       (ebib-select-and-popup-entry))))
