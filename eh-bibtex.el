@@ -44,31 +44,14 @@
 (setq bibtex-autokey-year-title-separator "")
 (setq bibtex-autokey-before-presentation-function '(lambda (x) (downcase (eh-hanzi2pinyin-simple x))))
 
-(defun eh-ebib-auto-generate-fields-to-all-entries ()
-  "1. Add autokey field to all entries.
-   2. Add language field to all entries.
-   3. Add alias field to all entries. "
-  (interactive)
-  (let ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
-    (ebib-execute-when
-      ((entries)
-       (when (yes-or-no-p "Auto generate fields (key language and alias) to all entries? ")
-	 (ebib-save-current-database)
-	 (with-current-buffer (find-file-noselect current-bib-file)
-	   (goto-char (point-min))
-	   (message "Auto generate fields (key language and alias) to all entries in %s" current-bib-file)
-	   (eh-bibtex-add-language-field-to-all-entries)
-	   (eh-bibtex-add-autokeys-to-all-entries)
-	   (eh-bibtex-add-alias-field-to-all-entries)
-	   (save-buffer)
-	   (kill-buffer))
-	 ;; reload the current database
-	 (ebib-reload-database ebib-cur-db)
-	 (ebib-set-modified nil)
-	 (ebib-redisplay)
-	 (message "Database reloaded")))
-      ((default)
-       (beep)))))
+;; ebib window setting
+(setq ebib-layout 'full)
+(setq ebib-window-vertical-split nil)
+(setq ebib-width 80)
+(setq ebib-index-window-size 10)
+(setq ebib-uniquify-keys nil)
+(setq eh-ebib-entry-buffer-only-show-abstact t)
+(add-hook 'ebib-entry-mode-hook (lambda () (visual-line-mode t)))
 
 (defun eh-bibtex-add-language-field-to-all-entries ()
   (interactive)
@@ -84,7 +67,6 @@
 	 (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
 	   (bibtex-make-field '("language" nil "Chinese" nil) t)))))))
 
-
 (defun eh-bibtex-add-alias-field-to-all-entries ()
   (interactive)
   (bibtex-map-entries
@@ -99,7 +81,6 @@
 	     (goto-char (car (cdr alias-field)))
 	     (bibtex-kill-field))
 	   (bibtex-make-field (list "alias" nil (eh-hanzi2pinyin-simple (concat author ", " title) t) nil) t)))))))
-
 
 (defun eh-bibtex-add-autokeys-to-all-entries ()
   (interactive)
@@ -124,12 +105,29 @@
 	     (setq auto-key "!NEED_EDIT"))
 	 (insert auto-key))))))
 
-;; ebib window setting
-(setq ebib-layout 'full)
-(setq ebib-window-vertical-split nil)
-(setq ebib-width 80)
-(setq ebib-index-window-size 10)
-(setq ebib-uniquify-keys nil)
+(defun eh-ebib-select-and-popup-entry ()
+  (interactive)
+  (let ((eh-ebib-entry-buffer-only-show-abstact nil))
+    (ebib-select-and-popup-entry)))
+
+(defadvice ebib-fill-entry-buffer (around eh-ebib-fill-entry-buffer
+					  (&optional match-str) activate)
+  (if eh-ebib-entry-buffer-only-show-abstact
+      (progn
+	(with-current-buffer (cdr (assoc 'entry ebib-buffer-alist))
+	    (with-ebib-buffer-writable
+	      (erase-buffer)
+	      (let* ((entry (ebib-db-get-entry (ebib-cur-entry-key) ebib-cur-db))
+		     (title (cdr (assoc 'abstract entry))))
+		(insert (or (replace-regexp-in-string
+			     "\n\\{2,\\}" "\n\n"
+			     (replace-regexp-in-string
+			      "[}{]" ""
+			      (replace-regexp-in-string
+			       "	" ""
+			       (replace-regexp-in-string "[:space:]+" " " title)) "")))))
+	      (goto-char (point-min)))))
+    ad-do-it))
 
 ;; ebib index buffer display
 (defun ebib-display-entry (entry-key)
@@ -268,6 +266,32 @@ The user is prompted for the buffer to push the entry into."
       ((default)
        (beep)))))
 
+(defun eh-ebib-auto-generate-fields-to-all-entries ()
+  "1. Add autokey field to all entries.
+   2. Add language field to all entries.
+   3. Add alias field to all entries. "
+  (interactive)
+  (let ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
+    (ebib-execute-when
+      ((entries)
+       (when (yes-or-no-p "Auto generate fields (key language and alias) to all entries? ")
+	 (ebib-save-current-database)
+	 (with-current-buffer (find-file-noselect current-bib-file)
+	   (goto-char (point-min))
+	   (message "Auto generate fields (key language and alias) to all entries in %s" current-bib-file)
+	   (eh-bibtex-add-language-field-to-all-entries)
+	   (eh-bibtex-add-autokeys-to-all-entries)
+	   (eh-bibtex-add-alias-field-to-all-entries)
+	   (save-buffer)
+	   (kill-buffer))
+	 ;; reload the current database
+	 (ebib-reload-database ebib-cur-db)
+	 (ebib-set-modified nil)
+	 (ebib-redisplay)
+	 (message "Database reloaded")))
+      ((default)
+       (beep)))))
+
 (defun eh-convert-cite-key-to-pinyin ()
   "Convert bibtex key to pinyin"
   (interactive)
@@ -290,6 +314,7 @@ The user is prompted for the buffer to push the entry into."
 (ebib-key index "f" eh-ebib-view-file)
 (ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
 (ebib-key index [(control k)] eh-ebib-auto-generate-fields-to-all-entries)
+(ebib-key index [(return)] eh-ebib-select-and-popup-entry)
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:
