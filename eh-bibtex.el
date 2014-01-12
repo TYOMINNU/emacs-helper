@@ -107,8 +107,11 @@
 
 (defun eh-ebib-select-and-popup-entry ()
   (interactive)
-  (let ((eh-ebib-entry-buffer-only-show-abstact nil))
-    (ebib-select-and-popup-entry)))
+  (if eh-ebib-entry-buffer-only-show-abstact
+      (progn (ebib-select-and-popup-entry)
+	     (setq eh-ebib-entry-buffer-only-show-abstact nil))
+      (progn (ebib-select-and-popup-entry)
+	     (setq eh-ebib-entry-buffer-only-show-abstact t))))
 
 (defadvice ebib-fill-entry-buffer (around eh-ebib-fill-entry-buffer
 					  (&optional match-str) activate)
