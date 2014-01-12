@@ -118,14 +118,14 @@
 	    (with-ebib-buffer-writable
 	      (erase-buffer)
 	      (let* ((entry (ebib-db-get-entry (ebib-cur-entry-key) ebib-cur-db))
-		     (title (cdr (assoc 'abstract entry))))
+		     (abstract (or (cdr (assoc 'abstract entry)) "")))
 		(insert (or (replace-regexp-in-string
 			     "\n\\{2,\\}" "\n\n"
 			     (replace-regexp-in-string
 			      "[}{]" ""
 			      (replace-regexp-in-string
 			       "	" ""
-			       (replace-regexp-in-string "[:space:]+" " " title)) "")))))
+			       (replace-regexp-in-string "[:space:]+" " " abstract)) "")))))
 	      (goto-char (point-min)))))
     ad-do-it))
 
