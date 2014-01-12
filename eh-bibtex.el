@@ -49,7 +49,7 @@
   (let ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
     (ebib-execute-when
       ((entries)
-       (when (yes-or-no-p "Apple clean functions to all entries?  ")
+       (when (yes-or-no-p "Generate autokeys and add language fields to all entries?  ")
 	 (ebib-save-current-database)
 	 (with-current-buffer (find-file-noselect current-bib-file)
 	   (goto-char (point-min))
@@ -59,7 +59,11 @@
 	   (eh-bibtex-add-autokeys-to-all-entries)
 	   (save-buffer)
 	   (kill-buffer))
-	 (ebib-reload-current-database)))
+	 ;; reload the current database
+	 (ebib-reload-database ebib-cur-db)
+	 (ebib-set-modified nil)
+	 (ebib-redisplay)
+	 (message "Database reloaded")))
       ((default)
        (beep)))))
 
