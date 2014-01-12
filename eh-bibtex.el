@@ -44,6 +44,56 @@
 (setq bibtex-autokey-year-title-separator "")
 (setq bibtex-autokey-before-presentation-function '(lambda (x) (downcase (eh-hanzi2pinyin-simple x))))
 
+(defun eh-ebib-clean-all-entries ()
+  (interactive)
+  (let ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
+    (ebib-save-current-database)
+    (with-current-buffer (find-file-noselect current-bib-file)
+      (goto-char (point-min))
+      (message "Add autokey to all entries in %s" current-bib-file)
+      (eh-bibtex-add-language-field-to-all-entries)
+      (message "Add language field to all entries in %s" current-bib-file)
+      (eh-bibtex-add-autokeys-to-all-entries)
+      (save-buffer)
+      (kill-buffer))
+    (ebib-reload-current-database)))
+
+(defun eh-bibtex-add-language-field-to-all-entries ()
+  (interactive)
+  (bibtex-map-entries
+   (lambda (key begin end)
+     (let ((case-fold-search t))
+       (save-excursion
+	 (goto-char begin)
+	 (let ((language-field (bibtex-search-forward-field "language" t)))
+	   (when language-field
+	     (goto-char (car (cdr language-field)))
+	     (bibtex-kill-field)))
+	 (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
+	   (bibtex-make-field '("language" nil "Chinese" nil) t)))))))
+
+(defun eh-bibtex-add-autokeys-to-all-entries ()
+  (interactive)
+  (bibtex-map-entries
+   (lambda (key begin end)
+     (let ((case-fold-search t)
+	   (entry-type (bibtex-type-in-head)))
+       ;; set key
+       (save-excursion
+	 ;; First delete the old key so that a customized algorithm
+	 ;; for generating the new key does not get confused by the
+	 ;; old key.
+	 (re-search-forward (if (bibtex-string= entry-type "string")
+				bibtex-string-maybe-empty-head
+			      bibtex-entry-maybe-empty-head))
+	 (if (match-beginning bibtex-key-in-head)
+	     (delete-region (match-beginning bibtex-key-in-head)
+			    (match-end bibtex-key-in-head)))
+	 (setq auto-key (bibtex-generate-autokey))
+	 ;; Sometimes `bibtex-generate-autokey' returns an empty string
+	 (if (string= "" auto-key)
+	     (setq auto-key "!NEED_EDIT"))
+	 (insert auto-key))))))
 
 ;; ebib window setting
 (setq ebib-layout 'full)
@@ -93,7 +143,6 @@
 	((< (length files-list) 1)
 	 (message "Can't find the corresponding file")))))))
 
-
 (defun eh-reftex-get-bibfile-list ()
   "Return list of bibfiles for current document.
 When using the chapterbib or bibunits package you should either
@@ -127,6 +176,7 @@ Then this function will return the applicable database files."
 		    (buffer-substring-no-properties (- (point) 2) (point))
 		  word))))
     (setq eh-ebib-push-buffer (current-buffer))
+    (load-library "bibtex")
     (ebib path)
     (when key
       (eh-isearch-string key)
@@ -185,40 +235,6 @@ The user is prompted for the buffer to push the entry into."
       ((default)
        (beep)))))
 
-(defun eh-ebib-generate-all-entries-autokeys ()
-  "generate autokeys for all entries and overwrite the exists."
-  (interactive)
-  (ebib-execute-when
-    ((entries)
-     (ebib-goto-first-entry)
-     (while (ebib-next-elem (ebib-cur-entry-key) ebib-cur-keys-list)
-       (ebib-generate-autokey)
-       (ebib-next-entry)))))
-
-(defun eh-add-bibtex-language-field ()
-  (interactive)
-  (goto-char (point-min))
-  (while (re-search-forward "\\( +\\)language += +{\\([^}{]+\\)}, *\n" nil t)
-    (replace-match ""))
-  (goto-char (point-min))
-  (while (re-search-forward "\\( +\\)title += +{[^}{]+}," nil t)
-    (let ((title (match-string 0))
-	  (space (match-string 1)))
-      (if (string-match-p "\\cc+" title)
-	  (replace-match (concat title "\n" space "language  = {zh},")) t))))
-
-(defun eh-convert-bibtex-key-to-pinyin ()
-  "Convert bibtex key to pinyin"
-  (interactive)
-  (if (featurep 'eh-hanzi2pinyin)
-      (progn
-	(goto-char (point-min))
-	(while (re-search-forward "\\@\\([a-zA-Z]+\\){\\([^,]+\\)," nil t)
-	  (let ((bibtype (match-string 1))
-		(string (match-string 2)))
-	    (replace-match (concat "@" bibtype "{" (replace-regexp-in-string " +" "" (downcase (eh-hanzi2pinyin-simple string))) ",") t))))
-    (message "Can't find eh-hanzi2pinyin")))
-
 (defun eh-convert-cite-key-to-pinyin ()
   "Convert bibtex key to pinyin"
   (interactive)
@@ -237,7 +253,7 @@ The user is prompted for the buffer to push the entry into."
 			  (ibuffer)))
 (ebib-key index "\C-xk" ebib-leave-ebib-windows)
 (ebib-key index "\C-xq" ebib-quit)
-(ebib-key index "q" ebib-leave-ebib-windows)
+(ebib-key index "q" ebib-quit)
 (ebib-key index "f" eh-ebib-view-file)
 (ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
 
