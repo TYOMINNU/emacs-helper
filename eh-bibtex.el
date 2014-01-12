@@ -47,16 +47,21 @@
 (defun eh-ebib-clean-all-entries ()
   (interactive)
   (let ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
-    (ebib-save-current-database)
-    (with-current-buffer (find-file-noselect current-bib-file)
-      (goto-char (point-min))
-      (message "Add autokey to all entries in %s" current-bib-file)
-      (eh-bibtex-add-language-field-to-all-entries)
-      (message "Add language field to all entries in %s" current-bib-file)
-      (eh-bibtex-add-autokeys-to-all-entries)
-      (save-buffer)
-      (kill-buffer))
-    (ebib-reload-current-database)))
+    (ebib-execute-when
+      ((entries)
+       (when (yes-or-no-p "Apple clean functions to all entries?  ")
+	 (ebib-save-current-database)
+	 (with-current-buffer (find-file-noselect current-bib-file)
+	   (goto-char (point-min))
+	   (message "Add autokey to all entries in %s" current-bib-file)
+	   (eh-bibtex-add-language-field-to-all-entries)
+	   (message "Add language field to all entries in %s" current-bib-file)
+	   (eh-bibtex-add-autokeys-to-all-entries)
+	   (save-buffer)
+	   (kill-buffer))
+	 (ebib-reload-current-database)))
+      ((default)
+       (beep)))))
 
 (defun eh-bibtex-add-language-field-to-all-entries ()
   (interactive)
@@ -257,7 +262,7 @@ The user is prompted for the buffer to push the entry into."
 (ebib-key index "q" ebib-quit)
 (ebib-key index "f" eh-ebib-view-file)
 (ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
-
+(ebib-key index [(control k)] eh-ebib-clean-all-entries)
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:
