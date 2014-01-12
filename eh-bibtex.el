@@ -167,7 +167,9 @@ Then this function will return the applicable database files."
 (defun eh-ebib ()
   "Open ebib then search the marked string"
   (interactive)
-  (let* ((path (car (eh-reftex-get-bibfile-list)))
+  (load-library "bibtex")
+  (let* ((path (if (buffer-file-name)
+		   (car (eh-reftex-get-bibfile-list))))
 	 (word (or (current-word nil t) ""))
 	 (length (length word))
 	 (key (if mark-active
@@ -176,7 +178,6 @@ Then this function will return the applicable database files."
 		    (buffer-substring-no-properties (- (point) 2) (point))
 		  word))))
     (setq eh-ebib-push-buffer (current-buffer))
-    (load-library "bibtex")
     (ebib path)
     (when key
       (eh-isearch-string key)
