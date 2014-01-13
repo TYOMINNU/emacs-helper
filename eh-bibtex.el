@@ -223,6 +223,7 @@
           (list obl-fields opt-fields ebib-additional-fields))))
 
 ;; ebib index buffer format setting
+(setq ebib-index-display-fields t)
 (defun ebib-display-entry (entry-key)
   "Display ENTRY-KEY in the index buffer at POINT."
   (with-current-buffer (cdr (assoc 'index ebib-buffer-alist))
