@@ -365,6 +365,7 @@ The user is prompted for the buffer to push the entry into."
 	       (goto-char current-point)
 	       (if (and point2 point3 (> point1 point2) (> point3 point4))
 		   (let ((old-cite (buffer-substring-no-properties (+ point3 1) (- point2 1))))
+		     (goto-char (- point2 1))
 		     (insert
 		      (if (> (length (replace-regexp-in-string " " "" old-cite)) 0)
 			  (concat ", " citation-string)
