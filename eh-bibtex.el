@@ -51,146 +51,235 @@
 (setq ebib-index-window-size 10)
 (setq ebib-uniquify-keys nil)
 (setq eh-ebib-entry-buffer-only-show-abstact t)
-(add-hook 'ebib-entry-mode-hook (lambda () (visual-line-mode t)))
+(add-hook 'ebib-entry-mode-hook (lambda ()
+				  (setq cursor-type t)
+				  (visual-line-mode t)))
+(add-hook 'ebib-index-mode-hook (lambda ()
+				  (visual-line-mode nil)
+				  (setq cursor-type t)
+				  (toggle-truncate-lines t)))
 
-(defun eh-bibtex-add-language-field-to-all-entries ()
-  (interactive)
-  (bibtex-map-entries
-   (lambda (key begin end)
-     (let ((case-fold-search t))
-       (save-excursion
-	 (goto-char begin)
-	 (let ((language-field (bibtex-search-forward-field "language" t)))
-	   (when language-field
-	     (goto-char (car (cdr language-field)))
-	     (bibtex-kill-field)))
-	 (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
-	   (bibtex-make-field '("language" nil "Chinese" nil) t)))))))
+(setq ebib-entry-types-default
+      '((article
+	 (author title journal year)
+	 (volume number pages month note))
 
-(defun eh-bibtex-add-alias-field-to-all-entries ()
-  (interactive)
-  (bibtex-map-entries
-   (lambda (key begin end)
-     (let ((case-fold-search t))
-       (save-excursion
-	 (goto-char begin)
-	 (let ((alias-field (bibtex-search-forward-field "alias" t))
-	       (title (bibtex-autokey-get-field "title"))
-	       (author (bibtex-autokey-get-field "author")))
-	   (when alias-field
-	     (goto-char (car (cdr alias-field)))
-	     (bibtex-kill-field))
-	   (bibtex-make-field (list "alias" nil (eh-hanzi2pinyin-simple (concat author ", " title) t) nil) t)))))))
+	(book
+	 (author title publisher year)
+	 (editor volume number series address edition month note))
 
-(defun eh-bibtex-add-autokeys-to-all-entries ()
-  (interactive)
-  (bibtex-map-entries
-   (lambda (key begin end)
-     (let ((case-fold-search t)
-	   (entry-type (bibtex-type-in-head)))
-       ;; set key
-       (save-excursion
-	 ;; First delete the old key so that a customized algorithm
-	 ;; for generating the new key does not get confused by the
-	 ;; old key.
-	 (re-search-forward (if (bibtex-string= entry-type "string")
-				bibtex-string-maybe-empty-head
-			      bibtex-entry-maybe-empty-head))
-	 (if (match-beginning bibtex-key-in-head)
-	     (delete-region (match-beginning bibtex-key-in-head)
-			    (match-end bibtex-key-in-head)))
-	 (setq auto-key (bibtex-generate-autokey))
-	 ;; Sometimes `bibtex-generate-autokey' returns an empty string
-	 (if (string= "" auto-key)
-	     (setq auto-key "!NEED_EDIT"))
-	 (insert auto-key))))))
+	(booklet
+	 (title)
+	 (author howpublished address month year note))
+
+	(inbook
+	 (author title chapter pages publisher year)
+	 (editor volume series address edition month note))
+
+	(incollection
+	 (author title booktitle publisher year)
+	 (editor volume number series type chapter pages address edition month note))
+
+	(inproceedings
+	 (author title booktitle year)
+	 (editor pages organization publisher address month note))
+
+	(manual
+	 (title)
+	 (author organization address edition month year note))
+
+	(misc
+	 ()
+	 (title author howpublished month year note))
+
+	(mastersthesis
+	 (author title school year)
+	 (address month note))
+
+	(phdthesis
+	 (author title school year)
+	 (address month note))
+
+	(proceedings
+	 (title year)
+	 (editor publisher organization address month note))
+
+	(techreport
+	 (author title institution year)
+	 (type number address month note))
+
+	(unpublished
+	 (author title note)
+	 (month year))))
+
+(setq ebib-additional-fields-default
+  '(crossref
+    url
+    annote
+    timestamp
+    doi))
 
 (defun eh-ebib-select-and-popup-entry ()
   (interactive)
   (setq eh-ebib-entry-buffer-only-show-abstact
 	(not eh-ebib-entry-buffer-only-show-abstact))
-  (ebib-select-and-popup-entry))
-
-(defadvice ebib-fill-entry-buffer (around eh-ebib-fill-entry-buffer
-					  (&optional match-str) activate)
   (if eh-ebib-entry-buffer-only-show-abstact
       (progn
-	(with-current-buffer (cdr (assoc 'entry ebib-buffer-alist))
-	    (with-ebib-buffer-writable
-	      (erase-buffer)
-	      (let* ((entry (ebib-db-get-entry (ebib-cur-entry-key) ebib-cur-db))
-		     (abstract (or (cdr (assoc 'abstract entry)) "")))
-		(insert (or (replace-regexp-in-string
-			     "\n\\{2,\\}" "\n\n"
-			     (replace-regexp-in-string
-			      "[}{]" ""
-			      (replace-regexp-in-string
-			       "	" ""
-			       (replace-regexp-in-string "[:space:]+" " " abstract)) "")))))
-	      (goto-char (point-min)))))
+	(setq ebib-additional-fields '(keywords abstract))
+	(setq ebib-entry-types nil))
+    (progn
+      (setq ebib-additional-fields ebib-additional-fields-default)
+      (setq ebib-entry-types ebib-entry-types-default)))
+  (ebib-select-and-popup-entry))
+
+(defadvice ebib-find-bibtex-entries (around eh-ebib-find-bibtex-entries
+					    (db timestamp) activate)
+  (let ((ebib-entry-types ebib-entry-types-default)
+	(ebib-additional-fields ebib-additional-fields-default))
     ad-do-it))
 
-;; ebib index buffer display
+(defadvice ebib-filters-create-filter (around eh-ebib-find-bibtex-entries
+					      (bool not) activate)
+  (let ((ebib-entry-types ebib-entry-types-default)
+	(ebib-additional-fields ebib-additional-fields-default))
+    ad-do-it))
+
+(defun eh-ebib-get-abstract (field key &optional match-str db)
+  "Get abstract field of the entry"
+  (or db (setq db ebib-cur-db))
+  (let* ((case-fold-search t)
+         (value (ebib-db-get-field-value 'abstract key db 'noerror nil 'xref))
+         (abstract-string (if (car value)
+			      (copy-sequence (car value)))))
+    (with-temp-buffer
+      (goto-char (point-min))
+      (insert (or abstract-string ""))
+      (eh-ebib-wash-elide-blank-lines)
+      (buffer-string))))
+
+(defun eh-ebib-wash-elide-blank-lines ()
+  "Elide leading, trailing and successive blank lines."
+
+  ;; Algorithm derived from `article-strip-multiple-blank-lines' in
+  ;; `gnus-art.el'.
+
+  ;; Make all blank lines empty.
+  (goto-char (point-min))
+  (while (re-search-forward "^[[:space:]\t]+$" nil t)
+    (replace-match "" nil t))
+
+  ;; remove special space
+  (goto-char (point-min))
+  (while (re-search-forward "	" nil t)
+    (replace-match "" nil t))
+
+
+  ;; Replace multiple empty lines with a single empty line.
+  (goto-char (point-min))
+  (while (re-search-forward "^\n\\(\n+\\)" nil t)
+    (delete-region (match-beginning 1) (match-end 1)))
+
+  ;; Remove a leading blank line.
+  (goto-char (point-min))
+  (if (looking-at "\n")
+      (delete-region (match-beginning 0) (match-end 0)))
+
+  ;; Remove a trailing blank line.
+  (goto-char (point-max))
+  (if (looking-at "\n")
+      (delete-region (match-beginning 0) (match-end 0)))
+
+  ;; remove "{"
+  (goto-char (point-min))
+  (while (re-search-forward "^ ?{" nil t)
+    (replace-match "" nil t))
+
+  ;; remove "}"
+  (goto-char (point-min))
+  (while (re-search-forward "}[\n ]?" nil t)
+    (replace-match "" nil t)))
+
+;; ebib entry buffer format setting
+(defun ebib-format-fields (key fn &optional match-str db)
+  (or db
+      (setq db ebib-cur-db))
+  (let* ((entry (ebib-db-get-entry key db))
+         (entry-type (cdr (assoc '=type= entry)))
+         (obl-fields (ebib-get-obl-fields entry-type))
+         (opt-fields (ebib-get-opt-fields entry-type)))
+    (funcall fn (format "%-19s %s\n" (propertize "type" 'face 'ebib-field-face) entry-type))
+    (mapc #'(lambda (fields)
+              (mapcar #'(lambda (field)
+                          (unless (and (get field 'ebib-hidden)
+                                       ebib-hide-hidden-fields)
+                            (funcall fn (propertize (format "%-17s " field) 'face 'ebib-field-face))
+                            (funcall fn (or
+					 (if (equal field 'abstract)
+					     (eh-ebib-get-abstract field key match-str)
+					     (ebib-get-field-highlighted field key match-str))
+                                         ""))
+                            (funcall fn "\n")))
+                      fields))
+          (list obl-fields opt-fields ebib-additional-fields))))
+
+;; ebib index buffer format setting
 (defun ebib-display-entry (entry-key)
   "Display ENTRY-KEY in the index buffer at POINT."
   (with-current-buffer (cdr (assoc 'index ebib-buffer-alist))
     (with-ebib-buffer-writable
-      (insert (format "%-20s %-15s %s\n"
+      (insert (format "%-20s %-15s% -15s %-45s %s\n"
                       entry-key
+		      ;; type
+		      (or (ebib-db-get-field-value '=type= entry-key ebib-cur-db 'noerror 'unbraced) "未知类型")
+		      ;; author
 		      (car (split-string
 			    (or (ebib-db-get-field-value 'author entry-key ebib-cur-db 'noerror 'unbraced)
 				"  ") "[ \t\n]+and[ \t\n]+\\|," ))
+		      ;; title
 		      (let ((title (ebib-db-get-field-value 'title entry-key ebib-cur-db 'noerror 'unbraced)))
-			(if (> (length title) 60)
-			    (concat (substring title 0 60) "...")
+			(if (> (string-width title) 40)
+			    (if (string-match-p "\\cc+" title)
+				(concat (substring title 0 20) "...")
+			      (concat (substring title 0 40) "..."))
 			  title))
+		      ;; journal publisher or school
+		      (or (ebib-db-get-field-value 'journal entry-key ebib-cur-db 'noerror 'unbraced)
+			  (ebib-db-get-field-value 'publisher entry-key ebib-cur-db 'noerror 'unbraced)
+			  (ebib-db-get-field-value 'school entry-key ebib-cur-db 'noerror 'unbraced)
+			  "——————————")
 		      "")))))
+
+(defun eh-ebib-get-matched-files (files-list match-str)
+  (let ((match-string (replace-regexp-in-string "[ +-=_]+" "" match-str)))
+    (if (string= match-string "")
+	""
+      (delete-if
+       (lambda (s)
+	 (let ((case-fold-search t)
+	       (string (replace-regexp-in-string "[ +-=_]+" "" s)))
+	   (not (or (string-match match-string string)
+		    (if (featurep 'eh-hanzi2pinyin)
+			(string-match match-string (eh-hanzi2pinyin string)))))))
+       files-list))))
 
 (defun eh-ebib-view-file ()
   (interactive)
   (ebib-execute-when
     ((entries)
-     (let* ((name-string (car (split-string
-				(or (car (ebib-db-get-field-value 'author (ebib-cur-entry-key) ebib-cur-db 'noerror 'unbraced 'xref))
-				    "  ") "[ \t\n]+and[ \t\n]+\\|," )))
-	   (files-list  (delete-if
-			 (lambda (s)
-			   (let ((case-fold-search t)
-				 (string (replace-regexp-in-string " +" "" s)))
-			     (not (or (string-match name-string string)
-				      (if (featurep 'eh-hanzi2pinyin)
-					  (string-match name-string (eh-hanzi2pinyin string)))))))
-			 (eh-directory-files-recursively
-			  (file-name-directory (ebib-db-get-filename ebib-cur-db)) t))))
+     (let* ((name-string
+	     (car (split-string
+		   (or (car (ebib-db-get-field-value 'author (ebib-cur-entry-key) ebib-cur-db 'noerror 'unbraced 'xref))
+		       "  ") "[ \t\n]+and[ \t\n]+\\|," )))
+	    (all-files (eh-directory-files-recursively (file-name-directory (ebib-db-get-filename ebib-cur-db)) t))
+	    (files-matched (eh-ebib-get-matched-files all-files name-string)))
        (cond
-	((> (length files-list) 1)
-	 (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-list)))
-	((= (length files-list) 1)
-	 (message "Opening file: %s" (car files-list))
-	 (start-process "" nil "xdg-open" (car files-list)))
-	((< (length files-list) 1)
+	((> (length files-matched) 1)
+	 (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-matched)))
+	((= (length files-matched) 1)
+	 (message "Opening file: %s" (car files-matched))
+	 (start-process "" nil "xdg-open" (car files-matched)))
+	((< (length files-matched) 1)
 	 (message "Can't find the corresponding file")))))))
-
-(defun eh-reftex-get-bibfile-list ()
-  "Return list of bibfiles for current document.
-When using the chapterbib or bibunits package you should either
-use the same database files everywhere, or separate parts using
-different databases into different files (included into the mater file).
-Then this function will return the applicable database files."
-
-  ;; Ensure access to scanning info
-  (reftex-access-scan-info)
-  (or
-   ;; Try inside this file (and its includes)
-   (cdr (reftex-last-assoc-before-elt
-         'bib (list 'eof (buffer-file-name))
-         (member (list 'bof (buffer-file-name))
-                 (symbol-value reftex-docstruct-symbol))))
-   ;; Try after the beginning of this file
-   (cdr (assq 'bib (member (list 'bof (buffer-file-name))
-                           (symbol-value reftex-docstruct-symbol))))
-   ;; Anywhere in the entire document
-   (cdr (assq 'bib (symbol-value reftex-docstruct-symbol)))))
 
 (defun eh-ebib ()
   "Open ebib then search the marked string"
@@ -213,6 +302,27 @@ Then this function will return the applicable database files."
     (when key
       (eh-isearch-string key)
       (ebib-select-and-popup-entry))))
+
+(defun eh-reftex-get-bibfile-list ()
+  "Return list of bibfiles for current document.
+When using the chapterbib or bibunits package you should either
+use the same database files everywhere, or separate parts using
+different databases into different files (included into the mater file).
+Then this function will return the applicable database files."
+
+  ;; Ensure access to scanning info
+  (reftex-access-scan-info)
+  (or
+   ;; Try inside this file (and its includes)
+   (cdr (reftex-last-assoc-before-elt
+         'bib (list 'eof (buffer-file-name))
+         (member (list 'bof (buffer-file-name))
+                 (symbol-value reftex-docstruct-symbol))))
+   ;; Try after the beginning of this file
+   (cdr (assq 'bib (member (list 'bof (buffer-file-name))
+                           (symbol-value reftex-docstruct-symbol))))
+   ;; Anywhere in the entire document
+   (cdr (assq 'bib (symbol-value reftex-docstruct-symbol)))))
 
 (defun eh-ebib-push-bibtex-key ()
   "Pushes the current entry to a LaTeX buffer.
@@ -272,7 +382,7 @@ The user is prompted for the buffer to push the entry into."
    2. Add language field to all entries.
    3. Add alias field to all entries. "
   (interactive)
-  (let ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
+  (let* ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
     (ebib-execute-when
       ((entries)
        (when (yes-or-no-p "Auto generate fields (key language and alias) to all entries? ")
@@ -292,6 +402,58 @@ The user is prompted for the buffer to push the entry into."
 	 (message "Database reloaded")))
       ((default)
        (beep)))))
+
+(defun eh-bibtex-add-language-field-to-all-entries ()
+  (interactive)
+  (bibtex-map-entries
+   (lambda (key begin end)
+     (let ((case-fold-search t))
+       (save-excursion
+	 (goto-char begin)
+	 (let ((language-field (bibtex-search-forward-field "language" t)))
+	   (when language-field
+	     (goto-char (car (cdr language-field)))
+	     (bibtex-kill-field)))
+	 (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
+	   (bibtex-make-field '("language" nil "Chinese" nil) t)))))))
+
+(defun eh-bibtex-add-alias-field-to-all-entries ()
+  (interactive)
+  (bibtex-map-entries
+   (lambda (key begin end)
+     (let ((case-fold-search t))
+       (save-excursion
+	 (goto-char begin)
+	 (let ((alias-field (bibtex-search-forward-field "alias" t))
+	       (title (bibtex-autokey-get-field "title"))
+	       (author (bibtex-autokey-get-field "author")))
+	   (when alias-field
+	     (goto-char (car (cdr alias-field)))
+	     (bibtex-kill-field))
+	   (bibtex-make-field (list "alias" nil (eh-hanzi2pinyin-simple (concat author ", " title) t) nil) t)))))))
+
+(defun eh-bibtex-add-autokeys-to-all-entries ()
+  (interactive)
+  (bibtex-map-entries
+   (lambda (key begin end)
+     (let ((case-fold-search t)
+	   (entry-type (bibtex-type-in-head)))
+       ;; set key
+       (save-excursion
+	 ;; First delete the old key so that a customized algorithm
+	 ;; for generating the new key does not get confused by the
+	 ;; old key.
+	 (re-search-forward (if (bibtex-string= entry-type "string")
+				bibtex-string-maybe-empty-head
+			      bibtex-entry-maybe-empty-head))
+	 (if (match-beginning bibtex-key-in-head)
+	     (delete-region (match-beginning bibtex-key-in-head)
+			    (match-end bibtex-key-in-head)))
+	 (setq auto-key (bibtex-generate-autokey))
+	 ;; Sometimes `bibtex-generate-autokey' returns an empty string
+	 (if (string= "" auto-key)
+	     (setq auto-key "!NEED_EDIT"))
+	 (insert auto-key))))))
 
 (defun eh-convert-cite-key-to-pinyin ()
   "Convert bibtex key to pinyin"
