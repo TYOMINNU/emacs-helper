@@ -51,6 +51,7 @@
 (setq ebib-index-window-size 10)
 (setq ebib-uniquify-keys nil)
 (setq eh-ebib-entry-buffer-only-show-abstact t)
+(setq eh-ebib-recently-opened-bibfile nil)
 (add-hook 'ebib-entry-mode-hook (lambda ()
 				  (setq cursor-type t)
 				  (visual-line-mode t)))
@@ -286,8 +287,15 @@
   "Open ebib then search the marked string"
   (interactive)
   (load-library "bibtex")
-  (let* ((path (if (buffer-file-name)
-		   (car (eh-reftex-get-bibfile-list))))
+  (let* ((file
+	  (or (if (buffer-file-name)
+		  (car (eh-reftex-get-bibfile-list)))
+	      (when (and eh-ebib-recently-opened-bibfile
+			 (y-or-n-p "Load recently opened bibfile?  "))
+		eh-ebib-recently-opened-bibfile)
+	      (ido-read-file-name
+               "Open bibtex file: "
+               (car ebib-file-search-dirs))))
 	 (word (or (current-word nil t) ""))
 	 (length (length word))
 	 (key (if mark-active
@@ -296,10 +304,8 @@
 		    (buffer-substring-no-properties (- (point) 2) (point))
 		  word))))
     (setq eh-ebib-push-buffer (current-buffer))
-    (ebib (or path
-	   (ido-read-file-name
-               "Open bibtex file: "
-               (car ebib-file-search-dirs))))
+    (ebib file)
+    (setq eh-ebib-recently-opened-bibfile file)
     (when key
       (eh-isearch-string key)
       (ebib-select-and-popup-entry))))
