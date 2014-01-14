@@ -77,80 +77,13 @@
 	     (setq cursor-type t)
 	     (toggle-truncate-lines t)))
 
-(setq ebib-additional-fields-default
-      '(crossref
-	url
-	annote
-	timestamp
-	doi))
-
-(setq ebib-entry-types-default
-      '((article
-	 (author title journal year)
-	 (volume number pages month note))
-	(book
-	 (author title publisher year)
-	 (editor volume number series address edition month note))
-	(booklet
-	 (title)
-	 (author howpublished address month year note))
-	(inbook
-	 (author title chapter pages publisher year)
-	 (editor volume series address edition month note))
-	(incollection
-	 (author title booktitle publisher year)
-	 (editor volume number series type chapter pages address edition month note))
-	(inproceedings
-	 (author title booktitle year)
-	 (editor pages organization publisher address month note))
-	(manual
-	 (title)
-	 (author organization address edition month year note))
-	(misc
-	 ()
-	 (title author howpublished month year note))
-	(mastersthesis
-	 (author title school year)
-	 (address month note))
-	(phdthesis
-	 (author title school year)
-	 (address month note))
-	(proceedings
-	 (title year)
-	 (editor publisher organization address month note))
-	(techreport
-	 (author title institution year)
-	 (type number address month note))
-	(unpublished
-	 (author title note)
-	 (month year))))
-
 (defun eh-ebib-select-and-popup-entry ()
   (interactive)
   (setq eh-ebib-entry-buffer-only-show-abstact
 	(not eh-ebib-entry-buffer-only-show-abstact))
-  (if eh-ebib-entry-buffer-only-show-abstact
-      (progn
-	(setq ebib-additional-fields '(keywords abstract))
-	(setq ebib-entry-types nil))
-    (progn
-      (setq ebib-additional-fields ebib-additional-fields-default)
-      (setq ebib-entry-types ebib-entry-types-default)))
   (ebib-select-and-popup-entry))
 
-(defadvice ebib-find-bibtex-entries (around eh-ebib-find-bibtex-entries
-					    (db timestamp) activate)
-  (let ((ebib-entry-types ebib-entry-types-default)
-	(ebib-additional-fields ebib-additional-fields-default))
-    ad-do-it))
-
-(defadvice ebib-filters-create-filter (around eh-ebib-find-bibtex-entries
-					      (bool not) activate)
-  (let ((ebib-entry-types ebib-entry-types-default)
-	(ebib-additional-fields ebib-additional-fields-default))
-    ad-do-it))
-
-(defun eh-ebib-get-washed-field  (field key &optional match-str db)
+(defun eh-ebib-get-abstract-field  (field key &optional match-str db)
   "Get abstract field of the entry"
   (or db (setq db ebib-cur-db))
   (let* ((case-fold-search t)
@@ -206,29 +139,18 @@
       (replace-match "" nil t))))
 
 ;; ebib entry buffer format setting
-(defun ebib-format-fields (key fn &optional match-str db)
-  (or db
-      (setq db ebib-cur-db))
-  (let* ((entry (ebib-db-get-entry key db))
-         (entry-type (cdr (assoc '=type= entry)))
-         (obl-fields (ebib-get-obl-fields entry-type))
-         (opt-fields (ebib-get-opt-fields entry-type)))
-    (funcall fn (format "%-19s %s\n" (propertize "type" 'face 'ebib-field-face) entry-type))
-    (mapc #'(lambda (fields)
-              (mapcar #'(lambda (field)
-                          (unless (and (get field 'ebib-hidden)
-                                       ebib-hide-hidden-fields)
-                            (funcall fn (propertize (format "%-17s " field) 'face 'ebib-field-face))
-                            (funcall fn (or
-					 (if (or (equal field 'abstract)
-						 (equal field 'file)
-						 (equal field 'keywords))
-					     (eh-ebib-get-washed-field field key match-str)
-					   (ebib-get-field-highlighted field key match-str))
-                                         ""))
-                            (funcall fn "\n")))
-                      fields))
-          (list obl-fields opt-fields ebib-additional-fields))))
+(defadvice ebib-format-fields (around eh-ebib-format-fields
+				      (key fn &optional match-str db) activate)
+  (if eh-ebib-entry-buffer-only-show-abstact
+      (funcall fn (eh-ebib-get-abstract-field 'abstract key match-str))
+    ad-do-it))
+
+(defadvice ebib-edit-entry (around eh-ebib-edit-entry
+				   () activate)
+  "Edits the current BibTeX entry."
+  (when eh-ebib-entry-buffer-only-show-abstact
+    (eh-ebib-select-and-popup-entry))
+  ad-do-it)
 
 ;; ebib index buffer format setting
 (defun ebib-display-entry (entry-key)
