@@ -67,15 +67,6 @@
 (setq eh-ebib-entry-buffer-only-show-abstact t)
 (setq eh-ebib-recently-opened-bibfile nil)
 (setq ebib-index-display-fields t)
-(add-hook 'ebib-entry-mode-hook
-	  '(lambda ()
-	     (setq cursor-type t)
-	     (visual-line-mode t)))
-(add-hook 'ebib-index-mode-hook
-	  '(lambda ()
-	     (visual-line-mode nil)
-	     (setq cursor-type t)
-	     (toggle-truncate-lines t)))
 
 (defun eh-ebib-select-and-popup-entry ()
   (interactive)
@@ -141,9 +132,12 @@
 ;; ebib entry buffer format setting
 (defadvice ebib-format-fields (around eh-ebib-format-fields
 				      (key fn &optional match-str db) activate)
+  (setq cursor-type t)
   (if eh-ebib-entry-buffer-only-show-abstact
-      (funcall fn (eh-ebib-get-abstract-field 'abstract key match-str))
-    ad-do-it))
+      (progn (visual-line-mode t)
+	     (funcall fn (eh-ebib-get-abstract-field 'abstract key match-str)))
+    (progn (toggle-truncate-lines t)
+	   ad-do-it)))
 
 (defadvice ebib-edit-entry (around eh-ebib-edit-entry
 				   () activate)
@@ -157,6 +151,7 @@
   "Display ENTRY-KEY in the index buffer at POINT."
   (with-current-buffer (cdr (assoc 'index ebib-buffer-alist))
     (with-ebib-buffer-writable
+      (setq cursor-type t)
       (insert (format "%-20s %-15s% -15s %-45s %s\n"
                       entry-key
 		      ;; type
