@@ -42,7 +42,21 @@
 (setq bibtex-autokey-titleword-separator "")
 (setq bibtex-autokey-name-year-separator "")
 (setq bibtex-autokey-year-title-separator "")
-(setq bibtex-autokey-before-presentation-function '(lambda (x) (downcase (eh-hanzi2pinyin-simple x))))
+(setq bibtex-autokey-before-presentation-function
+      '(lambda (x) (downcase (eh-hanzi2pinyin-simple x))))
+
+(setq bibtex-entry-format
+      '(opts-or-alts
+	numerical-fields
+	page-dashes
+	whitespace
+	inherit-booktitle
+	last-comma
+	delimiters
+	unify-case
+	braces
+	strings
+	sort-fields))
 
 ;; ebib window setting
 (setq ebib-layout 'full)
@@ -52,73 +66,64 @@
 (setq ebib-uniquify-keys nil)
 (setq eh-ebib-entry-buffer-only-show-abstact t)
 (setq eh-ebib-recently-opened-bibfile nil)
-(add-hook 'ebib-entry-mode-hook (lambda ()
-				  (setq cursor-type t)
-				  (visual-line-mode t)))
-(add-hook 'ebib-index-mode-hook (lambda ()
-				  (visual-line-mode nil)
-				  (setq cursor-type t)
-				  (toggle-truncate-lines t)))
+(setq ebib-index-display-fields t)
+(add-hook 'ebib-entry-mode-hook
+	  '(lambda ()
+	     (setq cursor-type t)
+	     (visual-line-mode t)))
+(add-hook 'ebib-index-mode-hook
+	  '(lambda ()
+	     (visual-line-mode nil)
+	     (setq cursor-type t)
+	     (toggle-truncate-lines t)))
+
+(setq ebib-additional-fields-default
+      '(crossref
+	url
+	annote
+	timestamp
+	doi))
 
 (setq ebib-entry-types-default
       '((article
 	 (author title journal year)
 	 (volume number pages month note))
-
 	(book
 	 (author title publisher year)
 	 (editor volume number series address edition month note))
-
 	(booklet
 	 (title)
 	 (author howpublished address month year note))
-
 	(inbook
 	 (author title chapter pages publisher year)
 	 (editor volume series address edition month note))
-
 	(incollection
 	 (author title booktitle publisher year)
 	 (editor volume number series type chapter pages address edition month note))
-
 	(inproceedings
 	 (author title booktitle year)
 	 (editor pages organization publisher address month note))
-
 	(manual
 	 (title)
 	 (author organization address edition month year note))
-
 	(misc
 	 ()
 	 (title author howpublished month year note))
-
 	(mastersthesis
 	 (author title school year)
 	 (address month note))
-
 	(phdthesis
 	 (author title school year)
 	 (address month note))
-
 	(proceedings
 	 (title year)
 	 (editor publisher organization address month note))
-
 	(techreport
 	 (author title institution year)
 	 (type number address month note))
-
 	(unpublished
 	 (author title note)
 	 (month year))))
-
-(setq ebib-additional-fields-default
-  '(crossref
-    url
-    annote
-    timestamp
-    doi))
 
 (defun eh-ebib-select-and-popup-entry ()
   (interactive)
@@ -145,20 +150,20 @@
 	(ebib-additional-fields ebib-additional-fields-default))
     ad-do-it))
 
-(defun eh-ebib-get-abstract (field key &optional match-str db)
+(defun eh-ebib-get-washed-field  (field key &optional match-str db)
   "Get abstract field of the entry"
   (or db (setq db ebib-cur-db))
   (let* ((case-fold-search t)
-         (value (ebib-db-get-field-value 'abstract key db 'noerror nil 'xref))
+         (value (ebib-db-get-field-value field key db 'noerror nil 'xref))
          (abstract-string (if (car value)
 			      (copy-sequence (car value)))))
     (with-temp-buffer
       (goto-char (point-min))
       (insert (or abstract-string ""))
-      (eh-ebib-wash-elide-blank-lines)
+      (eh-ebib-wash-elide-blank-lines t)
       (buffer-string))))
 
-(defun eh-ebib-wash-elide-blank-lines ()
+(defun eh-ebib-wash-elide-blank-lines (&optional remove-brackets)
   "Elide leading, trailing and successive blank lines."
 
   ;; Algorithm derived from `article-strip-multiple-blank-lines' in
@@ -173,7 +178,6 @@
   (goto-char (point-min))
   (while (re-search-forward "	" nil t)
     (replace-match "" nil t))
-
 
   ;; Replace multiple empty lines with a single empty line.
   (goto-char (point-min))
@@ -190,15 +194,16 @@
   (if (looking-at "\n")
       (delete-region (match-beginning 0) (match-end 0)))
 
-  ;; remove "{"
-  (goto-char (point-min))
-  (while (re-search-forward "^ ?{" nil t)
-    (replace-match "" nil t))
+  (when remove-brackets
+    ;; remove "{"
+    (goto-char (point-min))
+    (while (re-search-forward "^ ?{" nil t)
+      (replace-match "" nil t))
 
-  ;; remove "}"
-  (goto-char (point-min))
-  (while (re-search-forward "}[\n ]?" nil t)
-    (replace-match "" nil t)))
+    ;; remove "}"
+    (goto-char (point-min))
+    (while (re-search-forward "}[\n ]?" nil t)
+      (replace-match "" nil t))))
 
 ;; ebib entry buffer format setting
 (defun ebib-format-fields (key fn &optional match-str db)
@@ -215,16 +220,17 @@
                                        ebib-hide-hidden-fields)
                             (funcall fn (propertize (format "%-17s " field) 'face 'ebib-field-face))
                             (funcall fn (or
-					 (if (equal field 'abstract)
-					     (eh-ebib-get-abstract field key match-str)
-					     (ebib-get-field-highlighted field key match-str))
+					 (if (or (equal field 'abstract)
+						 (equal field 'file)
+						 (equal field 'keywords))
+					     (eh-ebib-get-washed-field field key match-str)
+					   (ebib-get-field-highlighted field key match-str))
                                          ""))
                             (funcall fn "\n")))
                       fields))
           (list obl-fields opt-fields ebib-additional-fields))))
 
 ;; ebib index buffer format setting
-(setq ebib-index-display-fields t)
 (defun ebib-display-entry (entry-key)
   "Display ENTRY-KEY in the index buffer at POINT."
   (with-current-buffer (cdr (assoc 'index ebib-buffer-alist))
@@ -286,7 +292,6 @@
 (defun eh-ebib ()
   "Open ebib then search the marked string"
   (interactive)
-  (load-library "bibtex")
   (let* ((file
 	  (or (if (buffer-file-name)
 		  (car (eh-reftex-get-bibfile-list)))
@@ -385,83 +390,74 @@ The user is prompted for the buffer to push the entry into."
       ((default)
        (beep)))))
 
-(defun eh-ebib-auto-generate-fields-to-all-entries ()
-  "1. Add autokey field to all entries.
-   2. Add language field to all entries.
-   3. Add alias field to all entries. "
+(defun eh-bibtex-reformat ()
+  (interactive)
+  (goto-char (point-min))
+  ;; Clean elide blank lines of entries,
+  ;; which make abstrack field look beautiful
+  (eh-ebib-wash-elide-blank-lines nil)
+  (save-restriction
+    (bibtex-map-entries
+     (lambda (key begin end)
+       (let ((case-fold-search t)
+	     (entry-type (bibtex-type-in-head)))
+	 (save-excursion
+	   ;; add language field
+	   (goto-char begin)
+	   (let ((language-field (bibtex-search-forward-field "language" t)))
+	     (when language-field
+	       (goto-char (car (cdr language-field)))
+	       (bibtex-kill-field)))
+	   (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
+	     (bibtex-make-field '("language" nil "Chinese" nil) t))
+	   ;; add alias field
+	   (goto-char begin)
+	   (let ((alias-field (bibtex-search-forward-field "alias" t))
+		 (title (bibtex-autokey-get-field "title"))
+		 (author (bibtex-autokey-get-field "author")))
+	     (when alias-field
+	       (goto-char (car (cdr alias-field)))
+	       (bibtex-kill-field))
+	     (bibtex-make-field (list "alias" nil (eh-hanzi2pinyin-simple (concat author ", " title) t) nil) t))
+	   ;; add autokey
+	   (goto-char begin)
+	   (re-search-forward (if (bibtex-string= entry-type "string")
+				  bbibtex-string-maybe-empty-head
+				bibtex-entry-maybe-empty-head))
+	   (if (match-beginning bibtex-key-in-head)
+	       (delete-region (match-beginning bibtex-key-in-head)
+			      (match-end bibtex-key-in-head)))
+	   (setq auto-key (bibtex-generate-autokey))
+	   ;; Sometimes `bibtex-generate-autokey' returns an empty string
+	   (if (string= "" auto-key)
+	       (setq auto-key "!NEED_EDIT"))
+	   (insert auto-key)
+	   ;; clean entry
+	   (bibtex-clean-entry nil t)))))))
+
+(defun eh-ebib-reformat-all-entries ()
+  "1. Add language field to all entries.
+   2. Add alias field to all entries.
+   3. reformat all the entries"
   (interactive)
   (let* ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
     (ebib-execute-when
       ((entries)
-       (when (yes-or-no-p "Auto generate fields (key language and alias) to all entries? ")
+       (when (yes-or-no-p "Add language and alias fields to all entries? ")
 	 (ebib-save-current-database)
+	 (message "Reformat bibfile: %s" current-bib-file)
 	 (with-current-buffer (find-file-noselect current-bib-file)
 	   (goto-char (point-min))
-	   (message "Auto generate fields (key language and alias) to all entries in %s" current-bib-file)
-	   (eh-bibtex-add-language-field-to-all-entries)
-	   (eh-bibtex-add-autokeys-to-all-entries)
-	   (eh-bibtex-add-alias-field-to-all-entries)
+	   (eh-bibtex-reformat)
 	   (save-buffer)
 	   (kill-buffer))
 	 ;; reload the current database
 	 (ebib-reload-database ebib-cur-db)
 	 (ebib-set-modified nil)
 	 (ebib-redisplay)
-	 (message "Database reloaded")))
+	 (message "Reformat bibfile complete, reload it")))
       ((default)
        (beep)))))
-
-(defun eh-bibtex-add-language-field-to-all-entries ()
-  (interactive)
-  (bibtex-map-entries
-   (lambda (key begin end)
-     (let ((case-fold-search t))
-       (save-excursion
-	 (goto-char begin)
-	 (let ((language-field (bibtex-search-forward-field "language" t)))
-	   (when language-field
-	     (goto-char (car (cdr language-field)))
-	     (bibtex-kill-field)))
-	 (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
-	   (bibtex-make-field '("language" nil "Chinese" nil) t)))))))
-
-(defun eh-bibtex-add-alias-field-to-all-entries ()
-  (interactive)
-  (bibtex-map-entries
-   (lambda (key begin end)
-     (let ((case-fold-search t))
-       (save-excursion
-	 (goto-char begin)
-	 (let ((alias-field (bibtex-search-forward-field "alias" t))
-	       (title (bibtex-autokey-get-field "title"))
-	       (author (bibtex-autokey-get-field "author")))
-	   (when alias-field
-	     (goto-char (car (cdr alias-field)))
-	     (bibtex-kill-field))
-	   (bibtex-make-field (list "alias" nil (eh-hanzi2pinyin-simple (concat author ", " title) t) nil) t)))))))
-
-(defun eh-bibtex-add-autokeys-to-all-entries ()
-  (interactive)
-  (bibtex-map-entries
-   (lambda (key begin end)
-     (let ((case-fold-search t)
-	   (entry-type (bibtex-type-in-head)))
-       ;; set key
-       (save-excursion
-	 ;; First delete the old key so that a customized algorithm
-	 ;; for generating the new key does not get confused by the
-	 ;; old key.
-	 (re-search-forward (if (bibtex-string= entry-type "string")
-				bibtex-string-maybe-empty-head
-			      bibtex-entry-maybe-empty-head))
-	 (if (match-beginning bibtex-key-in-head)
-	     (delete-region (match-beginning bibtex-key-in-head)
-			    (match-end bibtex-key-in-head)))
-	 (setq auto-key (bibtex-generate-autokey))
-	 ;; Sometimes `bibtex-generate-autokey' returns an empty string
-	 (if (string= "" auto-key)
-	     (setq auto-key "!NEED_EDIT"))
-	 (insert auto-key))))))
 
 (defun eh-convert-cite-key-to-pinyin ()
   "Convert bibtex key to pinyin"
@@ -484,7 +480,7 @@ The user is prompted for the buffer to push the entry into."
 (ebib-key index "q" ebib-quit)
 (ebib-key index "f" eh-ebib-view-file)
 (ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
-(ebib-key index [(control k)] eh-ebib-auto-generate-fields-to-all-entries)
+(ebib-key index [(control k)] eh-ebib-reformat-all-entries)
 (ebib-key index [(return)] eh-ebib-select-and-popup-entry)
 ;; Local Variables:
 ;; coding: utf-8-unix
