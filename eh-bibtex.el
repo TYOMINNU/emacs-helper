@@ -146,6 +146,12 @@
     (eh-ebib-select-and-popup-entry))
   ad-do-it)
 
+(defadvice ebib-edit-field (around eh-ebib-edit-field
+				   (&optional pfx) activate)
+  "Edits the current BibTeX entry."
+  (when (not eh-ebib-entry-buffer-only-show-abstact)
+    ad-do-it))
+
 ;; ebib index buffer format setting
 (defun ebib-display-entry (entry-key)
   "Display ENTRY-KEY in the index buffer at POINT."
