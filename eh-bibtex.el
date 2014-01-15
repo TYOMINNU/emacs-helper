@@ -83,7 +83,7 @@
          (abstract-string (if (car value)
 			      (copy-sequence (car value)))))
     (eh-wash-text (or abstract-string "")
-		  eh-ebib-entry-buffer-abstact-fill-column)))
+		  eh-ebib-entry-buffer-abstact-fill-column 0)))
 
 ;; ebib entry buffer format setting
 (defadvice ebib-format-fields (around eh-ebib-format-fields
@@ -273,6 +273,22 @@ The user is prompted for the buffer to push the entry into."
       ((default)
        (beep)))))
 
+
+(defun eh-bibtex-wash-field (field)
+  "Wash the content of field"
+  (goto-char begin)
+  (let ((field-content (bibtex-autokey-get-field field))
+	(field-position (bibtex-search-forward-field field t)))
+  (when field-position
+    (goto-char (car (cdr field-position)))
+    (bibtex-kill-field))
+  (bibtex-make-field
+   (list field nil
+	 (eh-wash-text
+	  field-content
+	  eh-ebib-entry-buffer-abstact-fill-column
+	  (+ bibtex-text-indentation 1 )) nil) t)))
+
 (defun eh-bibtex-reformat ()
   (interactive)
   (goto-char (point-min))
@@ -301,22 +317,16 @@ The user is prompted for the buffer to push the entry into."
 	     (when alias-field
 	       (goto-char (car (cdr alias-field)))
 	       (bibtex-kill-field))
-	     (bibtex-make-field (list "alias" nil (eh-hanzi2pinyin-simple (concat author ", " title) t) nil) t))
+	     (bibtex-make-field
+	      (list "alias" nil
+		    (replace-regexp-in-string
+		     "\n" ""
+		     (eh-hanzi2pinyin-simple
+		      (concat author ", " title) t)) nil) t))
 
 	   ;; Wash abstract field
-	   (goto-char begin)
-	   (let ((abstract (bibtex-autokey-get-field "abstract"))
-		 (abstract-field (bibtex-search-forward-field "abstract" t)))
-	     (when abstract-field
-	       (goto-char (car (cdr abstract-field)))
-	       (bibtex-kill-field))
-	     (bibtex-make-field
-	      (list "abstract" nil
-		    (eh-wash-text
-		     abstract
-		     eh-ebib-entry-buffer-abstact-fill-column
-		     (+ bibtex-text-indentation 1 )) nil) t))
-
+	   (eh-bibtex-wash-field "abstract")
+	   
 	   ;; Add autokey
 	   (goto-char begin)
 	   (re-search-forward (if (bibtex-string= entry-type "string")

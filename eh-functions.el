@@ -66,22 +66,16 @@
   "Insert text into a temp buffer and wash it,
 if `fill-width' is a number, the temp buffer will be filled to the number,
 if `indent' is a number ,the temp buffer will be indent the number,
-then the formated buffer will be exported with `buffer-string'"
+then the formated buffer will be exported with `buffer-string',
+this function  derived from `article-strip-multiple-blank-lines' in
+`gnus-art.el'."
+  (interactive)
   (with-temp-buffer
     (goto-char (point-min))
     (insert text)
-
-    ;; Algorithm derived from `article-strip-multiple-blank-lines' in
-    ;; `gnus-art.el'.
-
     ;; Make all blank lines empty.
     (goto-char (point-min))
-    (while (re-search-forward "^[[:space:]\t]+$" nil t)
-      (replace-match "" nil t))
-
-    ;; remove special space
-    (goto-char (point-min))
-    (while (re-search-forward "	" nil t)
+    (while (re-search-forward "^[[:space:]	\t]+$" nil t)
       (replace-match "" nil t))
 
     ;; Replace multiple empty lines with a single empty line.
@@ -101,16 +95,18 @@ then the formated buffer will be exported with `buffer-string'"
 
     ;; remove "{"
     (goto-char (point-min))
-    (while (re-search-forward "^ ?{" nil t)
-      (replace-match "" nil t))
+    (if (looking-at "^[[:space:]	\t]*{")
+	(delete-region (match-beginning 0) (match-end 0)))
 
     ;; remove "}"
-    (goto-char (point-min))
-    (while (re-search-forward "}[\n ]?" nil t)
-      (replace-match "" nil t))
+    (goto-char (point-max))
+    (if (looking-at "}^[[:space:]	\t]*")
+	(delete-region (match-beginning 0) (match-end 0)))
 
     ;; fill buffer
     (when fill-width
+      ;; unindent the buffer
+      (indent-region (point-min) (point-max) 0)
       ;; unfill the buffer
       (let ((fill-column 100000))
 	(fill-region (point-min) (point-max)))
@@ -180,10 +176,3 @@ then the formated buffer will be exported with `buffer-string'"
 ;; End:
 
 ;;; eh-functions.el ends here
-
-
-
-
-
-
-
