@@ -36,7 +36,10 @@
 (require 'ebib)
 (require 'eh-hanzi2pinyin)
 
-;; bibtex autokey setting
+
+;; bibtex autokey rule
+;; the below will generate a auto named : xulinling2013
+;; [3] 徐琳玲. P公司标准成本制度研究[D]. 华东理工大学, 2013.
 (setq bibtex-autokey-year-length 4)
 (setq bibtex-autokey-titleword-length 0)
 (setq bibtex-autokey-titleword-separator "")
@@ -45,6 +48,7 @@
 (setq bibtex-autokey-before-presentation-function
       '(lambda (x) (downcase (eh-hanzi2pinyin-simple x))))
 
+;; used by bibtex-clean-entry
 (setq bibtex-entry-format
       '(opts-or-alts
 	numerical-fields
@@ -63,9 +67,19 @@
 (setq ebib-window-vertical-split nil)
 (setq ebib-width 80)
 (setq ebib-index-window-size 10)
+
+;; scale the font height in entry buffer
+(setq eh-ebib-entry-buffer-text-scale-amount 2.0)
 (setq ebib-uniquify-keys nil)
+
+;; only show abstract in entry buffer
 (setq eh-ebib-entry-buffer-only-show-abstact t)
+
+;; record the last opened bibfile name
 (setq eh-ebib-recently-opened-bibfile nil)
+
+;; If this varible is `t', index buffer will highlight lines instead of autokey word
+;; setting this varible to *a list of field* is *useless* in my configure
 (setq ebib-index-display-fields t)
 
 (defun eh-ebib-select-and-popup-entry ()
@@ -84,55 +98,17 @@
     (with-temp-buffer
       (goto-char (point-min))
       (insert (or abstract-string ""))
-      (eh-ebib-wash-elide-blank-lines t)
+      (eh-wash-text t)
       (buffer-string))))
-
-(defun eh-ebib-wash-elide-blank-lines (&optional remove-brackets)
-  "Elide leading, trailing and successive blank lines."
-
-  ;; Algorithm derived from `article-strip-multiple-blank-lines' in
-  ;; `gnus-art.el'.
-
-  ;; Make all blank lines empty.
-  (goto-char (point-min))
-  (while (re-search-forward "^[[:space:]\t]+$" nil t)
-    (replace-match "" nil t))
-
-  ;; remove special space
-  (goto-char (point-min))
-  (while (re-search-forward "	" nil t)
-    (replace-match "" nil t))
-
-  ;; Replace multiple empty lines with a single empty line.
-  (goto-char (point-min))
-  (while (re-search-forward "^\n\\(\n+\\)" nil t)
-    (delete-region (match-beginning 1) (match-end 1)))
-
-  ;; Remove a leading blank line.
-  (goto-char (point-min))
-  (if (looking-at "\n")
-      (delete-region (match-beginning 0) (match-end 0)))
-
-  ;; Remove a trailing blank line.
-  (goto-char (point-max))
-  (if (looking-at "\n")
-      (delete-region (match-beginning 0) (match-end 0)))
-
-  (when remove-brackets
-    ;; remove "{"
-    (goto-char (point-min))
-    (while (re-search-forward "^ ?{" nil t)
-      (replace-match "" nil t))
-
-    ;; remove "}"
-    (goto-char (point-min))
-    (while (re-search-forward "}[\n ]?" nil t)
-      (replace-match "" nil t))))
 
 ;; ebib entry buffer format setting
 (defadvice ebib-format-fields (around eh-ebib-format-fields
 				      (key fn &optional match-str db) activate)
+  ;; show cursor in entry buffer
   (setq cursor-type t)
+  ;; increase the text size of the entry buffer
+  (let ((text-scale-mode-amount eh-ebib-entry-buffer-text-scale-amount))
+    (text-scale-mode))
   (if eh-ebib-entry-buffer-only-show-abstact
       (progn (visual-line-mode t)
 	     (funcall fn (eh-ebib-get-abstract-field 'abstract key match-str)))
@@ -318,7 +294,7 @@ The user is prompted for the buffer to push the entry into."
   (goto-char (point-min))
   ;; Clean elide blank lines of entries,
   ;; which make abstrack field look beautiful
-  (eh-ebib-wash-elide-blank-lines nil)
+  (eh-wash-text)
   (save-restriction
     (bibtex-map-entries
      (lambda (key begin end)
