@@ -48,20 +48,6 @@
 (setq bibtex-autokey-before-presentation-function
       '(lambda (x) (downcase (eh-hanzi2pinyin-simple x))))
 
-;; used by bibtex-clean-entry
-(setq bibtex-entry-format
-      '(opts-or-alts
-	numerical-fields
-	page-dashes
-	whitespace
-	inherit-booktitle
-	last-comma
-	delimiters
-	unify-case
-	braces
-	strings
-	sort-fields))
-
 ;; ebib window setting
 (setq ebib-layout 'full)
 (setq ebib-window-vertical-split nil)
@@ -74,6 +60,7 @@
 
 ;; only show abstract in entry buffer
 (setq eh-ebib-entry-buffer-only-show-abstact t)
+(setq eh-ebib-entry-buffer-abstact-fill-column 80)
 
 ;; record the last opened bibfile name
 (setq eh-ebib-recently-opened-bibfile nil)
@@ -95,11 +82,8 @@
          (value (ebib-db-get-field-value field key db 'noerror nil 'xref))
          (abstract-string (if (car value)
 			      (copy-sequence (car value)))))
-    (with-temp-buffer
-      (goto-char (point-min))
-      (insert (or abstract-string ""))
-      (eh-wash-text t)
-      (buffer-string))))
+    (eh-wash-text (or abstract-string "")
+		  eh-ebib-entry-buffer-abstact-fill-column)))
 
 ;; ebib entry buffer format setting
 (defadvice ebib-format-fields (around eh-ebib-format-fields
@@ -294,14 +278,13 @@ The user is prompted for the buffer to push the entry into."
   (goto-char (point-min))
   ;; Clean elide blank lines of entries,
   ;; which make abstrack field look beautiful
-  (eh-wash-text)
   (save-restriction
     (bibtex-map-entries
      (lambda (key begin end)
        (let ((case-fold-search t)
 	     (entry-type (bibtex-type-in-head)))
 	 (save-excursion
-	   ;; add language field
+	   ;; Add language field
 	   (goto-char begin)
 	   (let ((language-field (bibtex-search-forward-field "language" t)))
 	     (when language-field
@@ -309,7 +292,8 @@ The user is prompted for the buffer to push the entry into."
 	       (bibtex-kill-field)))
 	   (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
 	     (bibtex-make-field '("language" nil "Chinese" nil) t))
-	   ;; add alias field
+
+	   ;; Add alias field
 	   (goto-char begin)
 	   (let ((alias-field (bibtex-search-forward-field "alias" t))
 		 (title (bibtex-autokey-get-field "title"))
@@ -318,7 +302,22 @@ The user is prompted for the buffer to push the entry into."
 	       (goto-char (car (cdr alias-field)))
 	       (bibtex-kill-field))
 	     (bibtex-make-field (list "alias" nil (eh-hanzi2pinyin-simple (concat author ", " title) t) nil) t))
-	   ;; add autokey
+
+	   ;; Wash abstract field
+	   (goto-char begin)
+	   (let ((abstract (bibtex-autokey-get-field "abstract"))
+		 (abstract-field (bibtex-search-forward-field "abstract" t)))
+	     (when abstract-field
+	       (goto-char (car (cdr abstract-field)))
+	       (bibtex-kill-field))
+	     (bibtex-make-field
+	      (list "abstract" nil
+		    (eh-wash-text
+		     abstract
+		     eh-ebib-entry-buffer-abstact-fill-column
+		     (+ bibtex-text-indentation 1 )) nil) t))
+
+	   ;; Add autokey
 	   (goto-char begin)
 	   (re-search-forward (if (bibtex-string= entry-type "string")
 				  bbibtex-string-maybe-empty-head
@@ -331,8 +330,12 @@ The user is prompted for the buffer to push the entry into."
 	   (if (string= "" auto-key)
 	       (setq auto-key "!NEED_EDIT"))
 	   (insert auto-key)
-	   ;; clean entry
-	   (bibtex-clean-entry nil t)))))))
+	   (let ((bibtex-entry-format
+		  ;; Don't add `realign' to this list
+		  '(opts-or-alts numerical-fields delimiters
+				 last-comma page-dashes unify-case inherit-booktitle
+				 braces strings sort-fields whitespace)))
+	     (bibtex-clean-entry nil t))))))))
 
 (defun eh-ebib-reformat-all-entries ()
   "1. Add language field to all entries.
@@ -342,9 +345,9 @@ The user is prompted for the buffer to push the entry into."
   (let* ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
     (ebib-execute-when
       ((entries)
-       (when (yes-or-no-p "Add language and alias fields to all entries? ")
+       (when (yes-or-no-p (concat (format "Reformat bibfile: %s  " current-bib-file)))
 	 (ebib-save-current-database)
-	 (message "Reformat bibfile: %s" current-bib-file)
+	 (message "Reformat ... ")
 	 (with-current-buffer (find-file-noselect current-bib-file)
 	   (goto-char (point-min))
 	   (eh-bibtex-reformat)
@@ -354,7 +357,7 @@ The user is prompted for the buffer to push the entry into."
 	 (ebib-reload-database ebib-cur-db)
 	 (ebib-set-modified nil)
 	 (ebib-redisplay)
-	 (message "Reformat bibfile complete, reload it")))
+	 (message "Reformat complete")))
       ((default)
        (beep)))))
 

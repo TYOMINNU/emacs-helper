@@ -62,39 +62,43 @@
           nconc (eh-directory-files-recursively file type regexp) into ret
           finally return ret)))
 
-(defun eh-wash-text (&optional remove-brackets)
-  "Wash the text in current buffer, make it look beautifule.
-Elide leading, trailing and successive blank lines."
+(defun eh-wash-text (text &optional fill-width indent)
+  "Insert text into a temp buffer and wash it,
+if `fill-width' is a number, the temp buffer will be filled to the number,
+if `indent' is a number ,the temp buffer will be indent the number,
+then the formated buffer will be exported with `buffer-string'"
+  (with-temp-buffer
+    (goto-char (point-min))
+    (insert text)
 
-  ;; Algorithm derived from `article-strip-multiple-blank-lines' in
-  ;; `gnus-art.el'.
+    ;; Algorithm derived from `article-strip-multiple-blank-lines' in
+    ;; `gnus-art.el'.
 
-  ;; Make all blank lines empty.
-  (goto-char (point-min))
-  (while (re-search-forward "^[[:space:]\t]+$" nil t)
-    (replace-match "" nil t))
+    ;; Make all blank lines empty.
+    (goto-char (point-min))
+    (while (re-search-forward "^[[:space:]\t]+$" nil t)
+      (replace-match "" nil t))
 
-  ;; remove special space
-  (goto-char (point-min))
-  (while (re-search-forward "	" nil t)
-    (replace-match "" nil t))
+    ;; remove special space
+    (goto-char (point-min))
+    (while (re-search-forward "	" nil t)
+      (replace-match "" nil t))
 
-  ;; Replace multiple empty lines with a single empty line.
-  (goto-char (point-min))
-  (while (re-search-forward "^\n\\(\n+\\)" nil t)
-    (delete-region (match-beginning 1) (match-end 1)))
+    ;; Replace multiple empty lines with a single empty line.
+    (goto-char (point-min))
+    (while (re-search-forward "^\n\\(\n+\\)" nil t)
+      (delete-region (match-beginning 1) (match-end 1)))
 
-  ;; Remove a leading blank line.
-  (goto-char (point-min))
-  (if (looking-at "\n")
-      (delete-region (match-beginning 0) (match-end 0)))
+    ;; Remove a leading blank line.
+    (goto-char (point-min))
+    (if (looking-at "\n")
+	(delete-region (match-beginning 0) (match-end 0)))
 
-  ;; Remove a trailing blank line.
-  (goto-char (point-max))
-  (if (looking-at "\n")
-      (delete-region (match-beginning 0) (match-end 0)))
+    ;; Remove a trailing blank line.
+    (goto-char (point-max))
+    (if (looking-at "\n")
+	(delete-region (match-beginning 0) (match-end 0)))
 
-  (when remove-brackets
     ;; remove "{"
     (goto-char (point-min))
     (while (re-search-forward "^ ?{" nil t)
@@ -103,7 +107,21 @@ Elide leading, trailing and successive blank lines."
     ;; remove "}"
     (goto-char (point-min))
     (while (re-search-forward "}[\n ]?" nil t)
-      (replace-match "" nil t))))
+      (replace-match "" nil t))
+
+    ;; fill buffer
+    (when fill-width
+      ;; unfill the buffer
+      (let ((fill-column 100000))
+	(fill-region (point-min) (point-max)))
+      ;; fill the buffer to fill-width
+      (let ((fill-column fill-width))
+	(fill-region (point-min) (point-max))))
+
+    ;;indent buffer
+    (when indent
+      (indent-region (point-min) (point-max) indent))
+    (buffer-string)))
 
 (defun eh-dos2unix () 
   "将dos换行方式转换为unix的换行方式,用于去除^M"
