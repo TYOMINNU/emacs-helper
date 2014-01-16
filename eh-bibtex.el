@@ -90,12 +90,16 @@
 				      (key fn &optional match-str db) activate)
   ;; show cursor in entry buffer
   (setq cursor-type t)
-  ;; increase the text size of the entry buffer
-  (let ((text-scale-mode-amount eh-ebib-entry-buffer-text-scale-amount))
-    (text-scale-mode))
+  ;; reset font size to default
+  (text-scale-mode 0)
   (if eh-ebib-entry-buffer-only-show-abstact
-      (progn (visual-line-mode t)
-	     (funcall fn (eh-ebib-get-abstract-field 'abstract key match-str)))
+      (let ((text-scale-mode-amount eh-ebib-entry-buffer-text-scale-amount))
+	;; add additional 0.2 pixels between two lines
+	(setq line-spacing 0.2)
+	;; increase the text size of the entry buffer
+	(text-scale-mode)
+	(visual-line-mode t)
+	(funcall fn (eh-ebib-get-abstract-field 'abstract key match-str)))
     (progn (toggle-truncate-lines t)
 	   ad-do-it)))
 
