@@ -122,10 +122,8 @@
   (with-current-buffer (cdr (assoc 'index ebib-buffer-alist))
     (with-ebib-buffer-writable
       (setq cursor-type t)
-      (insert (format "%-20s %-15s% -15s %-45s %s\n"
+      (insert (format "%-20s %-15s %-45s %s\n"
                       entry-key
-		      ;; type
-		      (or (ebib-db-get-field-value '=type= entry-key ebib-cur-db 'noerror 'unbraced) "未知类型")
 		      ;; author
 		      (car (split-string
 			    (or (ebib-db-get-field-value 'author entry-key ebib-cur-db 'noerror 'unbraced)
