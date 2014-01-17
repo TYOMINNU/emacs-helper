@@ -201,11 +201,18 @@
 ;; 当你需要更新这些组的时候，使用 "4-g" "5-g" 等快捷键
 (setq gnus-activate-level 3) 
 
-;; 双窗口布局
-(gnus-add-configuration '(article 
-                          (horizontal 1.0 
-                                      (summary 0.50 point)
-                                      (article 1.0))))
+;; 双窗口布局(垂直)
+;; (gnus-add-configuration '(article
+;;			  (horizontal 1.0
+;;				      (summary 0.50 point)
+;;				      (article 1.0))))
+
+;; 双窗口布局(水平)
+(gnus-add-configuration '(article
+                          (vertical 1.0
+				    (summary 0.40 point)
+				    (article 1.0))))
+
 ;; 三窗口布局
 ;; (gnus-add-configuration
 ;;  '(article
