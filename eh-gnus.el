@@ -210,7 +210,7 @@
 ;; 双窗口布局(水平)
 (gnus-add-configuration '(article
                           (vertical 1.0
-				    (summary 0.40 point)
+				    (summary 0.25 point)
 				    (article 1.0))))
 
 ;; 三窗口布局
