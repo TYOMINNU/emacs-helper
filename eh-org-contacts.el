@@ -60,7 +60,7 @@
 (defun eh-org-mobile-sync-with-adb ()
   "sync org-mobile with andoid-tools-adb"
   (interactive)
-  (org-contacts-export-as-vcard nil "经常联系")
+  (org-contacts-export-as-vcard)
   (org-contacts-export-as-csv)
   (org-mobile-push)
   (message "Push to Android...")
@@ -204,6 +204,16 @@ is created and the VCard is written into that buffer."
   (goto-char point)
   (insert contacts-string)))
 
+(defun eh-org-contacts-reformat ()
+  "reformat all org contacts in current buffer"
+  (interactive)
+  (message "Merge duplicate contacts...")
+  (eh-org-contacts-merge-contacts)
+  (message "Add pinyin alias...")
+  (eh-org-contacts-add-pinyin-alias)
+  (message "Generate phone and email links...")
+  (eh-org-contacts-generate-phone-and-email-links))
+
 (defun eh-org-contacts-merge-contacts ()
   "Merge duplicate contacts"
   (interactive)
@@ -246,8 +256,10 @@ is created and the VCard is written into that buffer."
   "Add pinyin alias to all head of current buffer"
   (interactive)
   (if (featurep 'eh-hanzi2pinyin)
-      (org-map-entries '(lambda () (let ((pinyin-alias (eh-hanzi2pinyin (org-get-heading 1 1) t)))
-                                (org-set-property org-contacts-alias-property pinyin-alias))))))
+      (org-map-entries '(lambda ()
+			  (let ((pinyin-alias (eh-hanzi2pinyin (org-get-heading 1 1) t)))
+			    (when (string-match-p "[^[:space:]\t]+" pinyin-alias)
+			      (org-set-property org-contacts-alias-property pinyin-alias)))))))
 
 (defun eh-org-contacts-generate-phone-and-email-links ()
   "Add pinyin alias to all head of current buffer"
