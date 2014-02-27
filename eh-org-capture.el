@@ -64,12 +64,8 @@
    :END:
 "
 :empty-lines 1)
-        ("notes-x-selection" "Notes" entry  (file+headline eh-org-note-file "Notes")
-"** %?
-   :PROPERTIES:
-   :DATE: %u
-   :END:
-%(eh-org-capture-clean-text (current-kill 0))"
+        ("simple" "Notes" entry  (file+headline eh-org-note-file "Notes")
+"** %?"
 :empty-lines 1)
         ("contacts" "Contacts" entry (file eh-org-contacts-file)
 	 "* %?
