@@ -46,6 +46,9 @@
 (menu-bar-mode 1)
 (tool-bar-mode -1)
 
+;; 高亮配对的括号
+(show-paren-mode 1)
+
 ;; 设置emacs-daemon使用tcp模式
 (setq server-use-tcp t)
 
