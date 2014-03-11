@@ -396,6 +396,7 @@ The user is prompted for the buffer to push the entry into."
 (ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
 (ebib-key index [(control k)] eh-ebib-reformat-all-entries)
 (ebib-key index [(return)] eh-ebib-select-and-popup-entry)
+
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:

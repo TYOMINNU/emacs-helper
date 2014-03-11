@@ -72,14 +72,9 @@
 (setq ac-use-menu-map t)
 (setq-default ac-sources '(ac-source-words-in-all-buffer
 			   ac-source-filename
-			   ac-source-functions
-			   ac-source-variables
-			   ac-source-symbols
-			   ac-source-features
 			   ac-source-abbrev
 			   ac-source-words-in-same-mode-buffers
-			   ac-source-dictionary
-			   ))
+			   ac-source-dictionary))
 
 (add-hook 'eshell-mode-hook
 	  (lambda ()
@@ -100,6 +95,11 @@
 			       ac-source-words-in-buffer
 			       ac-source-words-in-all-buffer
 			       ac-source-imenu
+			       ac-source-dictionary
+			       ac-source-functions
+			       ac-source-variables
+			       ac-source-symbols
+			       ac-source-features
 			       ac-source-symbols))))
 
 (setq hippie-expand-try-functions-list
