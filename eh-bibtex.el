@@ -87,7 +87,7 @@
 
 ;; ebib entry buffer format setting
 (defadvice ebib-format-fields (around eh-ebib-format-fields
-				      (key fn &optional match-str db) activate)
+				      (key &optional match-str db) activate)
   ;; show cursor in entry buffer
   (setq cursor-type t)
   ;; reset font size to default
@@ -99,7 +99,7 @@
 	;; increase the text size of the entry buffer
 	(text-scale-mode)
 	(visual-line-mode t)
-	(funcall fn (eh-ebib-get-abstract-field 'abstract key match-str)))
+	(insert (eh-ebib-get-abstract-field 'abstract key match-str)))
     (progn (toggle-truncate-lines t)
 	   ad-do-it)))
 
