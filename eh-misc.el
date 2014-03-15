@@ -47,6 +47,12 @@
 (setq browse-kill-ring-separator (make-string 50 ?-))
 (global-set-key (kbd "C-c y") 'browse-kill-ring)
 
+;; General project support
+(require 'projectile)
+(projectile-global-mode)
+(setq projectile-enable-caching nil)
+(global-set-key "\C-cf" 'projectile-find-file)
+
 ;; 查字典
 (global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
 (defun kid-sdcv-to-buffer ()
