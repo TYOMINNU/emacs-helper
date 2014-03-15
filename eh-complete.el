@@ -63,13 +63,6 @@
    (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
    (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
 
-;; General project support
-(require 'projectile)
-(projectile-global-mode)
-(setq projectile-enable-caching nil
-      projectile-globally-ignored-directories '("target"))
-(global-set-key "\C-cf" 'projectile-find-file)
-
 
 ;; 打开auto-complete-mode模式
 (require 'auto-complete)
