@@ -31,15 +31,31 @@
 
 ;;; Code:
 
-;; ido模式
-(require 'ido)
-(require 'ido-vertical-mode)
+;; Completion for M-x
 (require 'smex)
+(smex-initialize)
+(global-set-key "\M-x" 'smex)
 
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(ido-mode t)
-(ido-vertical-mode t)
+;; IDO & filecache: smart file name completion
+(require 'ido)
+(require 'ido-ubiquitous)
+(require 'flx-ido) ;; Improved flex matching
+(require 'ido-vertical-mode) ;; Vertical completion menu
+
+(setq ido-everywhere t
+      ido-enable-flex-matching t
+      ido-create-new-buffer 'always
+      ido-file-extensions-order '(".org" ".R" ".el" ".java" ".js" ".el" ".xml")
+      ido-use-filename-at-point 'guess
+      ido-use-faces nil
+      flx-ido-use-faces t)
+
+(ido-mode 1)
+(ido-ubiquitous)
+(flx-ido-mode 1)
+(ido-vertical-mode)
+
+;; ido keybindings
 (add-hook 'ido-setup-hook 'eh-ido-keybinding)
 (defun eh-ido-keybinding ()
    (define-key ido-completion-map (kbd "C-SPC") nil)
@@ -47,9 +63,12 @@
    (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
    (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
 
-;; ido completion in M-x
-(smex-initialize)
-(global-set-key "\M-x" 'smex)
+;; General project support
+(require 'projectile)
+(projectile-global-mode)
+(setq projectile-enable-caching nil
+      projectile-globally-ignored-directories '("target"))
+(global-set-key "\C-cf" 'projectile-find-file)
 
 
 ;; 打开auto-complete-mode模式
