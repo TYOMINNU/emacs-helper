@@ -51,7 +51,7 @@
 (require 'projectile)
 (projectile-global-mode)
 (setq projectile-enable-caching nil)
-(global-set-key "\C-cf" 'projectile-find-file)
+(global-set-key (kbd "C-x f") 'projectile-find-file)
 
 ;; 查字典
 (global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
