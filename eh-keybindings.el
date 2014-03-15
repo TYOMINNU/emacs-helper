@@ -43,9 +43,6 @@
 ;; 设置键盘绑定,使用Ctrl-x k删除当前缓存
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 
-;; 设置键盘绑定,使用Ctrl-c k激活browese-kill-ring函数
-(global-set-key (kbd "C-x K") 'browse-kill-ring)
-
 ;; ido
 (global-set-key (kbd "C-x C-b") 'ido-display-buffer)
 

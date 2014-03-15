@@ -42,13 +42,10 @@
 		(with-selected-frame frame
                   (or ibus-mode (ibus-mode-on))))))
 
-
-;; General project支持
-(require 'projectile)
-(projectile-global-mode)
-(setq projectile-enable-caching nil
-      projectile-globally-ignored-directories '("target"))
-(global-set-key (kbd "C-c f") 'projectile-find-file)
+;; browse-kill-ring
+(require' browse-kill-ring)
+(setq browse-kill-ring-separator (make-string 50 ?-))
+(global-set-key (kbd "C-c y") 'browse-kill-ring)
 
 ;; 查字典
 (global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
