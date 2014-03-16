@@ -60,7 +60,15 @@
   (define-key browse-kill-ring-mode-map (kbd "C-c C-c") 'browse-kill-ring-insert-and-quit)
   (define-key browse-kill-ring-mode-map (kbd "y") 'browse-kill-ring-insert-and-quit))
 
-(global-set-key (kbd "C-c y") 'browse-kill-ring)
+(defun eh-browse-kill-ring ()
+  (interactive)
+  (let ((clipboard-output (x-get-clipboard)))
+    (unless 
+	(string= (car kill-ring) clipboard-output)
+       (kill-new clipboard-output))
+    (browse-kill-ring)))
+
+(global-set-key (kbd "C-c y") 'eh-browse-kill-ring)
 
 ;; General project support
 (require 'projectile)
