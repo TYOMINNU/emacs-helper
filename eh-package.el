@@ -7,32 +7,26 @@
 
 (package-initialize)
 
-(locate-library "eh-basic")
+(defun eh-packages-installed-p ()
+  (loop for p in eh-packages
+        when (not (package-installed-p p)) do (return nil)
+        finally (return t)))
 
-;; (when (not package-archive-contents)
-;;   (package-refresh-contents))
+(defun eh-install-packages ()
+  (unless (eh-packages-installed-p)
+    ;; check for new packages (package versions)
+    (message "%s" "Refreshing its package database...")
+    (package-refresh-contents)
+    (message "%s" " done.")
+    ;; install the missing packages
+    (dolist (p eh-packages)
+      (when (not (package-installed-p p))
+	(package-install p)))))
 
-;; Add in your own as you wish:
-;; (defvar eh-packageas-files '("eh-basic"
-;;                            "eh-functions"
-;;                            "eh-gnus"
-;;                            "eh-keybindings"
-;;                            "eh-org"
-;;                            "eh-complete"
-;;                            "eh-misc"))
-;;(package-install-file (locate-library "eh-basic"))
-;;;;   "A list of packages to ensure are installed at launch.")
-;;(dolist (p eh-packages-files)
-;;    (package-install-file (locate-library p)))
+(provide 'eh-package)
 
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:
 
-(provide 'eh-package)
-
-
-
-
-
-
+;;; eh-package.el ends here
