@@ -45,7 +45,7 @@
 ;; recentf
 (require 'recentf)
 (recentf-mode 1)
-(global-set-key (kbd "C-c F") 'recentf-open-files)
+(global-set-key (kbd "C-x f") 'recentf-open-files)
 
 
 ;; browse-kill-ring
@@ -82,7 +82,7 @@
 (require 'projectile)
 (projectile-global-mode)
 (setq projectile-enable-caching nil)
-(global-set-key (kbd "C-x f") 'projectile-find-file)
+(global-set-key (kbd "C-x F") 'projectile-find-file)
 
 ;; 查字典
 (global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
