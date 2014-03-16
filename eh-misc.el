@@ -42,6 +42,12 @@
 		(with-selected-frame frame
                   (or ibus-mode (ibus-mode-on))))))
 
+;; recentf
+(require 'recentf)
+(recentf-mode 1)
+(global-set-key (kbd "C-c F") 'recentf-open-files)
+
+
 ;; browse-kill-ring
 (require' browse-kill-ring)
 (setq browse-kill-ring-highlight-current-entry t)
