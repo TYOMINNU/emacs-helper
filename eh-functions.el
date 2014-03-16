@@ -35,6 +35,15 @@
 ;; (require 'starter-kit-defuns)
 
 ;; 常用函数
+(defun eh-shutdown-emacs-server ()
+  (interactive)
+  (when (not (eq window-system 'x))
+    (message "Initializing x windows system.")
+    (x-initialize-window-system)
+    (when (not x-display-name) (setq x-display-name (getenv "DISPLAY")))
+    (select-frame (make-frame-on-display x-display-name '((window-system . x)))))
+  (let ((last-nonmenu-event nil)(window-system "x"))(save-buffers-kill-emacs)))
+
 (defun eh-isearch-string (string)
   "search a string with isearch"
   (isearch-mode t nil nil nil)
