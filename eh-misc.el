@@ -44,7 +44,22 @@
 
 ;; browse-kill-ring
 (require' browse-kill-ring)
-(setq browse-kill-ring-separator (make-string 50 ?-))
+(setq browse-kill-ring-highlight-current-entry t)
+(setq browse-kill-ring-show-preview nil)
+(setq browse-kill-ring-separator (concat "\n" (make-string 70 ?=) "\n"))
+(add-hook 'browse-kill-ring-hook 'eh-browse-kill-ring-hook)
+
+(defun eh-browse-kill-ring-hook ()
+  (interactive)
+  (define-key browse-kill-ring-mode-map (kbd "C-c C-k") 'browse-kill-ring-quit)
+  (define-key browse-kill-ring-mode-map (kbd "C-k") 'browse-kill-ring-quit)
+  (define-key browse-kill-ring-mode-map (kbd "k") 'browse-kill-ring-quit)
+  (define-key browse-kill-ring-mode-map (kbd "C-/") 'browse-kill-ring-quit)
+  (define-key browse-kill-ring-mode-map (kbd "C-n") 'browse-kill-ring-forward)
+  (define-key browse-kill-ring-mode-map (kbd "C-p") 'browse-kill-ring-previous)
+  (define-key browse-kill-ring-mode-map (kbd "C-c C-c") 'browse-kill-ring-insert-and-quit)
+  (define-key browse-kill-ring-mode-map (kbd "y") 'browse-kill-ring-insert-and-quit))
+
 (global-set-key (kbd "C-c y") 'browse-kill-ring)
 
 ;; General project support
