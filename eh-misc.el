@@ -45,12 +45,12 @@
 ;; browse-kill-ring
 (require' browse-kill-ring)
 (setq browse-kill-ring-highlight-current-entry t)
-(setq browse-kill-ring-show-preview nil)
 (setq browse-kill-ring-separator (concat "\n" (make-string 70 ?=) "\n"))
 (add-hook 'browse-kill-ring-hook 'eh-browse-kill-ring-hook)
 
 (defun eh-browse-kill-ring-hook ()
   (interactive)
+  (setq browse-kill-ring-show-preview nil)
   (define-key browse-kill-ring-mode-map (kbd "C-c C-k") 'browse-kill-ring-quit)
   (define-key browse-kill-ring-mode-map (kbd "C-k") 'browse-kill-ring-quit)
   (define-key browse-kill-ring-mode-map (kbd "k") 'browse-kill-ring-quit)
@@ -65,8 +65,10 @@
   (let ((clipboard-output (x-get-clipboard)))
     (unless 
 	(string= (car kill-ring) clipboard-output)
-       (kill-new clipboard-output))
-    (browse-kill-ring)))
+      (kill-new clipboard-output))
+    (if (car kill-ring)
+	(browse-kill-ring)
+      (message "kill ring is empty"))))
 
 (global-set-key (kbd "C-c y") 'eh-browse-kill-ring)
 
