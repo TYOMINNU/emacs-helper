@@ -74,13 +74,13 @@
 (add-to-list 'ac-modes 'org-mode)
 (add-to-list 'ac-modes 'text-mode)
 (add-to-list 'ac-modes 'message-mode)
-;; 不要自动激活，用快捷键激活。
-(setq ac-auto-start nil)
+
+(setq ac-auto-show-menu t)
+(setq ac-auto-start 3)
 (setq ac-dwim t)
 
 ;; 设置菜单长度
-(setq ac-candidate-menu-height 20)
-(setq ac-candidate-max ac-candidate-menu-height)
+(setq ac-menu-height 5)
 (setq ac-use-menu-map t)
 (setq-default ac-sources '(ac-source-words-in-all-buffer
 			   ac-source-filename
@@ -114,6 +114,7 @@
 			       ac-source-features
 			       ac-source-symbols))))
 
+;; hippie-expand
 (setq hippie-expand-try-functions-list
       '(yas/hippie-try-expand
 	try-expand-dabbrev
