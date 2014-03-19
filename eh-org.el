@@ -88,6 +88,30 @@
 (setq org-startup-indented nil)
 (setq org-confirm-babel-evaluate nil)
 
+;; truncate line depend  context
+(defun eh-org-truncate-lines (&optional arg)
+  (interactive "P")
+  (cond
+   ((or (and (boundp 'org-clock-overlays) org-clock-overlays)
+	org-occur-highlights
+	org-latex-fragment-image-overlays)
+    (and (boundp 'org-clock-overlays) (org-clock-remove-overlays))
+    (org-remove-occur-highlights)
+    (org-remove-latex-fragment-image-overlays)
+    (message "Temporary highlights/overlays removed from current buffer"))
+   (t
+    (let* ((context (org-element-context)) (type (org-element-type context)))
+      (case type
+	((table table-cell table-row item plain-list)
+	 (toggle-truncate-lines 1))
+	(t (toggle-truncate-lines -1)))))))
+
+(defun eh-org-ctrl-c-ctrl-c (&optional arg)
+  (interactive)
+  (eh-org-truncate-lines arg)
+  (org-ctrl-c-ctrl-c arg))
+
+(org-defkey org-mode-map "\C-c\C-c" 'eh-org-ctrl-c-ctrl-c)
 
 ;; org-bable设置
 ; font-lock in src code blocks
