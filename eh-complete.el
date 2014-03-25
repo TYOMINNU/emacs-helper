@@ -56,6 +56,20 @@
 (ido-vertical-mode)
 
 ;; ido keybindings
+(add-hook 'ido-make-file-list-hook 'eh-ido-sort-mtime) ;文件的排序方法
+(add-hook 'ido-make-dir-list-hook 'eh-ido-sort-mtime) ;目录的排序方法
+(defun eh-ido-sort-mtime ()
+  (setq ido-temp-list
+	(sort ido-temp-list 
+	      (lambda (a b)
+		(time-less-p
+		 (sixth (file-attributes (concat ido-current-directory b)))
+		 (sixth (file-attributes (concat ido-current-directory a)))))))
+  (ido-to-end  ;; move . files to end (again)
+   (delq nil (mapcar
+	      (lambda (x) (and (char-equal (string-to-char x) ?.) x))
+	      ido-temp-list))))
+
 (add-hook 'ido-setup-hook 'eh-ido-keybinding)
 (defun eh-ido-keybinding ()
    (define-key ido-completion-map (kbd "C-SPC") nil)
