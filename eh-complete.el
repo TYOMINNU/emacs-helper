@@ -34,13 +34,13 @@
 ;; Completion for M-x
 (require 'smex)
 (smex-initialize)
-(global-set-key "\M-x" 'smex)
+(global-set-key (kbd "M-x") 'smex)
 
 ;; IDO & filecache: smart file name completion
 (require 'ido)
 (require 'ido-ubiquitous)
-(require 'flx-ido) ;; Improved flex matching
-(require 'ido-vertical-mode) ;; Vertical completion menu
+(require 'flx-ido) ;Improved flex matching
+(require 'ido-vertical-mode) ;Vertical completion menu
 
 (setq ido-everywhere t
       ido-enable-flex-matching t
@@ -65,7 +65,7 @@
 		(time-less-p
 		 (sixth (file-attributes (concat ido-current-directory b)))
 		 (sixth (file-attributes (concat ido-current-directory a)))))))
-  (ido-to-end  ;; move . files to end (again)
+  (ido-to-end  ;move . files to end (again)
    (delq nil (mapcar
 	      (lambda (x) (and (char-equal (string-to-char x) ?.) x))
 	      ido-temp-list))))
@@ -77,58 +77,44 @@
    (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
    (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
 
-
 ;; 打开auto-complete-mode模式
 (require 'auto-complete)
 (require 'auto-complete-config)
-
-
+(ac-config-default)
 (global-auto-complete-mode 1)
-(add-to-list 'ac-modes 'emacs-lisp-mode)
-(add-to-list 'ac-modes 'org-mode)
-(add-to-list 'ac-modes 'text-mode)
-(add-to-list 'ac-modes 'message-mode)
-
 (setq ac-auto-show-menu t)
-(setq ac-auto-start 3)
+(setq ac-auto-start 2)
 (setq ac-dwim t)
-
-;; 设置菜单长度
 (setq ac-menu-height 5)
 (setq ac-use-menu-map t)
-(setq-default ac-sources '(ac-source-words-in-all-buffer
-			   ac-source-filename
-			   ac-source-abbrev
-			   ac-source-words-in-same-mode-buffers
-			   ac-source-dictionary))
 
-(add-hook 'eshell-mode-hook
-	  (lambda ()
-	    (setq ac-sources '(ac-source-files-in-current-dir
-			       ac-source-words-in-buffer
-			       ac-source-abbrev
-			       ac-source-symbols))))
-(add-hook 'org-mode-hook
-	  (lambda ()
-	    (setq ac-sources '(ac-source-files-in-current-dir
-			       ac-source-words-in-buffer
-			       ac-source-abbrev
-			       ac-source-symbols))))
+(dolist (mode '(emacs-lisp-mode
+		lisp-interaction-mode
+		magit-log-edit-mode log-edit-mode
+		org-mode text-mode
+		yaml-mode csv-mode html-mode sh-mode
+		lisp-mode textile-mode
+		markdown-mode latex-mode))
+  (add-to-list 'ac-modes mode))
 
-(add-hook 'text-mode-hook
-	  (lambda ()
-	    (setq ac-sources '(ac-source-abbrev
-			       ac-source-words-in-buffer
-			       ac-source-words-in-all-buffer
-			       ac-source-imenu
-			       ac-source-dictionary
-			       ac-source-functions
-			       ac-source-variables
-			       ac-source-symbols
-			       ac-source-features
-			       ac-source-symbols))))
+(setq ac-sources '(ac-source-abbrev
+		   ac-source-words-in-buffer
+		   ac-source-words-in-all-buffer
+		   ac-source-filename
+		   ac-source-yasnippet
+		   ac-source-dictionary
+		   ac-source-functions
+		   ac-source-variables
+		   ac-source-features
+		   ac-source-symbols))
+
+(global-set-key (kbd "M-/") 'auto-complete)
+(define-key ac-menu-map (kbd "M-i") 'ac-complete)
+(define-key ac-menu-map (kbd "M-n") 'ac-next)
+(define-key ac-menu-map (kbd "M-p")'ac-previous)
 
 ;; hippie-expand
+;; (global-set-key (kbd "M-/") 'hippie-expand)
 (setq hippie-expand-try-functions-list
       '(yas/hippie-try-expand
 	try-expand-dabbrev
@@ -143,23 +129,23 @@
 	try-complete-lisp-symbol-partially
 	try-complete-lisp-symbol))
 
+;; yasnippet
+(setq yas-minor-mode-map ;This MUST before (require 'yasnippet)
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-i") 'yas-expand)
+    (define-key map (kbd "C-c C-n") 'yas-new-snippet)
+    (define-key map (kbd "C-c C-v") 'yas-visit-snippet-file)
+    map)) 
 
 (require 'yasnippet)
-(add-to-list 'yas-snippet-dirs (file-name-as-directory 
-                                (concat  (file-name-directory
-                                          (locate-library "eh-complete.el")) "snippets")))
+(add-to-list 'yas-snippet-dirs
+	     (file-name-as-directory 
+	      (concat (file-name-directory
+		       (locate-library "eh-complete.el")) "snippets")))
 (yas-reload-all)
 (yas-global-mode 1)
-(setq yas-trigger-key nil )
+(setq yas-trigger-key nil)
 
-
-;; completion keybindings
-(global-set-key (kbd "M-i") 'yas-expand)
-(global-set-key (kbd "M-/") 'auto-complete)
-;; (global-set-key (kbd "M-i") 'hippie-expand)
-(define-key ac-menu-map (kbd "M-i") 'ac-complete)
-(define-key ac-menu-map (kbd "M-n") 'ac-next)
-(define-key ac-menu-map (kbd "M-p")'ac-previous)
 ;;;autoload(require 'eh-complete)
 (provide 'eh-complete)
 
