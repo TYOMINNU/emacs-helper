@@ -48,10 +48,6 @@
 (require 'ob-R)
 (require 'ob-plantuml)
 (require 'ox-bibtex)
-(require 'org-ac)
-
-;; 开启org-ac
-(org-ac/config-default)
 
 ;; 自定义变量
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
