@@ -1,0 +1,7 @@
+# name: #+begin_src plantuml ... #+end_src
+# --
+
+#+BEGIN_SRC plantuml :file $0.png
+  skinparam defaultFontSize 20
+
+#+END_SRC
