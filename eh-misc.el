@@ -42,10 +42,6 @@
 		(with-selected-frame frame
                   (or ibus-mode (ibus-mode-on))))))
 
-;; rainbow-delimiters
-(require 'rainbow-delimiters)
-(global-rainbow-delimiters-mode)
-
 ;; recentf
 (require 'recentf)
 (recentf-mode 1)
