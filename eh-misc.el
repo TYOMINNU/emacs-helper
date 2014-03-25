@@ -47,6 +47,29 @@
 (recentf-mode 1)
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 
+;; wdired
+(require 'wdired)
+
+;; multiple-cursors
+(require 'multiple-cursors)
+(require 'phi-search)
+(when (and (featurep 'multiple-cursors)
+	   (featurep 'phi-search))
+  (global-set-key (kbd "C-x C-x m") 'mc/edit-lines)
+  (global-set-key (kbd "C-c >") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-c <") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+  (global-set-key (kbd "C-s") 'phi-search)
+  (global-set-key (kbd "C-r") 'phi-search-backward))
+
+;; ace-jump
+(require 'ace-jump-mode))
+(autoload
+  'ace-jump-mode
+  "ace-jump-mode"
+  "Emacs quick move minor mode"
+  t)
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
 ;; browse-kill-ring
 (require' browse-kill-ring)
