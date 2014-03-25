@@ -1,6 +1,6 @@
 # name: #+begin_src dot :file  ...  #+end_src
 # --
-#+begin_src dot :file pic/${1:FILENAME}.png
+#+begin_src dot :file $0.png
 digraph mydot {
 	node [shape = doublecircle]; LR_0 LR_2 $0
 	node [shape = circle];
