@@ -56,15 +56,16 @@
 
 ;; multiple-cursors
 (require 'multiple-cursors)
-(require 'phi-search)
-(when (and (featurep 'multiple-cursors)
-	   (featurep 'phi-search))
-  (global-set-key (kbd "C-x C-x m") 'mc/edit-lines)
-  (global-set-key (kbd "C-c >") 'mc/mark-next-like-this)
-  (global-set-key (kbd "C-c <") 'mc/mark-previous-like-this)
-  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-  (global-set-key (kbd "C-s") 'phi-search)
-  (global-set-key (kbd "C-r") 'phi-search-backward))
+(global-set-key (kbd "C-x C-x m") 'mc/edit-lines)
+(global-set-key (kbd "C-c >") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-c <") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+(add-hook 'multiple-cursors-mode-enabled-hook
+          (lambda()
+	    (require 'phi-search)
+            (local-set-key (kbd "C-s") 'phi-search)
+            (local-set-key (kbd "C-r") 'phi-search)))
 
 ;; ace-jump
 (require 'ace-jump-mode)
@@ -74,6 +75,10 @@
   "Emacs quick move minor mode"
   t)
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+
+;; expand-region
+(require 'expand-region)
+(define-key global-map (kbd "C-c =") 'er/expand-region)
 
 ;; browse-kill-ring
 (require' browse-kill-ring)
