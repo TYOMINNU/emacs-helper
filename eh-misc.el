@@ -42,6 +42,10 @@
 		(with-selected-frame frame
                   (or ibus-mode (ibus-mode-on))))))
 
+;; rainbow-delimiters
+(require 'rainbow-delimiters)
+(global-rainbow-delimiters-mode)
+
 ;; recentf
 (require 'recentf)
 (recentf-mode 1)
@@ -63,7 +67,7 @@
   (global-set-key (kbd "C-r") 'phi-search-backward))
 
 ;; ace-jump
-(require 'ace-jump-mode))
+(require 'ace-jump-mode)
 (autoload
   'ace-jump-mode
   "ace-jump-mode"
@@ -75,9 +79,9 @@
 (require' browse-kill-ring)
 (setq browse-kill-ring-highlight-current-entry t)
 (setq browse-kill-ring-separator (concat "\n" (make-string 70 ?=) "\n"))
-(add-hook 'browse-kill-ring-hook 'eh-browse-kill-ring-hook)
+(add-hook 'browse-kill-ring-hook 'eh-browse-kill-ring-settings)
 
-(defun eh-browse-kill-ring-hook ()
+(defun eh-browse-kill-ring-settings ()
   (interactive)
   (setq browse-kill-ring-show-preview nil)
   (define-key browse-kill-ring-mode-map (kbd "C-c C-k") 'browse-kill-ring-quit)
@@ -103,9 +107,23 @@
 
 ;; General project support
 (require 'projectile)
+(require 'wgrep)
 (projectile-global-mode)
 (setq projectile-enable-caching nil)
 (global-set-key (kbd "C-x F") 'projectile-find-file)
+(global-set-key (kbd "C-S-s") 'projectile-grep)
+
+;; undo tree
+(require 'undo-tree)
+(global-undo-tree-mode)
+(global-set-key (kbd "C-c /") 'undo-tree-visualize)
+(add-hook 'undo-tree-visualizer-mode-hook 'eh-undo-tree-visualizer-settings)
+(defun eh-undo-tree-visualizer-settings ()
+  (interactive)
+  (define-key undo-tree-visualizer-mode-map (kbd "C-c C-k") 'undo-tree-visualizer-quit)
+  (define-key undo-tree-visualizer-mode-map (kbd "C-k") 'undo-tree-visualizer-quit)
+  (define-key undo-tree-visualizer-mode-map (kbd "k") 'undo-tree-visualizer-quit)
+  (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
 ;; 查字典
 (global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
