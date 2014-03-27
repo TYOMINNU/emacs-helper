@@ -137,6 +137,22 @@
 
 ;; org-babel hook
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+(add-hook 'org-babel-after-execute-hook 'eh-org-babel-align-tables)
+
+(defun eh-org-babel-align-tables (&optional info)
+  "Align all tables in the result of the current source"
+  (interactive)
+  (let ((location (org-babel-where-is-src-block-result nil info)))
+    (when location
+      (save-excursion
+        (goto-char location)
+	(when (looking-at (concat org-babel-result-regexp ".*$"))
+	  (while (< (point) (progn (forward-line 1) (org-babel-result-end)))
+	    (when (org-at-table-p)
+	      (toggle-truncate-lines 1)
+	      (org-table-align)
+	      (goto-char (org-table-end)))
+	    (forward-line)))))))
 
 ;; 开启cdlatex
 (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
