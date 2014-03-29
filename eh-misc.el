@@ -72,9 +72,10 @@
   t)
 (define-key global-map (kbd "C-j") 'ace-jump-mode)
 
-;; switch window with 1 2 3 ...
+;; switch window
 (require 'switch-window)
 (global-set-key (kbd "C-x o") 'switch-window)
+(setq  switch-window-shortcut-style 'qwerty)
 
 ;; expand-region
 (require 'expand-region)
