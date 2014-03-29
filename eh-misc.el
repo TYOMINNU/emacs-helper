@@ -72,6 +72,10 @@
   t)
 (define-key global-map (kbd "C-j") 'ace-jump-mode)
 
+;; switch window with 1 2 3 ...
+(require 'switch-window)
+(global-set-key (kbd "C-x o") 'switch-window)
+
 ;; expand-region
 (require 'expand-region)
 (define-key global-map (kbd "C-c =") 'er/expand-region)
