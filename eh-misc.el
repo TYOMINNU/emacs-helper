@@ -52,8 +52,10 @@
 (setq recentf-menu-filter 'eh-recentf-buffer-filter)
 (setq recentf-show-file-shortcuts-flag nil)
 
-(defun eh-recentf-buffer-filter (l &optional no-dir)
-  (let (filtered-names filtered-list full name counters sufx (index 0))
+(defun eh-recentf-buffer-filter (l)
+  (let ((index 0)
+	(format-string "[%2s]:  %-30s (%s)")
+	filtered-names filtered-list  full name counters sufx)
     (dolist (elt l (nreverse filtered-list))
       (setq index (1+ index)
 	    element (recentf-menu-element-value elt)
@@ -62,7 +64,7 @@
 	    name (if (file-directory-p element)
 		     (concat (file-name-nondirectory full) "/")
 		   (file-name-nondirectory full))
-            recentf-string (format "[%2s]:  %-30s (%s)" index name (abbreviate-file-name directory)))
+            recentf-string (format format-string index name (abbreviate-file-name directory)))
       (push (recentf-make-menu-element recentf-string full) filtered-list))))
 
 (global-set-key (kbd "C-x f") 'recentf-open-files)
