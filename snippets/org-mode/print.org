@@ -1,0 +1,9 @@
+# name: print.org
+# --
+
+require("ascii")
+print.org <- function (x, caption)
+{
+    print(paragraph(paste("#+CAPTION: ", caption, sep="")),type="org")
+    print(ascii(x),type="org")
+}

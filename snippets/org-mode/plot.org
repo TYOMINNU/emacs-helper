@@ -1,0 +1,13 @@
+# name: plot.org
+# --
+
+require("ascii")
+plot.org  <- function (x, caption)
+    {
+        pngfile <- paste(caption, ".png", sep="")
+        print(paragraph(paste("#+CAPTION: ", caption, sep="")),type="org")
+        png(pngfile)
+        plot(x)
+        dev.off()
+        print(paragraph(paste("[[./", pngfile, "]]", sep=""),new=FALSE),type="org")
+    }
