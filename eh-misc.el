@@ -210,8 +210,8 @@
 	       (replace-regexp-in-string "\\Cc+\\|英汉辞典\\|[ˊ，。；：！？“]" "," translate)))
 	     (string-regexp (concat "-->" word)))
 	(if (not (string-match-p string-regexp translate))
-	    (setq eh-sdcv-mode-line-string "")
-	  (setq eh-sdcv-mode-line-string (format "[%s]" translate-filted))))
+	    (setq eh-sdcv-mode-line-string (format "[没有找到单词: %s]" word))
+	  (setq eh-sdcv-mode-line-string (format "[%s: %s]" word translate-filted))))
       (force-mode-line-update))))
 
 ;; 每0.5秒运行一次eh-translate-with-sdcv
