@@ -151,72 +151,73 @@
   (define-key undo-tree-visualizer-mode-map (kbd "k") 'undo-tree-visualizer-quit)
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
-;; 查字典
-(global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
-(defun kid-sdcv-to-buffer ()
+;; 简化mode-line的显示
+(setq mode-line-cleaner-alist
+  `((auto-complete-mode . " α")
+    (ibus-mode . " IBus")
+    (yas-minor-mode . " γ")
+    (paredit-mode . " Φ")
+    (eldoc-mode . "")
+    (abbrev-mode . "")
+    (undo-tree-mode . " τ")
+    (wrap-region-mode . "")
+    (elisp-slime-nav-mode . " δ")
+    (nrepl-interaction-mode . " ηζ")
+    (auto-fill-function . " φ")
+    (autopair-mode . "")
+    (lambda-mode . "")
+    (projectile-mode . "")
+    ;; Major modes
+    (nrepl-mode . "ηζ")
+    (python-mode . "Py")
+    (emacs-lisp-mode . "EL")
+    (markdown-mode . "md")
+    (org-mode . "Ο")
+    (processing-mode . "P5")))
+
+(defun eh-clean-mode-line ()
   (interactive)
-  (let ((string (if mark-active
-                    (buffer-substring-no-properties (region-beginning) (region-end))
-                  (current-word nil t))))
-    (setq old-buffer (current-buffer))
-    (setq old-point (point))
-    (setq word
-          (if string string
-            (read-string
-             (format "查字典 (默认 %s): " string)
-             nil nil nil)))
-    (set-buffer (get-buffer-create "*sdcv*"))
-    (buffer-disable-undo)
-    (erase-buffer)
-    ;; 在没有创建 *sdcv* windows 之前检查是否有分屏(是否为一个window)
-    ;; 缺憾就是不能自动开出一个小屏幕，自己注销
-    (if (null (cdr (window-list)))
-        (setq onewindow t)
-      (setq onewindow nil))
-    (let ((process (start-process-shell-command "sdcv" "*sdcv*" "sdcv" "-n" word)))
-      (set-process-sentinel
-       process
-       (lambda (process signal)
-         (when (memq (process-status process) '(exit signal))
-           (unless (string= (buffer-name) "*sdcv*")
-             (setq kid-sdcv-window-configuration (current-window-configuration))
-             (switch-to-buffer-other-window "*sdcv*")
-             (goto-char 1)
-             (while (search-forward-regexp "\\(-->.*\\)" nil t)
-               (replace-match "" t nil))
-             (goto-char 1)
-             (while (search-forward-regexp "\\(^int\\)\. *\\|\\(^n\\)\. *\\|\\(^vt\\)\. *\\|\\(^v\\)\. *\\|\\(^prep\\)\. *" nil t)
-               (replace-match "" nil t))
-             (goto-char 1)
-             (while (search-forward-regexp "\\(\\[.*\\]\\)" nil t)
-               (replace-match "" nil t))
-             (goto-char 1)
-             (while (search-forward-regexp "\n\\{3,\\}" nil t)
-               (replace-match "\n\n" nil t))
-             (local-set-key (kbd "d") 'kid-sdcv-to-buffer)
-             (local-set-key (kbd "i") (lambda ()
-                                         (interactive)
-                                         (let ((sdcv-word 
-                                                (if mark-active
-                                                    (buffer-substring-no-properties 
-                                                     (region-beginning)
-                                                     (region-end))
-                                                  (current-word nil t))))
-                                           (set-buffer (get-buffer-create old-buffer))
-                                           (goto-char old-point)
-                                           (insert (concat "(" sdcv-word ")")))))
-             (local-set-key (kbd "n") 'next-line)
-             (local-set-key (kbd "j") 'next-line)
-             (local-set-key (kbd "p") 'previous-line)
-             (local-set-key (kbd "k") 'previous-line)
-             (local-set-key (kbd "SPC") 'scroll-up)
-             (local-set-key (kbd "DEL") 'scroll-down)
-             (local-set-key (kbd "q") (lambda ()
-                                        (interactive)
-                                        (if (eq onewindow t)
-                                            (delete-window)
-                                          (progn (bury-buffer) (other-window 1))))))
-           (goto-char (point-min))))))))
+  (loop for cleaner in mode-line-cleaner-alist
+        do (let* ((mode (car cleaner))
+                 (mode-str (cdr cleaner))
+                 (old-mode-str (cdr (assq mode minor-mode-alist))))
+             (when old-mode-str
+                 (setcar old-mode-str mode-str))
+               ;; major mode
+             (when (eq mode major-mode)
+               (setq mode-name mode-str)))))
+
+(add-hook 'after-change-major-mode-hook 'eh-clean-mode-line)
+
+;; 使用sdcv查字典
+(setq eh-sdcv-mode-line-string "")
+(setq eh-sdcv-previous-word "")
+
+(when (not (member 'eh-sdcv-mode-line-string global-mode-string))
+  (setq global-mode-string
+	(append global-mode-string
+			'(eh-sdcv-mode-line-string))))
+
+(defun eh-translate-with-sdcv ()
+  (interactive)
+  (save-excursion
+    (let* ((word (current-word nil t))
+	   (translate (shell-command-to-string (concat "sdcv -n -u XDICT英汉辞典 " word)))
+	   (translate-filted
+	    (replace-regexp-in-string
+	     "^,+\\|,+$" ""
+	     (replace-regexp-in-string "\\Cc+\\|英汉辞典\\|[ˊ，。；：！？“]" "," translate)))
+	   (string-regexp (concat "-->" word)))
+      (if (not (string-match-p string-regexp translate))
+	  (setq eh-sdcv-mode-line-string "")
+	(when (not (string= word eh-sdcv-previous-word))
+	  (setq eh-sdcv-mode-line-string (format "[%s]" translate-filted))))
+      (force-mode-line-update))))
+
+;; 每0.5秒运行一次eh-translate-with-sdcv
+(run-with-timer 0 0.5 'eh-translate-with-sdcv)
+(global-set-key (kbd "C-c d") 'eh-translate-with-sdcv)
+
 
 ;;;autoload(require 'eh-misc)
 (provide 'eh-misc)
