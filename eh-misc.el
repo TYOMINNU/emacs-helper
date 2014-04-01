@@ -200,17 +200,17 @@
 
 (defun eh-translate-with-sdcv ()
   (interactive)
-  (save-excursion
-    (let* ((word (current-word nil t))
-	   (translate (shell-command-to-string (concat "sdcv -n -u XDICT英汉辞典 " word)))
-	   (translate-filted
-	    (replace-regexp-in-string
-	     "^,+\\|,+$" ""
-	     (replace-regexp-in-string "\\Cc+\\|英汉辞典\\|[ˊ，。；：！？“]" "," translate)))
-	   (string-regexp (concat "-->" word)))
-      (if (not (string-match-p string-regexp translate))
-	  (setq eh-sdcv-mode-line-string "")
-	(when (not (string= word eh-sdcv-previous-word))
+  (let ((word (current-word nil t)))
+    (unless (string= word eh-sdcv-previous-word)
+      (setq eh-sdcv-previous-word word)
+      (let* ((translate (shell-command-to-string (concat "sdcv -n -u XDICT英汉辞典 " word)))
+	     (translate-filted
+	      (replace-regexp-in-string
+	       "^,+\\|,+$" ""
+	       (replace-regexp-in-string "\\Cc+\\|英汉辞典\\|[ˊ，。；：！？“]" "," translate)))
+	     (string-regexp (concat "-->" word)))
+	(if (not (string-match-p string-regexp translate))
+	    (setq eh-sdcv-mode-line-string "")
 	  (setq eh-sdcv-mode-line-string (format "[%s]" translate-filted))))
       (force-mode-line-update))))
 
