@@ -200,9 +200,9 @@
 
 (defun eh-translate-with-sdcv ()
   (interactive)
-  (let ((word (if mark-active
-		  (buffer-substring-no-properties (region-beginning) (region-end))
-		(current-word nil t))))
+  (let ((word (or (if mark-active
+		      (buffer-substring-no-properties (region-beginning) (region-end))
+		    (current-word nil t)) "")))
     (unless (string= word eh-sdcv-previous-word)
       (setq eh-sdcv-previous-word word)
       (let* ((translate
