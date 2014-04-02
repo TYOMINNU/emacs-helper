@@ -193,7 +193,9 @@
 
 	       '(:eval (if emms-player-playing-p
 			   (concat " " emms-mode-line-string " " emms-playing-time-string " ")
-			 eh-sdcv-mode-line-string))))
+			 (if (string= eh-sdcv-mode-line-string "")
+			     (list "(" minor-mode-alist " )")
+			   eh-sdcv-mode-line-string)))))
 
 
 ;; 使用sdcv查字典
