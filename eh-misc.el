@@ -200,19 +200,34 @@
 
 (defun eh-translate-with-sdcv ()
   (interactive)
-  (let ((word (current-word nil t)))
+  (let ((word (if mark-active
+		  (buffer-substring-no-properties (region-beginning) (region-end))
+		(current-word nil t))))
     (unless (string= word eh-sdcv-previous-word)
       (setq eh-sdcv-previous-word word)
-      (let* ((translate (shell-command-to-string (concat "sdcv -n -u XDICT英汉辞典 " word)))
-	     (translate-filted
-	      (replace-regexp-in-string
-	       "^,+\\|,+$" ""
-	       (replace-regexp-in-string "\\Cc+\\|英汉辞典\\|[ˊ，。；：！？“]" "," translate)))
+      (let* ((translate
+	      (if (string-match-p "\\cc" word)
+		  (shell-command-to-string (concat "sdcv --utf8-output --utf8-input -n -u XDICT汉英辞典 " word))
+		(shell-command-to-string (concat "sdcv -n -u XDICT英汉辞典 " word))))
 	     (string-regexp (concat "-->" word)))
 	(if (not (string-match-p string-regexp translate))
 	    (setq eh-sdcv-mode-line-string (format "[没有找到单词: %s]" word))
-	  (setq eh-sdcv-mode-line-string (format "[%s: %s]" word translate-filted))))
-      (force-mode-line-update))))
+	  (setq eh-sdcv-mode-line-string
+		(format "[%s: %s]" word (eh-wash-sdcv-output translate))))
+      (force-mode-line-update)))))
+
+(defun eh-wash-sdcv-output (str)
+  (replace-regexp-in-string
+   ";+" "; "
+   (replace-regexp-in-string
+    " +" " "
+    (replace-regexp-in-string
+     "^;+\\|^ +" ""
+     (replace-regexp-in-string
+      "[\nˊ，。；：！？“]+\\|[a-zA-Z]+\\." ";"
+      (replace-regexp-in-string
+       ".*\n*-->.+\\|\\[.+\\]" ""
+       str))))))
 
 ;; 每0.5秒运行一次eh-translate-with-sdcv
 (run-with-timer 0 0.5 'eh-translate-with-sdcv)
