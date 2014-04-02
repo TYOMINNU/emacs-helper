@@ -86,6 +86,7 @@
 (setq ac-auto-start 2)
 (setq ac-dwim t)
 (setq ac-menu-height 5)
+(setq ac-max-width 25)
 (setq ac-use-menu-map t)
 
 (dolist (mode '(emacs-lisp-mode
