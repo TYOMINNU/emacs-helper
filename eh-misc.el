@@ -152,51 +152,53 @@
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
 ;; 简化mode-line的显示
-(setq mode-line-cleaner-alist
-  `((auto-complete-mode . " α")
-    (ibus-mode . " IBus")
-    (yas-minor-mode . " γ")
-    (paredit-mode . " Φ")
-    (eldoc-mode . "")
-    (abbrev-mode . "")
-    (undo-tree-mode . " τ")
-    (wrap-region-mode . "")
-    (elisp-slime-nav-mode . " δ")
-    (nrepl-interaction-mode . " ηζ")
-    (auto-fill-function . " φ")
-    (autopair-mode . "")
-    (lambda-mode . "")
-    (projectile-mode . "")
-    ;; Major modes
-    (nrepl-mode . "ηζ")
-    (python-mode . "Py")
-    (emacs-lisp-mode . "EL")
-    (markdown-mode . "md")
-    (org-mode . "Ο")
-    (processing-mode . "P5")))
+;; use setq-default to set it for /all/ modes
+(setq-default mode-line-format
+	      (list
+	       '(:eval (if buffer-read-only
+			   (propertize "只读 "
+				       'face 'font-lock-type-face
+				       'help-echo "Buffer is read-only")
+			 (if (buffer-modified-p)
+			     (propertize "更改 "
+					 'face 'font-lock-warning-face
+					 'help-echo "Buffer has been modified")
+			   (propertize (format-time-string "%H:%M")
+				       'help-echo
+				       (concat (format-time-string "%c; ")
+					       (emacs-uptime "Uptime:%hh"))))))
+	       " "
+	       ;; the buffer name; the file name as a tool tip
+	       '(:eval (propertize "%b " 'face 'font-lock-keyword-face
+				   'help-echo (buffer-file-name)))
 
-(defun eh-clean-mode-line ()
-  (interactive)
-  (loop for cleaner in mode-line-cleaner-alist
-        do (let* ((mode (car cleaner))
-                 (mode-str (cdr cleaner))
-                 (old-mode-str (cdr (assq mode minor-mode-alist))))
-             (when old-mode-str
-                 (setcar old-mode-str mode-str))
-               ;; major mode
-             (when (eq mode major-mode)
-               (setq mode-name mode-str)))))
+	       ;; line and column
+	       "(" ;; '%02' to set to 2 chars at least; prevents flickering
+	       (propertize "%02l" 'face 'font-lock-type-face) ","
+	       (propertize "%02c" 'face 'font-lock-type-face)
+	       ")"
 
-(add-hook 'after-change-major-mode-hook 'eh-clean-mode-line)
+	       " "
+	       (propertize "%p" 'face 'font-lock-constant-face) "/"
+	       (propertize "%I" 'face 'font-lock-constant-face) ;; size
+
+	       " "
+
+	       ;; the current major mode for the buffer.
+	       "["
+
+	       '(:eval (propertize "%m" 'face 'font-lock-string-face
+				   'help-echo buffer-file-coding-system))
+	       "] "
+
+	       '(:eval (if emms-player-playing-p
+			   (concat " " emms-mode-line-string " " emms-playing-time-string " ")
+			 eh-sdcv-mode-line-string))))
+
 
 ;; 使用sdcv查字典
 (setq eh-sdcv-mode-line-string "")
 (setq eh-sdcv-previous-word "")
-
-(when (not (member 'eh-sdcv-mode-line-string global-mode-string))
-  (setq global-mode-string
-	(append global-mode-string
-			'(eh-sdcv-mode-line-string))))
 
 (defun eh-translate-with-sdcv ()
   (interactive)
@@ -211,23 +213,25 @@
 		(shell-command-to-string (concat "sdcv -n -u XDICT英汉辞典 " word))))
 	     (string-regexp (concat "-->" word)))
 	(if (not (string-match-p string-regexp translate))
-	    (setq eh-sdcv-mode-line-string (format "[没有找到单词: %s]" word))
+	    (setq eh-sdcv-mode-line-string "")
 	  (setq eh-sdcv-mode-line-string
 		(format "[%s: %s]" word (eh-wash-sdcv-output translate))))
       (force-mode-line-update)))))
 
 (defun eh-wash-sdcv-output (str)
   (replace-regexp-in-string
-   ";+" "; "
+   "^ +\\| +$" ""
    (replace-regexp-in-string
-    " +" " "
+    ";+" "; "
     (replace-regexp-in-string
-     "^;+\\|^ +" ""
+     " +" " "
      (replace-regexp-in-string
-      "[\nˊ，。；：！？“]+\\|[a-zA-Z]+\\." ";"
+      "^;+\\|^ +" ""
       (replace-regexp-in-string
-       ".*\n*-->.+\\|\\[.+\\]" ""
-       str))))))
+       "[\nˊ，。；：！？“]+\\|[a-zA-Z]+\\." ";"
+       (replace-regexp-in-string
+	".*\n*-->.+\\|\\[.+\\]" ""
+	str)))))))
 
 ;; 每0.5秒运行一次eh-translate-with-sdcv
 (run-with-timer 0 0.5 'eh-translate-with-sdcv)
