@@ -170,13 +170,9 @@
 	       '(:eval (propertize "%b " 'face 'font-lock-keyword-face
 				   'help-echo (buffer-file-name)))
 	       ;; line and column
-	       " ("
-	       (propertize "%02l" 'face 'font-lock-type-face) ","
-	       (propertize "%02c" 'face 'font-lock-type-face)
-	       ") "
+	       (propertize "(%02l,%02c) " 'face 'font-lock-type-face)
 	       ;; position and size
-	       (propertize "%p" 'face 'font-lock-constant-face) "/"
-	       (propertize "%I" 'face 'font-lock-constant-face) " "
+	       (propertize "%p/%I " 'face 'font-lock-constant-face)
 	       ;; current major mode
 	       '(:eval (propertize "[%m] " 'face 'font-lock-string-face
 				   'help-echo buffer-file-coding-system))
@@ -185,7 +181,9 @@
 			   (concat " " emms-mode-line-string " " emms-playing-time-string " ")
 			 (if (string= eh-sdcv-mode-line-string "")
 			     (list "(" minor-mode-alist " )")
-			   eh-sdcv-mode-line-string)))))
+			   eh-sdcv-mode-line-string)))
+	       ;; show: -------
+	       "%-"))
 
 ;; 使用sdcv查字典
 (setq eh-sdcv-mode-line-string "")
