@@ -195,7 +195,7 @@
   (interactive)
   (let ((word (or (if mark-active
 		      (buffer-substring-no-properties (region-beginning) (region-end))
-		    (current-word nil t)) "")))
+		    (current-word t t)) "")))
     (unless (string= word eh-sdcv-previous-word)
       (setq eh-sdcv-previous-word word)
       (let* ((translate
