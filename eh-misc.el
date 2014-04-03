@@ -152,6 +152,16 @@
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
 ;; 简化mode-line的显示(use setq-default to set it for /all/ modes)
+(setq eh-mode-line-coding-format
+      '(:eval
+        (let* ((code (symbol-name buffer-file-coding-system))
+               (eol-type (coding-system-eol-type buffer-file-coding-system))
+               (eol (if (eq 0 eol-type) "UNIX"
+                      (if (eq 1 eol-type) "DOS"
+                        (if (eq 2 eol-type) "MAC"
+                          "???")))))
+          (concat code " " eol " "))))
+
 (setq-default mode-line-format
 	      (list
 	       '(:eval (if buffer-read-only
@@ -180,7 +190,7 @@
 	       '(:eval (if emms-player-playing-p
 			   (concat " " emms-mode-line-string " " emms-playing-time-string " ")
 			 (if (string= eh-sdcv-mode-line-string "")
-			     (list "(" minor-mode-alist " )")
+			     (list "(" eh-mode-line-coding-format "|" minor-mode-alist " )")
 			   eh-sdcv-mode-line-string)))
 	       ;; show: -------
 	       "%-"))
