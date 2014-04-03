@@ -195,7 +195,7 @@
 			     (list "(" eh-mode-line-coding-format ") (" minor-mode-alist " )")
 			   eh-sdcv-mode-line-string)))
 	       ;; show: -------
-	       "%-"))
+	       " %-"))
 
 ;; 使用sdcv查字典
 (setq eh-sdcv-mode-line-string "")
