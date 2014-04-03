@@ -151,52 +151,41 @@
   (define-key undo-tree-visualizer-mode-map (kbd "k") 'undo-tree-visualizer-quit)
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
-;; 简化mode-line的显示
-;; use setq-default to set it for /all/ modes
+;; 简化mode-line的显示(use setq-default to set it for /all/ modes)
 (setq-default mode-line-format
 	      (list
 	       '(:eval (if buffer-read-only
-			   (propertize "只读 "
+			   (propertize "只读  "
 				       'face 'font-lock-type-face
 				       'help-echo "Buffer is read-only")
 			 (if (buffer-modified-p)
-			     (propertize "更改 "
+			     (propertize "更改  "
 					 'face 'font-lock-warning-face
 					 'help-echo "Buffer has been modified")
-			   (propertize (format-time-string "%H:%M")
+			   (propertize (format-time-string "%H:%M ")
 				       'help-echo
 				       (concat (format-time-string "%c; ")
 					       (emacs-uptime "Uptime:%hh"))))))
-	       " "
-	       ;; the buffer name; the file name as a tool tip
+	       ;; buffer name
 	       '(:eval (propertize "%b " 'face 'font-lock-keyword-face
 				   'help-echo (buffer-file-name)))
-
 	       ;; line and column
-	       "(" ;; '%02' to set to 2 chars at least; prevents flickering
+	       " ("
 	       (propertize "%02l" 'face 'font-lock-type-face) ","
 	       (propertize "%02c" 'face 'font-lock-type-face)
-	       ")"
-
-	       " "
+	       ") "
+	       ;; position and size
 	       (propertize "%p" 'face 'font-lock-constant-face) "/"
-	       (propertize "%I" 'face 'font-lock-constant-face) ;; size
-
-	       " "
-
-	       ;; the current major mode for the buffer.
-	       "["
-
-	       '(:eval (propertize "%m" 'face 'font-lock-string-face
+	       (propertize "%I" 'face 'font-lock-constant-face) " "
+	       ;; current major mode
+	       '(:eval (propertize "[%m] " 'face 'font-lock-string-face
 				   'help-echo buffer-file-coding-system))
-	       "] "
-
+	       ;; current minor-mode, emms song info or sdcv translation
 	       '(:eval (if emms-player-playing-p
 			   (concat " " emms-mode-line-string " " emms-playing-time-string " ")
 			 (if (string= eh-sdcv-mode-line-string "")
 			     (list "(" minor-mode-alist " )")
 			   eh-sdcv-mode-line-string)))))
-
 
 ;; 使用sdcv查字典
 (setq eh-sdcv-mode-line-string "")
