@@ -189,11 +189,11 @@
 	       '(:eval (propertize "[%m] " 'face 'font-lock-string-face
 				   'help-echo (symbol-name buffer-file-coding-system)))
 	       ;; current minor-mode, emms song info or sdcv translation
-	       '(:eval (if emms-player-playing-p
-			   (concat " " emms-mode-line-string " " emms-playing-time-string " ")
-			 (if (string= eh-sdcv-mode-line-string "")
-			     (list "(" eh-mode-line-coding-format ") (" minor-mode-alist " )")
-			   eh-sdcv-mode-line-string)))
+	       '(:eval (if (string= eh-sdcv-mode-line-string "")
+			   (if emms-player-playing-p
+			       (list emms-mode-line-string " " emms-playing-time-string)
+			     (list "( " eh-mode-line-coding-format  minor-mode-alist " )"))
+			 eh-sdcv-mode-line-string))
 	       ;; show: -------
 	       " %-"))
 
