@@ -156,11 +156,13 @@
       '(:eval
         (let* ((code (upcase (symbol-name buffer-file-coding-system)))
                (eol-type (coding-system-eol-type buffer-file-coding-system))
-               (eol (if (eq 0 eol-type) "UNIX"
-                      (if (eq 1 eol-type) "DOS"
-                        (if (eq 2 eol-type) "MAC"
-                          "???")))))
-          (concat code " " eol))))
+               (eol-string (if (eq 0 eol-type) "UNIX"
+			     (if (eq 1 eol-type) "DOS"
+			       (if (eq 2 eol-type) "MAC"
+				 "???")))))
+	  (if (string-match-p eol-string code)
+			code
+	    (concat code " " eol)))))
 
 (setq-default mode-line-format
 	      (list
