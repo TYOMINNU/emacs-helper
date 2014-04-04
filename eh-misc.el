@@ -189,7 +189,7 @@
 	       '(:eval (propertize "[%m] " 'face 'font-lock-string-face
 				   'help-echo (symbol-name buffer-file-coding-system)))
 	       ;; current minor-mode, emms song info or sdcv translation
-	       '(:eval (if (string= eh-sdcv-mode-line-string "")
+	       '(:eval (if (= 0 (length eh-sdcv-mode-line-string))
 			   (if emms-player-playing-p
 			       (list emms-mode-line-string " " emms-playing-time-string)
 			     (list "( " eh-mode-line-coding-format  minor-mode-alist " )"))
@@ -201,23 +201,32 @@
 (setq eh-sdcv-mode-line-string "")
 (setq eh-sdcv-previous-word "")
 
-(defun eh-translate-with-sdcv ()
+(defun eh-sdcv-mode-line ()
   (interactive)
   (let ((word (or (if mark-active
 		      (buffer-substring-no-properties (region-beginning) (region-end))
 		    (current-word t t)) "")))
     (unless (string= word eh-sdcv-previous-word)
       (setq eh-sdcv-previous-word word)
-      (let* ((translate
-	      (if (string-match-p "\\cc" word)
-		  (shell-command-to-string (concat "sdcv --utf8-output --utf8-input -n -u XDICT汉英辞典 " word))
-		(shell-command-to-string (concat "sdcv -n -u XDICT英汉辞典 " word))))
-	     (string-regexp (concat "-->" word)))
-	(if (not (string-match-p string-regexp translate))
-	    (setq eh-sdcv-mode-line-string "")
-	  (setq eh-sdcv-mode-line-string
-		(format "[%s: %s]" word (eh-wash-sdcv-output translate))))
-      (force-mode-line-update)))))
+      (let ((translate (eh-sdcv-get-translate word)))
+	(setq eh-sdcv-mode-line-string
+	      (unless (= 0 (length translate))
+		(format "[%s: %s]" word
+			(mapconcat 'identity translate ",")))))
+      (force-mode-line-update))))
+
+(defun eh-sdcv-get-translate (word)
+  (let* ((translate
+	  (if (string-match-p "\\cc" word)
+	      (shell-command-to-string (concat "sdcv --utf8-output --utf8-input -n -u XDICT汉英辞典 " word))
+	    (shell-command-to-string (concat "sdcv -n -u XDICT英汉辞典 " word))))
+	 (string-regexp (concat "-->" word)))
+    (when (string-match-p string-regexp translate)
+      (remove-duplicates
+       (mapcar '(lambda (x) (replace-regexp-in-string "^ +\\| +$" "" x))
+	       (split-string (eh-wash-sdcv-output translate) "[,;]"))
+       :test (lambda (x y) (or (= 0 (length y)) (equal x y)))
+       :from-end t))))
 
 (defun eh-wash-sdcv-output (str)
   (replace-regexp-in-string
@@ -234,9 +243,34 @@
 	".*\n*-->.+\\|\\[.+\\]" ""
 	str)))))))
 
+(defun eh-insert-translate ()
+  (interactive)
+  (let* ((word (or (if mark-active
+		       (buffer-substring-no-properties (region-beginning) (region-end))
+		     (current-word t t)) ""))
+	 (translate (eh-sdcv-get-translate word)))
+    (if translate
+	(if (and (not mark-active) (string-match-p "\\cc" word))
+	    (message "You should mark Chinese word manually")
+	  (let ((string (popup-menu* translate)))
+	    (eh-mark-word)
+	    (delete-region (region-beginning) (region-end))
+	    (insert string)))
+      (message "Can't translate the word: %s" word))))
+
+(defun eh-mark-word ()
+  "Mark the entire word around or in front of point."
+  (interactive)
+  (let ((word-regexp "\\sw"))
+    (when (or (looking-at word-regexp)
+              (er/looking-back-on-line word-regexp))
+      (skip-syntax-forward "w")
+      (set-mark (point))
+      (skip-syntax-backward "w"))))
+
 ;; 每0.5秒运行一次eh-translate-with-sdcv
-(run-with-timer 0 0.5 'eh-translate-with-sdcv)
-(global-set-key (kbd "C-c d") 'eh-translate-with-sdcv)
+(run-with-timer 0 0.5 'eh-sdcv-mode-line)
+(global-set-key (kbd "C-c d") 'eh-insert-translate)
 
 
 ;;;autoload(require 'eh-misc)
