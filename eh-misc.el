@@ -161,7 +161,7 @@
 			       (if (eq 2 eol-type) "MAC"
 				 "???")))))
 	  (if (string-match-p eol-string code)
-			code
+	      code
 	    (concat code " " eol)))))
 
 (setq-default mode-line-format
@@ -201,11 +201,28 @@
 (setq eh-sdcv-mode-line-string "")
 (setq eh-sdcv-previous-word "")
 
+;; 汉译英时使用scws中文分词系统
+(setq eh-scws-program "/usr/local/scws/bin/scws")
+(setq eh-scws-program-args "-c utf-8 -N -A -I -d /usr/local/scws/etc/dict.utf8.xdb -i ")
+
+(defun eh-current-word ()
+  (let ((word (or (current-word t t) ""))
+	(current-char (string (preceding-char))))
+    (if (not (string-match-p "\\cc" word))
+	word
+      (car (remove-if-not
+	    '(lambda (x) (string-match-p current-char x))
+	    (split-string
+	     (replace-regexp-in-string
+	      "\\Cc" " "
+	      (shell-command-to-string
+	       (concat eh-scws-program " " eh-scws-program-args " " word)))))))))
+
 (defun eh-sdcv-mode-line ()
   (interactive)
   (let ((word (or (if mark-active
 		      (buffer-substring-no-properties (region-beginning) (region-end))
-		    (current-word t t)) "")))
+		    (eh-current-word)) "")))
     (unless (string= word eh-sdcv-previous-word)
       (setq eh-sdcv-previous-word word)
       (let ((translate (eh-sdcv-get-translate word)))
@@ -247,15 +264,18 @@
   (interactive)
   (let* ((word (or (if mark-active
 		       (buffer-substring-no-properties (region-beginning) (region-end))
-		     (current-word t t)) ""))
+		     (eh-current-word)) ""))
 	 (translate (eh-sdcv-get-translate word)))
     (if translate
-	(if (and (not mark-active) (string-match-p "\\cc" word))
-	    (message "You should mark Chinese word manually")
-	  (let ((string (popup-menu* translate)))
-	    (eh-mark-word)
-	    (delete-region (region-beginning) (region-end))
-	    (insert string)))
+	(let ((string (popup-menu* translate)))
+	  (if (and (not mark-active) (string-match-p "\\cc" word))
+	      (let ((length (length word)))
+		(backward-char length)
+		(re-search-forward word nil t)
+		(replace-match (concat string " ")))
+	    (progn  (eh-mark-word)
+		    (delete-region (region-beginning) (region-end))
+		    (insert string))))
       (message "Can't translate the word: %s" word))))
 
 (defun eh-mark-word ()
@@ -263,7 +283,7 @@
   (interactive)
   (let ((word-regexp "\\sw"))
     (when (or (looking-at word-regexp)
-              (er/looking-back-on-line word-regexp))
+              (looking-back word-regexp (line-beginning-position)))
       (skip-syntax-forward "w")
       (set-mark (point))
       (skip-syntax-backward "w"))))
