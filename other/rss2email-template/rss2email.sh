@@ -16,4 +16,5 @@ read feed_name
 echo "run command: r2e add $feed_name $1"
 r2e add $feed_name $1
 r2e list
+echo "Wait 10 second or press C-c to quit."
 read -t 10
