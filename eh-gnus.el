@@ -54,6 +54,10 @@
 (add-to-list 'gnus-secondary-select-methods
              '(nntp "localhost"))
 
+(add-to-list 'gnus-secondary-select-methods
+	     '(nnmaildir "RSS" 
+			 (directory "~/RSS/")))
+
 ;; (setq gnus-select-method '(nnimap "gmail"
 ;; 				  (nnimap-address "imap.gmail.com")
 ;; 				  (nnimap-stream ssl)))
