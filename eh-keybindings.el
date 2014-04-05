@@ -53,6 +53,9 @@
 ;; magit status
 (global-set-key (kbd "C-c g") 'magit-status)
 
+;; eshell
+(global-set-key (kbd "C-x c") 'eshell)
+
 ;; 设置键盘绑定,发送邮件
 (global-set-key (kbd "C-x m") 'gnus-msg-mail)
 
