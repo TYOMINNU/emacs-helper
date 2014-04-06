@@ -45,6 +45,7 @@
 ;; recentf
 (require 'recentf)
 (require 'recentf-ext)
+(setq recentf-auto-cleanup 'never)
 (recentf-mode 1)
 (setq recentf-max-saved-items 99)
 (setq recentf-max-menu-items 99)
