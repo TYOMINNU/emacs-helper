@@ -364,7 +364,18 @@
 ;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
 ;; Open X-RSS-URL with eww
-(defvar eh-gnus-eww-buffer-wash-boundary nil)
+(setq eh-gnus-eww-buffer-wash-boundary-1 "")
+(setq eh-gnus-eww-buffer-wash-boundary-2
+  (mapconcat 'regexp-quote
+	     '("更多相关消息" "责任编辑" "相关新闻" "频道精选" "最新评论"
+	       "相关阅读" "文章来源：" "相关文章" "看过本文的人还看过"
+	       "发布时间：" "分享编辑：" "查看所有评论" "我来说两句"
+	       "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
+	       "延伸阅读:" "您对这篇文章的评价" "焦点阅读" "相关链接"
+	       "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
+	       "热门推荐")
+	     "\\|"))
+
 (defun eh-open-rss-with-eww ()
   (interactive)
   (gnus-summary-scroll-up 1)
@@ -375,7 +386,7 @@
 	   (progn
 	     (message-narrow-to-headers)
 	     (message-fetch-field "X-RSS-URL"))))
-      (setq eh-gnus-eww-buffer-wash-boundary
+      (setq eh-gnus-eww-buffer-wash-boundary-1
 	    (progn
 	      (message-goto-body)
 	      (set-mark (point))
@@ -386,17 +397,24 @@
 		(region-beginning) (region-end)))))
       (eww x-rss-url)))
   (switch-to-buffer "*eww*")
-  (delete-other-windows))
+  (delete-other-windows)
+  (run-at-time 2 nil 'eh-gnus-eww-buffer-wash)
+  (run-at-time 4 nil 'eh-gnus-eww-buffer-wash)
+  (run-at-time 6 nil 'eh-gnus-eww-buffer-wash))
 
 (defun eh-gnus-eww-buffer-wash ()
   (interactive)
-  (when eh-gnus-eww-buffer-wash-boundary
-    (goto-char (point-min))
-    (set-mark (point))
-    (when (re-search-forward eh-gnus-eww-buffer-wash-boundary nil t)
-      (move-beginning-of-line 1)
-      (delete-region (region-beginning) (region-end))
-      (goto-char (point-min)))))
+  (when (string= (buffer-name) "*eww*")
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward eh-gnus-eww-buffer-wash-boundary-1 nil t)
+	(move-beginning-of-line 1)
+	(delete-region (point-min) (point))
+	(goto-char (point-min)))
+      (when (re-search-forward  eh-gnus-eww-buffer-wash-boundary-2 nil t)
+	(move-beginning-of-line 1)
+	(delete-region (point) (point-max))
+	(goto-char (point-min))))))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-gnus-eww-buffer-wash)
 
