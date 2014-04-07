@@ -42,6 +42,7 @@
 (require 'rfc2047)
 (require 'nnir)
 (require 'gnus-demon)
+(require 'eww)
 
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
@@ -362,6 +363,44 @@
 ;; 将新闻组分组
 ;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
+;; Open X-RSS-URL with eww
+(defvar eh-gnus-eww-buffer-wash-boundary nil)
+(defun eh-open-rss-with-eww ()
+  (interactive)
+  (gnus-summary-scroll-up 1)
+  (when (bufferp "*eww*")
+    (kill-buffer "*eww*"))
+  (gnus-eval-in-buffer-window gnus-article-buffer
+    (let ((x-rss-url
+	   (progn
+	     (message-narrow-to-headers)
+	     (message-fetch-field "X-RSS-URL"))))
+      (setq eh-gnus-eww-buffer-wash-boundary
+	    (progn
+	      (message-goto-body)
+	      (set-mark (point))
+	      (forward-char 10)
+	      (replace-regexp-in-string
+	       "^ +" ""
+	       (buffer-substring-no-properties
+		(region-beginning) (region-end)))))
+      (eww x-rss-url)))
+  (switch-to-buffer "*eww*")
+  (delete-other-windows))
+
+(defun eh-gnus-eww-buffer-wash ()
+  (interactive)
+  (when eh-gnus-eww-buffer-wash-boundary
+    (goto-char (point-min))
+    (set-mark (point))
+    (re-search-forward eh-gnus-eww-buffer-wash-boundary nil t)
+    (move-beginning-of-line 1)
+    (delete-region (region-beginning) (region-end))
+    (goto-char (point-min))
+    (setq eh-gnus-eww-buffer-wash-boundary nil)))
+
+(define-key eww-mode-map (kbd "C-c C-c") 'eh-gnus-eww-buffer-wash)
+
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
             ;; summary buffer行距设置
@@ -395,9 +434,11 @@
                                          (interactive)
                                          (gnus-summary-scroll-up 3)
                                          (move-beginning-of-line 1)))
+	    (local-set-key (kbd "C-c C-c") 'eh-open-rss-with-eww)
             (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
             (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
             (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
+
 ;; visual
 (setq gnus-treat-emphasize t
       gnus-treat-buttonize t
@@ -422,7 +463,7 @@
                    "Organization:" "To:" "Cc:" "Followup-To" "Gnus-Warnings:"
                    "X-Sent:" "X-URL:" "User-Agent:" "X-Newsreader:"
                    "X-Mailer:" "Reply-To:" "X-Spam:" "X-Spam-Status:" "X-Now-Playing"
-                   "X-Attachments" "X-Diagnostic")
+                   "X-Attachments" "X-Diagnostic" "X-RSS-URL")
                  "\\|"))
 
 ;; 设置邮件日期显示格式,使用两行日期，一行具体日期时间，另一行显示article
