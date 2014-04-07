@@ -393,11 +393,10 @@
   (when eh-gnus-eww-buffer-wash-boundary
     (goto-char (point-min))
     (set-mark (point))
-    (re-search-forward eh-gnus-eww-buffer-wash-boundary nil t)
-    (move-beginning-of-line 1)
-    (delete-region (region-beginning) (region-end))
-    (goto-char (point-min))
-    (setq eh-gnus-eww-buffer-wash-boundary nil)))
+    (when (re-search-forward eh-gnus-eww-buffer-wash-boundary nil t)
+      (move-beginning-of-line 1)
+      (delete-region (region-beginning) (region-end))
+      (goto-char (point-min)))))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-gnus-eww-buffer-wash)
 
