@@ -47,7 +47,7 @@
 
 (defun eh-current-word ()
   "Get English word or Chinese word at point"
-  (let ((word (or (current-word t t) ""))
+  (let ((word (current-word t t))
 	(current-char (string (preceding-char))))
     (or (car (remove-if-not
 	      '(lambda (x) (string-match-p current-char x))
@@ -55,8 +55,8 @@
 	       (replace-regexp-in-string
 		"/[a-zA-z]+ +" " "
 		(shell-command-to-string
-		 (concat eh-scws-command " " word))))))
-	word)))
+		 (concat eh-scws-command " " (or word ",")))))))
+	word "")))
 
 (defun eh-update-sdcv-mode-line-string ()
   "Update `eh-sdcv-mode-line-string' with translation of current word"
