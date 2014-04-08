@@ -398,7 +398,7 @@
 		(region-beginning) (region-end))))))
   (if (not eh-gnus-current-article-x-rss-url)
       (message "Can't find X-RSS-URL")
-    (eww x-rss-url)
+    (eww eh-gnus-current-article-x-rss-url)
     (switch-to-buffer "*eww*")
     (delete-other-windows)
     (run-at-time 2 nil 'eh-gnus-eww-buffer-wash)
