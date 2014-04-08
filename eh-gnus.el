@@ -364,6 +364,7 @@
 ;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
 ;; Open X-RSS-URL with eww
+(setq eh-gnus-current-article-x-rss-url nil)
 (setq eh-gnus-eww-buffer-wash-boundary-1 "")
 (setq eh-gnus-eww-buffer-wash-boundary-2
       (mapconcat 'regexp-quote
@@ -373,7 +374,7 @@
 		   "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
 		   "延伸阅读:" "您对这篇文章的评价" "焦点阅读" "相关链接"
 		   "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
-		   "热门推荐" "更多评论" "我要发言" "复制本网址推荐")
+		   "热门推荐" "更多评论" "我要发言" "复制本网址推荐" "相关资讯")
 		 "\\|"))
 
 (defun eh-open-rss-with-eww ()
@@ -382,25 +383,27 @@
   (when (bufferp "*eww*")
     (kill-buffer "*eww*"))
   (gnus-eval-in-buffer-window gnus-article-buffer
-    (let ((x-rss-url
+    (setq eh-gnus-current-article-x-rss-url
 	   (progn
 	     (message-narrow-to-headers)
-	     (message-fetch-field "X-RSS-URL"))))
-      (setq eh-gnus-eww-buffer-wash-boundary-1
-	    (progn
-	      (message-goto-body)
-	      (set-mark (point))
-	      (forward-char 10)
-	      (replace-regexp-in-string
+	     (message-fetch-field "X-RSS-URL")))
+    (setq eh-gnus-eww-buffer-wash-boundary-1
+	  (progn
+	    (message-goto-body)
+	    (set-mark (point))
+	    (forward-char 10)
+	    (replace-regexp-in-string
 	       "^ +" ""
 	       (buffer-substring-no-properties
-		(region-beginning) (region-end)))))
-      (eww x-rss-url)))
-  (switch-to-buffer "*eww*")
-  (delete-other-windows)
-  (run-at-time 2 nil 'eh-gnus-eww-buffer-wash)
-  (run-at-time 4 nil 'eh-gnus-eww-buffer-wash)
-  (run-at-time 6 nil 'eh-gnus-eww-buffer-wash))
+		(region-beginning) (region-end))))))
+  (if (not eh-gnus-current-article-x-rss-url)
+      (message "Can't find X-RSS-URL")
+    (eww x-rss-url)
+    (switch-to-buffer "*eww*")
+    (delete-other-windows)
+    (run-at-time 2 nil 'eh-gnus-eww-buffer-wash)
+    (run-at-time 4 nil 'eh-gnus-eww-buffer-wash)
+    (run-at-time 6 nil 'eh-gnus-eww-buffer-wash)))
 
 (defun eh-gnus-eww-buffer-wash ()
   (interactive)
