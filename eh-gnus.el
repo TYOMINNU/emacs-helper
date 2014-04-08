@@ -282,15 +282,15 @@
 
 ;; 显示箭头设置
 (defun gnus-user-format-function-a (header)
-   (let ((date (mail-header-date header)))
-     (if (zerop gnus-tmp-level)
-         "-> " "")))
+  (let ((date (mail-header-date header)))
+    (if (zerop gnus-tmp-level)
+	"-> " "")))
 
 ;; 显示时间设置
 (defun gnus-user-format-function-b (header)
-   (let ((date (mail-header-date header)))
-     (if (zerop gnus-tmp-level)
-         "" (concat "     " (concat (gnus-user-date date) "  ")))))
+  (let ((date (mail-header-date header)))
+    (if (zerop gnus-tmp-level)
+	"" (concat "     " (concat (gnus-user-date date) "  ")))))
 
 ;; 显示主题设置
 (defun gnus-user-format-function-c (header)
@@ -317,8 +317,8 @@
 ;; 显示发件人设置
 (defun gnus-user-format-function-d (header)
   (let ((from (mail-header-from header)))
-     (if (zerop gnus-tmp-level)
-         "" (eh-mail-header-from-name from))))
+    (if (zerop gnus-tmp-level)
+	"" (eh-mail-header-from-name from))))
 
 ;; 显示箭头设置
 (defun gnus-user-format-function-e (header)
@@ -331,7 +331,7 @@
         (subject (mail-header-subject header)))
     (if (zerop gnus-tmp-level)
         ""
-        subject)))
+      subject)))
 
 (setq gnus-user-date-format-alist
       '(((gnus-seconds-today) . "%H:%M")
@@ -366,15 +366,15 @@
 ;; Open X-RSS-URL with eww
 (setq eh-gnus-eww-buffer-wash-boundary-1 "")
 (setq eh-gnus-eww-buffer-wash-boundary-2
-  (mapconcat 'regexp-quote
-	     '("更多相关消息" "责任编辑" "相关新闻" "频道精选" "最新评论"
-	       "相关阅读" "文章来源：" "相关文章" "看过本文的人还看过"
-	       "发布时间：" "分享编辑：" "查看所有评论" "我来说两句"
-	       "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
-	       "延伸阅读:" "您对这篇文章的评价" "焦点阅读" "相关链接"
-	       "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
-	       "热门推荐")
-	     "\\|"))
+      (mapconcat 'regexp-quote
+		 '("更多相关消息" "责任编辑" "相关新闻" "频道精选" "最新评论"
+		   "相关阅读" "文章来源：" "相关文章" "看过本文的人还看过"
+		   "发布时间：" "分享编辑：" "查看所有评论" "我来说两句"
+		   "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
+		   "延伸阅读:" "您对这篇文章的评价" "焦点阅读" "相关链接"
+		   "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
+		   "热门推荐" "更多评论" "我要发言" "复制本网址推荐")
+		 "\\|"))
 
 (defun eh-open-rss-with-eww ()
   (interactive)
@@ -406,15 +406,24 @@
   (interactive)
   (when (string= (buffer-name) "*eww*")
     (save-excursion
+      ;; 删除文章标题之前的内容
       (goto-char (point-min))
       (when (re-search-forward eh-gnus-eww-buffer-wash-boundary-1 nil t)
 	(move-beginning-of-line 1)
 	(delete-region (point-min) (point))
 	(goto-char (point-min)))
+      ;; 删除文章结尾之后的内容
       (when (re-search-forward  eh-gnus-eww-buffer-wash-boundary-2 nil t)
 	(move-beginning-of-line 1)
 	(delete-region (point) (point-max))
-	(goto-char (point-min))))))
+	(goto-char (point-min)))
+      ;; 自动段行
+      (fill-region (point-min) (point-max))
+      ;; 行距设置为0.2
+      (setq line-spacing 0.2)
+      ;; 设置字号
+      (let ((text-scale-mode-amount 1.2))
+	(text-scale-mode)))))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-gnus-eww-buffer-wash)
 
@@ -539,8 +548,8 @@
 ;; 每隔10分钟刷新一下
 (add-hook 'gnus-startup-hook
           '(lambda () (progn
-                    (setq gnus-use-demon t)
-                    (gnus-demon-add-handler 'gnus-demon-scan-news 10 nil))))
+			(setq gnus-use-demon t)
+			(gnus-demon-add-handler 'gnus-demon-scan-news 10 nil))))
 
 
 ;; 启用桌面提醒功能
@@ -550,7 +559,7 @@
 
 ;;;###autoload
 (add-hook 'gnus-before-startup-hook
-       '(lambda () (require 'eh-gnus)))
+	  '(lambda () (require 'eh-gnus)))
 
 (provide 'eh-gnus)
 
