@@ -365,9 +365,9 @@
 
 ;; Open X-RSS-URL with eww
 (setq eh-gnus-current-article-x-rss-url nil)
-(setq eh-gnus-eww-buffer-wash-finish nil)
-(setq eh-gnus-eww-buffer-wash-boundary-1 "")
-(setq eh-gnus-eww-buffer-wash-boundary-2
+(setq eh-eww-buffer-narrow-p nil)
+(setq eh-eww-buffer-narrow-boundary-1 "")
+(setq eh-eww-buffer-narrow-boundary-2
       (mapconcat 'regexp-quote
 		 '("更多相关消息" "相关新闻" "频道精选" "最新评论" "相关资讯"
 		   "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
@@ -388,9 +388,12 @@
 	  (progn
 	    (message-narrow-to-headers)
 	    (message-fetch-field "X-RSS-URL")))
-    (setq eh-gnus-eww-buffer-wash-boundary-1
+    (setq eh-eww-buffer-narrow-boundary-1
 	  (progn
 	    (message-goto-body)
+	    ;; 前进四行,提取一个字符串，在eww buffer中搜索这个
+	    ;; 字符串,可以获得正文的大概位置
+	    (forward-line 4)
 	    (set-mark (point))
 	    (forward-char 10)
 	    (replace-regexp-in-string
@@ -400,24 +403,26 @@
   (if (not eh-gnus-current-article-x-rss-url)
       (message "Can't find X-RSS-URL")
     (eww eh-gnus-current-article-x-rss-url)
-    (setq eh-gnus-eww-buffer-wash-finish nil)
+    (setq eh-eww-buffer-narrow-p nil)
     (delete-other-windows)))
 
-(defun eh-gnus-eww-buffer-wash ()
-  (interactive)
+(defun eh-eww-narrow-buffer (&optional num1 num2)
   (when (string= (buffer-name) "*eww*")
     (save-excursion
-      ;; 删除文章标题之前的内容
       (goto-char (point-min))
-      (when (re-search-forward eh-gnus-eww-buffer-wash-boundary-1 nil t)
-	(move-beginning-of-line 1)
-	(delete-region (point-min) (point))
-	(goto-char (point-min)))
-      ;; 删除文章结尾之后的内容
-      (when (re-search-forward  eh-gnus-eww-buffer-wash-boundary-2 nil t)
-	(move-beginning-of-line 1)
-	(delete-region (point) (point-max))
-	(goto-char (point-min)))
+      ;; narrow boundary1
+      (if (re-search-forward eh-eww-buffer-narrow-boundary-1 nil t)
+	  (progn
+	    (backward-paragraph num1)
+	    (set-mark (point)))
+	(set-mark (point-min)))
+      ;; narrow boundary2
+      (if (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
+	  (progn
+	    (forward-paragraph num2)
+	    (narrow-to-region (region-beginning) (point)))
+	(narrow-to-region (region-beginning) (point-max)))
+      (goto-char (point-min))
       ;; 自动段行
       (fill-region (point-min) (point-max))
       ;; 行距设置为0.2
@@ -425,23 +430,40 @@
       ;; 设置字号
       (let ((text-scale-mode-amount 1.2))
 	(text-scale-mode))))
-  (setq eh-gnus-eww-buffer-wash-finish t))
+  (setq eh-eww-buffer-narrow-p t))
 
-(defun eh-eww-wash-or-scroll-up ()
+(defun eh-eww-scroll-up ()
   (interactive)
-  (if eh-gnus-eww-buffer-wash-finish
+  (if eh-eww-buffer-narrow-p
       (scroll-up-command)
-    (eh-gnus-eww-buffer-wash)))
+    (eh-eww-narrow-buffer)))
 
-(defun eh-eww-wash-or-next-line ()
+(defun eh-eww-next-line ()
   (interactive)
-  (if eh-gnus-eww-buffer-wash-finish
+  (if eh-eww-buffer-narrow-p
       (next-line)
-    (eh-gnus-eww-buffer-wash)))
+    (eh-eww-narrow-buffer)))
 
-(define-key eww-mode-map (kbd "C-c C-c") 'eh-gnus-eww-buffer-wash)
-(define-key eww-mode-map (kbd "SPC") 'eh-eww-wash-or-scroll-up)
-(define-key eww-mode-map (kbd "<down>") 'eh-eww-wash-or-next-line)
+(defvar eh-eww-narrow-expand-step 1)
+(defun eh-eww-narrow-region-expand ()
+  (interactive)
+  (or (widen)
+      (eh-eww-narrow-buffer (1+ eh-eww-narrow-expand-step) 1))
+  (goto-char (point-min))
+  (setq eh-eww-narrow-expand-step
+	(1+ eh-eww-narrow-expand-step)))
+
+(defun eh-eww-narrow-region-reset ()
+  (interactive)
+  (or (widen)
+      (eh-eww-narrow-buffer 1 1))
+  (setq eh-eww-narrow-expand-step 1)
+  (goto-char (point-min)))
+
+(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-narrow-region-reset)
+(define-key eww-mode-map (kbd "=") 'eh-eww-narrow-region-expand)
+(define-key eww-mode-map (kbd "SPC") 'eh-eww-scroll-up)
+(define-key eww-mode-map (kbd "<down>") 'eh-eww-next-line)
 
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
