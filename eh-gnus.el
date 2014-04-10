@@ -477,6 +477,7 @@
                                          (gnus-summary-scroll-up 3)
                                          (move-beginning-of-line 1)))
 	    (local-set-key (kbd "C-c C-c") 'eh-open-rss-with-eww)
+	    (local-set-key (kbd "C-RET") 'eh-open-rss-with-eww)
             (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
             (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
             (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
