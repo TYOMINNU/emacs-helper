@@ -365,6 +365,7 @@
 
 ;; Open X-RSS-URL with eww
 (setq eh-gnus-current-article-x-rss-url nil)
+(setq eh-gnus-eww-buffer-wash-finish nil)
 (setq eh-gnus-eww-buffer-wash-boundary-1 "")
 (setq eh-gnus-eww-buffer-wash-boundary-2
       (mapconcat 'regexp-quote
@@ -384,26 +385,23 @@
     (kill-buffer "*eww*"))
   (gnus-eval-in-buffer-window gnus-article-buffer
     (setq eh-gnus-current-article-x-rss-url
-	   (progn
-	     (message-narrow-to-headers)
-	     (message-fetch-field "X-RSS-URL")))
+	  (progn
+	    (message-narrow-to-headers)
+	    (message-fetch-field "X-RSS-URL")))
     (setq eh-gnus-eww-buffer-wash-boundary-1
 	  (progn
 	    (message-goto-body)
 	    (set-mark (point))
 	    (forward-char 10)
 	    (replace-regexp-in-string
-	       "^ +" ""
-	       (buffer-substring-no-properties
-		(region-beginning) (region-end))))))
+	     "^ +" ""
+	     (buffer-substring-no-properties
+	      (region-beginning) (region-end))))))
   (if (not eh-gnus-current-article-x-rss-url)
       (message "Can't find X-RSS-URL")
     (eww eh-gnus-current-article-x-rss-url)
-    (switch-to-buffer "*eww*")
-    (delete-other-windows)
-    (run-at-time 2 nil 'eh-gnus-eww-buffer-wash)
-    (run-at-time 4 nil 'eh-gnus-eww-buffer-wash)
-    (run-at-time 6 nil 'eh-gnus-eww-buffer-wash)))
+    (setq eh-gnus-eww-buffer-wash-finish nil)
+    (delete-other-windows)))
 
 (defun eh-gnus-eww-buffer-wash ()
   (interactive)
@@ -426,9 +424,24 @@
       (setq line-spacing 0.2)
       ;; 设置字号
       (let ((text-scale-mode-amount 1.2))
-	(text-scale-mode)))))
+	(text-scale-mode))))
+  (setq eh-gnus-eww-buffer-wash-finish t))
+
+(defun eh-eww-wash-or-scroll-up ()
+  (interactive)
+  (if eh-gnus-eww-buffer-wash-finish
+      (scroll-up-command)
+    (eh-gnus-eww-buffer-wash)))
+
+(defun eh-eww-wash-or-next-line ()
+  (interactive)
+  (if eh-gnus-eww-buffer-wash-finish
+      (next-line)
+    (eh-gnus-eww-buffer-wash)))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-gnus-eww-buffer-wash)
+(define-key eww-mode-map (kbd "<space>") 'eh-eww-wash-or-scroll-up)
+(define-key eww-mode-map (kbd "<down>") 'eh-eww-wash-or-next-line)
 
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
