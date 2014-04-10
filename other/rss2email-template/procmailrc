@@ -1,3 +1,71 @@
+####################################################################
+## rss2email使用base64编码中文，procmail处理起来很罗嗦，
+## 我对rss2email源代码做了修改，编码邮件主题时添加两个field：
+## X-Translate-From 和 X-Translate-Subject，保存Subject和From中
+## 中文字符串的拼音，然后通过匹配拼音来对邮件分类。
+###################################################################
+
 :0
-* ^User-Agent: rss2email
-RSS/default/
+* ^From.*Cron Daemon
+RSS/cron-log/
+
+:0
+* ^User-Agent.*rss2email
+* ^From.*gmane.mail.rss2email
+RSS/rss2email/
+
+:0
+* ^User-Agent.*rss2email
+* ^X-RSS-Feed.*baidu.*word=
+{
+	:0
+	* ^X-Translate-Subject.*(shanxi|hebei)
+	* ^X-Translate-Subject.*(kaoshi|zhaosheng)
+	* ^X-Translate-Subject.*(gongwuyuan|jiaoshi|shiyedanwei|yiyuan|weishen)
+	RSS/news.baidu.kaoshi/
+
+	:0
+	/dev/null
+}
+
+:0
+* X-RSS-Feed.*baidu.*class=
+{
+	:0:
+	RSS/news.baidu/
+}
+
+
+:0
+* ^User-Agent.*rss2email
+* ^From.*EmacsWiki
+RSS/EmacsWiki/
+
+:0
+* ^User-Agent.*rss2email
+* ^From.*emacs\.git
+RSS/emacs.git/
+
+:0
+* ^User-Agent.*rss2email
+* ^From.*org-mode.git
+RSS/org-mode.git/
+
+:0
+* ^User-Agent.*rss2email
+* ^From.*emacs|Emacs|EMACS
+RSS/emacs/
+
+:0
+* ^User-Agent.*rss2email
+* ^From.*(Gnome|gnome|GNOME)
+RSS/gnome/
+
+:0
+* ^User-Agent.*rss2email
+* ^From.*(Debian|debian|DEBIAN)
+RSS/debian/
+
+:0
+* ^User-Agent.*rss2email
+RSS/others/
