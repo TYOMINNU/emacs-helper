@@ -440,7 +440,7 @@
     (eh-gnus-eww-buffer-wash)))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-gnus-eww-buffer-wash)
-(define-key eww-mode-map (kbd "<space>") 'eh-eww-wash-or-scroll-up)
+(define-key eww-mode-map (kbd "SPC") 'eh-eww-wash-or-scroll-up)
 (define-key eww-mode-map (kbd "<down>") 'eh-eww-wash-or-next-line)
 
 (add-hook 'gnus-summary-mode-hook
@@ -472,12 +472,12 @@
 					    (interactive)
 					    (delete-other-windows)
 					    (next-line 1)))
-            (local-set-key (kbd "RET") (lambda ()
-                                         (interactive)
-                                         (gnus-summary-scroll-up 3)
-                                         (move-beginning-of-line 1)))
+            (local-set-key (kbd "<return>") (lambda ()
+					      (interactive)
+					      (gnus-summary-scroll-up 3)
+					      (move-beginning-of-line 1)))
 	    (local-set-key (kbd "C-c C-c") 'eh-open-rss-with-eww)
-	    (local-set-key (kbd "C-RET") 'eh-open-rss-with-eww)
+	    (local-set-key (kbd "C-<return>") 'eh-open-rss-with-eww)
             (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
             (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
             (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
