@@ -378,6 +378,7 @@
 ;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
 ;; Open X-RSS-URL with eww
+(setq eh-gnus-article-url-field '("X-RSS-URL"))
 (setq eh-gnus-current-article-url nil)
 (setq eh-eww-buffer-narrow-boundary-1 "")
 (setq eh-eww-buffer-narrow-boundary-2
@@ -405,7 +406,8 @@
     (setq eh-gnus-current-article-url
 	  (progn
 	    (message-narrow-to-headers)
-	    (message-fetch-field "X-RSS-URL")))
+	    (eval (cons 'or (mapcar 'message-fetch-field
+				    eh-gnus-article-url-field)))))
     (setq eh-eww-buffer-narrow-boundary-1
 	  (progn
 	    (message-goto-body)
