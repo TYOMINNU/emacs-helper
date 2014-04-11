@@ -457,14 +457,14 @@
 
 (defun eh-eww-scroll-up ()
   (interactive)
-  (if (and (< (point) 10)
+  (if (and (< (point) 300)
 	   (not (eh-narrow-p)))
       (eh-eww-narrow-buffer)
     (scroll-up-command)))
 
 (defun eh-eww-next-line ()
   (interactive)
-  (if (and (< (point) 10)
+  (if (and (< (point) 300)
 	   (not (eh-narrow-p)))
       (eh-eww-narrow-buffer)
     (next-line)))
