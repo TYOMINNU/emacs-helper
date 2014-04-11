@@ -354,6 +354,20 @@
 (setq gnus-sum-thread-tree-leaf-with-other "|----")
 (setq gnus-sum-thread-tree-single-leaf " `----")
 
+;; Highlight当前行
+(defface gnus-hl-line
+  '((t :inherit hl-line))
+  "Face for highlighting the current line with `gnus-hl-line'."
+  :group 'hl-line)
+
+(defun eh-gnus-hl-line ()
+  (hl-line-mode 1)
+  (set (make-local-variable 'hl-line-face) 'gnus-hl-line)
+  (setq cursor-type nil))
+
+(add-hook 'gnus-summary-mode-hook 'eh-gnus-hl-line)
+(add-hook 'gnus-group-mode-hook 'eh-gnus-hl-line)
+
 ;; 将邮件的发出时间转换为本地时间
 (add-hook 'gnus-article-prepare-hook 'gnus-article-date-local)
 
