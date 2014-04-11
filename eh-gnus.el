@@ -364,27 +364,31 @@
 ;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
 ;; Open X-RSS-URL with eww
-(setq eh-gnus-current-article-x-rss-url nil)
+(setq eh-gnus-current-article-url nil)
 (setq eh-eww-buffer-narrow-p nil)
 (setq eh-eww-buffer-narrow-boundary-1 "")
 (setq eh-eww-buffer-narrow-boundary-2
       (mapconcat 'regexp-quote
-		 '("更多相关消息" "相关新闻" "频道精选" "最新评论" "相关资讯"
+		 '("编辑" "关键字" "标签" "更多相关消息" "相关新闻" "频道精选" "最新评论" "相关资讯"
 		   "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
 		   "分享编辑：" "查看所有评论" "我来说两句" "我要发言"
 		   "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
 		   "延伸阅读:" "您对这篇文章的评价" "焦点阅读" "相关链接"
 		   "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
-		   "热门推荐" "复制本网址推荐")
+		   "热门推荐" "复制本网址推荐" "延伸阅读")
 		 "\\|"))
 
-(defun eh-open-rss-with-eww ()
+(defun eh-gnus-view-article-with-eww (&optional force)
   (interactive)
   (gnus-summary-scroll-up 1)
   (when (bufferp "*eww*")
     (kill-buffer "*eww*"))
   (gnus-eval-in-buffer-window gnus-article-buffer
-    (setq eh-gnus-current-article-x-rss-url
+    (setq eh-gnus-current-article-subject
+	  (progn
+	    (message-narrow-to-headers)
+	    (message-fetch-field "Subject")))
+    (setq eh-gnus-current-article-url
 	  (progn
 	    (message-narrow-to-headers)
 	    (message-fetch-field "X-RSS-URL")))
@@ -400,28 +404,32 @@
 	     "^ +" ""
 	     (buffer-substring-no-properties
 	      (region-beginning) (region-end))))))
-  (if (not eh-gnus-current-article-x-rss-url)
-      (message "Can't find X-RSS-URL")
-    (eww eh-gnus-current-article-x-rss-url)
+  (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
+	     eh-gnus-current-article-url)
+    (eww eh-gnus-current-article-url)
     (setq eh-eww-buffer-narrow-p nil)
     (delete-other-windows)))
 
 (defun eh-eww-narrow-buffer (&optional num1 num2)
+  (interactive)
   (when (string= (buffer-name) "*eww*")
     (save-excursion
       (goto-char (point-min))
-      ;; narrow boundary1
+      ;; find first narrow boundary
       (if (re-search-forward eh-eww-buffer-narrow-boundary-1 nil t)
 	  (progn
-	    (backward-paragraph num1)
+	    (backward-paragraph (or num1 1))
 	    (set-mark (point)))
 	(set-mark (point-min)))
-      ;; narrow boundary2
-      (if (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
-	  (progn
-	    (forward-paragraph num2)
-	    (narrow-to-region (region-beginning) (point)))
-	(narrow-to-region (region-beginning) (point-max)))
+      ;; find second narrow boundary
+      (while (or (< (abs (- (point) (region-beginning))) 200)
+		 (= (point) (point-max)))
+	(unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
+	  (goto-char (point-max))))
+      (forward-paragraph (or num2 -1))
+      
+      ;; narrow to two boundary
+      (narrow-to-region (region-beginning) (point))
       (goto-char (point-min))
       ;; 自动段行
       (fill-region (point-min) (point-max))
@@ -444,24 +452,17 @@
       (next-line)
     (eh-eww-narrow-buffer)))
 
-(defvar eh-eww-narrow-expand-step 1)
-(defun eh-eww-narrow-region-expand ()
+(defun eh-eww-toggle-narrow ()
   (interactive)
-  (or (widen)
-      (eh-eww-narrow-buffer (1+ eh-eww-narrow-expand-step) 1))
-  (goto-char (point-min))
-  (setq eh-eww-narrow-expand-step
-	(1+ eh-eww-narrow-expand-step)))
+  (if eh-eww-buffer-narrow-p
+      (progn (widen)
+	     (setq eh-eww-buffer-narrow-p nil))
+    (progn
+      (eh-eww-narrow-buffer)
+      (setq eh-eww-buffer-narrow-p t)))
+  (recenter))
 
-(defun eh-eww-narrow-region-reset ()
-  (interactive)
-  (or (widen)
-      (eh-eww-narrow-buffer 1 1))
-  (setq eh-eww-narrow-expand-step 1)
-  (goto-char (point-min)))
-
-(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-narrow-region-reset)
-(define-key eww-mode-map (kbd "=") 'eh-eww-narrow-region-expand)
+(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-narrow)
 (define-key eww-mode-map (kbd "SPC") 'eh-eww-scroll-up)
 (define-key eww-mode-map (kbd "<down>") 'eh-eww-next-line)
 
@@ -496,10 +497,12 @@
 					    (next-line 1)))
             (local-set-key (kbd "<return>") (lambda ()
 					      (interactive)
-					      (gnus-summary-scroll-up 3)
+					      (eh-gnus-view-article-with-eww)
 					      (move-beginning-of-line 1)))
-	    (local-set-key (kbd "C-c C-c") 'eh-open-rss-with-eww)
-	    (local-set-key (kbd "C-<return>") 'eh-open-rss-with-eww)
+	    (local-set-key (kbd "C-<return>") (lambda ()
+						(interactive)
+						(eh-gnus-view-article-with-eww t)
+						(move-beginning-of-line 1)))
             (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
             (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
             (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
