@@ -383,7 +383,7 @@
 (setq eh-eww-buffer-narrow-boundary-1 "")
 (setq eh-eww-buffer-narrow-boundary-2
       (mapconcat 'regexp-quote
-		 '("编辑" "关键字" "标签" "更多相关消息" "相关新闻" "频道精选" "最新评论" "相关资讯"
+		 '("编辑" "作者" "关键字" "标签" "更多相关消息" "相关新闻" "频道精选" "最新评论" "相关资讯"
 		   "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
 		   "分享编辑：" "查看所有评论" "我来说两句" "我要发言"
 		   "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
@@ -436,10 +436,12 @@
 	    (set-mark (point)))
 	(set-mark (point-min)))
       ;; find second narrow boundary
-      (while (or (< (abs (- (point) (region-beginning))) 200)
-		 (= (point) (point-max)))
+      (setq boundary-search-p t)
+      (while (and (< (abs (- (point) (region-beginning))) 200)
+		  boundary-search-p)
 	(unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
-	  (goto-char (point-max))))
+	  (goto-char (point-max))
+	  (setq boundary-search-p nil)))
       (forward-paragraph (or num2 -1))
       
       ;; narrow to two boundary
