@@ -379,7 +379,6 @@
 
 ;; Open X-RSS-URL with eww
 (setq eh-gnus-current-article-url nil)
-(setq eh-eww-buffer-narrow-p nil)
 (setq eh-eww-buffer-narrow-boundary-1 "")
 (setq eh-eww-buffer-narrow-boundary-2
       (mapconcat 'regexp-quote
@@ -422,7 +421,6 @@
   (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
 	     eh-gnus-current-article-url)
     (eww eh-gnus-current-article-url)
-    (setq eh-eww-buffer-narrow-p nil)
     (delete-other-windows)))
 
 (defun eh-eww-narrow-buffer (&optional num1 num2)
@@ -455,30 +453,40 @@
       (setq line-spacing 0.2)
       ;; 设置字号
       (let ((text-scale-mode-amount 1.2))
-	(text-scale-mode))))
-  (setq eh-eww-buffer-narrow-p t))
+	(text-scale-mode)))))
 
 (defun eh-eww-scroll-up ()
   (interactive)
-  (if eh-eww-buffer-narrow-p
-      (scroll-up-command)
-    (eh-eww-narrow-buffer)))
+  (if (and (< (point) 10)
+	   (not (eh-narrow-p)))
+      (eh-eww-narrow-buffer)
+    (scroll-up-command)))
 
 (defun eh-eww-next-line ()
   (interactive)
-  (if eh-eww-buffer-narrow-p
-      (next-line)
-    (eh-eww-narrow-buffer)))
+  (if (and (< (point) 10)
+	   (not (eh-narrow-p)))
+      (eh-eww-narrow-buffer)
+    (next-line)))
 
 (defun eh-eww-toggle-narrow ()
   (interactive)
-  (if eh-eww-buffer-narrow-p
+  (if (eh-narrow-p)
       (progn (widen)
-	     (setq eh-eww-buffer-narrow-p nil))
-    (progn
-      (eh-eww-narrow-buffer)
-      (setq eh-eww-buffer-narrow-p t)))
-  (recenter))
+	     (message "Un-narrowing."))
+    (progn (eh-eww-narrow-buffer)
+	   (message "Narrowing eww buffer"))))
+
+(defun eh-narrow-p ()
+  "Whether narrow is in effect for the current buffer"
+  (let (real-point-min real-point-max)
+    (save-excursion
+      (save-restriction
+	(widen)
+	(setq real-point-min (point-min)
+	      real-point-max (point-max))))
+    (or (/= real-point-min (point-min))
+	(/= real-point-max (point-max)))))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-narrow)
 (define-key eww-mode-map (kbd "SPC") 'eh-eww-scroll-up)
