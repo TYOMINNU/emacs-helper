@@ -380,6 +380,11 @@
 ;; Open X-RSS-URL with eww
 (setq eh-gnus-article-url-field '("X-RSS-URL"))
 (setq eh-gnus-current-article-url nil)
+(setq eh-gnus-current-article-subject nil)
+(setq eh-gnus-current-article-from nil)
+
+(setq eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix")
+
 (setq eh-eww-buffer-narrow-boundary-1 "")
 (setq eh-eww-buffer-narrow-boundary-2
       (mapconcat 'regexp-quote
@@ -396,13 +401,17 @@
 (defun eh-gnus-view-article-with-eww (&optional force)
   (interactive)
   (gnus-summary-scroll-up 1)
-  (when (bufferp "*eww*")
+  (when (member "*eww*" (mapcar (function buffer-name) (buffer-list)))
     (kill-buffer "*eww*"))
   (gnus-eval-in-buffer-window gnus-article-buffer
     (setq eh-gnus-current-article-subject
 	  (progn
 	    (message-narrow-to-headers)
 	    (message-fetch-field "Subject")))
+    (setq eh-gnus-current-article-from
+	  (progn
+	    (message-narrow-to-headers)
+	    (message-fetch-field "From")))
     (setq eh-gnus-current-article-url
 	  (progn
 	    (message-narrow-to-headers)
@@ -425,7 +434,7 @@
     (eww eh-gnus-current-article-url)
     (delete-other-windows)))
 
-(defun eh-eww-narrow-buffer (&optional num1 num2)
+(defun eh-eww-narrow-and-wash-buffer (&optional num1 num2)
   (interactive)
   (when (string= (buffer-name) "*eww*")
     (save-excursion
@@ -444,31 +453,40 @@
 	(unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
 	  (goto-char (point-max))
 	  (setq boundary-search-p nil)))
-      (forward-paragraph (or num2 -1))
+      (previous-line (or num2 1))
       
       ;; narrow to two boundary
       (narrow-to-region (region-beginning) (point))
       (goto-char (point-min))
-      ;; 自动段行
-      (fill-region (point-min) (point-max))
-      ;; 行距设置为0.2
-      (setq line-spacing 0.2)
-      ;; 设置字号
-      (let ((text-scale-mode-amount 1.2))
-	(text-scale-mode)))))
+
+      ;; wash the context
+      (when (not
+	     (or (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-url)
+		 (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-from)
+		 (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-subject)))
+	;; 自动断行
+	(fill-region (point-min) (point-max))
+	;; 行距设置为0.2
+	(setq line-spacing 0.2)
+	;; 设置字号
+	(let ((text-scale-mode-amount 1.2))
+	  (text-scale-mode))))))
 
 (defun eh-eww-scroll-up ()
   (interactive)
   (if (and (< (point) 300)
 	   (not (eh-narrow-p)))
-      (eh-eww-narrow-buffer)
+      (eh-eww-narrow-and-wash-buffer)
     (scroll-up-command)))
 
 (defun eh-eww-next-line ()
   (interactive)
   (if (and (< (point) 300)
 	   (not (eh-narrow-p)))
-      (eh-eww-narrow-buffer)
+      (eh-eww-narrow-and-wash-buffer)
     (next-line)))
 
 (defun eh-eww-toggle-narrow ()
@@ -476,7 +494,7 @@
   (if (eh-narrow-p)
       (progn (widen)
 	     (message "Un-narrowing."))
-    (progn (eh-eww-narrow-buffer)
+    (progn (eh-eww-narrow-and-wash-buffer)
 	   (message "Narrowing eww buffer"))))
 
 (defun eh-narrow-p ()
