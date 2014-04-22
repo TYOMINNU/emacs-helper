@@ -49,7 +49,7 @@
 (require 'ob-plantuml)
 (require 'ox-bibtex)
 
-;; 自定义变量
+;;; 自定义变量
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
 (setq org-plantuml-jar-path "~/bin/plantuml.jar")
@@ -113,8 +113,7 @@
 
 (org-defkey org-mode-map "\C-c\C-c" 'eh-org-ctrl-c-ctrl-c)
 
-;; org-bable设置
-; font-lock in src code blocks
+;;; org-bable设置
 (setq org-src-fontify-natively t)
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -196,15 +195,69 @@
 ;;     (:ps "CairoPS" "file")
 ;;     (:postscript "postscript" "file")))
 
-;; Export language
+;;; Export language
 (setq org-export-default-language "zh-CN")
 
-;; html
+;;; html
 (setq org-html-coding-system 'utf-8)
 (setq org-html-head-include-default-style nil)
 (setq org-html-head-include-scripts nil)
 
-;; latex
+;;; odt
+
+(setq org-odt-content-template-file
+      (concat (file-name-directory
+	       (locate-library "eh-org.el")) "templates/hbuuthesis/HbuuthesisContentTemplate.xml"))
+
+(setq org-odt-styles-file
+      (concat (file-name-directory
+	       (locate-library "eh-org.el")) "templates/hbuuthesis/HbuuthesisStylesTemplate.xml"))
+
+;; Use "表 5" instead of "表 1.2.2"
+(setq org-odt-display-outline-level 0)
+
+;; ox-odt默认格式类似: "表 1: ", 调整为"表1 "
+(setq org-odt-label-styles
+      '(("math-formula" "%c" "text" "(%n)")
+	("math-label" "(%n)" "text" "(%n)")
+	("category-and-value" "%e %n: %c" "category-and-value" "%e %n")
+	("value" "%e%n %c" "value" "%n")))
+
+;; redefine `org-odt-toc',
+;; 实现类似: "1.1 标题..............................2" 样式的目录
+(defun org-odt-toc (depth info)
+  (assert (wholenump depth))
+  (let* ((title (org-export-translate "Table of Contents" :utf-8 info))
+	 (headlines (org-export-collect-headlines
+		     info (and (wholenump depth) depth)))
+	 (backend (org-export-create-backend
+		   :parent (org-export-backend-name
+			    (plist-get info :back-end))
+		   :transcoders (mapcar
+				 (lambda (type) (cons type (lambda (d c i) c)))
+				 (list 'radio-target)))))
+    (when headlines
+      (concat
+       (replace-regexp-in-string
+	"<text:index-entry-link-end/>"
+	"
+<text:index-entry-link-end/>
+<text:index-entry-tab-stop style:type=\"right\" style:leader-char=\".\"/>
+<text:index-entry-page-number/>
+"
+	(org-odt-begin-toc title depth))
+       (mapconcat
+	(lambda (headline)
+	  (let* ((entry (org-odt-format-headline--wrap
+			 headline backend info 'org-odt-format-toc-headline))
+		 (level (org-export-get-relative-level headline info))
+		 (style (format "Contents_20_%d" level)))
+	    (format "\n<text:p text:style-name=\"%s\">%s<text:tab/>[未更新]</text:p>"
+		    style entry)))
+	headlines "\n")
+       (org-odt-end-toc)))))
+
+;;; latex
 (setq org-latex-coding-system 'utf-8)
 ;; 不要在latex输出文件中插入\maketitle
 (setq org-latex-title-command "")
