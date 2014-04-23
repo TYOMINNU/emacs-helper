@@ -43,6 +43,7 @@
 (require 'nnir)
 (require 'gnus-demon)
 (require 'eww)
+(require 'fancy-narrow)
 
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
@@ -457,7 +458,7 @@
 	(setq boundary2 (point))
 
 	;; narrow to two boundary
-	(narrow-to-region boundary1 boundary2)
+	(fancy-narrow-to-region boundary1 boundary2)
 	(goto-char (point-min))
 
 	;; wash the context
@@ -479,7 +480,7 @@
 (defun eh-eww-scroll-up ()
   (interactive)
   (if (and (< (point) 300)
-	   (not (buffer-narrowed-p)))
+	   (not (fancy-narrow-active-p)))
       (eh-eww-narrow-and-wash-buffer)
     (next-line 10)
     (recenter)))
@@ -487,14 +488,14 @@
 (defun eh-eww-next-line ()
   (interactive)
   (if (and (< (point) 300)
-	   (not (buffer-narrowed-p)))
+	   (not (fancy-narrow-active-p)))
       (eh-eww-narrow-and-wash-buffer)
     (next-line)))
 
 (defun eh-eww-toggle-narrow ()
   (interactive)
-  (if (buffer-narrowed-p)
-      (progn (widen)
+  (if (fancy-narrow-active-p)
+      (progn (fancy-widen)
 	     (message "Un-narrowing."))
     (progn (eh-eww-narrow-and-wash-buffer)
 	   (message "Narrowing eww buffer"))))
