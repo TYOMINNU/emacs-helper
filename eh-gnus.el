@@ -383,7 +383,7 @@
 (setq eh-gnus-current-article-subject nil)
 (setq eh-gnus-current-article-from nil)
 
-(setq eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix")
+(setq eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix\\|.*\\.git")
 
 (setq eh-eww-buffer-narrow-boundary-1 "")
 (setq eh-eww-buffer-narrow-boundary-2
@@ -478,35 +478,24 @@
 (defun eh-eww-scroll-up ()
   (interactive)
   (if (and (< (point) 300)
-	   (not (eh-narrow-p)))
+	   (not (buffer-narrowed-p)))
       (eh-eww-narrow-and-wash-buffer)
     (scroll-up-command)))
 
 (defun eh-eww-next-line ()
   (interactive)
   (if (and (< (point) 300)
-	   (not (eh-narrow-p)))
+	   (not (buffer-narrowed-p)))
       (eh-eww-narrow-and-wash-buffer)
     (next-line)))
 
 (defun eh-eww-toggle-narrow ()
   (interactive)
-  (if (eh-narrow-p)
+  (if (buffer-narrowed-p)
       (progn (widen)
 	     (message "Un-narrowing."))
     (progn (eh-eww-narrow-and-wash-buffer)
 	   (message "Narrowing eww buffer"))))
-
-(defun eh-narrow-p ()
-  "Whether narrow is in effect for the current buffer"
-  (let (real-point-min real-point-max)
-    (save-excursion
-      (save-restriction
-	(widen)
-	(setq real-point-min (point-min)
-	      real-point-max (point-max))))
-    (or (/= real-point-min (point-min))
-	(/= real-point-max (point-max)))))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-narrow)
 (define-key eww-mode-map (kbd "SPC") 'eh-eww-scroll-up)
