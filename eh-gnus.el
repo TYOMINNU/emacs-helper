@@ -384,8 +384,19 @@
 (setq eh-gnus-current-article-from nil)
 
 (setq eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix\\|.*\\.git")
-(setq eh-eww-buffer-narrow-boundary nil)
-(setq eh-eww-buffer-wash-p nil)
+
+(setq eh-eww-buffer-narrow-boundary-1 "")
+(setq eh-eww-buffer-narrow-boundary-2
+      (mapconcat 'regexp-quote
+		 '("编辑" "作者" "责编" "关键字" "标签" "更多相关消息"
+		   "相关新闻" "频道精选" "最新评论" "相关资讯"
+		   "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
+		   "分享编辑：" "查看所有评论" "我来说两句" "我要发言"
+		   "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
+		   "延伸阅读:" "您对这篇文章的评价" "焦点阅读" "相关链接"
+		   "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
+		   "热门推荐" "复制本网址推荐" "延伸阅读" "热门排行")
+		 "\\|"))
 
 (defun eh-gnus-view-article-with-eww (&optional force)
   (interactive)
@@ -406,7 +417,7 @@
 	    (message-narrow-to-headers)
 	    (eval (cons 'or (mapcar 'message-fetch-field
 				    eh-gnus-article-url-field)))))
-    (setq eh-eww-buffer-narrow-boundary
+    (setq eh-eww-buffer-narrow-boundary-1
 	  (progn
 	    (message-goto-body)
 	    ;; 前进四行,提取一个字符串，在eww buffer中搜索这个
@@ -421,51 +432,77 @@
   (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
 	     eh-gnus-current-article-url)
     (eww eh-gnus-current-article-url)
-    (setq eh-eww-buffer-wash-p nil)
     (delete-other-windows)))
 
-(defun eh-eww-wash-buffer ()
+(defun eh-eww-narrow-and-wash-buffer (&optional num1 num2)
   (interactive)
   (when (string= (buffer-name) "*eww*")
     (save-excursion
       (goto-char (point-min))
-      ;; wash the context
-      (when (not
-	     (or (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-url)
-		 (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-from)
-		 (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-subject)))
-	;; 自动断行
-	(fill-region (point-min) (point-max))
-	;; 行距设置为0.2
-	(setq line-spacing 0.2)
-	;; 设置字号
-	(let ((text-scale-mode-amount 1.2))
-	  (text-scale-mode))))
+      (let ((boundary-search-p t)
+	    boundary1 boundary2)
+	;; find first narrow boundary
+	(if (re-search-forward eh-eww-buffer-narrow-boundary-1 nil t)
+	    (backward-paragraph (or num1 1))
+	  (goto-char (point-min)))
+	(setq boundary1 (point))
+	;; find second narrow boundary
+	(while (and (< (abs (- (point) boundary1))
+		       (/ (abs (- (point) (point-max))) 10))
+		    boundary-search-p)
+	  (unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
+	    (goto-char (point-max))
+	    (setq boundary-search-p nil)))
+	(previous-line (or num2 1))
+	(setq boundary2 (point))
 
-    ;; jump to article
-    (when (re-search-forward eh-eww-buffer-narrow-boundary nil t)
-      (recenter))
-    (setq eh-eww-buffer-wash-p t)))
+	;; narrow to two boundary
+	(narrow-to-region boundary1 boundary2)
+	(goto-char (point-min))
+
+	;; wash the context
+	(when (not
+	       (or (string-match-p eh-eww-buffer-ignore-wash-regexp
+				   eh-gnus-current-article-url)
+		   (string-match-p eh-eww-buffer-ignore-wash-regexp
+				   eh-gnus-current-article-from)
+		   (string-match-p eh-eww-buffer-ignore-wash-regexp
+				   eh-gnus-current-article-subject)))
+	  ;; 自动断行
+	  (fill-region (point-min) (point-max))
+	  ;; 行距设置为0.2
+	  (setq line-spacing 0.2)
+	  ;; 设置字号
+	  (let ((text-scale-mode-amount 1.2))
+	    (text-scale-mode)))))))
 
 (defun eh-eww-scroll-up ()
   (interactive)
   (if (and (< (point) 300)
-	   (not eh-eww-buffer-wash-p))
-      (eh-eww-wash-buffer)
-    (scroll-up-command)))
+	   (not (buffer-narrowed-p)))
+      (eh-eww-narrow-and-wash-buffer)
+    (next-line 10)
+    (recenter)))
 
 (defun eh-eww-next-line ()
   (interactive)
   (if (and (< (point) 300)
-	   (not eh-eww-buffer-wash-p))
-      (eh-eww-wash-buffer)
+	   (not (buffer-narrowed-p)))
+      (eh-eww-narrow-and-wash-buffer)
     (next-line)))
 
+(defun eh-eww-toggle-narrow ()
+  (interactive)
+  (if (buffer-narrowed-p)
+      (progn (widen)
+	     (message "Un-narrowing."))
+    (progn (eh-eww-narrow-and-wash-buffer)
+	   (message "Narrowing eww buffer"))))
+
+(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-narrow)
 (define-key eww-mode-map (kbd "SPC") 'eh-eww-scroll-up)
 (define-key eww-mode-map (kbd "<down>") 'eh-eww-next-line)
+
 
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
