@@ -84,12 +84,12 @@
 	</style:list-level-properties>
       </text:outline-level-style>
     </text:outline-style>
-
+    
     <style:style style:name="PageBreak" style:family="paragraph"
                  style:parent-style-name="Text_20_body">
       <style:paragraph-properties fo:break-before="page"/>
     </style:style>
-    
+
     <style:style style:name="Standard" style:family="paragraph" style:class="text"/>
     <style:style style:name="Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="text">
       <style:paragraph-properties fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:keep-with-next="always">
@@ -825,7 +825,7 @@
     <style:master-page style:name="Standard" style:page-layout-name="Mpm1">
       <style:header>
 	<text:p text:style-name="MP1">
-	  <text:chapter text:display="number-and-name" text:outline-level="1"></text:chapter>
+	  <text:chapter text:display="plain-number-and-name" text:outline-level="1"></text:chapter>
 	</text:p>
 	<text:p text:style-name="MP1">
 	  <draw:line text:anchor-type="paragraph" draw:z-index="5" draw:style-name="Mgr1" svg:x1="0.116cm" svg:y1="0.152cm" svg:x2="16.915cm" svg:y2="0.152cm">
