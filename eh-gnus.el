@@ -440,6 +440,7 @@
 	     eh-gnus-current-article-url)
     (eww eh-gnus-current-article-url)
     (setq eh-eww-buffer-wash-p nil)
+    (setq eh-eww-buffer-prevent-wash nil)
     (setq eh-eww-buffer-killed-region-1 nil)
     (setq eh-eww-buffer-killed-region-2 nil)
     (delete-other-windows)))
@@ -540,7 +541,7 @@
 	  (goto-char (point-max))
 	  (delete-char (- length2))
 	  (setq eh-eww-buffer-wash-p t)
-	  (eh-eww-buffer-prevent-wash nil)
+	  (setq eh-eww-buffer-prevent-wash nil)
 	  (message "Show washed article!"))))))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-wash)
