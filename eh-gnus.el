@@ -395,14 +395,15 @@
 (setq eh-eww-buffer-narrow-boundary-1 nil)
 (setq eh-eww-buffer-narrow-boundary-2
       (mapconcat 'eh-eww-build-regexp
-		 '("编辑" "作者" "责编" "关键字" "标签" "更多相关消息"
-		   "相关新闻" "频道精选" "最新评论" "相关资讯" "回复"
+		 '("责编" "责任编辑" "关键字" "更多相关消息" "新闻推荐"
+		   "相关新闻" "频道精选" "最新评论" "相关资讯"
 		   "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
 		   "分享编辑" "查看所有评论" "我来说两句" "我要发言"
 		   "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
 		   "延伸阅读" "您对这篇文章的评价" "焦点阅读" "相关链接"
 		   "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
-		   "热门推荐" "复制本网址推荐" "延伸阅读" "热门排行" "大中小")
+		   "热门推荐" "复制本网址推荐" "延伸阅读" "热门排行" "大中小"
+		   "您可能感兴趣的文章")
 		 "\\|"))
 
 (defun eh-gnus-view-article-with-eww (&optional force)
@@ -445,52 +446,53 @@
 (defun eh-eww-wash-buffer ()
   (interactive)
   (when (string= (buffer-name) "*eww*")
-    (goto-char (point-min))
-    (when (not
-	   (or (string-match-p eh-eww-buffer-ignore-wash-regexp
-			       eh-gnus-current-article-url)
-	       (string-match-p eh-eww-buffer-ignore-wash-regexp
-			       eh-gnus-current-article-from)
-	       (string-match-p eh-eww-buffer-ignore-wash-regexp
-			       eh-gnus-current-article-subject)))
-      ;; 自动断行
-      (fill-region (point-min) (point-max))
-      ;; 行距设置为0.2
-      (setq line-spacing 0.2)
-      ;; 设置字号
-      (let ((text-scale-mode-amount 1.2))
-	(text-scale-mode)))
-    (goto-char (point-min))
-    (let* ((string eh-eww-buffer-narrow-boundary-1)
-	   (length (length string))
-	   (regexp1 (eh-eww-build-regexp (substring string 0 (if (< length 10) length 10))))
-	   (regexp2 (eh-eww-build-regexp (substring string (- length 10) length)))
-	   (boundary-search-p t)
-	   boundary1 boundary2)
-      ;; find first narrow boundary
-      (if (or (re-search-forward regexp2 nil t)
-	      (re-search-forward regexp1 nil t))
-	  (backward-paragraph)
-	(goto-char (point-min)))
-      (setq boundary1 (point))
-      ;; find second narrow boundary
-      (while (and (< (- (point) boundary1) 200)
-		  boundary-search-p)
-	(unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
-	  (goto-char (point-max))
-	  (setq boundary-search-p nil)))
-      (end-of-line)
-      (setq boundary2 (point))
-      ;; record two regions
-      (when (> (- boundary1 (point-min)) 200)
-	(setq eh-eww-buffer-killed-region-1 (buffer-substring (point-min) boundary1)))
-      (when (> (- (point-max) boundary2) 200)
-	(setq eh-eww-buffer-killed-region-2 (buffer-substring boundary2 (point-max))))
-      ;; remove useless context
-      (delete-region (point-min) boundary1)
-      (delete-region boundary2 (point-max))
+    (save-excursion
       (goto-char (point-min))
-      (setq eh-eww-buffer-wash-p t))))
+      (when (not
+	     (or (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-url)
+		 (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-from)
+		 (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-subject)))
+	;; 自动断行
+	(fill-region (point-min) (point-max))
+	;; 行距设置为0.2
+	(setq line-spacing 0.2)
+	;; 设置字号
+	(let ((text-scale-mode-amount 1.2))
+	  (text-scale-mode)))
+      (goto-char (point-min))
+      (let* ((string eh-eww-buffer-narrow-boundary-1)
+	     (length (length string))
+	     (regexp1 (eh-eww-build-regexp (substring string 0 (if (< length 10) length 10))))
+	     (regexp2 (eh-eww-build-regexp (substring string (- length 10) length)))
+	     (boundary-search-p t)
+	     boundary1 boundary2)
+	;; find first narrow boundary
+	(if (or (re-search-forward regexp2 nil t)
+		(re-search-forward regexp1 nil t))
+	    (backward-paragraph)
+	  (goto-char (point-min)))
+	(setq boundary1 (point))
+	;; find second narrow boundary
+	(while (and (< (- (point) boundary1) 200)
+		    boundary-search-p)
+	  (unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
+	    (goto-char (point-max))
+	    (setq boundary-search-p nil)))
+	(end-of-line)
+	(setq boundary2 (point))
+	;; record two regions
+	(when (> (- boundary1 (point-min)) 200)
+	  (setq eh-eww-buffer-killed-region-1 (buffer-substring (point-min) boundary1)))
+	(when (> (- (point-max) boundary2) 200)
+	  (setq eh-eww-buffer-killed-region-2 (buffer-substring boundary2 (point-max))))
+	;; remove useless context
+	(delete-region (point-min) boundary1)
+	(delete-region boundary2 (point-max))
+	(goto-char (point-min))
+	(setq eh-eww-buffer-wash-p t)))))
 
 (defun eh-eww-scroll-up ()
   (interactive)
