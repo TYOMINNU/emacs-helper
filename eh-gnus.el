@@ -383,6 +383,7 @@
 (setq eh-gnus-current-article-subject nil)
 (setq eh-gnus-current-article-from nil)
 (setq eh-eww-buffer-wash-p nil)
+(setq eh-eww-buffer-prevent-wash nil)
 
 (setq eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix\\|.*\\.git")
 
@@ -496,21 +497,26 @@
 
 (defun eh-eww-scroll-up ()
   (interactive)
-  (if (not eh-eww-buffer-wash-p)
-      (eh-eww-wash-buffer)
-    (let ((point (point)))
-      (eh-eww-wash-buffer)
-      (goto-char point)
-      (scroll-up-command))))
+  (interactive)
+  (cond (eh-eww-buffer-prevent-wash
+	 (scroll-up-command))
+	((not eh-eww-buffer-wash-p)
+	 (eh-eww-wash-buffer))
+	(t (let ((point (point)))
+	     (eh-eww-wash-buffer)
+	     (goto-char point)
+	     (scroll-up-command)))))
 
 (defun eh-eww-next-line ()
   (interactive)
-  (if (not eh-eww-buffer-wash-p)
-      (eh-eww-wash-buffer)
-    (let ((point (point)))
-      (eh-eww-wash-buffer)
-      (goto-char point)
-      (next-line))))
+  (cond (eh-eww-buffer-prevent-wash
+	 (next-line))
+	((not eh-eww-buffer-wash-p)
+	 (eh-eww-wash-buffer))
+	(t (let ((point (point)))
+	     (eh-eww-wash-buffer)
+	     (goto-char point)
+	     (next-line)))))
 
 (defun eh-eww-toggle-wash ()
   (interactive)
@@ -526,6 +532,7 @@
 	    (goto-char (point-max))
 	    (insert string2)
 	    (setq eh-eww-buffer-wash-p nil)
+	    (setq eh-eww-buffer-prevent-wash t)
 	    (message "Show original article!"))
 	(save-excursion
 	  (goto-char (point-min))
@@ -533,6 +540,7 @@
 	  (goto-char (point-max))
 	  (delete-char (- length2))
 	  (setq eh-eww-buffer-wash-p t)
+	  (eh-eww-buffer-prevent-wash nil)
 	  (message "Show washed article!"))))))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-wash)
