@@ -344,6 +344,9 @@
       <style:text-properties fo:font-size="10pt" style:font-size-asian="10pt" style:font-size-complex="10pt"/>
     </style:style>
     <style:style style:name="Figure" style:family="paragraph" style:parent-style-name="Caption"/>
+    <style:style style:name="Illustration" style:family="paragraph" style:parent-style-name="Caption" style:class="extra">
+      <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
+    </style:style>
     <style:style style:name="Illustration_20_Index_20_Heading" style:display-name="Illustration Index Heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
       <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
       <style:text-properties fo:font-size="16pt" fo:font-weight="bold" style:font-size-asian="16pt" style:font-weight-asian="bold" style:font-size-complex="16pt" style:font-weight-complex="bold"/>
