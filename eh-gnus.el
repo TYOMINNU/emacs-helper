@@ -43,7 +43,7 @@
 (require 'nnir)
 (require 'gnus-demon)
 (require 'eww)
-(require 'fancy-narrow)
+(require 'fold-this)
 
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
@@ -383,6 +383,7 @@
 (setq eh-gnus-current-article-url nil)
 (setq eh-gnus-current-article-subject nil)
 (setq eh-gnus-current-article-from nil)
+(setq eh-eww-buffer-wash-and-fold-p nil)
 
 (setq eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix\\|.*\\.git")
 
@@ -424,21 +425,39 @@
 	    ;; 前进四行,提取一个字符串，在eww buffer中搜索这个
 	    ;; 字符串,可以获得正文的大概位置
 	    (forward-line 4)
-	    (set-mark (point))
-	    (forward-char 10)
-	    (replace-regexp-in-string
-	     "^ +" ""
-	     (buffer-substring-no-properties
-	      (region-beginning) (region-end))))))
+	    (let ((begin (point)))
+	      (forward-char 5)
+	      (replace-regexp-in-string
+	       "^ +" ""
+	       (buffer-substring-no-properties
+		begin (point)))))))
   (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
 	     eh-gnus-current-article-url)
     (eww eh-gnus-current-article-url)
+    (setq eh-eww-buffer-wash-and-fold-p nil)
     (delete-other-windows)))
 
-(defun eh-eww-narrow-and-wash-buffer (&optional num1 num2)
+(defun eh-eww-wash-and-fold-buffer (&optional num1 num2)
   (interactive)
   (when (string= (buffer-name) "*eww*")
     (save-excursion
+      ;;  wash the context
+      (when (not
+	     (or (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-url)
+		 (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-from)
+		 (string-match-p eh-eww-buffer-ignore-wash-regexp
+				 eh-gnus-current-article-subject)))
+	;; 自动断行
+	(fill-region (point-min) (point-max))
+	;; 行距设置为0.2
+	(setq line-spacing 0.2)
+	;; 设置字号
+	(let ((text-scale-mode-amount 1.2))
+	  (text-scale-mode)))
+
+      ;; fold unused context
       (goto-char (point-min))
       (let ((boundary-search-p t)
 	    boundary1 boundary2)
@@ -457,48 +476,42 @@
 	(previous-line (or num2 1))
 	(setq boundary2 (point))
 
-	;; narrow to two boundary
-	(fancy-narrow-to-region boundary1 boundary2)
+	;; fold useless context
+	(fold-this (point-min) boundary1)
+	(fold-this boundary2 (point-max))
 	(goto-char (point-min))
-
-	;; wash the context
-	(when (not
-	       (or (string-match-p eh-eww-buffer-ignore-wash-regexp
-				   eh-gnus-current-article-url)
-		   (string-match-p eh-eww-buffer-ignore-wash-regexp
-				   eh-gnus-current-article-from)
-		   (string-match-p eh-eww-buffer-ignore-wash-regexp
-				   eh-gnus-current-article-subject)))
-	  ;; 自动断行
-	  (fill-region (point-min) (point-max))
-	  ;; 行距设置为0.2
-	  (setq line-spacing 0.2)
-	  ;; 设置字号
-	  (let ((text-scale-mode-amount 1.2))
-	    (text-scale-mode)))))))
+	(setq eh-eww-buffer-wash-and-fold-p t)))))
 
 (defun eh-eww-scroll-up ()
   (interactive)
   (if (and (< (point) 300)
-	   (not (fancy-narrow-active-p)))
-      (eh-eww-narrow-and-wash-buffer)
-    (next-line 10)
-    (recenter)))
+	   (not eh-eww-buffer-wash-and-fold-p))
+      (save-excursion
+	(fold-this-unfold-all)
+	(eh-eww-wash-and-fold-buffer))
+    (save-excursion
+      (fold-this-unfold-all)
+      (eh-eww-wash-and-fold-buffer))
+    (scroll-up-command)))
 
 (defun eh-eww-next-line ()
   (interactive)
-  (if (and (< (point) 300)
-	   (not (fancy-narrow-active-p)))
-      (eh-eww-narrow-and-wash-buffer)
+  (if (not eh-eww-buffer-wash-and-fold-p)
+      (save-excursion
+	(fold-this-unfold-all)
+	(eh-eww-wash-and-fold-buffer))
     (next-line)))
 
 (defun eh-eww-toggle-narrow ()
   (interactive)
-  (if (fancy-narrow-active-p)
-      (progn (fancy-widen)
-	     (message "Un-narrowing."))
-    (progn (eh-eww-narrow-and-wash-buffer)
-	   (message "Narrowing eww buffer"))))
+  (save-excursion
+    (if eh-eww-buffer-wash-and-fold-p
+	(progn (fold-this-unfold-all)
+	       (setq eh-eww-buffer-wash-and-fold-p nil)
+	       (message "Un-narrowing."))
+      (progn (eh-eww-wash-and-fold-buffer)
+	     (setq eh-eww-buffer-wash-and-fold-p t)
+	     (message "Narrowing eww buffer")))))
 
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-narrow)
 (define-key eww-mode-map (kbd "SPC") 'eh-eww-scroll-up)
