@@ -43,7 +43,6 @@
 (require 'nnir)
 (require 'gnus-demon)
 (require 'eww)
-(require 'fold-this)
 
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
@@ -383,21 +382,27 @@
 (setq eh-gnus-current-article-url nil)
 (setq eh-gnus-current-article-subject nil)
 (setq eh-gnus-current-article-from nil)
-(setq eh-eww-buffer-wash-and-fold-p nil)
+(setq eh-eww-buffer-wash-p nil)
 
 (setq eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix\\|.*\\.git")
 
-(setq eh-eww-buffer-narrow-boundary-1 "")
+(setq eh-eww-buffer-killed-region-1 nil)
+(setq eh-eww-buffer-killed-region-2 nil)
+
+(defun eh-eww-build-regexp (str) 
+  (mapconcat (lambda (x) (concat "\n*" (list x))) str ""))
+
+(setq eh-eww-buffer-narrow-boundary-1 nil)
 (setq eh-eww-buffer-narrow-boundary-2
-      (mapconcat 'regexp-quote
+      (mapconcat 'eh-eww-build-regexp
 		 '("编辑" "作者" "责编" "关键字" "标签" "更多相关消息"
-		   "相关新闻" "频道精选" "最新评论" "相关资讯"
+		   "相关新闻" "频道精选" "最新评论" "相关资讯" "回复"
 		   "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
-		   "分享编辑：" "查看所有评论" "我来说两句" "我要发言"
+		   "分享编辑" "查看所有评论" "我来说两句" "我要发言"
 		   "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
-		   "延伸阅读:" "您对这篇文章的评价" "焦点阅读" "相关链接"
+		   "延伸阅读" "您对这篇文章的评价" "焦点阅读" "相关链接"
 		   "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
-		   "热门推荐" "复制本网址推荐" "延伸阅读" "热门排行")
+		   "热门推荐" "复制本网址推荐" "延伸阅读" "热门排行" "大中小")
 		 "\\|"))
 
 (defun eh-gnus-view-article-with-eww (&optional force)
@@ -422,98 +427,113 @@
     (setq eh-eww-buffer-narrow-boundary-1
 	  (progn
 	    (message-goto-body)
-	    ;; 前进四行,提取一个字符串，在eww buffer中搜索这个
-	    ;; 字符串,可以获得正文的大概位置
-	    (forward-line 4)
+	    ;; 提取一个字符串, 用来构建文章定位regexp
 	    (let ((begin (point)))
-	      (forward-char 5)
+	      (forward-line 4)
 	      (replace-regexp-in-string
-	       "^ +" ""
+	       "^ +\\|\n+" ""
 	       (buffer-substring-no-properties
 		begin (point)))))))
   (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
 	     eh-gnus-current-article-url)
     (eww eh-gnus-current-article-url)
-    (setq eh-eww-buffer-wash-and-fold-p nil)
+    (setq eh-eww-buffer-wash-p nil)
+    (setq eh-eww-buffer-killed-region-1 nil)
+    (setq eh-eww-buffer-killed-region-2 nil)
     (delete-other-windows)))
 
-(defun eh-eww-wash-and-fold-buffer (&optional num1 num2)
+(defun eh-eww-wash-buffer ()
   (interactive)
   (when (string= (buffer-name) "*eww*")
-    (save-excursion
-      ;;  wash the context
-      (when (not
-	     (or (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-url)
-		 (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-from)
-		 (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-subject)))
-	;; 自动断行
-	(fill-region (point-min) (point-max))
-	;; 行距设置为0.2
-	(setq line-spacing 0.2)
-	;; 设置字号
-	(let ((text-scale-mode-amount 1.2))
-	  (text-scale-mode)))
-
-      ;; fold unused context
+    (goto-char (point-min))
+    (when (not
+	   (or (string-match-p eh-eww-buffer-ignore-wash-regexp
+			       eh-gnus-current-article-url)
+	       (string-match-p eh-eww-buffer-ignore-wash-regexp
+			       eh-gnus-current-article-from)
+	       (string-match-p eh-eww-buffer-ignore-wash-regexp
+			       eh-gnus-current-article-subject)))
+      ;; 自动断行
+      (fill-region (point-min) (point-max))
+      ;; 行距设置为0.2
+      (setq line-spacing 0.2)
+      ;; 设置字号
+      (let ((text-scale-mode-amount 1.2))
+	(text-scale-mode)))
+    (goto-char (point-min))
+    (let* ((string eh-eww-buffer-narrow-boundary-1)
+	   (length (length string))
+	   (regexp1 (eh-eww-build-regexp (substring string 0 (if (< length 10) length 10))))
+	   (regexp2 (eh-eww-build-regexp (substring string (- length 10) length)))
+	   (boundary-search-p t)
+	   boundary1 boundary2)
+      ;; find first narrow boundary
+      (if (or (re-search-forward regexp2 nil t)
+	      (re-search-forward regexp1 nil t))
+	  (backward-paragraph)
+	(goto-char (point-min)))
+      (setq boundary1 (point))
+      ;; find second narrow boundary
+      (while (and (< (- (point) boundary1) 200)
+		  boundary-search-p)
+	(unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
+	  (goto-char (point-max))
+	  (setq boundary-search-p nil)))
+      (end-of-line)
+      (setq boundary2 (point))
+      ;; record two regions
+      (when (> (- boundary1 (point-min)) 200)
+	(setq eh-eww-buffer-killed-region-1 (buffer-substring (point-min) boundary1)))
+      (when (> (- (point-max) boundary2) 200)
+	(setq eh-eww-buffer-killed-region-2 (buffer-substring boundary2 (point-max))))
+      ;; remove useless context
+      (delete-region (point-min) boundary1)
+      (delete-region boundary2 (point-max))
       (goto-char (point-min))
-      (let ((boundary-search-p t)
-	    boundary1 boundary2)
-	;; find first narrow boundary
-	(if (re-search-forward eh-eww-buffer-narrow-boundary-1 nil t)
-	    (backward-paragraph (or num1 1))
-	  (goto-char (point-min)))
-	(setq boundary1 (point))
-	;; find second narrow boundary
-	(while (and (< (abs (- (point) boundary1))
-		       (/ (abs (- (point) (point-max))) 10))
-		    boundary-search-p)
-	  (unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
-	    (goto-char (point-max))
-	    (setq boundary-search-p nil)))
-	(previous-line (or num2 1))
-	(setq boundary2 (point))
-
-	;; fold useless context
-	(fold-this (point-min) boundary1)
-	(fold-this boundary2 (point-max))
-	(goto-char (point-min))
-	(setq eh-eww-buffer-wash-and-fold-p t)))))
+      (setq eh-eww-buffer-wash-p t))))
 
 (defun eh-eww-scroll-up ()
   (interactive)
-  (if (and (< (point) 300)
-	   (not eh-eww-buffer-wash-and-fold-p))
-      (save-excursion
-	(fold-this-unfold-all)
-	(eh-eww-wash-and-fold-buffer))
-    (save-excursion
-      (fold-this-unfold-all)
-      (eh-eww-wash-and-fold-buffer))
-    (scroll-up-command)))
+  (if (not eh-eww-buffer-wash-p)
+      (eh-eww-wash-buffer)
+    (let ((point (point)))
+      (eh-eww-wash-buffer)
+      (goto-char point)
+      (scroll-up-command))))
 
 (defun eh-eww-next-line ()
   (interactive)
-  (if (not eh-eww-buffer-wash-and-fold-p)
-      (save-excursion
-	(fold-this-unfold-all)
-	(eh-eww-wash-and-fold-buffer))
-    (next-line)))
+  (if (not eh-eww-buffer-wash-p)
+      (eh-eww-wash-buffer)
+    (let ((point (point)))
+      (eh-eww-wash-buffer)
+      (goto-char point)
+      (next-line))))
 
-(defun eh-eww-toggle-narrow ()
+(defun eh-eww-toggle-wash ()
   (interactive)
-  (save-excursion
-    (if eh-eww-buffer-wash-and-fold-p
-	(progn (fold-this-unfold-all)
-	       (setq eh-eww-buffer-wash-and-fold-p nil)
-	       (message "Un-narrowing."))
-      (progn (eh-eww-wash-and-fold-buffer)
-	     (setq eh-eww-buffer-wash-and-fold-p t)
-	     (message "Narrowing eww buffer")))))
+  (when (string= (buffer-name) "*eww*")
+    (let* ((string1 (or eh-eww-buffer-killed-region-1 ""))
+	   (string2 (or eh-eww-buffer-killed-region-2 ""))
+	   (length1 (length string1))
+	   (length2 (length string2)))
+      (if eh-eww-buffer-wash-p
+	  (save-excursion
+	    (goto-char (point-min))
+	    (insert string1)
+	    (goto-char (point-max))
+	    (insert string2)
+	    (setq eh-eww-buffer-wash-p nil)
+	    (message "Show original article!"))
+	(save-excursion
+	  (goto-char (point-min))
+	  (delete-char length1)
+	  (goto-char (point-max))
+	  (delete-char (- length2))
+	  (setq eh-eww-buffer-wash-p t)
+	  (message "Show washed article!"))))))
 
-(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-narrow)
+(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-wash)
 (define-key eww-mode-map (kbd "SPC") 'eh-eww-scroll-up)
 (define-key eww-mode-map (kbd "<down>") 'eh-eww-next-line)
 
