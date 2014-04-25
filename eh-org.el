@@ -181,8 +181,14 @@
 ;; (add-to-list 'org-export-filter-plain-text-functions
 ;;              'eh-convert-punctuation)
 
-;; use Cairo graphics device by default,which can get better graphics quality.
-;; you shoule add require("Cairo") to you ~/.Rprofile
+;; Use Cairo graphics device by default,which can get better graphics quality.
+;; you shoule add below lines to you ~/.Rprofile
+;;    require("Cairo")
+;;    CairoFonts(regular="SimSun:style=Regular",
+;;             bold="SimHei:style=Regular",
+;;             italic="KaiTi_GB2312:style=Regular",
+;;             symbol="Symbol")
+;;
 ;; (setq org-babel-R-graphics-devices
 ;;   '((:bmp "bmp" "filename")
 ;;     (:jpg "jpeg" "filename")
