@@ -1,0 +1,25 @@
+# name: plot1.org
+# --
+
+
+#+begin_src R :exports results :results output drawer :var backend=(symbol-name org-export-current-backend)
+  require("ascii")
+  plot.org  <- function (x, caption)
+      {
+          pngfile <- paste(caption, ".png", sep="")
+          pdffile <- paste(caption, ".pdf", sep="")
+          print(paragraph(paste("#+CAPTION: ", caption, sep="")),type="org")
+          if (backend != "latex"){
+              png(pngfile)
+              plot(x)
+              dev.off()
+              print(paragraph(paste("[[./", pngfile, "]]", sep=""),new=FALSE),type="org")
+          }else{
+              pdf(pdffile)
+              plot(x)
+              dev.off()
+              print(paragraph(paste("[[./", pdffile, "]]", sep=""),new=FALSE),type="org")
+          }
+      }
+
+#+end_src
