@@ -1,9 +1,10 @@
-# name: plot1.org
+# name: Rplot2
 # --
 
 
 #+begin_src R :exports results :results output drawer :var backend=(symbol-name org-export-current-backend)
   require("ascii")
+  require("Cairo")
   plot.org  <- function (x, caption)
       {
           pngfile <- paste(caption, ".png", sep="")

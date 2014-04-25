@@ -1,4 +1,4 @@
-# name: plot.org
+# name: Rplot
 # --
 
 require("ascii")
