@@ -16,7 +16,7 @@
               dev.off()
               print(paragraph(paste("[[./", pngfile, "]]", sep=""),new=FALSE),type="org")
           }else{
-              pdf(pdffile)
+              CairoPDF(pdffile)
               plot(x)
               dev.off()
               print(paragraph(paste("[[./", pdffile, "]]", sep=""),new=FALSE),type="org")
