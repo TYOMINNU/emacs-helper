@@ -378,34 +378,32 @@
 ;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
 ;; Open X-RSS-URL with eww
-(setq eh-gnus-article-url-field '("X-RSS-URL"))
-(setq eh-gnus-current-article-url nil)
-(setq eh-gnus-current-article-subject nil)
-(setq eh-gnus-current-article-from nil)
-(setq eh-eww-buffer-wash-p nil)
-(setq eh-eww-buffer-prevent-wash nil)
+(defvar eh-gnus-article-url-field '("X-RSS-URL"))
+(defvar eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix\\|.*\\.git")
 
-(setq eh-eww-buffer-ignore-wash-regexp "lwn\\|phoronix\\|.*\\.git")
+(defvar eh-gnus-current-article-url nil)
+(defvar eh-gnus-current-article-subject nil)
+(defvar eh-gnus-current-article-from nil)
+(defvar eh-eww-buffer-wash-p nil)
+(defvar eh-eww-buffer-prevent-wash nil)
 
-(setq eh-eww-buffer-killed-region-1 nil)
-(setq eh-eww-buffer-killed-region-2 nil)
+(defvar eh-eww-buffer-killed-region-1 nil)
+(defvar eh-eww-buffer-killed-region-2 nil)
 
-(defun eh-eww-build-regexp (str) 
+(defvar eh-eww-buffer-position-string-1 nil)
+(defvar eh-eww-buffer-position-string-2
+  '("责编" "责任编辑" "关键字" "更多相关消息" "新闻推荐"
+    "相关新闻" "频道精选" "最新评论" "相关资讯"
+    "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
+    "分享编辑" "查看所有评论" "我来说两句" "我要发言"
+    "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
+    "延伸阅读" "您对这篇文章的评价" "焦点阅读" "相关链接"
+    "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
+    "热门推荐" "复制本网址推荐" "延伸阅读" "热门排行" "大中小"
+    "您可能感兴趣的文章" "今日热读" "版面编辑" "收藏此页"))
+
+(defun eh-eww-build-regexp (str)
   (mapconcat (lambda (x) (concat "\n*" (list x))) str ""))
-
-(setq eh-eww-buffer-narrow-boundary-1 nil)
-(setq eh-eww-buffer-narrow-boundary-2
-      (mapconcat 'eh-eww-build-regexp
-		 '("责编" "责任编辑" "关键字" "更多相关消息" "新闻推荐"
-		   "相关新闻" "频道精选" "最新评论" "相关资讯"
-		   "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
-		   "分享编辑" "查看所有评论" "我来说两句" "我要发言"
-		   "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
-		   "延伸阅读" "您对这篇文章的评价" "焦点阅读" "相关链接"
-		   "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
-		   "热门推荐" "复制本网址推荐" "延伸阅读" "热门排行" "大中小"
-		   "您可能感兴趣的文章" "今日热读" "版面编辑" "收藏此页")
-		 "\\|"))
 
 (defun eh-gnus-view-article-with-eww (&optional force)
   (interactive)
@@ -426,7 +424,7 @@
 	    (message-narrow-to-headers)
 	    (eval (cons 'or (mapcar 'message-fetch-field
 				    eh-gnus-article-url-field)))))
-    (setq eh-eww-buffer-narrow-boundary-1
+    (setq eh-eww-buffer-position-string-1
 	  (progn
 	    (message-goto-body)
 	    ;; 提取一个字符串, 用来构建文章定位regexp
@@ -465,7 +463,7 @@
 	(let ((text-scale-mode-amount 1.2))
 	  (text-scale-mode)))
       (goto-char (point-min))
-      (let* ((string eh-eww-buffer-narrow-boundary-1)
+      (let* ((string eh-eww-buffer-position-string-1)
 	     (length (length string))
 	     (regexp1 (eh-eww-build-regexp (substring string 0 (if (< length 10) length 10))))
 	     (regexp2 (eh-eww-build-regexp (substring string (- length 10) length)))
@@ -480,7 +478,10 @@
 	;; find second narrow boundary
 	(while (and (< (- (point) boundary1) 200)
 		    boundary-search-p)
-	  (unless (re-search-forward eh-eww-buffer-narrow-boundary-2 nil t)
+	  (unless (re-search-forward
+		   (mapconcat 'eh-eww-build-regexp
+			      eh-eww-buffer-position-string-2
+			      "\\|") nil t)
 	    (goto-char (point-max))
 	    (setq boundary-search-p nil)))
 	(end-of-line)
