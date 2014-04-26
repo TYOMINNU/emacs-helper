@@ -7,7 +7,7 @@
   require("Cairo")
 
   CairoFonts(regular="WenQuanYi Micro Hei:style=Regular",
-           bold="SimHei:style=Regular",
+           bold="WenQuanYi Micro Hei:style=Regular",
            italic="KaiTi_GB2312:style=Regular",
            symbol="Symbol")
 	   
