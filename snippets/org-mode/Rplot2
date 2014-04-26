@@ -5,6 +5,12 @@
 #+begin_src R :exports results :results output drawer :var backend=(symbol-name org-export-current-backend)
   require("ascii")
   require("Cairo")
+
+  CairoFonts(regular="SimSun:style=Regular",
+           bold="SimHei:style=Regular",
+           italic="KaiTi_GB2312:style=Regular",
+           symbol="Symbol")
+	   
   plot.org  <- function (x, caption)
       {
           pngfile <- paste(caption, ".png", sep="")
