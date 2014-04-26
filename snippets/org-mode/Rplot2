@@ -6,7 +6,7 @@
   require("ascii")
   require("Cairo")
 
-  CairoFonts(regular="SimSun:style=Regular",
+  CairoFonts(regular="WenQuanYi Micro Hei:style=Regular",
            bold="SimHei:style=Regular",
            italic="KaiTi_GB2312:style=Regular",
            symbol="Symbol")
