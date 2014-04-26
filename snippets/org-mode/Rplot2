@@ -17,7 +17,7 @@
           pdffile <- paste(caption, ".pdf", sep="")
           print(paragraph(paste("#+CAPTION: ", caption, sep="")),type="org")
           if (backend != "latex"){
-              png(pngfile)
+              CairoPNG(pngfile)
               plot(x)
               dev.off()
               print(paragraph(paste("[[./", pngfile, "]]", sep=""),new=FALSE),type="org")
