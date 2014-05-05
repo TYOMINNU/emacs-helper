@@ -69,7 +69,11 @@
      不过显示效果没有文泉驿等宽微米黑好
 注2: WindowXP用户可以安装MacType软件，字体渲染效果较好！
 注3: Debian 6字体显示效果很差，可以安装infinality补丁，
-     显示效果有明显的提高。")
+     显示效果有明显的提高。
+注4: 如果自己编译emacs，可以打CJK等宽补丁, 然后选择一个自己喜欢的等宽
+     英文字体就可以了，如果选择的等宽英文字母比较宽，中文就会显得
+     很散，看中文文献很难受，这时可以选择一个比较窄的英文等宽字体，
+     比如: PragmataPro")
 
 
 ;; 设置字体的函数
@@ -82,13 +86,13 @@
                         charset (cdr eh-default-fonts-list)))))
 
 ;; 设置默认字体
-(eh-default-font)
+;; (eh-default-font)
 ;; 使用daemon模式时的字体设置
-(if (and (fboundp 'daemonp) (daemonp))
-    (add-hook 'after-make-frame-functions
-	      (lambda (frame)
-		(with-selected-frame frame
-                  (eh-default-font)))))
+;; (if (and (fboundp 'daemonp) (daemonp))
+;;    (add-hook 'after-make-frame-functions
+;;	      (lambda (frame)
+;;		(with-selected-frame frame
+;;                  (eh-default-font)))))
 
 ;;;###autoload(require 'eh-basic)
 
