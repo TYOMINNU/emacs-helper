@@ -117,10 +117,10 @@
 	     (select-frame frame)
 	     (setq word-wrap nil)
 	     (setq truncate-lines nil)
-	     (org-capture goto keys)))))
+	     (org-capture goto keys)
+	     (eh-default-font)))))
     (make-frame `((name . ,eh-org-capture-frame-name)
 		  (window-system . x)
-		  (font . "WenQuanYi Micro Hei Mono 18")
 		  (width . 120)
 		  (height . 15)))))
 
