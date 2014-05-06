@@ -34,49 +34,41 @@
 (require 'org-contacts)
 
 (setq org-contacts-icon-use-gravatar nil)
-(setq org-contacts-csv-line-prefix "**")
 (setq org-mobile-directory "~/Documents/org-mobile/")
+(setq org-mobile-inbox-for-pull "~/org/from-mobile.org")
 (setq org-mobile-remote-directory "/sdcard/org-mobile/")
 (setq org-contacts-vcard-file "~/Documents/org-mobile/contacts.vcf")
 (setq org-contacts-csv-file "~/Documents/org-mobile/contacts.csv")
-(setq eh-org-mobile-sync-adb-cmd "sudo adb push %s %s >/dev/null 2>&1")
 
 ;; Press G to sync org-contact in org-agenda buffer
 (org-defkey org-agenda-mode-map "G" 'eh-org-mobile-sync-with-adb)
 
-(defun eh-org-mobile-sync ()
-"sync org-mobile  with extra emacs process"
-(interactive)
-(let ((eh-org-mobile-sync-buffer-name "eh-org-mobile-sync")
-      (eh-org-mobile-sync-process-name "eh-org-mobile-sync")
-      (eh-org-mobile-sync-cmd "emacs --batch --load ~/.emacs --eval \"(progn (org-contacts-export-as-vcard) (org-contacts-export-as-csv) (org-mobile-push))\""))
-  (if (get-process eh-org-mobile-sync-process-name)
-      (kill-process eh-org-mobile-sync-process-name))
-  (progn (start-process eh-org-mobile-sync-process-name
-                        (get-buffer-create eh-org-mobile-sync-buffer-name)
-                        "/bin/bash"
-                        "-c" eh-org-mobile-sync-cmd))))
-
 (defun eh-org-mobile-sync-with-adb ()
   "sync org-mobile with andoid-tools-adb"
   (interactive)
+  (message "Pull from android phone...")
+  (shell-command
+   (concat
+    (format "sudo adb pull %s %s >/dev/null 2>&1; sudo chown -hR $USER  %s; sudo chgrp -hR $USER %s"
+	    org-mobile-remote-directory
+	    org-mobile-directory
+	    org-mobile-directory
+	    org-mobile-directory)))
+
+  (org-mobile-pull)
   (org-contacts-export-as-vcard)
   (org-contacts-export-as-csv)
   (org-mobile-push)
-  (message "Push to Android...")
+  (message "Push to android phone...")
   (shell-command (concat
-                  (format eh-org-mobile-sync-adb-cmd
+                  (format "sudo adb push %s %s >/dev/null 2>&1"
                           org-mobile-directory
                           org-mobile-remote-directory))))
-
-
 
 (defcustom org-contacts-csv-file "contacts.csv"
   "Default file for csv export."
   :group 'org-contacts
   :type 'file)
-
-(defvar org-contacts-csv-line-prefix "")
 
 (defun org-contacts-export-as-vcard (&optional name tags property file to-buffer)
   "Export all contacts matching NAME as VCard 3.0.
@@ -138,8 +130,7 @@ is created and the VCard is written into that buffer."
 	 (addr (cdr (assoc-string org-contacts-address-property properties)))
 	 (nick (org-contacts-vcard-escape (cdr (assoc-string org-contacts-nickname-property properties))))
 	 emails-list result phones-list)
-    (concat (when org-contacts-csv-line-prefix (format "%s " org-contacts-csv-line-prefix))
-            ;; 中国人的名字一般是三个字，为实现对齐，两个字的姓名后面
+    (concat ;; 中国人的名字一般是三个字，为实现对齐，两个字的姓名后面
             ;; 添加一个全角空格
             (format "\"%s\", " (if (< (length name) 3) (concat name "　") name))
             (when tel

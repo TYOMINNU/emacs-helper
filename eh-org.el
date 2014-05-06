@@ -62,19 +62,10 @@
       (append (file-expand-wildcards "~/org/*.org")))
 
 (setq org-agenda-custom-commands
-      '(("l" "agenda: 常用"
-         ((agenda  "" ((org-agenda-span 1)))
-          (tags-todo "生活|IT|购物")))
-        ("m" "agenda: org-mobile上使用"
-          ((agenda  "" ((org-agenda-overriding-header "Two-Days-Agenda")
-                        (org-agenda-span 2)))))
-        ("p" "agenda: 项目"
-         ((tags-todo "学习太极拳项目")
-          (tags-todo "三甲评审项目")))
-        ("s" "agenda: 学习相关+书籍杂志文献阅读"
-         ((tags-todo "学习")
-          (tags-todo "书籍杂志")
-          (tags-todo "文献")))))
+      '(("l" "agenda:"
+         ((agenda  "" ((org-agenda-overriding-header "Two-Days")
+		       (org-agenda-span 2)))
+          (tags-todo "生活|IT|购物")))))
 
 (setq org-agenda-remove-tags t)
 (setq org-todo-keywords

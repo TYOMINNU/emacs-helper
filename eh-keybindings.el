@@ -63,10 +63,7 @@
 (global-set-key (kbd "C-c b") 'eh-ebib)
 
 ;; org-mode 相关快捷键
-(global-set-key (kbd "<f1>") '(lambda () (interactive) (progn (org-agenda nil "m") (org-agenda nil "l"))))
-(global-set-key (kbd "<f2>") '(lambda () (interactive) (org-agenda nil "s")))
-(global-set-key (kbd "<f3>") '(lambda () (interactive) (org-agenda nil "p")))
-(global-set-key (kbd "<f4>") '(lambda () (interactive) (org-agenda nil "t")))
+(global-set-key (kbd "<f1>") '(lambda () (interactive) (org-agenda nil "l")))
 
 (global-set-key (kbd "<f7>") 'org-screenshot-take)
 (global-set-key (kbd "<f8>") 'org-capture)
