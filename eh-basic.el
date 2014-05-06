@@ -52,7 +52,7 @@
 ;; 设置emacs-daemon使用tcp模式
 (setq server-use-tcp t)
 
-(defvar eh-default-fonts-list '("PragmataPro 15")
+(defvar eh-default-fonts-list '("PragmataPro 15" "文泉驿等宽微米黑")
   "Emacs的设计里，假设一个双字节字符和两个半角英文字符是等宽的。
 所有的表格对齐之类的问题，无论table-insert还是org-mode都是基于这个假设之上。
 可是实际上，这个假设不成立(字体问题)。我们一般找一对中英字体搭配使用，
@@ -65,10 +65,10 @@
    '(\"Liberation Mono 12\"  \"文泉驿等宽微米黑 15\")
    '(\"M+ 1m 12\" \"文泉驿等宽微米黑 12\")
 
-如果当前运行的emacs已经应用了CJK等宽补丁, 那么只需要
-选择一个字母宽度较小的英文等宽字体就可以了(字母宽度太大时，
-中文显示非常散)，比如：
-   '(\"PragmataPro 16\")
+如果当前运行的emacs已经应用了CJK等宽补丁, 那么只需要设置
+英文等宽字体的字号，中文字号不需要设置。(选择一个字母宽度较
+小的英文等宽字体,否则中文显示会非常散)，比如：
+   '(\"PragmataPro 16\" \"文泉驿等宽微米黑\")
 
 注1: 文泉驿等宽正黑12号字体本身可以实现中英文对齐，
      不过显示效果没有文泉驿等宽微米黑好
@@ -85,8 +85,7 @@
       (when default-font-name (set-frame-font default-font-name))
       (when cjk-font-name
 	(dolist (charset '(kana han symbol cjk-misc bopomofo unicode))
-	  (set-fontset-font (frame-parameter nil 'font)
-			    charset cjk-font-name))))))
+	  (set-fontset-font t charset cjk-font-name))))))
 
 ;; 设置默认字体
 (eh-default-font)
