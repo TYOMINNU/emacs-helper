@@ -46,24 +46,28 @@
 (defun eh-org-mobile-sync-with-adb ()
   "sync org-mobile with andoid-tools-adb"
   (interactive)
-  (message "Pull from android phone...")
-  (shell-command
-   (concat
-    (format "sudo adb pull %s %s >/dev/null 2>&1; sudo chown -hR $USER  %s; sudo chgrp -hR $USER %s"
-	    org-mobile-remote-directory
-	    org-mobile-directory
-	    org-mobile-directory
-	    org-mobile-directory)))
-
-  (org-mobile-pull)
-  (org-contacts-export-as-vcard)
-  (org-contacts-export-as-csv)
-  (org-mobile-push)
-  (message "Push to android phone...")
-  (shell-command (concat
-                  (format "sudo adb push %s %s >/dev/null 2>&1"
-                          org-mobile-directory
-                          org-mobile-remote-directory))))
+  (let ((adb-connect (not (= 1 (shell-command "sudo adb devices | grep HC2CXW101748")))))
+    (message "Sync from android phone...")
+    (save-window-excursion
+      (when adb-connect
+	(shell-command
+	 (concat
+	  (format "sudo adb pull %s %s >/dev/null 2>&1; sudo chown -hR $USER  %s; sudo chgrp -hR $USER %s"
+		  org-mobile-remote-directory
+		  org-mobile-directory
+		  org-mobile-directory
+		  org-mobile-directory))))
+      
+      (org-mobile-pull)
+      (org-contacts-export-as-vcard)
+      (org-contacts-export-as-csv)
+      (org-mobile-push)
+      (when adb-connect
+	(shell-command
+	 (concat
+	  (format "sudo adb push %s %s >/dev/null 2>&1"
+		  org-mobile-directory
+		  org-mobile-remote-directory)))))))
 
 (defcustom org-contacts-csv-file "contacts.csv"
   "Default file for csv export."
