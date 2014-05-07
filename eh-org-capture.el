@@ -42,32 +42,32 @@
 
 ;; capture模板
 (setq org-capture-templates
-      '(("todo" "Todo" entry (file+headline eh-org-todo-file "Tasks")
+      '(("t" "Todo" entry (file+headline eh-org-todo-file "Tasks")
          "* TODO %? \n %i \n %a")
 
-        ("link" "Link" entry (file+olp eh-org-note-file "Web Links")
+        ("l" "Link" entry (file+olp eh-org-note-file "Web Links")
          "* %a\n %?\n %i")
 
-        ("account" "account" table-line (file+headline eh-org-account-file "Account")
+        ("a" "account" table-line (file+headline eh-org-account-file "Account")
          "|%?||||||%u|")
 
-        ("journal" "Journal" entry (file+datetree eh-org-journal-file)
+        ("j" "Journal" entry (file+datetree eh-org-journal-file)
          "* %?\n %U\n %i\n  %a")
 
-        ("schedule" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
+        ("s" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
          "* %?\n %T\n  %a")
 
-        ("notes" "Notes" entry  (file+headline eh-org-note-file "Notes")
-"** %?
+        ("n" "Notes" entry  (file+headline eh-org-note-file "Notes")
+	 "** %?
    :PROPERTIES:
    :DATE: %u
    :END:
 "
-:empty-lines 1)
-        ("simple" "Notes" entry  (file+headline eh-org-note-file "Notes")
-"** %?"
-:empty-lines 1)
-        ("contacts" "Contacts" entry (file eh-org-contacts-file)
+	 :empty-lines 1)
+        ("d" "Simple-Notes" entry  (file+headline eh-org-note-file "Notes")
+	 "** %?"
+	 :empty-lines 1)
+        ("c" "Contacts" entry (file eh-org-contacts-file)
 	 "* %?
   :PROPERTIES:
   :ALIAS: 
@@ -126,19 +126,19 @@
 
 ;; keybinding
 (define-key global-map "\C-ct"
-  (lambda () (interactive) (eh-org-capture nil "todo")))
+  (lambda () (interactive) (eh-org-capture nil "t")))
 (define-key global-map "\C-cj"
-  (lambda () (interactive) (eh-org-capture nil "journal")))
+  (lambda () (interactive) (eh-org-capture nil "j")))
 (define-key global-map "\C-cs"
-  (lambda () (interactive) (eh-org-capture nil "schedule")))
+  (lambda () (interactive) (eh-org-capture nil "s")))
 (define-key global-map "\C-cl"
-  (lambda () (interactive) (eh-org-capture nil "link")))
+  (lambda () (interactive) (eh-org-capture nil "l")))
 (define-key global-map "\C-cn"
-  (lambda () (interactive) (eh-org-capture nil "notes")))
+  (lambda () (interactive) (eh-org-capture nil "n")))
 (define-key global-map "\C-cc"
-  (lambda () (interactive) (eh-org-capture nil "contacts")))
+  (lambda () (interactive) (eh-org-capture nil "c")))
 (define-key global-map "\C-ca"
-  (lambda () (interactive) (eh-org-capture nil "account")))
+  (lambda () (interactive) (eh-org-capture nil "a")))
 
 (provide 'eh-org-capture)
 
