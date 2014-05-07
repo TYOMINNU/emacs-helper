@@ -64,13 +64,13 @@
    :END:
 "
 	 :empty-lines 1)
-	("w" "Notes-from-web" entry  (file+headline eh-org-note-file "Notes-from-web")
+	("f" "firefox-org-capture" entry  (file+headline eh-org-note-file "Notes-from-web")
 	 "** %?
    :PROPERTIES:
    :DATE: %u
    :END:
 
-%x
+%i
 
 (原始链接: %a)
 "
