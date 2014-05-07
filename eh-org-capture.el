@@ -64,17 +64,29 @@
    :END:
 "
 	 :empty-lines 1)
-        ("d" "Simple-Notes" entry  (file+headline eh-org-note-file "Notes")
+	("w" "Notes-from-web" entry  (file+headline eh-org-note-file "Notes-from-web")
+	 "** %?
+   :PROPERTIES:
+   :DATE: %u
+   :END:
+
+%x
+
+(原始链接: %a)
+"
+	 :empty-lines 1)
+
+        ("d" "Simple-Notes" entry  (file+headline eh-org-note-file "Simple-Notes")
 	 "** %?"
 	 :empty-lines 1)
         ("c" "Contacts" entry (file eh-org-contacts-file)
 	 "* %?
-  :PROPERTIES:
-  :ALIAS: 
-  :PHONE: 
-  :EMAIL:  
-  :NOTE: 
-  :END:")))
+:PROPERTIES:
+:ALIAS: 
+:PHONE: 
+:EMAIL:  
+:NOTE: 
+:END:")))
 
 (setq eh-org-capture-frame-name "org-capture")
 
