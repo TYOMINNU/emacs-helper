@@ -33,7 +33,7 @@
 ;;; Code:
 
 ;; 自定义变量
-(setq eh-org-todo-file "~/org/i-tode.org")
+(setq eh-org-todo-file "~/org/i-todo.org")
 (setq eh-org-note-file "~/org/i-notes.org")
 (setq eh-org-contacts-file "~/org/i-contacts.org")
 (setq eh-org-account-file "~/org/i-account.org")
