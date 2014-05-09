@@ -50,7 +50,7 @@
   (let ((word (current-word t t))
 	(current-char (string (preceding-char))))
     (or (car (remove-if-not
-	      '(lambda (x) (string-match-p current-char x))
+	      #'(lambda (x) (string-match-p current-char x))
 	      (split-string
 	       (replace-regexp-in-string
 		"/[a-zA-z]+ +" " "
@@ -61,9 +61,11 @@
 (defun eh-update-sdcv-mode-line-string ()
   "Update `eh-sdcv-mode-line-string' with translation of current word"
   (interactive)
-  (let ((word (or (if mark-active
-		      (buffer-substring-no-properties (region-beginning) (region-end))
-		    (eh-current-word)) "")))
+  (let ((word
+	 (or (when (not (string-match-p "minibuffer" (symbol-name major-mode)))
+	       (if mark-active
+		   (buffer-substring-no-properties (region-beginning) (region-end))
+		 (eh-current-word))) " ")))
     (unless (string= word eh-sdcv-previous-word)
       (setq eh-sdcv-previous-word word)
       (let ((translate (eh-sdcv-get-translate word)))
@@ -77,12 +79,12 @@
   "Return a translations list of `word'"
   (let* ((translate
 	  (if (string-match-p "\\cc" word)
-	    (shell-command-to-string (concat eh-sdcv-chinese2english-command " " word))
+	      (shell-command-to-string (concat eh-sdcv-chinese2english-command " " word))
 	    (shell-command-to-string (concat eh-sdcv-english2chinese-command " " word))))
 	 (string-regexp (concat "-->" word)))
     (when (string-match-p string-regexp translate)
       (remove-duplicates
-       (mapcar '(lambda (x) (replace-regexp-in-string "^ +\\| +$" "" x))
+       (mapcar #'(lambda (x) (replace-regexp-in-string "^ +\\| +$" "" x))
 	       (split-string (eh-wash-sdcv-output translate) "[,;]"))
        :test (lambda (x y) (or (= 0 (length y)) (equal x y)))
        :from-end t))))
