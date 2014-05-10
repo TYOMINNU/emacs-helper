@@ -126,8 +126,12 @@
    (sqlite . nil)))
 
 ;; org-babel hook
-(add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-(add-hook 'org-babel-after-execute-hook 'eh-org-babel-align-tables)
+(add-hook 'org-babel-after-execute-hook 'eh-org-babel-after-execute-function)
+
+(defun eh-org-babel-after-execute-function ()
+  (when (not org-export-current-backend)
+    (org-display-inline-images)
+    (eh-org-babel-align-tables)))
 
 (defun eh-org-babel-align-tables (&optional info)
   "Align all tables in the result of the current source"
