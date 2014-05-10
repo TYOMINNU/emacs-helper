@@ -62,10 +62,8 @@
   "Update `eh-sdcv-mode-line-string' with translation of current word"
   (interactive)
   (let ((word
-	 (or (when (not (string-match-p "minibuffer" (symbol-name major-mode)))
-	       (if mark-active
-		   (buffer-substring-no-properties (region-beginning) (region-end))
-		 (eh-current-word))) " ")))
+	 (unless (string-match-p "minibuffer" (symbol-name major-mode))
+	   (eh-current-word))))
     (unless (string= word eh-sdcv-previous-word)
       (setq eh-sdcv-previous-word word)
       (let ((translate (eh-sdcv-get-translate word)))
