@@ -56,6 +56,10 @@
 ;; eshell
 (global-set-key (kbd "C-x c") 'eshell)
 
+;; search
+(global-set-key (kbd "C-s") 'phi-search)
+(global-set-key (kbd "C-r") 'phi-search)
+
 ;; 设置键盘绑定,发送邮件
 (global-set-key (kbd "C-x m") 'gnus-msg-mail)
 
