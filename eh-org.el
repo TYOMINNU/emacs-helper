@@ -205,7 +205,7 @@
 (setq org-html-head-include-scripts nil)
 
 ;;; odt
-(setq org-odt-preferred-output-format "docx")
+;;(setq org-odt-preferred-output-format "docx")
 
 (setq org-odt-content-template-file
       (concat (file-name-directory
