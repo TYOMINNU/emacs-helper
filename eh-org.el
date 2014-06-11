@@ -50,6 +50,7 @@
 (require 'ox-bibtex)
 
 ;;; 自定义变量
+(setq org-insert-heading-respect-content t)
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
 (setq org-plantuml-jar-path "~/bin/plantuml.jar")
