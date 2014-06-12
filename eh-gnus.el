@@ -56,8 +56,15 @@
              '(nntp "localhost"))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nnmaildir "RSS" 
-			 (directory "~/RSS/")))
+	     '(nnimap "RSS"
+		      (nnimap-address "localhost")
+		      (nnimap-stream shell)
+		      (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/RSS:LAYOUT=fs")))
+
+;; (add-to-list 'gnus-secondary-select-methods
+;; 	     '(nnmaildir "RSS"
+;; 			 (directory "~/RSS/")))
+;;
 
 ;; (setq gnus-select-method '(nnimap "gmail"
 ;; 				  (nnimap-address "imap.gmail.com")
