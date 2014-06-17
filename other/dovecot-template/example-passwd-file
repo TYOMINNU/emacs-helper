@@ -1,0 +1,3 @@
+offlineimap:{plain}offlineimap:feng:feng::/home/feng/Maildir/.home/offlineimap::userdb_mail=maildir:/home/feng/Maildir/offlineimap
+rss:{plain}rss:feng:feng::/home/feng/Maildir/.home/rss::userdb_mail=maildir:/home/feng/Maildir/rss
+

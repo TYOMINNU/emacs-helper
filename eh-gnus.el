@@ -47,29 +47,32 @@
 ;; 新闻组地址
 ;; 添加几个著名的新闻组地址，方便测试
 (setq gnus-select-method
-      '(nnimap "OfflineImap"
+      '(nnimap "offlineimap"
 	       (nnimap-address "localhost")
-	       (nnimap-stream shell)
-               (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir")))
+	       (nnimap-stream network)))
 
 (add-to-list 'gnus-secondary-select-methods
              '(nntp "localhost"))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nnimap "RSS"
+	     '(nnimap "rss"
 		      (nnimap-address "localhost")
-		      (nnimap-stream shell)
-		      (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/RSS:LAYOUT=fs")))
+		      (nnimap-stream network)))
 
+;; (add-to-list 'gnus-secondary-select-methods
+;;	     '(nnimap "RSS"
+;;		      (nnimap-address "localhost")
+;;		      (nnimap-stream shell)
+;;		      (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir/rss:LAYOUT=fs")))
+;;
 ;; (add-to-list 'gnus-secondary-select-methods
 ;; 	     '(nnmaildir "RSS"
 ;; 			 (directory "~/RSS/")))
 ;;
-
 ;; (setq gnus-select-method '(nnimap "gmail"
 ;; 				  (nnimap-address "imap.gmail.com")
 ;; 				  (nnimap-stream ssl)))
-
+;;
 ;; (add-to-list 'gnus-secondary-select-methods
 ;;              '(nntp "news.gmane.org"))
 ;; (add-to-list 'gnus-secondary-select-methods

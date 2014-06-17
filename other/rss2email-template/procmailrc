@@ -5,67 +5,78 @@
 ## 中文字符串的拼音，然后通过匹配拼音来对邮件分类。
 ###################################################################
 
+## VERBOSE=on
+## LOGFILE=$HOME/.procmail.log
+
 :0
 * ^From.*Cron Daemon
-RSS/cron-log/
+RSS/.cron-log/
 
 :0
 * ^User-Agent.*rss2email
 * ^From.*gmane.mail.rss2email
-RSS/rss2email/
+Maildir/rss/.rss2email/
 
 :0
 * ^User-Agent.*rss2email
 * ^X-RSS-Feed.*baidu.*word=
 {
 	:0
-	* ^X-Translate-Subject.*(shanxi|hebei)
-	* ^X-Translate-Subject.*(kaoshi|zhaosheng)
-	* ^X-Translate-Subject.*(gongwuyuan|jiaoshi|shiyedanwei|yiyuan|weishen)
-	RSS/news.baidu.kaoshi/
+	* ^X-Pinyin-Subject.*(shanxi|hebei)
+	* ^X-Pinyin-Subject.*(kaoshi|zhaosheng)
+	* ^X-Pinyin-Subject.*(gongwuyuan|jiaoshi|shiyedanwei|yiyuan|weishen)
+	Maildir/rss/.news-baidu-kaoshi/
 
 	:0
-	/dev/null
+	* ^X-Pinyin-Subject.*(zhence|zhengce)
+	Maildir/rss/.news-baidu-zhengce/
+
+	:0
+	* ^X-Pinyin-Subject.*(weisheng|weishen|yiliao)
+	Maildir/rss/.news-baidu-weisheng/
+
+	:0
+	Maildir/rss/.news-baidu-other-kaoshi/
 }
 
 :0
 * X-RSS-Feed.*baidu.*class=
 {
 	:0:
-	RSS/news.baidu/
+	Maildir/rss/.news-baidu/
 }
 
 
 :0
 * ^User-Agent.*rss2email
 * ^From.*EmacsWiki
-RSS/EmacsWiki/
+Maildir/rss/.EmacsWiki/
 
 :0
 * ^User-Agent.*rss2email
 * ^From.*emacs\.git
-RSS/emacs.git/
+Maildir/rss/.emacs-git/
 
 :0
 * ^User-Agent.*rss2email
 * ^From.*org-mode.git
-RSS/org-mode.git/
+Maildir/rss/.org-mode-git/
 
 :0
 * ^User-Agent.*rss2email
 * ^From.*emacs|Emacs|EMACS
-RSS/emacs/
+Maildir/rss/.emacs/
 
 :0
 * ^User-Agent.*rss2email
 * ^From.*(Gnome|gnome|GNOME)
-RSS/gnome/
+Maildir/rss/.gnome/
 
 :0
 * ^User-Agent.*rss2email
 * ^From.*(Debian|debian|DEBIAN)
-RSS/debian/
+Maildir/rss/.debian/
 
 :0
 * ^User-Agent.*rss2email
-RSS/others/
+Maildir/rss/.others/
