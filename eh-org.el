@@ -30,16 +30,10 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+(setq org-export-backends
+      '(ascii beamer html latex md odt deck rss s5))
+
 (require 'org)
-(require 'ox-ascii)
-(require 'ox-latex)
-(require 'ox-beamer)
-(require 'ox-html)
-(require 'ox-deck)
-(require 'ox-s5)
-(require 'ox-rss)
-(require 'ox-md)
-(require 'ox-odt)
 (require 'org-contacts)
 (require 'org-mime)
 (require 'org-bookmark)
@@ -47,12 +41,9 @@
 (require 'org-screenshot)
 (require 'ob-R)
 (require 'ob-plantuml)
-(require 'ox-bibtex)
 
 ;;; 自定义变量
-(setq org-insert-heading-respect-content t)
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
-(setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
 (setq org-plantuml-jar-path "~/bin/plantuml.jar")
 (setq org-latex-to-mathml-convert-command
       "java -jar %j -unicode -force -df %o %I"
@@ -72,15 +63,13 @@
 (setq org-todo-keywords
       '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 
-(setq org-export-backends
-      '(ascii beamer html latex md odt deck rss s5))
-
-(add-to-list 'auto-mode-alist '("\.\(org\|org_archive\)$" . org-mode))   
+(add-to-list 'auto-mode-alist '("\.\(org\|org_archive\)$" . org-mode))
+(setq org-insert-heading-respect-content t)
 (setq org-log-done t)   
 (setq org-startup-indented nil)
 (setq org-confirm-babel-evaluate nil)
 
-;; truncate line depend  context
+;; truncate line depend context
 (defun eh-org-truncate-lines (&optional arg)
   (interactive "P")
   (cond

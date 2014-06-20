@@ -738,6 +738,16 @@
       </text:list-level-style-number>
     </text:list-style>
 
+    <style:style style:name="OrgDescriptionTerm" style:family="text">
+      <style:text-properties fo:font-weight="bold"/>
+    </style:style>
+
+    <style:style style:name="OrgDescriptionDefinition" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="text">
+      <style:paragraph-properties fo:margin-left="0.64cm" fo:margin-right="0cm" fo:text-indent="-0.64cm" style:auto-text-indent="false">
+	<style:tab-stops/>
+      </style:paragraph-properties>
+    </style:style>
+
     <text:list-style style:name="OrgSrcBlockNumberedLine">
       <text:list-level-style-number text:level="1" style:num-format="1">
 	<style:list-level-properties text:space-before="0.635cm" text:min-label-width="0.635cm" text:min-label-distance="0.101cm" fo:text-align="end"/>
@@ -774,6 +784,62 @@
     <text:notes-configuration text:note-class="footnote" text:citation-style-name="Footnote_20_Symbol" text:citation-body-style-name="Footnote_20_anchor" style:num-format="1" text:start-value="0" text:footnotes-position="page" text:start-numbering-at="document"/>
     <text:notes-configuration text:note-class="endnote" style:num-format="i" text:start-value="0"/>
     <text:linenumbering-configuration text:number-lines="false" text:offset="0.499cm" style:num-format="1" text:number-position="left" text:increment="5"/>
+
+    <!-- Bibliography -->
+    <style:style style:name="Bibliography_20_Heading" style:display-name="Bibliography Heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
+      <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
+      <style:text-properties fo:font-size="16pt" fo:font-weight="bold" style:font-size-asian="16pt" style:font-weight-asian="bold" style:font-size-complex="16pt" style:font-weight-complex="bold"/>
+    </style:style>
+    <style:style style:name="Bibliography" style:family="paragraph" style:parent-style-name="Text_20_body"/>
+
+    <!--  List style for Bibliographic entries -->
+    <text:list-style style:name="OrgBibliographyList">
+      <text:list-level-style-number text:level="1" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:min-label-width="0.64cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="2" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="1.27cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="3" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="1.905cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="4" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="2.54cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="5" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="3.175cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="6" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="3.81cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="7" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="4.445cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="8" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="5.08cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="9" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="5.715cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+      <text:list-level-style-number text:level="10" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
+	<style:list-level-properties text:space-before="6.35cm" text:min-label-width="0.635cm"/>
+      </text:list-level-style-number>
+    </text:list-style>
+
+    <style:style style:name="OrgCite" style:family="text"/>
+
+    <!-- Page breaks -->
+    <style:style style:name="OrgPageBreakDefault" style:family="paragraph" style:parent-style-name="Text_20_body" style:master-page-name="Standard">
+      <style:paragraph-properties style:page-number="auto" fo:break-before="auto"/>
+    </style:style>
+
+    <style:style style:name="OrgPageBreakLandscape" style:family="paragraph" style:parent-style-name="Text_20_body" style:master-page-name="Landscape">
+      <style:paragraph-properties style:page-number="auto"  fo:break-before="auto">
+	<style:tab-stops/>
+	<style:background-image/>
+      </style:paragraph-properties>
+    </style:style>
+
   </office:styles>
   <office:automatic-styles>
     <style:style style:name="MP1" style:family="paragraph" style:parent-style-name="Footer">

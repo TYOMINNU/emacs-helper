@@ -31,6 +31,16 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+
+;; 官方org-mode没有包含ox-jabref.el，其包含在org-odt包中，
+;; 另外ox-bibtex和ox-jabref冲突, 不能同时加载
+(if (locate-library "org-odt")
+    (require 'ox-jabref)
+  (require 'ox-bibtex))
+
+(setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
+(setq org-jabref-command (list "java" "-jar" (expand-file-name eh-org-jabref-file) "-n" "true"))
+
 (setq org-jabref-odt-citation-transcoders
       '(org-odt-citation-reference/numbered
 	. org-jabref-odt-bibliography/numbered))
@@ -95,7 +105,6 @@ after adding some separators."
 		       (n (length (memq cite-key-entry citations-alist))))
 		  n))
 	      cite-keys)))))
-
 
 (provide 'eh-org-jabref)
 ;; Local Variables:
