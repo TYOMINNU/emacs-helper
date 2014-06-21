@@ -41,6 +41,11 @@
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
 (setq org-jabref-command (list "java" "-jar" (expand-file-name eh-org-jabref-file) "-n" "true"))
 
+(setq org-jabref-export-formats
+      '(("odt"
+	 ("GBT7714-2005"
+	  :in-text "GBT7714-2005.ODF.text" :bibliography "GBT7714-2005.ODF.reference"))))
+
 (setq org-jabref-odt-citation-transcoders
       '(org-odt-citation-reference/numbered
 	. org-jabref-odt-bibliography/numbered))
