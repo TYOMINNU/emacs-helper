@@ -39,6 +39,7 @@
   (require 'ox-bibtex))
 
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
+(setq org-jabref-cache-directory "~/.org-jabref-cache")
 (setq org-jabref-command (list "java" "-jar" (expand-file-name eh-org-jabref-file) "-n" "true"))
 
 (setq org-jabref-export-formats
