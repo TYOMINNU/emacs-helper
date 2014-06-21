@@ -1,0 +1,14 @@
+<text:p text:style-name="Bibliography">
+<text:bookmark text:name="\bibtexkey"/>
+<text:bookmark-start text:name="cite-\bibtexkey"/>
+
+\begin{author}
+\format[Authors(FirstFirst,Initials,FullPunc,Comma,Comma,3,3,EtAl=\,  等)]{\author}. \end{author}
+\format[FormatChars]{\title}[R]. 
+\begin{address}\format[FormatChars]{\address}:\end{address}
+\format[FormatChars]{\publisher}, 
+\begin{year}\format[FormatChars]{\year}.\end{year}
+
+
+<text:bookmark-end text:name="cite-\bibtexkey"/>
+</text:p>

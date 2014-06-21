@@ -1,0 +1,26 @@
+<!-- Ant build for example plugin -->
+
+<project name="GBT7714(2005)" default="jar" basedir=".">
+  <!-- Properties -->
+  <property name="version" value="0.1"/>
+  <property name="build.dir" value="."/>
+  <property name="jar" value="${build.dir}/${ant.project.name}-${version}.jar"/>
+
+  <!-- Jars up project -->
+
+  <target name="jar">
+    <jar destfile="${jar}">
+      <fileset dir="layouts/">
+	<include name="*.layout"/>
+      </fileset>
+      <fileset dir=".">
+	<include name="plugin.xml"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <target name="clean" description="Clean project">
+    <delete file="${jar}"/>
+  </target>
+
+</project>

@@ -1,0 +1,8 @@
+<text:a xlink:type="simple" xlink:href="#\bibtexkey">
+
+(\begin{author}
+\format[FormatChars,AuthorNatBib]{\author} \end{author}
+\begin{year}\format[FormatChars]{\year}, \end{year}
+\begin{volume}\volume: \end{volume})  
+
+</text:a>

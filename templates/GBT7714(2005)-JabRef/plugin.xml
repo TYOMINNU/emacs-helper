@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="GBT7714(2005)" version="0.1">
+  
+  <requires>
+    <import plugin-id="net.sf.jabref.core"/>
+  </requires>
+
+  <runtime>
+    <library type="code" path="classes/" id="code"/>
+  </runtime>
+
+  <extension id="GBT7714-2005.ODF abstract" plugin-id="net.sf.jabref.core" 
+	     point-id="ExportFormatTemplate">
+    <parameter id="displayName" value="GBT7714-2005.ODF abstract" />
+    <parameter id="consoleName" value="GBT7714-2005.ODF.abstract" />
+    <parameter id="layoutFilename" value="GBT7714-2005.ODF.abstract" />
+    <parameter id="dir" value="." />
+    <parameter id="extension" value=".xml" />
+  </extension>
+
+  <extension id="GBT7714-2005.ODF biblio" plugin-id="net.sf.jabref.core" 
+	     point-id="ExportFormatTemplate">
+    <parameter id="displayName" value="GBT7714-2005.ODF biblio" />
+    <parameter id="consoleName" value="GBT7714-2005.ODF.biblio" />
+    <parameter id="layoutFilename" value="GBT7714-2005.ODF.biblio" />
+    <parameter id="dir" value="." />
+    <parameter id="extension" value=".xml" />
+  </extension>
+  <extension id="GBT7714-2005.ODF footend" plugin-id="net.sf.jabref.core" 
+	     point-id="ExportFormatTemplate">
+    <parameter id="displayName" value="GBT7714-2005.ODF footend" />
+    <parameter id="consoleName" value="GBT7714-2005.ODF.footend" />
+    <parameter id="layoutFilename" value="GBT7714-2005.ODF.footend" />
+    <parameter id="dir" value="." />
+    <parameter id="extension" value=".xml" />
+  </extension>
+
+  <extension id="GBT7714-2005.ODF note" plugin-id="net.sf.jabref.core" 
+	     point-id="ExportFormatTemplate">
+    <parameter id="displayName" value="GBT7714-2005.ODF note" />
+    <parameter id="consoleName" value="GBT7714-2005.ODF.note" />
+    <parameter id="layoutFilename" value="GBT7714-2005.ODF.note" />
+    <parameter id="dir" value="." />
+    <parameter id="extension" value=".xml" />
+  </extension>
+
+  <extension id="GBT7714-2005.ODF reference" plugin-id="net.sf.jabref.core" 
+	     point-id="ExportFormatTemplate">
+    <parameter id="displayName" value="GBT7714-2005.ODF reference" />
+    <parameter id="consoleName" value="GBT7714-2005.ODF.reference" />
+    <parameter id="layoutFilename" value="GBT7714-2005.ODF.reference" />
+    <parameter id="dir" value="." />
+    <parameter id="extension" value=".xml" />
+  </extension>
+
+  <extension id="GBT7714-2005.ODF text" plugin-id="net.sf.jabref.core" 
+	     point-id="ExportFormatTemplate">
+    <parameter id="displayName" value="GBT7714-2005.ODF text" />
+    <parameter id="consoleName" value="GBT7714-2005.ODF.text" />
+    <parameter id="layoutFilename" value="GBT7714-2005.ODF.text" />
+    <parameter id="dir" value="." />
+    <parameter id="extension" value=".xml" />
+  </extension>
+
+  <extension id="GBT7714-2005.ODF footend short" plugin-id="net.sf.jabref.core" 
+	     point-id="ExportFormatTemplate">
+    <parameter id="displayName" value="GBT7714-2005.ODF footend short" />
+    <parameter id="consoleName" value="GBT7714-2005.ODF.footend.short" />
+    <parameter id="layoutFilename" value="GBT7714-2005.ODF.footend.short"  />
+    <parameter id="dir" value="." />
+    <parameter id="extension" value=".xml" />
+  </extension>
+
+</plugin>
