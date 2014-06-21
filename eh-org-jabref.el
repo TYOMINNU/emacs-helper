@@ -30,7 +30,16 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
+;; Note:
+;; eval the following elisp and install emacs package `org-odt'
+;; (add-to-list 'package-archives
+;; 	     '("org-odt" . "http://repo.or.cz/w/org-mode/org-kjn.git/blob_plain/master:/") t)
+;;
+
 ;;; Code:
+
+;; org-jabref cache directory
+(setq org-jabref-cache-directory "~/.org-jabref-cache")
 
 ;; 官方org-mode没有包含ox-jabref.el，其包含在org-odt包中，
 ;; 另外ox-bibtex和ox-jabref冲突, 不能同时加载
@@ -39,7 +48,6 @@
   (require 'ox-bibtex))
 
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
-(setq org-jabref-cache-directory "~/.org-jabref-cache")
 (setq org-jabref-command (list "java" "-jar" (expand-file-name eh-org-jabref-file) "-n" "true"))
 
 (setq org-jabref-export-formats
@@ -90,7 +98,6 @@ For example:
 	 (format "%s-%s" min max))))
    (org-jabref-group-consecutive-integers number-list) ","))
 
-
 (defun org-odt-citation-reference/numbered (citation-reference contents info)
   "Transcode a CITATION-REFERENCE element from Org to ODT.
 CONTENTS is nil.  INFO is a plist holding contextual information.
@@ -99,13 +106,14 @@ Replace each CITE-KEY from CITATION-REFERENCE with it's numerical
 order in the exported Org file.  Return the concatenated result,
 after adding some separators."
   (let* ((latex-frag (org-element-property :value citation-reference))
-	 (value (and (string-match "\\\\cite{\\(.*?\\)}" latex-frag)
-		     (match-string 1 latex-frag)))
+	 (value (and (string-match org-odt-cite-regexp latex-frag)
+		     (substring (match-string 3 latex-frag) 1 -1)))
 	 (cite-keys (org-split-string value ",")))
     (format "<text:span text:style-name=\"OrgSuperscript\">[%s]</text:span>"
 	    (org-jabref-compress-citation-number
 	     (mapcar
 	      (lambda (cite-key)
+		(setq cite-key (org-trim cite-key))
 		(let* ((citations-alist (plist-get info :citations-alist))
 		       (cite-key-entry (assoc cite-key citations-alist))
 		       (n (length (memq cite-key-entry citations-alist))))
