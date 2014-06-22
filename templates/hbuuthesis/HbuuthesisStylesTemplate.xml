@@ -790,8 +790,11 @@
       <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
       <style:text-properties fo:font-size="16pt" fo:font-weight="bold" style:font-size-asian="16pt" style:font-weight-asian="bold" style:font-size-complex="16pt" style:font-weight-complex="bold"/>
     </style:style>
-    <style:style style:name="Bibliography" style:family="paragraph" style:parent-style-name="Text_20_body"/>
-
+    
+    <style:style style:name="Bibliography" style:family="paragraph" style:parent-style-name="Text_20_body">
+      <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+    </style:style>
+    
     <!--  List style for Bibliographic entries -->
     <text:list-style style:name="OrgBibliographyList">
       <text:list-level-style-number text:level="1" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
