@@ -798,7 +798,7 @@
     <!--  List style for Bibliographic entries -->
     <text:list-style style:name="OrgBibliographyList">
       <text:list-level-style-number text:level="1" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
-	<style:list-level-properties text:min-label-width="0.64cm"/>
+	<style:list-level-properties text:min-label-width="0.9cm" fo:text-align="end"/>
       </text:list-level-style-number>
       <text:list-level-style-number text:level="2" style:num-prefix="[" style:num-suffix="] " style:num-format="1">
 	<style:list-level-properties text:space-before="1.27cm" text:min-label-width="0.635cm"/>
