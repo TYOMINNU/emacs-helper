@@ -41,11 +41,26 @@
 (require 'ox-bibtex)
 
 ;; bibtex default style file
-(setq org-bibtex-default-style-file
+(setq eh-org-bibtex-default-style-file
       (concat (file-name-directory
 	       (locate-library "eh-org.el")) "templates/GBT7714-2005-latex/GBT7714-2005NLang-UTF8.bst"))
 
-;; redefine org-bitex-get-style
+;; bibtex2html default options
+(setq eh-org-bibtex-bibtex2html-options
+      '("-a" "-noabstract" "-nokeywords" "-i" "-nolinks"))
+
+;; defadvice org-bitex-get-style
+(defadvice org-bibtex-get-style (after eh-org-bibtex-get-style () activate)
+  (if (org-not-nil ad-return-value)
+      ad-return-value
+    eh-org-bibtex-default-style-file))
+
+;; defadvice org-bibtex-get-arguments
+(defadvice org-bibtex-get-arguments (after eh-org-bibtex-get-arguments () activate)
+  (let ((orig-options (plist-get ad-return-value :options)))
+    (setq options (plist-put ad-return-value :options
+			     (delete-dups (append eh-org-bibtex-bibtex2html-options orig-options))))))
+
 (defun org-bibtex-get-style (keyword)
   "Return bibliography style as a string.
 KEYWORD is a \"BIBLIOGRAPHY\" keyword. If no style is found,
@@ -56,7 +71,9 @@ return the first element of `org-bibtex-style-files' instead."
 		      (match-string 2 value))))
     (if (org-not-nil style)
 	style
-      org-bibtex-default-style-file)))
+      org-bibtex-default-style-file)
+
+    ))
 
 ;; org-jabref cache directory
 (setq org-jabref-cache-directory "~/.org-jabref-cache")
