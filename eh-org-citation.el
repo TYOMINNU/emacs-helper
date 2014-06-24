@@ -61,20 +61,6 @@
     (setq options (plist-put ad-return-value :options
 			     (delete-dups (append eh-org-bibtex-bibtex2html-options orig-options))))))
 
-(defun org-bibtex-get-style (keyword)
-  "Return bibliography style as a string.
-KEYWORD is a \"BIBLIOGRAPHY\" keyword. If no style is found,
-return the first element of `org-bibtex-style-files' instead."
-  (let*  ((value (org-element-property :value keyword))
-	  (style (and value
-		      (string-match "\\(\\S-+\\)[ \t]+\\(\\S-+\\)\\(.*\\)" value)
-		      (match-string 2 value))))
-    (if (org-not-nil style)
-	style
-      org-bibtex-default-style-file)
-
-    ))
-
 ;; org-jabref cache directory
 (setq org-jabref-cache-directory "~/.org-jabref-cache")
 
