@@ -1,4 +1,4 @@
-;;; eh-org-jabref.el --- Tumashu's emacs configuation
+;;; eh-org-citation.el --- Tumashu's emacs configuation
 
 ;; Copyright (c) 2011-2013, Feng Shu
 
@@ -109,7 +109,7 @@ For example:
 	   (nreverse result)))))
 
 (defun org-jabref-compress-citation-number (number-list)
-  (mapconcat 
+  (mapconcat
    (lambda (list)
      (let ((max (apply 'max list))
 	   (min (apply 'min list)))
@@ -140,9 +140,9 @@ after adding some separators."
 		  n))
 	      cite-keys)))))
 
-(provide 'eh-org-jabref)
+(provide 'eh-org-citation)
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:
 
-;;; eh-org-jabref.el ends here
+;;; eh-org-citation.el ends here
