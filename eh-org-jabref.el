@@ -38,14 +38,34 @@
 
 ;;; Code:
 
+(require 'ox-bibtex)
+
+;; bibtex style files
+(setq org-bibtex-style-files
+      (list
+       (concat (file-name-directory
+		(locate-library "eh-org.el")) "templates/GBT7714(2005)-latex/GBT7714-2005NLang-UTF8.bst")
+       (concat (file-name-directory
+		(locate-library "eh-org.el")) "templates/GBT7714(2005)-latex/GBT7714-2005AYLang-UTF8.bst")))
+
+;; redefine org-bitex-get-style
+(defun org-bibtex-get-style (keyword)
+  "Return bibliography style as a string.
+KEYWORD is a \"BIBLIOGRAPHY\" keyword. If no style is found,
+return the first element of `org-bibtex-style-files' instead."
+  (let ((value (org-element-property :value keyword)))
+    (or (and value
+	     (string-match "\\(\\S-+\\)[ \t]+\\(\\S-+\\)\\(.*\\)" value)
+	     (match-string 2 value))
+	(car org-bibtex-style-files)
+	(car (cdr org-bibtex-style-files)))))
+
 ;; org-jabref cache directory
 (setq org-jabref-cache-directory "~/.org-jabref-cache")
 
 ;; 官方org-mode没有包含ox-jabref.el，其包含在org-odt包中，
-;; 另外ox-bibtex和ox-jabref冲突, 不能同时加载
-(if (locate-library "org-odt")
-    (require 'ox-jabref)
-  (require 'ox-bibtex))
+(when (locate-library "org-odt")
+    (require 'ox-jabref))
 
 (setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
 (setq org-jabref-command (list "java" "-jar" (expand-file-name eh-org-jabref-file) "-n" "true"))
