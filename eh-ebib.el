@@ -177,15 +177,17 @@
 (defun eh-ebib ()
   "Open ebib then search the marked string"
   (interactive)
-  (let* ((file
-	  (or (if (buffer-file-name)
-		  (car (eh-reftex-get-bibfile-list)))
-	      (when (and eh-ebib-recently-opened-bibfile
-			 (y-or-n-p "Load recently opened bibfile?  "))
-		eh-ebib-recently-opened-bibfile)
-	      (ido-read-file-name
-               "Open bibtex file: "
-               (car ebib-file-search-dirs))))
+  (let* ((files-list (eh-directory-files-recursively "." t ".bib$"))
+	 (file
+	  (or
+	   ;; (if (buffer-file-name)
+	   ;;     (car (eh-reftex-get-bibfile-list)))
+	   (when (and eh-ebib-recently-opened-bibfile
+		      (y-or-n-p "Load recently opened bibfile?  "))
+	     eh-ebib-recently-opened-bibfile)
+	   (when files-list
+	     (ido-completing-read "Open bibfile:" files-list))
+	     (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs))))
 	 (word (or (current-word nil t) ""))
 	 (length (length word))
 	 (key (if mark-active
