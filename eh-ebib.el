@@ -1,4 +1,4 @@
-;;; eh-bibtex.el --- Tumashu's emacs configuation
+;;; eh-ebib.el --- Tumashu's emacs configuation
 
 ;; Copyright (c) 2011-2013, Feng Shu
 
@@ -397,8 +397,10 @@ The user is prompted for the buffer to push the entry into."
 (ebib-key index [(control k)] eh-ebib-reformat-all-entries)
 (ebib-key index [(return)] eh-ebib-select-and-popup-entry)
 
+(provide 'eh-ebib)
+
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:
 
-;;; eh-bibtex.el ends here
+;;; eh-ebib.el ends here
