@@ -54,9 +54,9 @@ return the first element of `org-bibtex-style-files' instead."
 	  (style (and value
 		      (string-match "\\(\\S-+\\)[ \t]+\\(\\S-+\\)\\(.*\\)" value)
 		      (match-string 2 value))))
-    (if (string-match "nil" style)
-	org-bibtex-default-style-file
-      style)))
+    (if (org-not-nil style)
+	style
+      org-bibtex-default-style-file)))
 
 ;; org-jabref cache directory
 (setq org-jabref-cache-directory "~/.org-jabref-cache")
