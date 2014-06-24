@@ -2,13 +2,12 @@
 <text:bookmark text:name="\bibtexkey"/>
 <text:bookmark-start text:name="cite-\bibtexkey"/>
 
-\begin{author}
-\format[Authors(FirstFirst,Initials,FullPunc,Comma,Comma,3,3,EtAl=\,  等)]{\author}. \end{author}
+\begin{author}\format[Authors(LastFirstFirstFirst,Initials,NoPunc,Comma,Comma,3,3,EtAl=\,  等)]{\author}. \end{author}
 \format[FormatChars]{\title}[M]. 
 \begin{address}\format[FormatChars]{\address}:\end{address}
 \format[FormatChars]{\publisher}, 
-\begin{year}\format[FormatChars]{\year}:\end{year}
-\begin{pages}\format[Replace("--,-")]{\pages}\end{pages}. 
+\begin{year}\format[FormatChars]{\year}\end{year}
+\begin{pages}:\format[Replace("--,-")]{\pages}\end{pages}. 
 
 
 <text:bookmark-end text:name="cite-\bibtexkey"/>
