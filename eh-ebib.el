@@ -40,6 +40,8 @@
 ;; bibtex autokey rule
 ;; the below will generate a auto named : xulinling2013
 ;; [3] 徐琳玲. P公司标准成本制度研究[D]. 华东理工大学, 2013.
+(setq bibtex-autokey-names 1)
+(setq bibtex-autokey-name-separator "")
 (setq bibtex-autokey-year-length 4)
 (setq bibtex-autokey-titleword-length 0)
 (setq bibtex-autokey-titleword-separator "")
@@ -183,7 +185,8 @@
 	   ;; (if (buffer-file-name)
 	   ;;     (car (eh-reftex-get-bibfile-list)))
 	   (when (and eh-ebib-recently-opened-bibfile
-		      (y-or-n-p "Load recently opened bibfile?  "))
+		      (y-or-n-p (format "Load recently opened bibfile (%s)?  "
+					eh-ebib-recently-opened-bibfile)))
 	     eh-ebib-recently-opened-bibfile)
 	   (when files-list
 	     (ido-completing-read "Open bibfile:" files-list))
