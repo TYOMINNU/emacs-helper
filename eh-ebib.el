@@ -35,7 +35,6 @@
 (require 'reftex)
 (require 'ebib)
 (require 'eh-hanzi2pinyin)
-(require 'phi-search)
 
 ;; bibtex autokey rule
 ;; the below will generate a auto named : xulinling2013
@@ -66,6 +65,9 @@
 
 ;; record the last opened bibfile name
 (setq eh-ebib-recently-opened-bibfile nil)
+
+;; record the last citation string
+(setq eh-ebib-the-last-entry-key "")
 
 ;; If this varible is `t', index buffer will highlight lines instead of autokey word
 ;; setting this varible to *a list of field* is *useless* in my configure
@@ -179,33 +181,70 @@
 (defun eh-ebib ()
   "Open ebib then search the marked string"
   (interactive)
-  (let* ((files-list (eh-directory-files-recursively "." t ".bib$"))
+  (let* ((bibfiles-list (eh-directory-files-recursively "." t ".bib$"))
 	 (file
 	  (or
-	   ;; (if (buffer-file-name)
-	   ;;     (car (eh-reftex-get-bibfile-list)))
+	   (when (buffer-file-name)
+	     (car (eh-reftex-get-bibfile-list)))
 	   (when (and eh-ebib-recently-opened-bibfile
 		      (y-or-n-p (format "Load recently opened bibfile (%s)?  "
 					eh-ebib-recently-opened-bibfile)))
 	     eh-ebib-recently-opened-bibfile)
 	   (when files-list
-	     (ido-completing-read "Open bibfile:" files-list))
-	     (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs))))
-	 (word (or (current-word nil t) ""))
-	 (length (length word))
-	 (key (if mark-active
-		  (buffer-substring-no-properties (region-beginning) (region-end))
-		(if (and (string-match-p "\\cc+" word) (> length 3))
-		    (buffer-substring-no-properties (- (point) 2) (point))
-		  word))))
+	     (ido-completing-read "Open bibfile:" bibfiles-list))
+	   (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs)))))
     (setq eh-ebib-push-buffer (current-buffer))
     (ebib file)
     (setq eh-ebib-recently-opened-bibfile file)
-    (when key
-      (phi-search)
-      (insert key)
-      (phi-search-complete)
-      (ebib-select-and-popup-entry))))
+    (ebib-search-key-in-buffer eh-ebib-the-last-entry-key)
+    (ebib-select-and-popup-entry)))
+
+(defun eh-search-with-ebib ()
+  (interactive)
+  (let* ((word (or (current-word nil t) ""))
+	 (length (length word))
+	 (search-string (if (use-region-p)
+			    (buffer-substring-no-properties (region-beginning) (region-end))
+			  (if (and (string-match-p "\\cc+" word) (> length 3))
+			      (buffer-substring-no-properties (- (point) 2) (point))
+			    word))))
+    (deactivate-mark)
+    (eh-ebib)
+    (phi-search)
+    (insert search-string)
+    ;;    (phi-search-complete)
+    ;;    (ebib-select-and-popup-entry)
+    ))
+
+(defun eh-ebib-quit ()
+  "Quit Ebib.
+The Ebib buffers are killed, all variables except the keymaps are set to nil."
+  (interactive)
+  (when (if (ebib-modified-p)
+	    (yes-or-no-p "There are modified databases. Quit anyway? ") t)
+    (setq eh-ebib-the-last-entry-key (ebib-cur-entry-key))
+    (ebib-keywords-save-all-new)
+    (ebib-filters-update-filters-file)
+    (mapc #'(lambda (buffer)
+              (kill-buffer buffer))
+          (mapcar #'cdr ebib-buffer-alist))
+    (setq ebib-databases nil
+          ebib-cur-db nil
+          ebib-buffer-alist nil
+          ebib-initialized nil
+          ebib-index-highlight nil
+          ebib-fields-highlight nil
+          ebib-strings-highlight nil
+          ebib-export-filename nil
+          ebib-window-before nil
+          ebib-buffer-before nil
+          ebib-cur-keys-list nil
+          ebib-keywords-files-alist nil
+          ebib-keywords-list-per-session nil
+          ebib-filters-alist nil)
+    (set-window-configuration ebib-saved-window-config)
+    (remove-hook 'kill-emacs-query-functions 'ebib-kill-emacs-query-function)
+    (message "")))
 
 (defun eh-reftex-get-bibfile-list ()
   "Return list of bibfiles for current document.
@@ -288,15 +327,15 @@ The user is prompted for the buffer to push the entry into."
   (goto-char begin)
   (let ((field-content (bibtex-autokey-get-field field))
 	(field-position (bibtex-search-forward-field field t)))
-  (when field-position
-    (goto-char (car (cdr field-position)))
-    (bibtex-kill-field))
-  (bibtex-make-field
-   (list field nil
-	 (eh-wash-text
-	  field-content
-	  eh-ebib-entry-buffer-abstact-fill-column
-	  (+ bibtex-text-indentation 1 )) nil) t)))
+    (when field-position
+      (goto-char (car (cdr field-position)))
+      (bibtex-kill-field))
+    (bibtex-make-field
+     (list field nil
+	   (eh-wash-text
+	    field-content
+	    eh-ebib-entry-buffer-abstact-fill-column
+	    (+ bibtex-text-indentation 1 )) nil) t)))
 
 (defun eh-bibtex-reformat ()
   (interactive)
@@ -396,9 +435,10 @@ The user is prompted for the buffer to push the entry into."
 			  (interactive)
 			  (ebib-leave-ebib-windows)
 			  (ibuffer)))
+(ebib-key index "\C-cb" eh-ebib)
 (ebib-key index "\C-xk" ebib-leave-ebib-windows)
-(ebib-key index "\C-xq" ebib-quit)
-(ebib-key index "q" ebib-quit)
+(ebib-key index "\C-xq" eh-ebib-quit)
+(ebib-key index "q" eh-ebib-quit)
 (ebib-key index "f" eh-ebib-view-file)
 (ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
 (ebib-key index [(control k)] eh-ebib-reformat-all-entries)
