@@ -64,7 +64,7 @@
       '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 
 (add-to-list 'auto-mode-alist '("\.\(org\|org_archive\)$" . org-mode))
-(setq org-insert-heading-respect-content t)
+(setq org-insert-heading-respect-content nil)
 (setq org-log-done t)   
 (setq org-startup-indented nil)
 (setq org-confirm-babel-evaluate nil)
