@@ -35,6 +35,7 @@
 (require 'reftex)
 (require 'ebib)
 (require 'eh-hanzi2pinyin)
+(require 'phi-search)
 
 ;; bibtex autokey rule
 ;; the below will generate a auto named : xulinling2013
@@ -192,16 +193,8 @@
 	     eh-ebib-recently-opened-bibfile)
 	   (when files-list
 	     (ido-completing-read "Open bibfile:" bibfiles-list))
-	   (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs)))))
-    (setq eh-ebib-push-buffer (current-buffer))
-    (ebib file)
-    (setq eh-ebib-recently-opened-bibfile file)
-    (ebib-search-key-in-buffer eh-ebib-the-last-entry-key)
-    (ebib-select-and-popup-entry)))
-
-(defun eh-search-with-ebib ()
-  (interactive)
-  (let* ((word (or (current-word nil t) ""))
+	   (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs))))
+	 (word (or (current-word nil t) ""))
 	 (length (length word))
 	 (search-string (if (use-region-p)
 			    (buffer-substring-no-properties (region-beginning) (region-end))
@@ -209,12 +202,13 @@
 			      (buffer-substring-no-properties (- (point) 2) (point))
 			    word))))
     (deactivate-mark)
-    (eh-ebib)
-    (phi-search)
-    (insert search-string)
-    ;;    (phi-search-complete)
-    ;;    (ebib-select-and-popup-entry)
-    ))
+    (setq eh-ebib-push-buffer (current-buffer))
+    (ebib file)
+    ;; use phi-search
+    (setq phi-search--last-executed search-string)
+    (setq eh-ebib-recently-opened-bibfile file)
+    (ebib-search-key-in-buffer eh-ebib-the-last-entry-key)
+    (ebib-select-and-popup-entry)))
 
 (defun eh-ebib-quit ()
   "Quit Ebib.
@@ -316,6 +310,7 @@ The user is prompted for the buffer to push the entry into."
 		 (insert (format "\\cite{%s}" citation-string)))))
 	   (message "Pushed entries to buffer %s" eh-ebib-push-buffer)
 	   (setq eh-ebib-push-buffer nil)
+	   (setq eh-ebib-the-last-entry-key (ebib-cur-entry-key))
 	   ;; 隐藏ebib窗口
 	   (ebib-leave-ebib-windows))))
       ((default)
