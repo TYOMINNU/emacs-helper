@@ -50,6 +50,13 @@
   (isearch-yank-string string)
   (isearch-exit))
 
+(defun eh-toggle-debug-on-error ()
+  (interactive)
+  (setq debug-on-error (not debug-on-error))
+  (if debug-on-error
+      (message "debug-on-error on")
+    (message "debug-on-error off")))
+
 (defun eh-directory-files-recursively (directory &optional type regexp)
   "recursively list all the files in a directory"
   (let* ((directory (or directory default-directory))
