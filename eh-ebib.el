@@ -35,7 +35,7 @@
 (require 'reftex)
 (require 'ebib)
 (require 'eh-hanzi2pinyin)
-
+(require 'phi-search)
 
 ;; bibtex autokey rule
 ;; the below will generate a auto named : xulinling2013
@@ -54,7 +54,7 @@
 (setq ebib-layout 'full)
 (setq ebib-window-vertical-split nil)
 (setq ebib-width 80)
-(setq ebib-index-window-size 10)
+(setq ebib-index-window-size 15)
 
 ;; scale the font height in entry buffer
 (setq eh-ebib-entry-buffer-text-scale-amount 2.0)
@@ -202,7 +202,9 @@
     (ebib file)
     (setq eh-ebib-recently-opened-bibfile file)
     (when key
-      (eh-isearch-string key)
+      (phi-search)
+      (insert key)
+      (phi-search-complete)
       (ebib-select-and-popup-entry))))
 
 (defun eh-reftex-get-bibfile-list ()
