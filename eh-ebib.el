@@ -206,7 +206,7 @@
 		      (y-or-n-p (format "Load recently opened bibfile (%s)?  "
 					eh-ebib-recently-opened-bibfile)))
 	     eh-ebib-recently-opened-bibfile)
-	   (when files-list
+	   (when bibfiles-list
 	     (ido-completing-read "Open bibfile:" bibfiles-list))
 	   (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs))))
 	 (word (or (current-word nil t) ""))
