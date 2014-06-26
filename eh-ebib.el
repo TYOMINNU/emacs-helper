@@ -179,6 +179,21 @@
 	((< (length files-matched) 1)
 	 (message "Can't find the corresponding file")))))))
 
+(defun eh-ebib-insert-bibfile-info ()
+  (interactive)
+  (let* ((bibfiles-list (eh-directory-files-recursively "." t ".bib$"))
+	 (file
+	  (or
+	   (when (and eh-ebib-recently-opened-bibfile
+		      (y-or-n-p (format "Insert recently opened bibfile (%s)?  "
+					eh-ebib-recently-opened-bibfile)))
+	     eh-ebib-recently-opened-bibfile)
+	   (when bibfiles-list
+	     (ido-completing-read "Insert bibfile:" bibfiles-list))
+	   (ido-read-file-name "Insert bibfile:" (car ebib-file-search-dirs)))))
+    (insert (format "# \\bibliography{%s}\n"
+		    (file-relative-name file (expand-file-name "."))))))
+
 (defun eh-ebib ()
   "Open ebib then search the marked string"
   (interactive)
