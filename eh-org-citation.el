@@ -51,9 +51,9 @@
 
 ;; defadvice org-bitex-get-style
 (defadvice org-bibtex-get-style (after eh-org-bibtex-get-style () activate)
-  (if (org-not-nil ad-return-value)
-      ad-return-value
-    eh-org-bibtex-default-style-file))
+  (if (not (org-not-nil ad-return-value))
+      (setq ad-return-value
+	    eh-org-bibtex-default-style-file)))
 
 ;; defadvice org-bibtex-get-arguments
 (defadvice org-bibtex-get-arguments (after eh-org-bibtex-get-arguments () activate)
