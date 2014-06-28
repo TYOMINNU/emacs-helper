@@ -54,15 +54,21 @@
 (setq ebib-layout 'full)
 (setq ebib-window-vertical-split nil)
 (setq ebib-width 80)
-(setq ebib-index-window-size 15)
+(setq ebib-index-window-size 10)
 
-;; scale the font height in entry buffer
-(setq eh-ebib-entry-buffer-text-scale-amount 2.0)
+;; ebib addition fields
+(setq ebib-additional-fields
+      '(keywords
+	abstract
+	timestamp
+	file
+	url
+	crossref
+	annote
+	doi))
+
+;; allow the same keys
 (setq ebib-uniquify-keys nil)
-
-;; only show abstract in entry buffer
-(setq eh-ebib-entry-buffer-only-show-abstact t)
-(setq eh-ebib-entry-buffer-abstact-fill-column 80)
 
 ;; record the last opened bibfile name
 (setq eh-ebib-recently-opened-bibfile nil)
@@ -74,12 +80,6 @@
 ;; setting this varible to *a list of field* is *useless* in my configure
 (setq ebib-index-display-fields t)
 
-(defun eh-ebib-select-and-popup-entry ()
-  (interactive)
-  (setq eh-ebib-entry-buffer-only-show-abstact
-	(not eh-ebib-entry-buffer-only-show-abstact))
-  (ebib-select-and-popup-entry))
-
 (defun eh-ebib-get-abstract-field  (field key &optional match-str db)
   "Get abstract field of the entry"
   (or db (setq db ebib-cur-db))
@@ -87,39 +87,47 @@
          (value (ebib-db-get-field-value field key db 'noerror nil 'xref))
          (abstract-string (if (car value)
 			      (copy-sequence (car value)))))
-    (eh-wash-text (or abstract-string "")
-		  eh-ebib-entry-buffer-abstact-fill-column 0)))
+    (eh-wash-text (or abstract-string "") 80 0)))
 
-;; ebib entry buffer format setting
-(defadvice ebib-format-fields (around eh-ebib-format-fields
-				      (key &optional match-str db) activate)
-  ;; show cursor in entry buffer
-  (setq cursor-type t)
-  ;; reset font size to default
-  (text-scale-mode 0)
-  (if eh-ebib-entry-buffer-only-show-abstact
-      (let ((text-scale-mode-amount eh-ebib-entry-buffer-text-scale-amount))
-	;; add additional 0.2 pixels between two lines
-	(setq line-spacing 0.2)
-	;; increase the text size of the entry buffer
-	(text-scale-mode)
-	(visual-line-mode t)
-	(insert (eh-ebib-get-abstract-field 'abstract key match-str)))
-    (progn (toggle-truncate-lines t)
-	   ad-do-it)))
+(defun eh-ebib-quit-abstract-viewer ()
+  (interactive)
+  (if (and (eq ebib-layout 'index-only)
+	   ebib-popup-entry-window)
+      (delete-window)
+    (switch-to-buffer nil t))
+  (ebib-pop-to-buffer 'index)
+  (kill-buffer "*eh-ebib-abstract-viewer*"))
 
-(defadvice ebib-edit-entry (around eh-ebib-edit-entry
-				   () activate)
-  "Edits the current BibTeX entry."
-  (when eh-ebib-entry-buffer-only-show-abstact
-    (eh-ebib-select-and-popup-entry))
-  ad-do-it)
-
-(defadvice ebib-edit-field (around eh-ebib-edit-field
-				   (&optional pfx) activate)
-  "Edits the current BibTeX entry."
-  (when (not eh-ebib-entry-buffer-only-show-abstact)
-    ad-do-it))
+(defun eh-ebib-abstract-viewer ()
+  (interactive)
+  (ebib-execute-when
+    ((entries)
+     ;; if the current entry is the first entry,
+     (let ((key (ebib-cur-entry-key))
+	   (wnd (selected-window))
+	   (buf (current-buffer)))
+       (pop-to-buffer (generate-new-buffer "*eh-ebib-abstract-viewer*")
+		      '((ebib-display-buffer-reuse-window
+			 ebib-display-buffer-largest-window
+			 display-buffer-pop-up-window
+			 display-buffer-pop-up-frame))
+		      t)
+       (insert (eh-ebib-get-abstract-field 'abstract key))
+       (goto-char (point-min))
+       ;; show cursor in entry buffer
+       (setq cursor-type t)
+       ;; reset font size to default
+       (text-scale-mode 0)
+       ;; add additional 0.2 pixels between two lines
+       (setq line-spacing 0.2)
+       ;; enable view-mode
+       (view-mode)
+       (use-local-map
+	(let ((map view-mode-map))
+	  (define-key map (kbd "q") 'eh-ebib-quit-abstract-viewer)
+	  map))))
+    ((default)
+     (beep))))
 
 ;; ebib index buffer format setting
 (defun ebib-display-entry (entry-key)
@@ -134,7 +142,7 @@
 			    (or (ebib-db-get-field-value 'author entry-key ebib-cur-db 'noerror 'unbraced)
 				"  ") "[ \t\n]+and[ \t\n]+\\|," ))
 		      ;; title
-		      (let ((title (ebib-db-get-field-value 'title entry-key ebib-cur-db 'noerror 'unbraced)))
+		      (let ((title (or (ebib-db-get-field-value 'title entry-key ebib-cur-db 'noerror 'unbraced) "")))
 			(if (> (string-width title) 40)
 			    (if (string-match-p "\\cc+" title)
 				(concat (substring title 0 20) "...")
@@ -164,20 +172,30 @@
   (interactive)
   (ebib-execute-when
     ((entries)
-     (let* ((name-string
+     (let* ((key (ebib-cur-entry-key))
+	    (db ebib-cur-db)
+	    (name-string
 	     (car (split-string
-		   (or (car (ebib-db-get-field-value 'author (ebib-cur-entry-key) ebib-cur-db 'noerror 'unbraced 'xref))
+		   (or (car (ebib-db-get-field-value 'author key db 'noerror 'unbraced 'xref))
 		       "  ") "[ \t\n]+and[ \t\n]+\\|," )))
-	    (all-files (eh-directory-files-recursively (file-name-directory (ebib-db-get-filename ebib-cur-db)) t))
+	    (all-files (eh-directory-files-recursively (file-name-directory (ebib-db-get-filename db)) t))
 	    (files-matched (eh-ebib-get-matched-files all-files name-string)))
        (cond
 	((> (length files-matched) 1)
-	 (start-process "" nil "xdg-open" (ido-completing-read "Open file:" files-matched)))
+	 (let ((file (ido-completing-read "Open file:" files-matched)))
+;;	   (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
+;;	   (ebib-save-database db)
+	   (start-process "" nil "xdg-open" file)))
 	((= (length files-matched) 1)
-	 (message "Opening file: %s" (car files-matched))
-	 (start-process "" nil "xdg-open" (car files-matched)))
+	 (let ((file (car files-matched)))
+	   (message "Opening file: %s" file)
+;;	   (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
+;;	   (ebib-save-database db)
+	   (start-process "" nil "xdg-open" file)))
 	((< (length files-matched) 1)
-	 (message "Can't find the corresponding file")))))))
+	 (message "Can't find the corresponding file")))))
+    ((default)
+     (beep))))
 
 (defun eh-ebib-insert-bibfile-info ()
   (interactive)
@@ -448,11 +466,12 @@ The user is prompted for the buffer to push the entry into."
 (ebib-key index "\C-cb" eh-ebib)
 (ebib-key index "\C-xk" ebib-leave-ebib-windows)
 (ebib-key index "\C-xq" eh-ebib-quit)
+(ebib-key index "v" eh-ebib-abstract-viewer)
 (ebib-key index "q" eh-ebib-quit)
 (ebib-key index "f" eh-ebib-view-file)
 (ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
 (ebib-key index [(control k)] eh-ebib-reformat-all-entries)
-(ebib-key index [(return)] eh-ebib-select-and-popup-entry)
+(ebib-key index [(return)] ebib-select-and-popup-entry)
 
 (provide 'eh-ebib)
 
