@@ -35,7 +35,9 @@
 (require 'reftex)
 (require 'ebib)
 (require 'eh-hanzi2pinyin)
-(require 'phi-search)
+
+;; org cite link setting
+(org-add-link-type "cite" 'eh-ebib)
 
 ;; bibtex autokey rule
 ;; the below will generate a auto named : xulinling2013
@@ -183,14 +185,14 @@
        (cond
 	((> (length files-matched) 1)
 	 (let ((file (ido-completing-read "Open file:" files-matched)))
-;;	   (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
-;;	   (ebib-save-database db)
+	   ;; (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
+	   ;; (ebib-save-database db)
 	   (start-process "" nil "xdg-open" file)))
 	((= (length files-matched) 1)
 	 (let ((file (car files-matched)))
 	   (message "Opening file: %s" file)
-;;	   (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
-;;	   (ebib-save-database db)
+	   ;; (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
+	   ;; (ebib-save-database db)
 	   (start-process "" nil "xdg-open" file)))
 	((< (length files-matched) 1)
 	 (message "Can't find the corresponding file")))))
@@ -212,7 +214,7 @@
     (insert (format "# \\bibliography{%s}\n"
 		    (file-relative-name file (expand-file-name "."))))))
 
-(defun eh-ebib ()
+(defun eh-ebib (&optional key)
   "Open ebib then search the marked string"
   (interactive)
   (let* ((bibfiles-list (eh-directory-files-recursively "." t ".bib$"))
@@ -229,18 +231,16 @@
 	   (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs))))
 	 (word (or (current-word nil t) ""))
 	 (length (length word))
-	 (search-string (if (use-region-p)
-			    (buffer-substring-no-properties (region-beginning) (region-end))
-			  (if (and (string-match-p "\\cc+" word) (> length 3))
-			      (buffer-substring-no-properties (- (point) 2) (point))
-			    word))))
+	 (search-string
+	  (if (use-region-p)
+	      (buffer-substring-no-properties (region-beginning) (region-end))
+	    (if (and (string-match-p "\\cc+" word) (> length 3))
+		(buffer-substring-no-properties (- (point) 2) (point))
+	      word))))
     (deactivate-mark)
     (setq eh-ebib-push-buffer (current-buffer))
-    (ebib file)
-    ;; use phi-search
-    (setq phi-search--last-executed search-string)
+    (ebib file (or key eh-ebib-the-last-entry-key))
     (setq eh-ebib-recently-opened-bibfile file)
-    (ebib-search-key-in-buffer eh-ebib-the-last-entry-key)
     (ebib-select-and-popup-entry)))
 
 (defun eh-ebib-quit ()
@@ -294,21 +294,27 @@ Then this function will return the applicable database files."
    ;; Anywhere in the entire document
    (cdr (assq 'bib (symbol-value reftex-docstruct-symbol)))))
 
-(defun eh-ebib-push-bibtex-key ()
+(defun eh-ebib-push-bibtex-key (&optional leave-ebib-window)
   "Pushes the current entry to a LaTeX buffer.
 The user is prompted for the buffer to push the entry into."
   (interactive)
   (let ((called-with-prefix (ebib-called-with-prefix)))
     (ebib-execute-when
       ((entries)
-       (let ((citation-string
-	      ;; 获取当前的entry-key
-	      (if (ebib-db-marked-entries-p ebib-cur-db)
-		  (mapconcat #'(lambda (key)
-				 key)
-			     (ebib-db-list-marked-entries ebib-cur-db)
-			     ", ")
-		(ebib-cur-entry-key))))
+       (let* ((key (ebib-cur-entry-key))
+	      (author
+	       (car (split-string
+		     (or (car (ebib-db-get-field-value 'author key ebib-cur-db 'noerror 'unbraced 'xref))
+			 "  ") "[ \t\n]+and[ \t\n]+\\|," )))
+	      (year (or (car (ebib-db-get-field-value 'year key ebib-cur-db 'noerror 'unbraced 'xref)) "20??"))
+	      (citation-string
+	       ;; 获取当前的entry-key
+	       (if (ebib-db-marked-entries-p ebib-cur-db)
+		   (mapconcat #'(lambda (key)
+				  key)
+			      (ebib-db-list-marked-entries ebib-cur-db)
+			      ", ")
+		 key)))
 	 ;; 将citation-string插入到eh-ebib-push-buffer变量所
 	 ;; 对应的buffer, (调用eh-ebib命令时,会设置eh-ebib-push-buffer变量)
 	 (when citation-string
@@ -317,38 +323,34 @@ The user is prompted for the buffer to push the entry into."
 		    (point1
 		     (progn
 		       (goto-char current-point)
-		       (search-forward "{" nil t)))
+		       (search-forward "[[" nil t)))
 		    (point1 (if point1 point1 (+ 1 (point-max))))
 		    (point2
 		     (progn
 		       (goto-char current-point)
-		       (search-forward "}" nil t)))
+		       (search-forward "]]" nil t)))
 		    (point3
 		     (progn
 		       (goto-char current-point)
-		       (search-backward "{" nil t)))
+		       (search-backward "[[" nil t)))
 		    (point4
 		     (progn
 		       (goto-char current-point)
-		       (search-backward "}" nil t)))
+		       (search-backward "]]" nil t)))
 		    (point4 (if point4 point4 -1)))
 	       (goto-char current-point)
-	       (if (and point2 point3 (> point1 point2) (> point3 point4))
-		   (let ((old-cite (buffer-substring-no-properties (+ point3 1) (- point2 1))))
-		     (goto-char (- point2 1))
-		     (insert
-		      (if (> (length (replace-regexp-in-string " " "" old-cite)) 0)
-			  (concat ", " citation-string)
-			citation-string)))
-		 (insert (format "\\cite{%s}" citation-string)))))
-	   (message "Pushed entries to buffer %s" eh-ebib-push-buffer)
-	   (setq eh-ebib-push-buffer nil)
+	       (when (and point2 point3 (> point1 point2) (> point3 point4))
+		 (search-forward "]]" nil t))
+	       (progn
+		 (insert (format " [[cite:%s][(%s %s)]] " citation-string author year))
+		 (message "Pushed \"%s:%s\" to buffer: \"%s]\"" author citation-string eh-ebib-push-buffer))))
 	   (setq eh-ebib-the-last-entry-key (ebib-cur-entry-key))
 	   ;; 隐藏ebib窗口
-	   (ebib-leave-ebib-windows))))
+	   (when leave-ebib-window
+	     (setq eh-ebib-push-buffer nil)
+	     (ebib-leave-ebib-windows)))))
       ((default)
        (beep)))))
-
 
 (defun eh-bibtex-wash-field (field)
   "Wash the content of field"
@@ -467,9 +469,10 @@ The user is prompted for the buffer to push the entry into."
 (ebib-key index "\C-xk" ebib-leave-ebib-windows)
 (ebib-key index "\C-xq" eh-ebib-quit)
 (ebib-key index "v" eh-ebib-abstract-viewer)
+(ebib-key index "p" eh-ebib-push-bibtex-key)
+(ebib-key index "\C-c\C-c" (lambda () (interactive) (eh-ebib-push-bibtex-key t)))
 (ebib-key index "q" eh-ebib-quit)
 (ebib-key index "f" eh-ebib-view-file)
-(ebib-key index "\C-c\C-c" eh-ebib-push-bibtex-key)
 (ebib-key index [(control k)] eh-ebib-reformat-all-entries)
 (ebib-key index [(return)] ebib-select-and-popup-entry)
 
