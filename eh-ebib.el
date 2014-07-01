@@ -295,8 +295,19 @@ Then this function will return the applicable database files."
    (cdr (assq 'bib (symbol-value reftex-docstruct-symbol)))))
 
 (defun eh-ebib-push-bibtex-key (&optional leave-ebib-window)
-  "Pushes the current entry to a LaTeX buffer.
-The user is prompted for the buffer to push the entry into."
+  (interactive)
+  (let ((buffer-mode (buffer-local-value 'major-mode (get-buffer eh-ebib-push-buffer))))
+    (cond
+	((string= buffer-mode "org-mode")
+	 (eh-ebib-push-org-cite-link leave-ebib-window))
+	(t 
+	 (ebib-push-bibtex-key)
+	 (when leave-ebib-window
+	   (setq eh-ebib-push-buffer nil)
+	   (ebib-leave-ebib-windows))))))
+	
+(defun eh-ebib-push-org-cite-link (&optional leave-ebib-window)
+  "Pushes the cite link of current entry to a org-mode buffer."
   (interactive)
   (let ((called-with-prefix (ebib-called-with-prefix)))
     (ebib-execute-when
@@ -310,40 +321,21 @@ The user is prompted for the buffer to push the entry into."
 	      (citation-string
 	       ;; 获取当前的entry-key
 	       (if (ebib-db-marked-entries-p ebib-cur-db)
-		   (mapconcat #'(lambda (key)
-				  key)
-			      (ebib-db-list-marked-entries ebib-cur-db)
-			      ", ")
+		   (mapconcat #'(lambda (key) key) (ebib-db-list-marked-entries ebib-cur-db) ", ")
 		 key)))
 	 ;; 将citation-string插入到eh-ebib-push-buffer变量所
 	 ;; 对应的buffer, (调用eh-ebib命令时,会设置eh-ebib-push-buffer变量)
 	 (when citation-string
 	   (with-current-buffer eh-ebib-push-buffer
-	     (let* ((current-point (point))
-		    (point1
-		     (progn
-		       (goto-char current-point)
-		       (search-forward "[[" nil t)))
-		    (point1 (if point1 point1 (+ 1 (point-max))))
-		    (point2
-		     (progn
-		       (goto-char current-point)
-		       (search-forward "]]" nil t)))
-		    (point3
-		     (progn
-		       (goto-char current-point)
-		       (search-backward "[[" nil t)))
-		    (point4
-		     (progn
-		       (goto-char current-point)
-		       (search-backward "]]" nil t)))
-		    (point4 (if point4 point4 -1)))
-	       (goto-char current-point)
+	     (let* ((point1 (or (save-excursion (search-forward "[[" nil t)) (+ 1 (point-max))))
+		    (point2 (save-excursion (search-forward "]]" nil t)))
+		    (point3 (save-excursion (search-backward "[[" nil t)))
+		    (point4 (or (save-excursion (search-backward "]]" nil t)) -1)))
 	       (when (and point2 point3 (> point1 point2) (> point3 point4))
 		 (search-forward "]]" nil t))
 	       (progn
-		 (insert (format " [[cite:%s][(%s %s)]] " citation-string author year))
-		 (message "Pushed \"%s:%s\" to buffer: \"%s]\"" author citation-string eh-ebib-push-buffer))))
+		 (insert (format " [[cite:%s][(%s %s)]]" citation-string author year))
+		 (message "Pushed \"%s:%s\" to buffer: \"%s\"" author citation-string eh-ebib-push-buffer))))
 	   (setq eh-ebib-the-last-entry-key (ebib-cur-entry-key))
 	   ;; 隐藏ebib窗口
 	   (when leave-ebib-window
