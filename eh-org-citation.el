@@ -40,6 +40,9 @@
 
 (require 'ox-bibtex)
 
+;; org cite link setting
+(org-add-link-type "cite" 'eh-ebib)
+
 ;; bibtex default style file
 (setq eh-org-bibtex-default-style-file
       (concat (file-name-directory
