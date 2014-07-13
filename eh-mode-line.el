@@ -47,6 +47,7 @@
 
 (setq-default mode-line-format
 	      (list
+	       "+ "
 	       '(:eval (if buffer-read-only
 			   (propertize "只读  "
 				       'face 'font-lock-type-face
