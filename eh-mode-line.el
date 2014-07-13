@@ -69,15 +69,10 @@
 	       ;; current major mode
 	       '(:eval (propertize "[%m] " 'face 'font-lock-string-face
 				   'help-echo (symbol-name buffer-file-coding-system)))
-	       ;; current minor-mode, emms song info or sdcv translation
-	       '(:eval (if (= 0 (length eh-sdcv-mode-line-string))
-			   (if emms-player-playing-p
-			       (list emms-mode-line-string " " emms-playing-time-string)
-			     (list (if (= 0 (length eh-sdcv-previous-word))
-				       ""
-				     (concat "[无法翻译: " eh-sdcv-previous-word "] "))
-				   "( " eh-mode-line-coding-format  minor-mode-alist " )"))
-			 eh-sdcv-mode-line-string))
+	       ;; current minor-mode, emms song info
+	       '(:eval (if emms-player-playing-p
+			   (list emms-mode-line-string " " emms-playing-time-string)
+			 (list "( " eh-mode-line-coding-format  minor-mode-alist " )")))
 	       ;; show: -------
 	       " %-"))
 

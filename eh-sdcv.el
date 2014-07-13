@@ -30,20 +30,11 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-;;; Use:
-;; Include `eh-sdcv-mode-line-string' in your `mode-line-format'
-;; and add `(run-with-timer 0 0.5 'eh-update-sdcv-mode-line-string)'
-;; to your ~.emacs
-
-
 ;;; Code:
 (setq eh-sdcv-chinese2english-command "sdcv --utf8-output --utf8-input -n -u XDICT汉英辞典")
 (setq eh-sdcv-english2chinese-command "sdcv -n -u XDICT英汉辞典")
 ;; Chinese word split system command
 (setq eh-scws-command "/usr/local/scws/bin/scws -c utf-8 -N -A -I -d /usr/local/scws/etc/dict.utf8.xdb -i")
-
-(defvar eh-sdcv-mode-line-string "")
-(defvar eh-sdcv-previous-word "")
 
 (defun eh-current-word ()
   "Get English word or Chinese word at point"
@@ -57,22 +48,6 @@
 		(shell-command-to-string
 		 (concat eh-scws-command " " (or word ",")))))))
 	word "")))
-
-(defun eh-update-sdcv-mode-line-string ()
-  "Update `eh-sdcv-mode-line-string' with translation of current word"
-  (interactive)
-  (let ((word
-	 (if (string-match-p "minibuffer" (symbol-name major-mode))
-	     ""
-	   (eh-current-word))))
-    (unless (string= word eh-sdcv-previous-word)
-      (setq eh-sdcv-previous-word word)
-      (let ((translate (eh-sdcv-get-translate word)))
-	(setq eh-sdcv-mode-line-string
-	      (unless (= 0 (length translate))
-		(format "[%s: %s]" word
-			(mapconcat 'identity translate ",")))))
-      (force-mode-line-update))))
 
 (defun eh-sdcv-get-translate (word)
   "Return a translations list of `word'"
@@ -132,11 +107,7 @@
       (set-mark (point))
       (skip-syntax-backward "w"))))
 
-;; 每0.5秒运行一次eh-update-sdcv-mode-line-string
-(run-with-timer 0 0.5 'eh-update-sdcv-mode-line-string)
-
 (global-set-key (kbd "C-c d") 'eh-replace-word-with-translate)
-
 
 (provide 'eh-sdcv)
 
