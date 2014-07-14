@@ -49,7 +49,7 @@
 (recentf-mode 1)
 (setq recentf-max-saved-items 99)
 (setq recentf-max-menu-items 99)
-(setq recentf-exclude '("COMMIT" "autoloads" "archive-contents" "eld" "newsrc"))
+(setq recentf-exclude '("/adb:" "COMMIT" "autoloads" "archive-contents" "eld" "newsrc"))
 (setq recentf-menu-filter 'eh-recentf-buffer-filter)
 (setq recentf-show-file-shortcuts-flag nil)
 
