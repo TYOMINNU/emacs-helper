@@ -49,9 +49,6 @@
 ;; 高亮配对的括号
 (show-paren-mode 1)
 
-;; 设置emacs-daemon使用tcp模式
-(setq server-use-tcp t)
-
 (defvar eh-default-fonts-list '("PragmataPro 15" "文泉驿等宽微米黑")
   "Emacs的设计里，假设一个双字节字符和两个半角英文字符是等宽的。
 所有的表格对齐之类的问题，无论table-insert还是org-mode都是基于这个假设之上。
