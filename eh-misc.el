@@ -152,7 +152,7 @@
   (define-key undo-tree-visualizer-mode-map (kbd "k") 'undo-tree-visualizer-quit)
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
-;; stumpwm
+;; slime and stumpwm
 (require 'slime)
 (setq inferior-lisp-program "sbcl")
 (slime-setup)
