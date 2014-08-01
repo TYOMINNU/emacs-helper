@@ -152,6 +152,15 @@
   (define-key undo-tree-visualizer-mode-map (kbd "k") 'undo-tree-visualizer-quit)
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
+;; slime
+(require 'slime)
+(setq inferior-lisp-program "sbcl")
+
+(defun stumpwm-swank-connect ()
+  (interactive)
+  (shell-command "stumpish swank")
+  (slime-connect "127.0.0.1" "4005"))
+
 ;;;autoload(require 'eh-misc)
 (provide 'eh-misc)
 
