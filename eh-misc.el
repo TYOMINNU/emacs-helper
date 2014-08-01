@@ -153,8 +153,9 @@
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
 ;; slime
-(require 'slime)
 (setq inferior-lisp-program "sbcl")
+(require 'slime)
+(slime-setup)
 
 (defun stumpwm-swank-connect ()
   (interactive)
