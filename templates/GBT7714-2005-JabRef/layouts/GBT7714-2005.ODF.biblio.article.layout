@@ -1,9 +1,0 @@
-\begin{author}
-\format[FormatChars,AuthorLastFirstCommas]{\author}. \end{author}
-"\format[FormatChars]{\title}." <text:span text:style-name="Emphasis">\format[FormatChars]{\journal}</text:span>
-\begin{volume} \volume\end{volume}
-\begin{number}, no. \number\end{number} 
-(
-\begin{month}\format[FormatChars]{\month}, \end{month}
-\begin{year}\format[FormatChars]{\year})\end{year}
-\begin{pages}: \pages\end{pages}. \\par\\par
