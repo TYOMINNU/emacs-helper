@@ -30,20 +30,8 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-;; Note:
-;; eval the following elisp and install emacs package `org-odt'
-;; (add-to-list 'package-archives
-;; 	     '("org-odt" . "http://repo.or.cz/w/org-mode/org-kjn.git/blob_plain/master:/") t)
-;;
-
 ;;; Code:
-
 (require 'ox-bibtex)
-(when (locate-library "org-odt")
-  (require 'ox-jabref))
-
-(setq eh-org-jabref-file "~/bin/JabRef-2.9.2.jar")
-(setq org-jabref-command (list "java" "-jar" (expand-file-name eh-org-jabref-file) "-n" "true"))
 
 ;; org cite link setting
 (org-add-link-type "cite" 'eh-ebib)
