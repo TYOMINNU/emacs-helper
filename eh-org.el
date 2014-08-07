@@ -41,6 +41,7 @@
 (require 'org-screenshot)
 (require 'ob-R)
 (require 'ob-plantuml)
+(require 'ox-extra)
 
 ;;; 自定义变量
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
@@ -339,22 +340,13 @@
 ;;        org-format-latex-header))
 
 
-;; 如果一个标题包含TAG: “ignoreheading” ,导出latex时直接忽略这个标题，
+;; 如果一个标题包含TAG: “ignore” ,导出latex时直接忽略这个标题，
 ;; 但对它的内容没有影响，这个可以使用在这种情况下：
 ;; * 摘要
 ;; #+LATEX: \abstract{摘\quad要}
+;; 这个功能包含在ox-extra.el中。
+(ox-extras-activate '(latex-header-blocks ignore-headlines))
 
-(defadvice org-latex-headline (around my-latex-skip-headlines
-                                      (headline contents info) activate)
-  (if (member "ignoreheading" (org-element-property :tags headline))
-      (setq ad-return-value contents)
-    ad-do-it))
-
-(defadvice org-odt-headline (around my-odt-skip-headlines
-                                      (headline contents info) activate)
-  (if (member "ignoreheading" (org-element-property :tags headline))
-      (setq ad-return-value contents)
-    ad-do-it))
 
 (defun eh-org-open-cite-link (key)
   "Get bibfile from \\bibliography{...} and open it with ebib"
