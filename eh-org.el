@@ -30,10 +30,21 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(setq org-export-backends
-      '(ascii beamer html latex md odt deck rss s5))
-
 (require 'org)
+
+(require 'ox)
+(require 'ox-extra)
+(require 'ox-ascii)
+(require 'ox-beamer)
+(require 'ox-html)
+(require 'ox-latex)
+(require 'ox-md)
+(require 'ox-odt)
+(require 'ox-deck)
+(require 'ox-rss)
+(require 'ox-s5)
+(require 'ox-pandoc)
+
 (require 'org-contacts)
 (require 'org-mime)
 (require 'org-bookmark)
@@ -41,7 +52,6 @@
 (require 'org-screenshot)
 (require 'ob-R)
 (require 'ob-plantuml)
-(require 'ox-extra)
 
 ;;; 自定义变量
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
@@ -70,6 +80,8 @@
 (setq org-startup-indented nil)
 (setq org-confirm-babel-evaluate nil)
 (setq org-edit-src-content-indentation 0)
+(setq org-export-backends
+      '(ascii beamer html latex md odt deck rss s5))
 
 ;; truncate line depend context
 (defun eh-org-truncate-lines (&optional arg)
