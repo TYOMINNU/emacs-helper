@@ -56,6 +56,7 @@
 ;;; 自定义变量
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
 (setq org-plantuml-jar-path "~/bin/plantuml.jar")
+(setq org-pandoc-command "~/.cabal/bin/pandoc")
 (setq org-latex-to-mathml-convert-command
       "java -jar %j -unicode -force -df %o %I"
       org-latex-to-mathml-jar-file
