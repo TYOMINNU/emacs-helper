@@ -69,6 +69,7 @@
 (setq org-log-done t)   
 (setq org-startup-indented nil)
 (setq org-confirm-babel-evaluate nil)
+(setq org-edit-src-content-indentation 0)
 
 ;; truncate line depend context
 (defun eh-org-truncate-lines (&optional arg)
