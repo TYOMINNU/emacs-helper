@@ -66,6 +66,9 @@
 ;; ebib 相关快捷键
 (global-set-key (kbd "C-c b") 'eh-ebib)
 
+;; C-t被stumpwm占用, 重新绑定org-todo
+(org-defkey org-mode-map (kbd "C-c t") 'org-todo)
+
 ;; org-mode 相关快捷键
 (global-set-key (kbd "<f1>") '(lambda () (interactive) (org-agenda nil "l")))
 
