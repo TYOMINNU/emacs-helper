@@ -203,12 +203,13 @@
 
 ;;; Add new easy templates
 (setq org-structure-template-alist
-      (append '(("r" "#+BEGIN_SRC R?\n\n#+END_SRC")
-		("rh" "#+PROPERTY: header-args:R  :session *R* :tangle yes :colnames yes :rownames yes :width 700 :height 500")
-		("rv" "#+BEGIN_SRC R :results value?\n\n#+END_SRC")
-		("ro" "#+BEGIN_SRC R :results output?\n\n#+END_SRC")
+      (append '(("r" "#+BEGIN_SRC R\n?\n#+END_SRC")
+		("rh" "#+PROPERTY: header-args:R  :session *R* :tangle yes :colnames yes :rownames no :width 700 :height 500")
+		("rv" "#+BEGIN_SRC R :results value\n?\n#+END_SRC")
+		("ro" "#+BEGIN_SRC R :results output verbatim\n?\n#+END_SRC")
 		("rg" "#+BEGIN_SRC R :results graphics :file ?\n\n#+END_SRC")
-		("rs" "#+BEGIN_SRC R :results silent?\n\n#+END_SRC"))
+		("rs" "#+BEGIN_SRC R :results output silent\n?\n#+END_SRC")
+		("rd" "#+BEGIN_SRC R :colnames no :results value drawer\n`%c%` <- function(a,b){c(a,b)}\n?\n#+END_SRC"))
 	      org-structure-template-alist))
 
 ;;; Export language
