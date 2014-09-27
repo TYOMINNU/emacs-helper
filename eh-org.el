@@ -126,7 +126,7 @@
    (python . t)
    (ruby . nil)
    (screen . nil)
-   (sh . nil)
+   (shell . t)
    (sql . nil)
    (sqlite . nil)))
 
