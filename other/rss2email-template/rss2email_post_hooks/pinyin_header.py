@@ -7,12 +7,9 @@
 # before send mail.
 #
 # Use:
-#   1. cp the file to  <your-rss2email-path>/rss2email/post_process/
-#      before install rss2email from source.
-#   2. install rss2email from source, the source path: <your-rss2email-path>
-#   3. add the below line to your rss2email configure:
+# add the below line to your rss2email configure:
 #
-#       post-process = rss2email.post_process.add_pinyin_header add_pinyin_header
+#       post-process = rss2email_post_hooks.pinyin_header add_pinyin_header
 #
 
 import rss2email.email

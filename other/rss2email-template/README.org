@@ -86,15 +86,15 @@ Removing /usr/local/lib/python3.2/dist-packages/rss2email-3.9.egg-info
 Writing /usr/local/lib/python3.2/dist-packages/rss2email-3.9.egg-info
 #+end_example
 
-* 安装rss2email_pinyin_header包
-把rss2email_pinyin_header所在的目录添加到PYTHONPATH（语法与shell里面的PATH一样）
+* 安装rss2email_post_hooks包
+将rss2email_post_hooks所在的目录添加到PYTHONPATH（语法与shell里面的PATH一样）
 
-将下面一行代码写入~/.bashrc文件
+最简单的方式就是：将下面一行代码写入~/.bashrc文件。
 #+BEGIN_SRC shell :eval never
 export PYTHONPATH=$PYTHONPATH:~/project/emacs-packages/emacs-helper/other/rss2email-template/
 #+END_SRC
 
-测试rss2email_pinyin_header包
+测试rss2email_post_hooks包
 
 #+BEGIN_SRC shell
 bash ./test.sh
