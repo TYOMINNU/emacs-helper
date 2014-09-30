@@ -394,11 +394,6 @@
 (defvar eh-gnus-current-article-url nil)
 (defvar eh-gnus-current-article-subject nil)
 (defvar eh-gnus-current-article-from nil)
-(defvar eh-eww-buffer-wash-p nil)
-(defvar eh-eww-buffer-prevent-wash nil)
-
-(defvar eh-eww-buffer-killed-region-1 nil)
-(defvar eh-eww-buffer-killed-region-2 nil)
 
 (setq eh-eww-buffer-position-string-1 nil)
 (setq eh-eww-buffer-position-string-2
@@ -413,6 +408,33 @@
 	"您可能感兴趣的文章" "今日热读" "版面编辑" "收藏此页"
 	"条评论" "提交文章" "往日文章" "过去的投票" "编辑介绍"
 	"隐私政策" "不得转载" "版权所有" "未经许可" "今日热点"))
+
+(defun eh-gnus-web-browser (url &optional post-process-function)
+  "Fetch URL and render the page.
+If the input doesn't look like an URL or a domain name, the
+word(s) will be searched for via `eww-search-prefix'."
+  (interactive "sEnter URL or keywords: ")
+  (cond ((string-match-p "\\`file://" url))
+        ((string-match-p "\\`ftp://" url)
+         (user-error "FTP is not supported."))
+        (t
+         (if (and (= (length (split-string url)) 1)
+                 (or (and (not (string-match-p "\\`[\"\'].*[\"\']\\'" url))
+                          (> (length (split-string url "\\.")) 1))
+                     (string-match eww-local-regex url)))
+             (progn
+               (unless (string-match-p "\\`[a-zA-Z][-a-zA-Z0-9+.]*://" url)
+                 (setq url (concat "http://" url)))
+               ;; some site don't redirect final /
+               (when (string= (url-filename (url-generic-parse-url url)) "")
+                 (setq url (concat url "/"))))
+           (setq url (concat eww-search-prefix
+                             (replace-regexp-in-string " " "+" url))))))
+  (url-retrieve url 'eh-gnus-web-page-render (list url nil post-process-function)))
+
+(defun eh-gnus-web-page-render (status url &optional point post-process-function)
+  (eww-render status url point)
+  (funcall post-process-function))
 
 (defun eh-eww-build-regexp (str)
   (mapconcat (lambda (x) (concat "\n*" (list x))) str ""))
@@ -448,14 +470,10 @@
 		begin (point)))))))
   (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
 	     eh-gnus-current-article-url)
-    (eww eh-gnus-current-article-url)
-    (setq eh-eww-buffer-wash-p nil)
-    (setq eh-eww-buffer-prevent-wash nil)
-    (setq eh-eww-buffer-killed-region-1 nil)
-    (setq eh-eww-buffer-killed-region-2 nil)
+    (eh-gnus-web-browser eh-gnus-current-article-url 'eh-eww-clean-view)
     (delete-other-windows)))
 
-(defun eh-eww-wash-buffer ()
+(defun eh-eww-clean-view ()
   (interactive)
   (when (string= (buffer-name) "*eww*")
     (save-excursion
@@ -467,13 +485,6 @@
 				 eh-gnus-current-article-from)
 		 (string-match-p eh-eww-buffer-ignore-wash-regexp
 				 eh-gnus-current-article-subject)))
-	;; 自动断行
-	(fill-region (point-min) (point-max))
-	;; 行距设置为0.2
-	(setq line-spacing 0.2)
-	;; 设置字号
-	(let ((text-scale-mode-amount 1.2))
-	  (text-scale-mode)))
       (goto-char (point-min))
       (let* ((string eh-eww-buffer-position-string-1)
 	     (length (length string))
@@ -498,69 +509,31 @@
 	    (setq boundary-search-p nil)))
 	(end-of-line)
 	(setq boundary2 (point))
-	;; record two regions
-	(when (> (- boundary1 (point-min)) 200)
-	  (setq eh-eww-buffer-killed-region-1 (buffer-substring (point-min) boundary1)))
-	(when (> (- (point-max) boundary2) 200)
-	  (setq eh-eww-buffer-killed-region-2 (buffer-substring boundary2 (point-max))))
-	;; remove useless context
-	(delete-region (point-min) boundary1)
-	(delete-region boundary2 (point-max))
-	(goto-char (point-min))
-	(setq eh-eww-buffer-wash-p t)))))
+	;; narrow到文章正文
+	(narrow-to-region boundary1 boundary2)
+	;; 自动断行
+	(let ((fill-column 90))
+	  (fill-region boundary1 boundary2))
+	;; 禁止自动折行
+	(toggle-truncate-lines 1)
+	;; 行距设置为0.2
+	(setq line-spacing 0.2)
+	;; 设置字号
+	(let ((text-scale-mode-amount 1.1))
+	  (text-scale-mode)))))))
 
-(defun eh-eww-scroll-up ()
-  (interactive)
-  (interactive)
-  (cond (eh-eww-buffer-prevent-wash
-	 (scroll-up-command))
-	((not eh-eww-buffer-wash-p)
-	 (eh-eww-wash-buffer))
-	(t (let ((point (point)))
-	     (eh-eww-wash-buffer)
-	     (goto-char point)
-	     (scroll-up-command)))))
-
-(defun eh-eww-next-line ()
-  (interactive)
-  (cond (eh-eww-buffer-prevent-wash
-	 (next-line))
-	((not eh-eww-buffer-wash-p)
-	 (eh-eww-wash-buffer))
-	(t (let ((point (point)))
-	     (eh-eww-wash-buffer)
-	     (goto-char point)
-	     (next-line)))))
-
-(defun eh-eww-toggle-wash ()
+(defun eh-eww-toggle-clear-view ()
   (interactive)
   (when (string= (buffer-name) "*eww*")
-    (let* ((string1 (or eh-eww-buffer-killed-region-1 ""))
-	   (string2 (or eh-eww-buffer-killed-region-2 ""))
-	   (length1 (length string1))
-	   (length2 (length string2)))
-      (if eh-eww-buffer-wash-p
-	  (save-excursion
-	    (goto-char (point-min))
-	    (insert string1)
-	    (goto-char (point-max))
-	    (insert string2)
-	    (setq eh-eww-buffer-wash-p nil)
-	    (setq eh-eww-buffer-prevent-wash t)
-	    (message "Show original article!"))
-	(save-excursion
-	  (goto-char (point-min))
-	  (delete-char length1)
-	  (goto-char (point-max))
-	  (delete-char (- length2))
-	  (setq eh-eww-buffer-wash-p t)
-	  (setq eh-eww-buffer-prevent-wash nil)
-	  (message "Show washed article!"))))))
+    (if (buffer-narrowed-p)
+	(progn
+	  (widen)
+	  (message "Show all page"))
+      (progn
+	(eh-eww-clean-view)
+	(message "Show only article")))))
 
-(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-wash)
-(define-key eww-mode-map (kbd "SPC") 'eh-eww-scroll-up)
-(define-key eww-mode-map (kbd "<down>") 'eh-eww-next-line)
-
+(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-clear-view)
 
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
