@@ -395,6 +395,8 @@
 (defvar eh-gnus-current-article-subject nil)
 (defvar eh-gnus-current-article-from nil)
 
+(defvar eh-eww-hide-region-overlays  nil)
+
 (setq eh-eww-buffer-position-string-1 nil)
 (setq eh-eww-buffer-position-string-2
       '("责编" "责任编辑" "关键字" "更多相关消息" "新闻推荐"
@@ -408,29 +410,6 @@
 	"您可能感兴趣的文章" "今日热读" "版面编辑" "收藏此页"
 	"条评论" "提交文章" "往日文章" "过去的投票" "编辑介绍"
 	"隐私政策" "不得转载" "版权所有" "未经许可" "今日热点"))
-
-(defun eh-gnus-web-browser (url &optional post-process-function)
-  "Fetch URL and render the page.
-If the input doesn't look like an URL or a domain name, the
-word(s) will be searched for via `eww-search-prefix'."
-  (interactive "sEnter URL or keywords: ")
-  (cond ((string-match-p "\\`file://" url))
-        ((string-match-p "\\`ftp://" url)
-         (user-error "FTP is not supported."))
-        (t
-         (if (and (= (length (split-string url)) 1)
-                 (or (and (not (string-match-p "\\`[\"\'].*[\"\']\\'" url))
-                          (> (length (split-string url "\\.")) 1))
-                     (string-match eww-local-regex url)))
-             (progn
-               (unless (string-match-p "\\`[a-zA-Z][-a-zA-Z0-9+.]*://" url)
-                 (setq url (concat "http://" url)))
-               ;; some site don't redirect final /
-               (when (string= (url-filename (url-generic-parse-url url)) "")
-                 (setq url (concat url "/"))))
-           (setq url (concat eww-search-prefix
-                             (replace-regexp-in-string " " "+" url))))))
-  (url-retrieve url 'eh-gnus-web-page-render (list url nil post-process-function)))
 
 (defun eh-gnus-web-page-render (status url &optional point post-process-function)
   (eww-render status url point)
@@ -470,8 +449,26 @@ word(s) will be searched for via `eww-search-prefix'."
 		begin (point)))))))
   (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
 	     eh-gnus-current-article-url)
-    (eh-gnus-web-browser eh-gnus-current-article-url 'eh-eww-clean-view)
+    (url-retrieve eh-gnus-current-article-url 'eh-gnus-web-page-render
+		  (list eh-gnus-current-article-url nil 'eh-eww-clean-view))
     (delete-other-windows)))
+
+(defun eh-eww-narrow-to-region (position1 position2)
+  (let ((new-overlay1 (make-overlay (point-min) position1))
+	(new-overlay2 (make-overlay position2 (point-max))))
+    (push new-overlay1 eh-eww-hide-region-overlays)
+    (push new-overlay2 eh-eww-hide-region-overlays)
+    (overlay-put new-overlay1 'invisible t)
+    (overlay-put new-overlay1 'intangible t)
+    (overlay-put new-overlay2 'invisible t)
+    (overlay-put new-overlay2 'intangible t)))
+
+(defun eh-eww-widen ()
+  (interactive)
+  (when eh-eww-hide-region-overlays
+    (delete-overlay (car eh-eww-hide-region-overlays))
+    (delete-overlay (car (cdr eh-eww-hide-region-overlays)))
+    (setq eh-eww-hide-region-overlays nil)))
 
 (defun eh-eww-clean-view ()
   (interactive)
@@ -485,49 +482,51 @@ word(s) will be searched for via `eww-search-prefix'."
 				 eh-gnus-current-article-from)
 		 (string-match-p eh-eww-buffer-ignore-wash-regexp
 				 eh-gnus-current-article-subject)))
-      (goto-char (point-min))
-      (let* ((string eh-eww-buffer-position-string-1)
-	     (length (length string))
-	     (regexp1 (eh-eww-build-regexp (substring string 0 (if (< length 10) length 10))))
-	     (regexp2 (eh-eww-build-regexp (substring string (- length 10) length)))
-	     (boundary-search-p t)
-	     boundary1 boundary2)
-	;; find first narrow boundary
-	(if (or (re-search-forward regexp2 nil t)
-		(re-search-forward regexp1 nil t))
-	    (backward-paragraph)
-	  (goto-char (point-min)))
-	(setq boundary1 (point))
-	;; find second narrow boundary
-	(while (and (< (- (point) boundary1) 200)
-		    boundary-search-p)
-	  (unless (re-search-forward
-		   (mapconcat 'eh-eww-build-regexp
-			      eh-eww-buffer-position-string-2
-			      "\\|") nil t)
-	    (goto-char (point-max))
-	    (setq boundary-search-p nil)))
-	(end-of-line)
-	(setq boundary2 (point))
-	;; narrow到文章正文
-	(narrow-to-region boundary1 boundary2)
-	;; 自动断行
-	(let ((fill-column 90))
-	  (fill-region boundary1 boundary2))
+	;; 取消断行
+	(let ((fill-column 10000))
+	  (fill-region (point-min) (point-max)))
 	;; 禁止自动折行
-	(toggle-truncate-lines 1)
+	;;(toggle-truncate-lines 0)
+	(visual-line-mode 1)
+	(setq word-wrap nil)
 	;; 行距设置为0.2
-	(setq line-spacing 0.2)
+	(setq line-spacing 0.1)
 	;; 设置字号
-	(let ((text-scale-mode-amount 1.1))
-	  (text-scale-mode)))))))
+	(let ((text-scale-mode-amount 1.0))
+	  (text-scale-mode))
+	(goto-char (point-min))
+	(let* ((string eh-eww-buffer-position-string-1)
+	       (length (length string))
+	       (regexp1 (eh-eww-build-regexp (substring string 0 (if (< length 10) length 10))))
+	       (regexp2 (eh-eww-build-regexp (substring string (- length 10) length)))
+	       (boundary-search-p t)
+	       boundary1 boundary2)
+	  ;; find first narrow boundary
+	  (if (or (re-search-forward regexp2 nil t)
+		  (re-search-forward regexp1 nil t))
+	      (backward-paragraph)
+	    (goto-char (point-min)))
+	  (setq boundary1 (point))
+	  ;; find second narrow boundary
+	  (while (and (< (- (point) boundary1) 200)
+		      boundary-search-p)
+	    (unless (re-search-forward
+		     (mapconcat 'eh-eww-build-regexp
+				eh-eww-buffer-position-string-2
+				"\\|") nil t)
+	      (goto-char (point-max))
+	      (setq boundary-search-p nil)))
+	  (end-of-line)
+	  (setq boundary2 (point))
+	  ;; narrow到文章正文
+	  (eh-eww-narrow-to-region boundary1 boundary2))))))
 
 (defun eh-eww-toggle-clear-view ()
   (interactive)
   (when (string= (buffer-name) "*eww*")
-    (if (buffer-narrowed-p)
+    (if eh-eww-hide-region-overlays
 	(progn
-	  (widen)
+	  (eh-eww-widen)
 	  (message "Show all page"))
       (progn
 	(eh-eww-clean-view)
