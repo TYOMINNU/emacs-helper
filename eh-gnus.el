@@ -409,7 +409,7 @@
 	"热门推荐" "复制本网址推荐" "延伸阅读" "热门排行" "大中小"
 	"您可能感兴趣的文章" "今日热读" "版面编辑" "收藏此页"
 	"条评论" "提交文章" "往日文章" "过去的投票" "编辑介绍"
-	"隐私政策" "不得转载" "版权所有" "未经许可" "今日热点"))
+	"隐私政策" "不得转载" "版权所有" "未经许可" "今日热点" "猜你喜欢"))
 
 (defun eh-gnus-web-page-render (status url &optional point post-process-function)
   (eww-render status url point)
