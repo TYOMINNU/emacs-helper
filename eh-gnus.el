@@ -516,6 +516,7 @@
 				"\\|") nil t)
 	      (goto-char (point-max))
 	      (setq boundary-search-p nil)))
+	  (end-of-line)
 	  (setq boundary2 (point))
 	  ;; narrow到文章正文
 	  (eh-eww-narrow-to-region boundary1 boundary2))))))
