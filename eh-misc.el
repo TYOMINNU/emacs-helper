@@ -68,6 +68,9 @@
 
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 
+;; magit
+(require 'magit)
+
 ;; wdired
 (require 'wdired)
 
