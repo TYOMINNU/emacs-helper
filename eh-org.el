@@ -282,10 +282,11 @@
 (setq org-latex-date-format "%Y-%m-%d")
 (setq org-export-with-LaTeX-fragments 'imagemagick)
 (setq org-latex-create-formula-image-program 'imagemagick)
-(setq org-latex-pdf-process '("xelatex -interaction nonstopmode -output-directory %o %f"
-                               "bibtex %b"
-                               "xelatex -interaction nonstopmode -output-directory %o %f" 
-                               "xelatex -interaction nonstopmode -output-directory %o %f"))
+(setq org-latex-commands '(("xelatex -interaction nonstopmode -output-directory %o %f"
+			    "bibtex %b"
+			    "xelatex -interaction nonstopmode -output-directory %o %f"
+			    "xelatex -interaction nonstopmode -output-directory %o %f")
+			   ("xelatex -interaction nonstopmode -output-directory %o %f")))
 
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
@@ -372,6 +373,13 @@
 ;; 这个功能包含在ox-extra.el中。
 (ox-extras-activate '(latex-header-blocks ignore-headlines))
 
+(defun eh-org-latex-compile (orig-fun texfile &optional snippet)
+  (let ((org-latex-pdf-process
+	 (if snippet (car (cdr org-latex-commands))
+	   (car org-latex-commands))))
+    (funcall orig-fun texfile snippet)))
+
+(advice-add 'org-latex-compile :around #'eh-org-latex-compile)
 
 (defun eh-org-open-cite-link (key)
   "Get bibfile from \\bibliography{...} and open it with ebib"
