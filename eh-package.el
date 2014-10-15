@@ -4,6 +4,7 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
 (package-initialize)
+(setq package-unsigned-archives '("gnu"))
 
 (defun eh-save-package-list ()
   (interactive)
