@@ -344,7 +344,6 @@
 (setq  org-latex-packages-alist
        '("
 %%% 默认使用的latex宏包 %%%
-\\usepackage{xeCJK}
 \\usepackage{tikz}
 \\usepackage{CJKulem}
 \\usepackage{graphicx}
@@ -359,11 +358,11 @@
 "))
 
 ;; latex公式预览, 调整latex预览时使用的header,默认使用ctexart类
-;; (setq org-format-latex-header
-;;       (replace-regexp-in-string
-;;        "\\\\documentclass{.*}"
-;;        "\\\\documentclass{ctexart}"
-;;        org-format-latex-header))
+(setq org-format-latex-header
+      (replace-regexp-in-string
+       "\\\\documentclass{.*}"
+       "\\\\documentclass[nofonts,UTF8]{ctexart}"
+       org-format-latex-header))
 
 
 ;; 如果一个标题包含TAG: “ignore” ,导出latex时直接忽略这个标题，
