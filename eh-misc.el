@@ -74,6 +74,9 @@
 ;; wdired
 (require 'wdired)
 
+;; dired-ranger
+(require 'dired-ranger)
+
 ;; multiple-cursors
 (require 'multiple-cursors)
 (global-set-key (kbd "C-x C-x m") 'mc/edit-lines)
