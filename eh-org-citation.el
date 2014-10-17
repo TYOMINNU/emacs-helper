@@ -45,17 +45,20 @@
 (setq eh-org-bibtex-bibtex2html-options
       '("-a" "-noabstract" "-nokeywords" "-i" "-nolinks"))
 
-;; defadvice org-bitex-get-style
-(defadvice org-bibtex-get-style (after eh-org-bibtex-get-style () activate)
-  (if (not (org-not-nil ad-return-value))
-      (setq ad-return-value
-	    eh-org-bibtex-default-style-file)))
+(defun eh-org-bibtex-add-default-style (style)
+  "If `org-bibtex-get-style not return a valid style, return a default"
+  (when (not (org-not-nil style))
+    eh-org-bibtex-default-style-file))
 
-;; defadvice org-bibtex-get-arguments
-(defadvice org-bibtex-get-arguments (after eh-org-bibtex-get-arguments () activate)
-  (let ((orig-options (plist-get ad-return-value :options)))
-    (setq options (plist-put ad-return-value :options
-			     (delete-dups (append eh-org-bibtex-bibtex2html-options orig-options))))))
+(defun eh-org-bibtex-add-default-arguments (arguments)
+  "Add extra arguments to `org-bibtex-get-arguments returned"
+  (let ((orig-options (plist-get arguments :options)))
+    (plist-put arguments :options
+	       (delete-dups (append eh-org-bibtex-bibtex2html-options orig-options)))))
+
+(advice-add 'org-bibtex-get-style :filter-return #'eh-org-bibtex-add-default-style)
+(advice-add 'org-bibtex-get-arguments :filter-return #'eh-org-bibtex-add-default-arguments)
+
 (provide 'eh-org-citation)
 ;; Local Variables:
 ;; coding: utf-8-unix
