@@ -132,8 +132,8 @@
      (beep))))
 
 ;; ebib index buffer format setting
-(defun ebib-display-entry (entry-key)
-  "Display ENTRY-KEY in the index buffer at POINT."
+(defun eh-ebib-display-entry (entry-key)
+  "Display entry-key, title, journal, publisher and school in the index buffer at POINT. "
   (with-current-buffer (cdr (assoc 'index ebib-buffer-alist))
     (with-ebib-buffer-writable
       (setq cursor-type t)
@@ -156,6 +156,8 @@
 			  (ebib-db-get-field-value 'school entry-key ebib-cur-db 'noerror 'unbraced)
 			  "——————————")
 		      "")))))
+
+(advice-add 'ebib-display-entry :override #'eh-ebib-display-entry)
 
 (defun eh-ebib-get-matched-files (files-list match-str)
   (let ((match-string (replace-regexp-in-string "[ +-=_]+" "" match-str)))
