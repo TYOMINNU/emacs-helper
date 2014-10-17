@@ -1,4 +1,4 @@
-;;; eh-sdcv.el --- Tumashu's emacs configuation
+;;; eh-translate.el --- Tumashu's emacs configuation
 
 ;; Copyright (c) 2011-2013, Feng Shu
 
@@ -31,6 +31,22 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+
+;;; google-translate
+(require 'google-translate)
+(require 'google-translate-smooth-ui)
+
+(setq google-translate-default-source-language "en")
+(setq google-translate-default-target-language "zh-CN")
+(setq google-translate-show-phonetic nil)
+(setq google-translate-base-url
+      "http://translate.google.cn/translate_a/t")
+(setq google-translate-listen-url
+      "http://translate.google.cn/translate_tts")
+(setq google-translate-output-destination nil)
+(setq google-translate-translation-directions-alist '(("en" . "zh-CN")))
+
+;;; stardict
 (setq eh-sdcv-chinese2english-command "sdcv --utf8-output --utf8-input -n -u XDICT汉英辞典")
 (setq eh-sdcv-english2chinese-command "sdcv -n -u XDICT英汉辞典")
 ;; Chinese word split system command
@@ -107,13 +123,14 @@
       (set-mark (point))
       (skip-syntax-backward "w"))))
 
-(global-set-key (kbd "C-c d") 'eh-replace-word-with-translate)
+(global-set-key (kbd "C-c d") 'google-translate-at-point)
+(global-set-key (kbd "C-c D") 'eh-replace-word-with-translate)
 
-(provide 'eh-sdcv)
+(provide 'eh-translate)
 
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:
 
-;;; eh-sdcv.el ends here
+;;; eh-translate.el ends here
 
