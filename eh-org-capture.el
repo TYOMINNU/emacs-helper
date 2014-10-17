@@ -103,22 +103,19 @@
        "\r" ""
        text))))))
 
-(defadvice org-capture-finalize (after delete-capture-frame activate)
-  "Advise capture-finalize to close the frame"
+(defun eh-org-capture-delete-frame (&rest args)
+  "Close capture frame"
   (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
       (delete-frame)))
 
-(defadvice org-capture-destroy (after delete-capture-frame activate)
-  "Advise capture-destroy to close the frame"
-  (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
-      (delete-frame)))
-
-;; make the frame contain a single window. by default org-capture
-;; splits the window.
-(defadvice org-switch-to-buffer-other-window (after supress-window-splitting activate)
+(defun eh-org-capture-delete-other-windows (&rest args)
   "Delete the extra window if we're in a capture frame"
   (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
       (delete-other-windows)))
+
+(advice-add 'org-capture-finalize :after #'eh-org-capture-delete-frame)
+(advice-add 'org-capture-destroy :after #'eh-org-capture-delete-frame)
+(advice-add 'org-switch-to-buffer-other-window :after #'eh-org-capture-delete-other-windows)
 
 (defun eh-org-capture (&optional goto keys)
   "Create a new frame and run org-capture."
