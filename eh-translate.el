@@ -36,7 +36,7 @@
 (require 'google-translate)
 (require 'google-translate-smooth-ui)
 
-(setq google-translate-default-source-language "en")
+(setq google-translate-default-source-language "auto")
 (setq google-translate-default-target-language "zh-CN")
 (setq google-translate-show-phonetic nil)
 (setq google-translate-base-url
@@ -45,6 +45,49 @@
       "http://translate.google.cn/translate_tts")
 (setq google-translate-output-destination nil)
 (setq google-translate-translation-directions-alist '(("en" . "zh-CN")))
+
+;;; ob-gtranslate
+(require 'org)
+(require 'ob)
+(require 'ob-translate)
+
+(defun eh-google-translate-to-string (source-language target-language text &optional phonetic details)
+  (let* ((json (google-translate-request source-language
+                                         target-language
+                                         text)))
+    (if (null json)
+        (message "Nothing to translate.")
+      (let* ((text-phonetic (google-translate-json-text-phonetic json))
+	     (translation (google-translate-json-translation json))
+	     (detailed-translation (google-translate-json-detailed-translation json))
+	     (detailed-translation (google-translate--detailed-translation
+				    detailed-translation
+				    translation
+				    "\n* %s\n" " %2d. %s ")))
+	(cond ((org-not-nil phonetic) text-phonetic)
+	      ((org-not-nil details)
+	       (format "%s\n%s"
+		       translation
+		       detailed-translation))
+	      (t translation))))))
+
+(defun org-babel-execute:gtranslate (text params)
+  "org-babel translation hook."
+  (let ((src (or (cdr (assoc :from params))
+		 google-translate-default-source-language))
+	(dest (or (cdr (assoc :to params))
+		  google-translate-default-target-language))
+	(phonetic (cdr (assoc :phonetic params)))
+	(details (or (cdr (assoc :details params)) t)))
+    (if (string-match "," dest)
+	(mapcar (lambda (subdest)
+		  (list subdest
+			(eh-google-translate-to-string src subdest text phonetic details)))
+		(split-string dest ","))
+      (eh-google-translate-to-string src dest text phonetic details))))
+
+(eval-after-load "org"
+  '(add-to-list 'org-src-lang-modes '("gtranslate" . text)))
 
 ;;; stardict
 (setq eh-sdcv-chinese2english-command "sdcv --utf8-output --utf8-input -n -u XDICT汉英辞典")
