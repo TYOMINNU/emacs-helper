@@ -255,8 +255,8 @@
       cfw:fchar-top-left-corner ?+
       cfw:fchar-top-right-corner ?+ )
 
-;; redefine cfw:rander-toolbar
-(defun cfw:render-toolbar (width current-view prev-cmd next-cmd)
+(defun eh-cfw-render-toolbar (width current-view prev-cmd next-cmd)
+  "Translate words: 'Month', 'Week', 'Day' and 'Two day' to Chinese"
   (let* ((prev (cfw:render-button " < " prev-cmd))
          (today (cfw:render-button "今天" 'cfw:navi-goto-today-command))
          (next (cfw:render-button " > " next-cmd))
@@ -278,6 +278,8 @@
            width (concat sp prev sp next sp today sp)
            (concat day sp week sp tweek sp month sp))))
     (cfw:render-default-content-face toolbar-text 'cfw:face-toolbar)))
+
+(advice-add 'cfw:render-toolbar :override #'eh-cfw-render-toolbar)
 
 (defun eh-calendar ()
   (interactive)
