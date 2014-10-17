@@ -59,8 +59,8 @@
 		  org-mobile-directory))))
       
       (org-mobile-pull)
-      (org-contacts-export-as-vcard)
-      (org-contacts-export-as-csv)
+      (eh-org-contacts-export-as-vcard)
+      (eh-org-contacts-export-as-csv)
       (org-mobile-push)
       (when adb-connect
 	(shell-command
@@ -74,7 +74,7 @@
   :group 'org-contacts
   :type 'file)
 
-(defun org-contacts-export-as-vcard (&optional name tags property file to-buffer)
+(defun eh-org-contacts-export-as-vcard (&optional name tags property file to-buffer)
   "Export all contacts matching NAME as VCard 3.0.
 If TO-BUFFER is nil, the content is written to FILE or
 `org-contacts-vcard-file'.  If TO-BUFFER is non-nil, the buffer
@@ -97,7 +97,7 @@ is created and the VCard is written into that buffer."
       (progn (save-buffer) (kill-buffer)))))
 
 
-(defun org-contacts-export-as-csv (&optional name tags property file to-buffer)
+(defun eh-org-contacts-export-as-csv (&optional name tags property file to-buffer)
   "Export all contacts matching NAME as csv
 If TO-BUFFER is nil, the content is written to FILE or
 `org-contacts-vcard-file'.  If TO-BUFFER is non-nil, the buffer
@@ -114,12 +114,12 @@ is created and the VCard is written into that buffer."
     (when (fboundp 'set-buffer-file-coding-system)
       (set-buffer-file-coding-system coding-system-for-write))
     (loop for contact in (org-contacts-filter name tags property)
-	  do (insert (org-contacts-csv-format contact)))
+	  do (insert (eh-org-contacts-csv-format contact)))
     (if to-buffer
 	(current-buffer)
       (progn (save-buffer) (kill-buffer)))))
 
-(defun org-contacts-csv-format (contact)
+(defun eh-org-contacts-csv-format (contact)
   "Formats CONTACT in csv format."
   (let* ((properties (caddr contact))
 	 (name (org-contacts-vcard-escape (car contact)))
