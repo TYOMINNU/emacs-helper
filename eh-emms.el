@@ -225,9 +225,8 @@ Return the previous point-max before adding."
           (eh-emms-browser-playlist-insert-bdata item)
         (emms-browser-playlist-insert-track bdata)))))
 
-;; This overwrite the default function in emms-browser.el
-(defun emms-browser-make-name (entry type)
-  "Return a name for ENTRY, used for making a bdata object."
+(defun eh-emms-browser-make-name (entry type)
+  "Override `emms-browser-make-name'. Return a name for ENTRY, used for making a bdata object."
   (let ((key (car entry))
         (track (cadr entry))
         artist title) ;; only the first track
@@ -235,6 +234,8 @@ Return the previous point-max before adding."
    ((eq type 'info-title)
     (eh-emms-make-track-description track))
    (t key))))
+
+(advice-add 'emms-browser-make-name :override #'eh-emms-browser-make-name)
 
 ;; 快捷函数
 (defun eh-emms-toggle-playing ()
