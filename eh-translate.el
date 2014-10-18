@@ -116,10 +116,9 @@
 		       (buffer-substring-no-properties (region-beginning) (region-end))
 		     (eh-current-word)) ""))
 	 (translate (eh-sdcv-get-translate word)))
-    (if translate
-	(eh-sdcv-buffer-output-translation translate)
-      (message "Can't translate the word: %s" word))))
-
+    (if (or (not translate) (string= translate ""))
+	(message "Can't translate the word: %s" word)
+      (eh-sdcv-buffer-output-translation translate))))
 
 (defun eh-sdcv-buffer-output-translation (translate-text)
   "Output sdcv translation to the temp buffer."
