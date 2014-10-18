@@ -46,11 +46,6 @@
 (setq google-translate-output-destination nil)
 (setq google-translate-translation-directions-alist '(("en" . "zh-CN")))
 
-;;; ob-gtranslate
-(require 'org)
-(require 'ob)
-(require 'ob-translate)
-
 (defun eh-google-translate-to-string (source-language target-language text &optional phonetic details)
   (let* ((json (google-translate-request source-language
                                          target-language
@@ -66,34 +61,18 @@
 				    "\n* %s\n" " %2d. %s ")))
 	(cond ((org-not-nil phonetic) text-phonetic)
 	      ((org-not-nil details)
-	       (format "%s\n%s"
-		       translation
-		       detailed-translation))
+	       (if (string= detailed-translation "")
+		   translation
+		 detailed-translation))
 	      (t translation))))))
 
-(defun org-babel-execute:gtranslate (text params)
-  "org-babel translation hook."
-  (let ((src (or (cdr (assoc :from params))
-		 google-translate-default-source-language))
-	(dest (or (cdr (assoc :to params))
-		  google-translate-default-target-language))
-	(phonetic (cdr (assoc :phonetic params)))
-	(details (or (cdr (assoc :details params)) t)))
-    (if (string-match "," dest)
-	(mapcar (lambda (subdest)
-		  (list subdest
-			(eh-google-translate-to-string src subdest text phonetic details)))
-		(split-string dest ","))
-      (eh-google-translate-to-string src dest text phonetic details))))
-
-(eval-after-load "org"
-  '(add-to-list 'org-src-lang-modes '("gtranslate" . text)))
-
 ;;; stardict
-(setq eh-sdcv-chinese2english-command "sdcv --utf8-output --utf8-input -n -u XDICT汉英辞典")
-(setq eh-sdcv-english2chinese-command "sdcv -n -u XDICT英汉辞典")
+(require 'org)
+
+;; stardict command
+(setq eh-sdcv-command "sdcv --utf8-output --utf8-input -n %word")
 ;; Chinese word split system command
-(setq eh-scws-command "/usr/local/scws/bin/scws -c utf-8 -N -A -I -d /usr/local/scws/etc/dict.utf8.xdb -i")
+(setq eh-scws-command "/usr/local/scws/bin/scws -c utf-8 -N -A -I -d /usr/local/scws/etc/dict.utf8.xdb -i %word")
 
 (defun eh-current-word ()
   "Get English word or Chinese word at point"
@@ -105,69 +84,81 @@
 	       (replace-regexp-in-string
 		"/[a-zA-z]+ +" " "
 		(shell-command-to-string
-		 (concat eh-scws-command " " (or word ",")))))))
+		 (replace-regexp-in-string
+		  "%word" (or word ",") eh-scws-command))))))
 	word "")))
 
 (defun eh-sdcv-get-translate (word)
-  "Return a translations list of `word'"
+  "Return sdcv translate string of `word'"
   (let* ((translate
-	  (if (string-match-p "\\cc" word)
-	      (shell-command-to-string (concat eh-sdcv-chinese2english-command " " word))
-	    (shell-command-to-string (concat eh-sdcv-english2chinese-command " " word))))
-	 (string-regexp (concat "-->" word)))
-    (when (string-match-p string-regexp translate)
-      (remove-duplicates
-       (mapcar #'(lambda (x) (replace-regexp-in-string "^ +\\| +$" "" x))
-	       (split-string (eh-wash-sdcv-output translate) "[,;]"))
-       :test (lambda (x y) (or (= 0 (length y)) (equal x y)))
-       :from-end t))))
+	  (shell-command-to-string
+	   (replace-regexp-in-string
+	    "%word" word eh-sdcv-command))))
+    (with-temp-buffer
+      (insert translate)
+      (goto-char (point-min))
+      (while (re-search-forward "-->\\(.*\\)\n-->" nil t)
+	(replace-match "* \\1\n** "))
+      (goto-char (point-min))
+      (while (re-search-forward "-->" nil t)
+	(replace-match "** "))
+      (goto-char (point-min))
+      (kill-line 1)
+      (when (featurep 'org)
+	(org-mode)
+	(org-indent-region (point-min) (point-max)))
+      (buffer-string))))
 
-(defun eh-wash-sdcv-output (str)
-  "Wash sdcv output"
-  (replace-regexp-in-string
-   "^ +\\| +$" ""
-   (replace-regexp-in-string
-    ";+" "; "
-    (replace-regexp-in-string
-     " +" " "
-     (replace-regexp-in-string
-      "^;+\\|^ +" ""
-      (replace-regexp-in-string
-       "[\nˊ，。；：！？“]+\\|[a-zA-Z]+\\." ";"
-       (replace-regexp-in-string
-	".*\n*-->.+\\|\\[.+\\]" ""
-	str)))))))
-
-(defun eh-replace-word-with-translate ()
+(defun eh-sdcv-translate-at-point ()
+  "Translate current word at point with sdcv"
   (interactive)
   (let* ((word (or (if mark-active
 		       (buffer-substring-no-properties (region-beginning) (region-end))
 		     (eh-current-word)) ""))
 	 (translate (eh-sdcv-get-translate word)))
     (if translate
-	(let ((string (popup-menu* translate)))
-	  (if (and (not mark-active) (string-match-p "\\cc" word))
-	      (let ((length (length word)))
-		(backward-char length)
-		(re-search-forward word nil t)
-		(replace-match (concat string " ")))
-	    (progn  (eh-mark-word)
-		    (delete-region (region-beginning) (region-end))
-		    (insert string))))
+	(eh-sdcv-buffer-output-translation translate)
       (message "Can't translate the word: %s" word))))
 
-(defun eh-mark-word ()
-  "Mark the entire word around or in front of point."
-  (interactive)
-  (let ((word-regexp "\\sw"))
-    (when (or (looking-at word-regexp)
-              (looking-back word-regexp (line-beginning-position)))
-      (skip-syntax-forward "w")
-      (set-mark (point))
-      (skip-syntax-backward "w"))))
+
+(defun eh-sdcv-buffer-output-translation (translate-text)
+  "Output sdcv translation to the temp buffer."
+  (let ((buffer-name "*Stardict Output*"))
+    (with-output-to-temp-buffer buffer-name
+      (set-buffer buffer-name)
+      (when (featurep 'org)
+	(org-mode))
+      (insert translate-text))))
+
+;;; ob-gtranslate
+(require 'org)
+(require 'ob)
+(require 'ob-translate)
+
+(defun org-babel-execute:translate (text params)
+  "org-babel translation hook."
+  (let ((src (or (cdr (assoc :from params))
+		 google-translate-default-source-language))
+	(dest (or (cdr (assoc :to params))
+		  google-translate-default-target-language))
+	(phonetic (cdr (assoc :phonetic params)))
+	(details (or (cdr (assoc :details params)) t))
+	(dict (or (cdr (assoc :dict params)) "google")))
+    (cond ((string= dict "google")
+	   (if (string-match "," dest)
+	       (mapcar (lambda (subdest)
+			 (list subdest
+			       (eh-google-translate-to-string src subdest text phonetic details)))
+		       (split-string dest ","))
+	     (eh-google-translate-to-string src dest text phonetic details)))
+	  ((string= dict "stardict")
+	   (eh-sdcv-get-translate text)))))
+
+(eval-after-load "org"
+  '(add-to-list 'org-src-lang-modes '("translate" . text)))
 
 (global-set-key (kbd "C-c d") 'google-translate-at-point)
-(global-set-key (kbd "C-c D") 'eh-replace-word-with-translate)
+(global-set-key (kbd "C-c D") 'eh-sdcv-translate-at-point)
 
 (provide 'eh-translate)
 

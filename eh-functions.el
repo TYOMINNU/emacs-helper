@@ -57,6 +57,16 @@
       (message "debug-on-error on")
     (message "debug-on-error off")))
 
+(defun eh-mark-word ()
+  "Mark the entire word around or in front of point."
+  (interactive)
+  (let ((word-regexp "\\sw"))
+    (when (or (looking-at word-regexp)
+              (looking-back word-regexp (line-beginning-position)))
+      (skip-syntax-forward "w")
+      (set-mark (point))
+      (skip-syntax-backward "w"))))
+
 (defun eh-directory-files-recursively (directory &optional type regexp)
   "recursively list all the files in a directory"
   (let* ((directory (or directory default-directory))
