@@ -48,10 +48,10 @@
 
 (defun eh-google-translate-to-string (source-language target-language text &optional phonetic details)
   (let* ((json (google-translate-request source-language
-                                         target-language
-                                         text)))
+					 target-language
+					 text)))
     (if (null json)
-        (message "Nothing to translate.")
+	(message "Nothing to translate.")
       (let* ((text-phonetic (google-translate-json-text-phonetic json))
 	     (translation (google-translate-json-translation json))
 	     (detailed-translation (google-translate-json-detailed-translation json))
@@ -70,9 +70,69 @@
 (require 'org)
 
 ;; stardict command
-(setq eh-sdcv-command "sdcv --utf8-output --utf8-input -n %word")
+(setq eh-sdcv-command "sdcv --non-interactive --utf8-output --utf8-input --use-dict \"%dict\" \"%word\"")
 ;; Chinese word split system command
 (setq eh-scws-command "/usr/local/scws/bin/scws -c utf-8 -N -A -I -d /usr/local/scws/etc/dict.utf8.xdb -i %word")
+
+(setq eh-sdcv-dicts
+      '(
+	("" "简明汉英词典" eh-sdcv-output-clean-powerword2007 nil)
+	("" "简明英汉词典" eh-sdcv-output-clean-powerword2007 nil)
+
+	("" "懒虫简明汉英词典" nil nil)
+	("" "懒虫简明英汉词典" nil nil)
+
+	("" "XDICT英汉辞典" nil t)
+	("" "XDICT汉英辞典" nil t)
+
+	("" "湘雅医学专业词典" nil t)
+	("" "现代英汉综合大辞典" eh-sdcv-output-clean-powerword2007 t)
+	("" "牛津高阶英汉双解"  eh-sdcv-output-clean-oald t)
+	("" "英文相关词典" eh-sdcv-output-clean-powerword2007 t)
+
+	("" "朗道汉英字典5.0" eh-sdcv-output-clean-langdao t)
+	("" "朗道英汉字典5.0" eh-sdcv-output-clean-langdao t)
+
+	("" "21世纪英汉汉英双向词典" eh-sdcv-output-clean-21cen t)
+	("" "21世纪双语科技词典" nil t)
+
+	("" "新世纪英汉科技大词典" nil t)
+	("" "新世纪汉英科技大词典" nil t)
+
+	("" "现代商务汉英大词典" eh-sdcv-output-clean-powerword2007 t)
+	("" "英汉双解计算机词典" eh-sdcv-output-clean-powerword2007 t)
+	("" "汉语成语词典" eh-sdcv-output-clean-chengyu t)
+	("" "高级汉语大词典" nil t)
+	("" "现代汉语词典" nil t)
+
+	("" "Cantonese Simp-English" nil nil)
+	("" "英汉进出口商品词汇大全" nil nil)
+
+	("" "中国大百科全书2.0版" nil t)
+	("" "CEDICT汉英辞典" nil t)
+	("" "英文字根字典" nil t)
+
+	("" "[七国语言]英汉化学大词典" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[七国语言]英汉数学大词典" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[七国语言]英汉公共大词典" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[七国语言]英汉医学大词典" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[七国语言]英汉信息大词典" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[七国语言]英汉生物学大词典" eh-sdcv-output-clean-powerword2007 nil)
+
+	("" "[名词委审定]英汉铁道科技名词" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英细胞生物学名词" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英数学名词" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英医学名词(七, 整形、美容、皮肤、康复)" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英医学名词(四, 心血管病学等)" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英医学名词(一, 妇产科学)" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英生物化学名词" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]英汉生物化学名词" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英医学名词(二, 口腔学)" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英医学名词(六, 外科)" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英人体解剖学名词" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英药学名词" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英医学名词(三, 遗传学等)" eh-sdcv-output-clean-powerword2007 nil)
+	("" "[名词委审定]汉英医学名词(五, 眼科学)" eh-sdcv-output-clean-powerword2007 nil)))
 
 (defun eh-current-word ()
   "Get English word or Chinese word at point"
@@ -88,191 +148,141 @@
 		  "%word" (or word ",") eh-scws-command))))))
 	word "")))
 
-(defun eh-sdcv-output-clean-1 (find-string)
+(defun eh-sdcv-output-clean-powerword2007 ()
   "清理现代英汉综合大辞典的输出"
-  (let ((point1
-	 (progn (goto-char (point-min))
-		(re-search-forward (concat "-->.*" find-string ".*\n-->.*\n") nil t)))
-	(point2 (or (re-search-forward "-->.*\n-->.*\n" nil t) (point-max))))
-    (when point1
-      (narrow-to-region point1 point2)
-      (goto-char (point-min))
-      (while (re-search-forward "<\\([^><]+\\)><!\\[CDATA\\[\\([^><]+\\)\\]\\]><\\([^><]+\\)>" nil t)
-	(replace-match "\\1: \\2"))
+  (goto-char (point-min))
+  (while (re-search-forward "<\\([^><]+\\)><!\\[CDATA\\[\\([^><]+\\)\\]\\]><\\([^><]+\\)>" nil t)
+    (replace-match "\\1: \\2"))
 
-      (goto-char (point-min))
-      (while (re-search-forward "\n+例句原型: *\\([^><]+\\)\n例句解释: *\\([^><]+\\)\n+" nil t)
-	(replace-match "- \\1 \\2"))
+  (goto-char (point-min))
+  (while (re-search-forward "\n+例句原型: *\\([^><]+\\)\n例句解释: *\\([^><]+\\)\n+" nil t)
+    (replace-match "- \\1 \\2"))
 
-      (goto-char (point-min))
-      (while (re-search-forward " +索引类型='.+'" nil t)
-	(replace-match ""))
+  (goto-char (point-min))
+  (while (re-search-forward " +索引类型='.+'" nil t)
+    (replace-match ""))
 
-      (goto-char (point-min))
-      (while (re-search-forward "<例句s +" nil t)
-	(replace-match "- "))
+  (goto-char (point-min))
+  (while (re-search-forward "<例句s +" nil t)
+    (replace-match "- "))
 
-      (goto-char (point-min))
-      (while (re-search-forward "<[^><]+>\\|^ *]" nil t)
-	(replace-match ""))
+  (goto-char (point-min))
+  (while (re-search-forward "<[^><]+>\\|^ *]" nil t)
+    (replace-match ""))
 
-      (goto-char (point-min))
-      (while (re-search-forward "词典音标.*\n" nil t)
-	(replace-match ""))
+  (goto-char (point-min))
+  (while (re-search-forward "词典音标.*\n" nil t)
+    (replace-match ""))
 
-      (goto-char (point-min))
-      (while (re-search-forward "单词原型: +" nil t)
-	(replace-match "** "))
+  (goto-char (point-min))
+  (while (re-search-forward "单词原型: +" nil t)
+    (replace-match "** "))
 
-      (goto-char (point-min))
-      (while (re-search-forward "&L{\\(.+\\)}" nil t)
-	(replace-match "\\1"))
+  (goto-char (point-min))
+  (while (re-search-forward "&L{\\(.+\\)}" nil t)
+    (replace-match "\\1"))
 
-      (mapcar (lambda (x)
-		(goto-char (point-min))
-		(while (search-forward x nil t)
-		  (replace-match "")))
-	      '("单词词性: " "解释项: "
-		"[.]]>" "}]]>" "ly]]>" "[F]]>"
-		"]]>" "<>" "<![CDATA[" "\n["))
-      (widen))))
+  (goto-char (point-min))
+  (while (search-forward "}&L{" nil t)
+    (replace-match ", "))
 
-(defun eh-sdcv-output-clean-2 (find-string)
+  (mapcar (lambda (x)
+	    (goto-char (point-min))
+	    (while (search-forward x nil t)
+	      (replace-match "")))
+	  '("单词词性: " "解释项: "
+	    "[.]]>" "}]]>" "ly]]>" "[F]]>"
+	    "]]>" "<>" "<![CDATA[" "\n[")))
+
+(defun eh-sdcv-output-clean-oald ()
   "清理牛津高阶英汉双解词典的输出"
-  (let ((point1
-	 (progn (goto-char (point-min))
-		(re-search-forward (concat "-->.*" find-string ".*\n-->.*\n") nil t)))
-	(point2 (or (re-search-forward "-->.*\n-->.*\n" nil t) (point-max))))
-    (when point1
-      (narrow-to-region point1 point2)
-      (goto-char (point-min))
+  (goto-char (point-min))
 
-      (goto-char (point-min))
-      (while (re-search-forward "^\\* *" nil t)
-	(replace-match "**** "))
+  (goto-char (point-min))
+  (while (re-search-forward "^\\* *" nil t)
+    (replace-match "**** "))
 
-      (goto-char (point-min))
-      (while (re-search-forward "/\\(.+\\)/\n+\\(.+\\)" nil t)
-	(replace-match ""))
+  (goto-char (point-min))
+  (while (re-search-forward "/\\(.+\\)/\n+\\(.+\\)" nil t)
+    (replace-match ""))
 
-      (goto-char (point-min))
-      (while (re-search-forward "\\(^[0-9]\\) +\\(([a-z])\\) +" nil t)
-	(replace-match "\\1 Good good study, day day up ......\n\\2"))
+  (goto-char (point-min))
+  (while (re-search-forward "\\(^[0-9]\\) +\\(([a-z])\\) +" nil t)
+    (replace-match "\\1 Good good study, day day up ......\n\\2"))
 
-      (goto-char (point-min))
-      (while (re-search-forward "^[0-9] *" nil t)
-	(replace-match "** "))
+  (goto-char (point-min))
+  (while (re-search-forward "^[0-9] *" nil t)
+    (replace-match "** "))
 
-      (goto-char (point-min))
-      (while (re-search-forward "^([a-z]) *" nil t)
-	(replace-match "*** "))
-      (widen))))
+  (goto-char (point-min))
+  (while (re-search-forward "^([a-z]) *" nil t)
+    (replace-match "*** ")))
 
-(defun eh-sdcv-output-clean-3 (find-string)
-  "清理英文相关词典的输出"
-  (let ((point1
-	 (progn (goto-char (point-min))
-		(re-search-forward (concat "-->.*" find-string ".*\n-->.*\n") nil t)))
-	(point2 (or (re-search-forward "-->.*\n-->.*\n" nil t) (point-max))))
-    (when point1
-      (narrow-to-region point1 point2)
-      (goto-char (point-min))
-      (while (search-forward "}&L{" nil t)
-	(replace-match ", "))
-      (widen))))
-
-(defun eh-sdcv-output-clean-4 (find-string)
+(defun eh-sdcv-output-clean-langdao ()
   "清理朗道英汉字典的输出"
-  (let ((point1
-	 (progn (goto-char (point-min))
-		(re-search-forward (concat "-->.*" find-string ".*\n-->.*\n") nil t)))
-	(point2 (or (re-search-forward "-->.*\n-->.*\n" nil t) (point-max))))
-    (when point1
-      (narrow-to-region point1 point2)
-      (goto-char (point-min))
-      (while (search-forward "*" nil t)
-	(replace-match ""))
-      (widen))))
+  (goto-char (point-min))
+  (while (search-forward "*" nil t)
+    (replace-match "")))
 
-(defun eh-sdcv-output-clean-5 (find-string)
+(defun eh-sdcv-output-clean-chengyu ()
+  "清理成语大词典的输出"
+  (goto-char (point-min))
+  (while (re-search-forward "<[^><]+>\\|\\[[^><]+>" nil t)
+    (replace-match "")))
+
+(defun eh-sdcv-output-clean-21cen ()
   "清理21世纪英汉汉英双向词典的输出"
-  (let ((point1
-	 (progn (goto-char (point-min))
-		(re-search-forward (concat "-->.*" find-string ".*\n-->.*\n") nil t)))
-	(point2 (or (re-search-forward "-->.*\n-->.*\n" nil t) (point-max))))
-    (when point1
-      (narrow-to-region point1 point2)
+  (goto-char (point-min))
+  (while (re-search-forward "<<\\([^><]+\\)>>" nil t)
+    (replace-match "** \\1"))
 
-      (goto-char (point-min))
-      (while (re-search-forward "<<\\([^><]+\\)>>" nil t)
-	(replace-match "** \\1"))
+  (goto-char (point-min))
+  (while (re-search-forward "\\(^[0-9]\\) +\\([a-z]\\.\\) +" nil t)
+    (replace-match "\\1 Good good study, day day up ......\n\\2"))
 
-      (goto-char (point-min))
-      (while (re-search-forward "\\(^[0-9]\\) +\\([a-z]\\.\\) +" nil t)
-	(replace-match "\\1 Good good study, day day up ......\n\\2"))
-      
-      (goto-char (point-min))
-      (while (re-search-forward "^[0-9] *" nil t)
-	(replace-match "*** "))
+  (goto-char (point-min))
+  (while (re-search-forward "^[0-9] *" nil t)
+    (replace-match "*** "))
 
-      (goto-char (point-min))
-      (while (re-search-forward "^[a-z]\\. *" nil t)
-	(replace-match "**** "))
-      (widen))))
+  (goto-char (point-min))
+  (while (re-search-forward "^[a-z]\\. *" nil t)
+    (replace-match "**** ")))
 
 (defun eh-sdcv-output-clean-common ()
   (goto-char (point-min))
-  (while (re-search-forward "-->\\(.*\\)\n-->\\(.*\\)\n" nil t)
+  (while (re-search-forward "-->\\(.*\\)\n-->\\(.*\\)" nil t)
     (replace-match "* \\1 (\\2) "))
-  
+
   (goto-char (point-min))
   (while (re-search-forward "\n+" nil t)
     (replace-match "\n"))
-  
+
   (goto-char (point-min))
   (kill-line 1))
 
 (defun eh-sdcv-get-translate (word &optional indent)
   "Return sdcv translate string of `word'"
-  (let* ((translate
-	  (shell-command-to-string
-	   (replace-regexp-in-string
-	    "%word" word eh-sdcv-command))))
-    (with-temp-buffer
-      (insert translate)
-      ;; 清理sdcv输出
-      (mapcar 'eh-sdcv-output-clean-1
-	      '("现代英汉综合大辞典"
-		"英文相关词典"
-		"英汉双解计算机词典"
-		"汉英医学名词"
-		"汉英生物化学名词"
-		"汉英细胞生物学名词"
-		"汉英数学名词"
-		"汉英人体解剖学名词"
-		"汉英药学名词"
-		"英汉化学大词典"
-		"英汉生物学大词典"
-		"英汉信息大词典"
-		"英汉医学大词典"
-		"英汉数学大词典"
-		"英汉公共大词典"
-		"英汉化学大词典"
-		"简明英汉词典"
-		"简明汉英词典"
-		"现代商务汉英大词典"))
-      (mapcar 'eh-sdcv-output-clean-3
-	      '("简明汉英词典"
-		"英文相关"))
-      (eh-sdcv-output-clean-2 "牛津高阶英汉双解")
-      (eh-sdcv-output-clean-4 "朗道英汉字典")
-      (eh-sdcv-output-clean-5 "21世纪英汉汉英双向词典")
-      (eh-sdcv-output-clean-common)
-      
-      (when (and indent (featurep 'org))
-	(org-mode)
-	(org-indent-region (point-min) (point-max)))
-      (buffer-string))))
+  (mapconcat
+   (lambda (x) (let* ((dict   (nth 1 x))
+		      (filter (nth 2 x))
+		      (enable (nth 3 x))
+		      (command  (replace-regexp-in-string
+				 "%dict" dict
+				 (replace-regexp-in-string
+				  "%word" word eh-sdcv-command))))
+		 (when enable
+		   (with-temp-buffer
+		     (insert (shell-command-to-string command))
+		     (when filter
+		       (funcall filter))
+		     (funcall 'eh-sdcv-output-clean-common)
+		     (when (and indent (featurep 'org))
+		       (org-mode)
+		       (org-indent-region (point-min) (point-max)))
+		     (goto-char (point-min))
+		     (when (re-search-forward word nil t)
+		       (buffer-string))))))
+   eh-sdcv-dicts ""))
 
 (defun eh-sdcv-translate-at-point ()
   "Translate current word at point with sdcv"
