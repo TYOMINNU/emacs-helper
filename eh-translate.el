@@ -76,64 +76,64 @@
 
 (setq eh-sdcv-dicts
       '(
-	("" "简明汉英词典" eh-sdcv-output-clean-powerword2007 nil)
-	("" "简明英汉词典" eh-sdcv-output-clean-powerword2007 nil)
+	("jianminghy" "简明汉英词典" eh-sdcv-output-clean-powerword2007 nil)
+	("jianmingyh" "简明英汉词典" eh-sdcv-output-clean-powerword2007 nil)
 
-	("" "懒虫简明汉英词典" nil nil)
-	("" "懒虫简明英汉词典" nil nil)
+	("lanconghy"  "懒虫简明汉英词典" nil nil)
+	("lancongyh"  "懒虫简明英汉词典" nil nil)
 
-	("" "XDICT英汉辞典" nil t)
-	("" "XDICT汉英辞典" nil t)
+	("xdictyh"    "XDICT英汉辞典" nil t)
+	("xdicthy"    "XDICT汉英辞典" nil t)
 
-	("" "现代英汉综合大辞典" eh-sdcv-output-clean-powerword2007 t)
-	("" "牛津高阶英汉双解"  eh-sdcv-output-clean-oald t)
-	("" "英文相关词典" eh-sdcv-output-clean-powerword2007 nil)
+	("xiandai"    "现代英汉综合大辞典" eh-sdcv-output-clean-powerword2007 t)
+	("niujing"    "牛津高阶英汉双解"  eh-sdcv-output-clean-oald t)
+	(""           "英文相关词典" eh-sdcv-output-clean-powerword2007 nil)
 
-	("" "朗道汉英字典5.0" eh-sdcv-output-clean-langdao nil)
-	("" "朗道英汉字典5.0" eh-sdcv-output-clean-langdao nil)
+	("langdaohy"  "朗道汉英字典5.0" eh-sdcv-output-clean-langdao nil)
+	("langdaoyh"  "朗道英汉字典5.0" eh-sdcv-output-clean-langdao nil)
 
-	("" "21世纪英汉汉英双向词典" eh-sdcv-output-clean-21cen nil)
-	("" "21世纪双语科技词典" nil nil)
+	("21shiji"    "21世纪英汉汉英双向词典" eh-sdcv-output-clean-21cen nil)
+	("21shjikj"   "21世纪双语科技词典" nil nil)
 
-	("" "新世纪英汉科技大词典" nil nil)
-	("" "新世纪汉英科技大词典" nil nil)
+	(""           "新世纪英汉科技大词典" nil nil)
+	(""           "新世纪汉英科技大词典" nil nil)
 
-	("" "现代商务汉英大词典" eh-sdcv-output-clean-powerword2007 nil)
-	("" "英汉双解计算机词典" eh-sdcv-output-clean-powerword2007 t)
-	("" "汉语成语词典" eh-sdcv-output-clean-chengyu t)
-	("" "高级汉语大词典" nil nil)
-	("" "现代汉语词典" nil nil)
+	(""           "现代商务汉英大词典" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "英汉双解计算机词典" eh-sdcv-output-clean-powerword2007 t)
+	(""           "汉语成语词典" eh-sdcv-output-clean-chengyu t)
+	(""           "高级汉语大词典" nil nil)
+	(""           "现代汉语词典" nil nil)
 
-	("" "Cantonese Simp-English" nil nil)
-	("" "英汉进出口商品词汇大全" nil nil)
+	(""           "Cantonese Simp-English" nil nil)
+	(""           "英汉进出口商品词汇大全" nil nil)
 
-	("" "中国大百科全书2.0版" nil t)
-	("" "CEDICT汉英辞典" nil nil)
-	("" "英文字根字典" nil t)
+	(""           "中国大百科全书2.0版" nil t)
+	(""           "CEDICT汉英辞典" nil nil)
+	(""           "英文字根字典" nil t)
 
-	("" "湘雅医学专业词典" nil t)
+	(""           "湘雅医学专业词典" nil t)
 
-	("" "[七国语言]英汉化学大词典" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[七国语言]英汉数学大词典" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[七国语言]英汉公共大词典" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[七国语言]英汉医学大词典" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[七国语言]英汉信息大词典" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[七国语言]英汉生物学大词典" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[七国语言]英汉化学大词典" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[七国语言]英汉数学大词典" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[七国语言]英汉公共大词典" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[七国语言]英汉医学大词典" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[七国语言]英汉信息大词典" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[七国语言]英汉生物学大词典" eh-sdcv-output-clean-powerword2007 nil)
 
-	("" "[名词委审定]英汉铁道科技名词" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英细胞生物学名词" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英数学名词" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英医学名词(七, 整形、美容、皮肤、康复)" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英医学名词(四, 心血管病学等)" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英医学名词(一, 妇产科学)" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英生物化学名词" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]英汉生物化学名词" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英医学名词(二, 口腔学)" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英医学名词(六, 外科)" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英人体解剖学名词" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英药学名词" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英医学名词(三, 遗传学等)" eh-sdcv-output-clean-powerword2007 nil)
-	("" "[名词委审定]汉英医学名词(五, 眼科学)" eh-sdcv-output-clean-powerword2007 nil)))
+	(""           "[名词委审定]英汉铁道科技名词" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英细胞生物学名词" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英数学名词" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英医学名词(七, 整形、美容、皮肤、康复)" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英医学名词(四, 心血管病学等)" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英医学名词(一, 妇产科学)" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英生物化学名词" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]英汉生物化学名词" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英医学名词(二, 口腔学)" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英医学名词(六, 外科)" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英人体解剖学名词" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英药学名词" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英医学名词(三, 遗传学等)" eh-sdcv-output-clean-powerword2007 nil)
+	(""           "[名词委审定]汉英医学名词(五, 眼科学)" eh-sdcv-output-clean-powerword2007 nil)))
 
 (defun eh-current-word ()
   "Get English word or Chinese word at point"
@@ -261,7 +261,7 @@
   (goto-char (point-min))
   (kill-line 1))
 
-(defun eh-sdcv-get-sdcv-output (word dict)
+(defun eh-sdcv-get-sdcv-output (word dict &optional force)
   "Get sdcv translate output using dict"
   (let* ((dict-name (nth 1 dict))
 	 (filter (nth 2 dict))
@@ -270,7 +270,7 @@
 		    "%dict" dict-name
 		    (replace-regexp-in-string
 		     "%word" word eh-sdcv-command))))
-    (when enable
+    (when (or enable force)
       (with-temp-buffer
 	(insert (shell-command-to-string command))
 	(when filter (funcall filter))
@@ -279,12 +279,17 @@
 	(when (re-search-forward word nil t)
 	  (buffer-string))))))
 
-(defun eh-sdcv-get-translate (word &optional indent)
+(defun eh-sdcv-get-translate (word &optional dict-key indent)
   "Return sdcv translate string of `word'"
   (with-temp-buffer
     (insert (mapconcat
-	     (lambda (x)
-	       (eh-sdcv-get-sdcv-output word x))
+	     (lambda (dict)
+	       (cond ((or (not dict-key)
+			  (=  (length dict-key) 0))
+		      (eh-sdcv-get-sdcv-output word dict))
+		     ((or (string= dict-key (nth 0 dict))
+			  (string-match-p dict-key (nth 1 dict)))
+		      (eh-sdcv-get-sdcv-output word dict t))))
 	     eh-sdcv-dicts ""))
     (when (and indent (featurep 'org))
       (org-mode)
@@ -325,18 +330,21 @@
 		  google-translate-default-target-language))
 	(phonetic (cdr (assoc :phonetic params)))
 	(details (or (cdr (assoc :details params)) t))
-	(dict (or (cdr (assoc :dict params)) "google")))
-    (cond ((string= dict "google")
+	(dict (or (cdr (assoc :dict params)) ""))
+	(method (or (cdr (assoc :method params)) "google")))
+    (cond ((string= method "google")
 	   (if (string-match "," dest)
 	       (mapcar (lambda (subdest)
 			 (list subdest
 			       (eh-google-translate-to-string src subdest text phonetic details)))
 		       (split-string dest ","))
 	     (eh-google-translate-to-string src dest text phonetic details)))
-	  ((string= dict "stardict")
-	   (replace-regexp-in-string
-	    "^" " "
-	    (eh-sdcv-get-translate text t))))))
+	  ((string= method "stardict")
+	   (mapconcat (lambda (x)
+			(replace-regexp-in-string
+			 "^" " "
+			 (eh-sdcv-get-translate text x t)))
+		      (split-string dict ",") "\n")))))
 
 (eval-after-load "org"
   '(add-to-list 'org-src-lang-modes '("translate" . text)))
