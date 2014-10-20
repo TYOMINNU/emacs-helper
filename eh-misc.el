@@ -30,6 +30,88 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+;; multi-term
+(require 'multi-term)
+(setq multi-term-program "/bin/bash")
+(setq multi-term-buffer-name "term")
+(global-unset-key (kbd "C-x ."))
+(global-unset-key (kbd "C-x ,"))
+(global-set-key (kbd "C-x .") 'multi-term)
+(global-set-key (kbd "C-x ,") 'multi-term-dedicated-open)
+(setq multi-term-dedicated-select-after-open-p t)
+
+(defun eh-term-send-ctrl-x ()
+  "Send C-x in term mode."
+  (interactive)
+  (term-send-raw-string "\C-x"))
+
+(defun eh-term-send-ctrl-z ()
+  "Send C-z in term mode."
+  (interactive)
+  (term-send-raw-string "\C-z"))
+
+(defun eh-term-send-ctrl-c ()
+  "Send C-c in term mode."
+  (interactive)
+  (term-send-raw-string "\C-c"))
+
+(defun eh-term-send-ctrl-h ()
+  "Send C-h in term mode."
+  (interactive)
+  (term-send-raw-string "\C-h"))
+
+(defun eh-term-send-ctrl-y ()
+  "Send C-y in term mode."
+  (interactive)
+  (term-send-raw-string "\C-y"))
+
+(defun eh-term-setup ()
+  (setq truncate-lines t)
+  (setq term-buffer-maximum-size 0)
+  (setq show-trailing-whitespace nil)
+  (define-key term-raw-map (kbd "M-[ x") 'eh-term-send-ctrl-x)
+  (define-key term-raw-map (kbd "M-[ z") 'eh-term-send-ctrl-z)
+  (define-key term-raw-map (kbd "M-[ c") 'eh-term-send-ctrl-c)
+  (define-key term-raw-map (kbd "M-[ h") 'eh-term-send-ctrl-h)
+  (define-key term-raw-map (kbd "M-[ y") 'eh-term-send-ctrl-y)
+  (define-key term-raw-map (kbd "M-[ e") 'term-send-esc)
+  (define-key term-raw-map (kbd "C-y") 'term-paste))
+
+(remove-hook 'term-mode-hook 'eh-term-setup)
+(add-hook 'term-mode-hook 'eh-term-setup)
+
+;; eshell
+(require 'eshell)
+(require 'em-term)
+
+(setq eshell-visual-commands
+      (append '("aptitude" "mutt" "nano" "crontab")
+	      eshell-visual-commands))
+
+(setq eshell-visual-subcommands
+      (list (append '("sudo") eshell-visual-commands)
+	    '("git" "log" "diff" "show")))
+
+(setq eshell-visual-options
+      '(("git" "--help")))
+
+(eval-after-load 'esh-opt
+  (progn
+    (require 'eshell-prompt-extras)
+    (require 'em-unix)
+    (setq eshell-highlight-prompt nil
+          eshell-prompt-function 'epe-theme-geoffgarside)))
+
+(require 'esh-buf-stack)
+(setup-eshell-buf-stack)
+(add-hook 'eshell-mode-hook
+	  (lambda ()
+	    (local-set-key
+	     (kbd "M-q") 'eshell-push-command)))
+
+(require 'esh-help)
+(setup-esh-help-eldoc)
+
 ;; 在emacs中使用ibus
 (require 'ibus)
 (add-hook 'after-init-hook 'ibus-mode-on)
