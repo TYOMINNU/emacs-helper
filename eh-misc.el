@@ -31,15 +31,16 @@
 
 ;;; Code:
 ;; multi-term
-(setq term-bind-key-alist '(("C-c x" . eh-term-send-ctrl-x)))
 (require 'multi-term)
 (setq multi-term-program "/bin/bash")
 (setq multi-term-buffer-name "term")
-(global-unset-key (kbd "C-x ."))
-(global-unset-key (kbd "C-x ,"))
-(global-set-key (kbd "C-x .") 'multi-term)
-(global-set-key (kbd "C-x ,") 'multi-term-dedicated-open)
+(setq term-scroll-show-maximum-output nil)
+(setq term-scroll-to-bottom-on-output nil)
 (setq multi-term-dedicated-select-after-open-p t)
+(setq term-bind-key-alist
+      (append '(("C-c C-x" . eh-term-send-ctrl-x)
+		("C-c C-h" . eh-term-send-ctrl-h))
+	      term-bind-key-alist))
 
 (defun eh-term-send-ctrl-x ()
   "Send C-x in term mode."
@@ -51,43 +52,34 @@
   (interactive)
   (term-send-raw-string "\C-z"))
 
-(defun eh-term-send-ctrl-c ()
-  "Send C-c in term mode."
-  (interactive)
-  (term-send-raw-string "\C-c"))
-
 (defun eh-term-send-ctrl-h ()
   "Send C-h in term mode."
   (interactive)
   (term-send-raw-string "\C-h"))
 
-(defun eh-term-send-ctrl-y ()
-  "Send C-y in term mode."
-  (interactive)
-  (term-send-raw-string "\C-y"))
-
 (defun eh-term-setup ()
   (setq truncate-lines t)
   (setq term-buffer-maximum-size 0)
   (setq show-trailing-whitespace nil)
-  (add-to-list 'term-bind-key-alist '("C-c x" . eh-term-send-ctrl-x))
-  (define-key term-raw-map (kbd "M-[ x") 'eh-term-send-ctrl-x)
-  (define-key term-raw-map (kbd "M-[ z") 'eh-term-send-ctrl-z)
-  (define-key term-raw-map (kbd "M-[ c") 'eh-term-send-ctrl-c)
-  (define-key term-raw-map (kbd "M-[ h") 'eh-term-send-ctrl-h)
-  (define-key term-raw-map (kbd "M-[ y") 'eh-term-send-ctrl-y)
-  (define-key term-raw-map (kbd "M-[ e") 'term-send-esc)
-  (define-key term-raw-map (kbd "C-y") 'term-paste))
+  (multi-term-handle-close))
 
 (remove-hook 'term-mode-hook 'eh-term-setup)
+(remove-hook 'term-mode-hook 'multi-term-keystroke-setup)
+(remove-hook 'kill-buffer-hook 'multi-term-kill-buffer-hook)
+
 (add-hook 'term-mode-hook 'eh-term-setup)
+(add-hook 'term-mode-hook 'multi-term-keystroke-setup)
+(add-hook 'kill-buffer-hook 'multi-term-kill-buffer-hook)
 
 ;; eshell
 (require 'eshell)
 (require 'em-term)
+(require 'em-unix)
+(require 'esh-buf-stack)
+(require 'esh-help)
 
 (setq eshell-visual-commands
-      (append '("aptitude" "mutt" "nano" "crontab")
+      (append '("aptitude" "mutt" "nano" "crontab" "vim")
 	      eshell-visual-commands))
 
 (setq eshell-visual-subcommands
@@ -97,74 +89,27 @@
 (setq eshell-visual-options
       '(("git" "--help")))
 
+(setup-eshell-buf-stack)
+(setup-esh-help-eldoc)
+
 (eval-after-load 'esh-opt
   (progn
     (require 'eshell-prompt-extras)
-    (require 'em-unix)
     (setq eshell-highlight-prompt nil
           eshell-prompt-function 'epe-theme-geoffgarside)))
 
-(require 'esh-buf-stack)
-(setup-eshell-buf-stack)
 (add-hook 'eshell-mode-hook
 	  (lambda ()
 	    (local-set-key
 	     (kbd "M-q") 'eshell-push-command)))
 
-(require 'esh-help)
-(setup-esh-help-eldoc)
-
-(defun eh-eshell-exec-visual-with-multi-term (&rest args)
-  "Use multi-term launch visual apps, instead term"
-  (let* (eshell-interpreter-alist
-	 (interp (eshell-find-interpreter (car args) (cdr args)))
-	 (program (car interp))
-	 (args (eshell-flatten-list
-		(eshell-stringify-list (append (cdr interp)
-					       (cdr args)))))
-	 (term-buf (multi-term-get-buffer))
-	 (eshell-buf (current-buffer))
-	 (multi-term-switch-after-close nil)
-	 (program-name (file-name-nondirectory program))
-	 (index 1))
-    (save-current-buffer
-      (set-buffer term-buf)
-      (while (buffer-live-p (get-buffer (format "*%s<%s>*" program-name index)))
-	(setq index (1+ index)))
-      (setq term-buf (format "*%s<%s>*" program-name index))
-      (rename-buffer term-buf)
-      (setq multi-term-buffer-list (nconc multi-term-buffer-list (list term-buf)))
-      ;; Internal handle for `multi-term' buffer.
-      (multi-term-internal)
-      ;; Switch buffer
-      (switch-to-buffer term-buf)
-      (set (make-local-variable 'term-term-name) eshell-term-name)
-      (make-local-variable 'eshell-parent-buffer)
-      (setq eshell-parent-buffer eshell-buf)
-      (term-exec term-buf program program nil args)
-      (let ((proc (get-buffer-process term-buf)))
-	(if (and proc (eq 'run (process-status proc)))
-	    (set-process-sentinel proc 'eshell-term-sentinel)
-	  (error "Failed to invoke visual command")))
-      (term-char-mode)
-      (if eshell-escape-control-x
-	  (term-set-escape-char ?\C-x))))
-  nil)
-
-(defun eh-eshell ()
+(defun eh-eshell (&optional arg)
   (interactive)
-  (multi-term)
-  (eshell)
-  )
-
-(defun eh-eshell-exec-visual (orig-fun &rest args )
-  "use multi-term or term to launch visual apps"
-  (if (featurep 'multi-term)
-      (apply 'eh-eshell-exec-visual-with-multi-term args)
-    (apply orig-fun args)))
-
-(advice-add 'eshell-exec-visual :around #'eh-eshell-exec-visual)
-(advice-remove 'eshell-exec-visual #'eh-eshell-exec-visual)
+  ;; 使用eshell-exec-visual第一次打开term时，
+  ;; 不能使用multi-term的键盘绑定，原因不知，
+  ;; 首先运行一下less, 从而让multi-term的键盘绑定生效。
+  (eshell-command "less")
+  (eshell arg))
 
 ;; 在emacs中使用ibus
 (require 'ibus)
