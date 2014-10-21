@@ -31,6 +31,7 @@
 
 ;;; Code:
 ;; multi-term
+(setq term-bind-key-alist '(("C-c x" . eh-term-send-ctrl-x)))
 (require 'multi-term)
 (setq multi-term-program "/bin/bash")
 (setq multi-term-buffer-name "term")
@@ -69,6 +70,7 @@
   (setq truncate-lines t)
   (setq term-buffer-maximum-size 0)
   (setq show-trailing-whitespace nil)
+  (add-to-list 'term-bind-key-alist '("C-c x" . eh-term-send-ctrl-x))
   (define-key term-raw-map (kbd "M-[ x") 'eh-term-send-ctrl-x)
   (define-key term-raw-map (kbd "M-[ z") 'eh-term-send-ctrl-z)
   (define-key term-raw-map (kbd "M-[ c") 'eh-term-send-ctrl-c)
@@ -111,6 +113,58 @@
 
 (require 'esh-help)
 (setup-esh-help-eldoc)
+
+(defun eh-eshell-exec-visual-with-multi-term (&rest args)
+  "Use multi-term launch visual apps, instead term"
+  (let* (eshell-interpreter-alist
+	 (interp (eshell-find-interpreter (car args) (cdr args)))
+	 (program (car interp))
+	 (args (eshell-flatten-list
+		(eshell-stringify-list (append (cdr interp)
+					       (cdr args)))))
+	 (term-buf (multi-term-get-buffer))
+	 (eshell-buf (current-buffer))
+	 (multi-term-switch-after-close nil)
+	 (program-name (file-name-nondirectory program))
+	 (index 1))
+    (save-current-buffer
+      (set-buffer term-buf)
+      (while (buffer-live-p (get-buffer (format "*%s<%s>*" program-name index)))
+	(setq index (1+ index)))
+      (setq term-buf (format "*%s<%s>*" program-name index))
+      (rename-buffer term-buf)
+      (setq multi-term-buffer-list (nconc multi-term-buffer-list (list term-buf)))
+      ;; Internal handle for `multi-term' buffer.
+      (multi-term-internal)
+      ;; Switch buffer
+      (switch-to-buffer term-buf)
+      (set (make-local-variable 'term-term-name) eshell-term-name)
+      (make-local-variable 'eshell-parent-buffer)
+      (setq eshell-parent-buffer eshell-buf)
+      (term-exec term-buf program program nil args)
+      (let ((proc (get-buffer-process term-buf)))
+	(if (and proc (eq 'run (process-status proc)))
+	    (set-process-sentinel proc 'eshell-term-sentinel)
+	  (error "Failed to invoke visual command")))
+      (term-char-mode)
+      (if eshell-escape-control-x
+	  (term-set-escape-char ?\C-x))))
+  nil)
+
+(defun eh-eshell ()
+  (interactive)
+  (multi-term)
+  (eshell)
+  )
+
+(defun eh-eshell-exec-visual (orig-fun &rest args )
+  "use multi-term or term to launch visual apps"
+  (if (featurep 'multi-term)
+      (apply 'eh-eshell-exec-visual-with-multi-term args)
+    (apply orig-fun args)))
+
+(advice-add 'eshell-exec-visual :around #'eh-eshell-exec-visual)
+(advice-remove 'eshell-exec-visual #'eh-eshell-exec-visual)
 
 ;; 在emacs中使用ibus
 (require 'ibus)
