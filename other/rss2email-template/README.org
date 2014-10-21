@@ -102,9 +102,32 @@ bash ./test.sh
 
 #+RESULTS:
 
-* 配置
+* 配置rss2email
 拷贝模板到指定位置，然后编辑。
 #+BEGIN_SRC shell :eval never
 mv ~/.config/rss2email.cfg ~/.config/rss2email.cfg-backup`date +%Y%m%d%H%M`
 cp rss2email.cfg ~/.config/rss2email.cfg
 #+END_SRC
+
+* 配置cron
+在shell中运行crontab命令：
+#+BEGIN_SRC shell :eval never
+crontab -e
+#+END_SRC
+
+添加下面的内容
+#+BEGIN_EXAMPLE
+PYTHONPATH=$PYTHONPATH:/home/feng/project/emacs-packages/emacs-helper/other/rss2email-template/
+PATH=/usr/local/texlive/2014/bin/i386-linux:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
+USER=feng
+
+*/5 * * * * /usr/local/bin/start_daemon -n19 -c2 -p7 python2.7 /usr/bin/offlineimap >/dev/null 2>&1
+0 */1 * * * /usr/local/bin/r2e run
+#+END_EXAMPLE
+
+然后运行命令：
+#+BEGIN_SRC shell :eval never
+sudo /etc/init.d/cron restart
+#+END_SRC
+
+
