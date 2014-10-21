@@ -75,11 +75,10 @@
 (require 'eshell)
 (require 'em-term)
 (require 'em-unix)
-(require 'esh-buf-stack)
 (require 'esh-help)
 
 (setq eshell-visual-commands
-      (append '("aptitude" "mutt" "nano" "crontab" "vim")
+      (append '("aptitude" "mutt" "nano" "crontab" "vim" "less")
 	      eshell-visual-commands))
 
 (setq eshell-visual-subcommands
@@ -89,15 +88,7 @@
 (setq eshell-visual-options
       '(("git" "--help")))
 
-(setup-eshell-buf-stack)
 (setup-esh-help-eldoc)
-
-(eval-after-load 'esh-opt
-  (progn
-    (require 'eshell-prompt-extras)
-    (setq eshell-highlight-prompt nil
-          eshell-prompt-function 'epe-theme-geoffgarside)))
-
 (add-hook 'eshell-mode-hook
 	  (lambda ()
 	    (local-set-key
