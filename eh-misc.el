@@ -88,11 +88,12 @@
 (setq eshell-visual-options
       '(("git" "--help")))
 
-(setup-esh-help-eldoc)
-(add-hook 'eshell-mode-hook
-	  (lambda ()
-	    (local-set-key
-	     (kbd "M-q") 'eshell-push-command)))
+(defun eh-eshell-setup ()
+  (setup-esh-help-eldoc)
+  (eldoc-mode)
+  (local-set-key (kbd "M-q") 'eshell-push-command))
+
+(add-hook 'eshell-mode-hook 'eh-eshell-setup)
 
 (defun eh-eshell (&optional arg)
   (interactive)
