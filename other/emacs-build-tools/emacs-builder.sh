@@ -11,9 +11,9 @@ sudo apt-get build-dep emacs
 
 echo "Stage 2: Clean build directory and apply patchs"
 cd $EMACS_SOURCE_DIR
+sudo chown -R $USER:$USER .
 git clean -xfd
 git reset --hard
-patch -p1 < $EMACS_BUILDTOOLS_DIR/emacs_src_xftfont.patch
 
 echo "Stage3: Installing emacs ..."
 ./autogen.sh
