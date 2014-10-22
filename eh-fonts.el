@@ -103,6 +103,7 @@
     12.5))
 
 (defun eh-set-font (english-font-size &optional chinese-fonts-scale)
+  (setq eh-english-font-size english-font-size)
   (setq face-font-rescale-alist
 	(mapcar (lambda (x)
 		  (cons x chinese-fonts-scale))
