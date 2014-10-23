@@ -37,12 +37,12 @@
 (setq eh-fonts-alist
       '(("PragmataPro" "Monaco" "Consolas" "DejaVu Sans Mono" "Monospace" "Courier New")
 	("文泉驿等宽微米黑" "Microsoft Yahei" "Microsoft_Yahei" "微软雅黑"  "黑体" "新宋体" "宋体")
-	("Courier New")
-	("Courier New")
-	("Courier New")
-	("Courier New")
-	("Courier New")
-	("Courier New")))
+	("PragmataPro" "Courier New")
+	("文泉驿等宽微米黑" "宋体")
+	("PragmataPro" "Courier New")
+	("文泉驿等宽微米黑" "黑体" "新宋体" "宋体")
+	("PragmataPro" "Courier New")
+	("文泉驿等宽微米黑" "新宋体" "宋体")))
 
 (defvar eh-english-font-size nil)
 (defvar eh-english-font-size-steps '(9 10.5 11.5 12.5 14 16 18 20 22))
@@ -53,7 +53,7 @@
 (setq eh-fonts-size-scale-alist
       '((1.05 1.05 1.10 1.10 1.10 1.05 1.00 0.98 0.85)
 	(1.05 1.05 1.10 1.10 1.10 1.05 1.00 0.98 0.85)
-	(1.05 1.05 1.10 1.10 1.10 1.05 1.00 0.98 0.85)))
+	(1.05 1.05 1.10 1.10 1.10 1.05 1.00 1.05 1.05)))
 
 (defun eh-get-font-size-scale (&optional size)
   (let* ((scale-list
@@ -68,8 +68,7 @@
 (defun eh-test-font-scale-at-point ()
   "Test scale list at point, which is usd to write font scale list"
   (interactive)
-  (let* ((buffer-name "*Show-font-effect*")
-	 (scale (sexp-at-point))
+  (let* ((scale (sexp-at-point))
 	 (index
 	  (save-excursion
 	    (let* ((point1 (point))
@@ -85,32 +84,33 @@
 (defun eh-show-font-effect (&optional size scale)
   "show font and its size in a new buffer"
   (interactive)
-  (with-output-to-temp-buffer buffer-name
-    (set-buffer buffer-name)
-    (when size
-      (insert (format "# 英文字体大小设置为: %s\n" size)))
-    (when scale
-      (insert (format "# 中文字体调整系数(scale)设置为: %s\n" scale)))
-    (insert
-     (replace-regexp-in-string
-      "\\^"  "\\\\"
-      (replace-regexp-in-string
-       "@@"  "   "
-       "
+  (let ((buffer-name "*Show-font-effect*"))
+    (with-output-to-temp-buffer buffer-name
+      (set-buffer buffer-name)
+      (org-mode)
+      (when size
+	(insert (format "# 英文字体大小设置为: %s\n" size)))
+      (when scale
+	(insert (format "# 中文字体调整系数(scale)设置为: %s\n" scale)))
+      (insert
+       (replace-regexp-in-string
+	"\\^"  "\\\\"
+	(replace-regexp-in-string
+	 "@@"  "   "
+	 "
 # 请看下面中文和英文能否对齐.
 
-+----------------------------------------+
-| 一二三四五六七八九十九八七六五四三二一 |
-| abcdefghijklmnopqrstuvwxyz,.1234567890 |
-| ABCDEFGHIJKLMNOPQRSTUVWXYZ,.!@#$%^&*() |
-+----------------------------------------+
-
-  |^_/|            (^_/)
- / @ @ \\  @@     (='.'=)
-( > º < )         (0)_(0)
-`>>x<<´
-/  O  \\  @@
-")))))
+ 一二三四五六七八九十   /一二三四五六七八九十/
+*一二三四五六七八九十*  +一二三四五六七八九十+
+aaaaaaaaaaaaaaaaaaaaaa  /aaaaaaaaaaaaaaaaaaaa/
+*aaaaaaaaaaaaaaaaaaaa*  +aaaaaaaaaaaaaaaaaaaa+
+:
+:   |^_/|            (^_/)
+:  / @ @ \\  @@     (='.'=)
+: ( > º < )         (0)_(0)
+:  `>>x<<´
+:  /  O  \\  @@
+"))))))
 
 (defun eh-font-exists-p (font)
   (if (null (x-list-fonts font))
@@ -145,7 +145,7 @@
   (setq face-font-rescale-alist
 	(mapcar (lambda (x)
 		  (cons x chinese-fonts-scale))
-		(nth 0 eh-fonts-alist)))
+		(nth 1 eh-fonts-alist)))
   (eh-set-font-internal english-font-size (or chinese-fonts-scale 1.2)))
 
 (defun eh-set-font-internal (english-font-size &optional chinese-fonts-scale)
@@ -157,7 +157,8 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 	 (chinese-main-font
 	  (font-spec :family (find-if #'eh-font-exists-p (nth 1 eh-fonts-alist))))
 	 (english-italic-font
-	  (font-spec :family (find-if #'eh-font-exists-p (nth 2 eh-fonts-alist))))
+	  (font-spec :slant 'italic :weight 'normal :size (+ 0.0 english-font-size)
+		     :family (find-if #'eh-font-exists-p (nth 2 eh-fonts-alist))))
 	 (english-bold-italic-font
 	  (font-spec :slant 'italic :weight 'bold :size (+ 0.0 english-font-size)
 		     :family (find-if #'eh-font-exists-p (nth 4 eh-fonts-alist))))
@@ -167,7 +168,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
     (set-face-font 'italic english-italic-font)
     (set-face-font 'bold-italic english-bold-italic-font)
     (set-fontset-font t 'symbol english-symbol-font)
-    ;; (set-fontset-font t nil (font-spec :family "DejaVu Sans"))
+    (set-fontset-font t nil (font-spec :family "DejaVu Sans"))
 
     ;; Set Chinese font and don't not use 'unicode charset,
     ;; it will cause the english font setting invalid.
@@ -207,8 +208,8 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
   (interactive)
   (eh-step-frame-font-size 1))
 
-(global-set-key (kbd "C-x M--") 'eh-font-size-decrease)
-(global-set-key (kbd "C-x M-+") 'eh-font-size-increase)
+(global-set-key (kbd "C-c -") 'eh-font-size-decrease)
+(global-set-key (kbd "C-c +") 'eh-font-size-increase)
 
 ;; Local Variables:
 ;; coding: utf-8-unix
