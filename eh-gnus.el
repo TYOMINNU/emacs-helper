@@ -103,6 +103,8 @@
 (setq gnus-notifications-use-google-contacts nil)
 (setq gnus-notifications-use-gravatar nil)
 
+;; 设置EWW页面默认宽度为90字符
+(setq shr-width 90)
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
 ;; 发送信件程序设置
@@ -482,13 +484,6 @@
 				 eh-gnus-current-article-from)
 		 (string-match-p eh-eww-buffer-ignore-wash-regexp
 				 eh-gnus-current-article-subject)))
-	;; 取消断行
-	(let ((fill-column 10000))
-	  (fill-region (point-min) (point-max)))
-	;; 禁止自动折行
-	;;(toggle-truncate-lines 0)
-	(visual-line-mode 1)
-	(setq word-wrap nil)
 	;; 行距设置为0.2
 	(setq line-spacing 0.1)
 	;; 设置字号
