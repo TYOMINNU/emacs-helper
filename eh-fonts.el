@@ -37,10 +37,8 @@
 (setq eh-font-scale-conf "~/.emacs.d/emacs-font-scale.el")
 
 (setq eh-fonts-alist
-      '(("PragmataPro" "Monaco" "Consolas" "DejaVu Sans Mono" "Monospace" "Courier New")
-	("微软雅黑" "文泉驿等宽微米黑" "Microsoft Yahei" "Microsoft_Yahei" "微软雅黑"  "黑体" "新宋体" "宋体")
-	("PragmataPro" "Courier New")
-	("PragmataPro" "Courier New")
+      '(("Monaco" "Consolas" "PragmataPro" "DejaVu Sans Mono" "Monospace" "Courier New")
+	("文泉驿等宽微米黑" "Microsoft Yahei" "Microsoft_Yahei" "微软雅黑"  "黑体" "新宋体" "宋体")
 	("PragmataPro" "Courier New")))
 
 (defvar eh-english-font-size nil)
@@ -59,7 +57,7 @@
 (setq eh-font-test-string "
 ;; 请看下面中文和英文能否对齐.
 ;;                +------------------------------------------------+
-;;   |^_/|        | 一二三四五六七八九十   /一二三四五六七八九十/  |      (^_/)
+;;   |^_/|        |  一二三四五六七八九十   /一二三四五六七八九十/ |      (^_/)
 ;;  / @ @ \\  @@  | *一二三四五六七八九十*  +一二三四五六七八九十+ |     (='.'=)
 ;; ( > º < )      | aaaaaaaaaaaaaaaaaaaaaa  /aaaaaaaaaaaaaaaaaaaa/ |     (0)_(0)
 ;;  `>>x<<´	  | *aaaaaaaaaaaaaaaaaaaa*  +aaaaaaaaaaaaaaaaaaaa+ |
@@ -200,12 +198,12 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 	 (english-main-font (eh-make-font-string (nth 0 valid-fonts) english-font-size))
 	 (chinese-main-font (font-spec :family (nth 1 valid-fonts)))
 	 (english-italic-font
-	  (font-spec :slant 'italic :weight 'normal :size (+ 0.0 english-font-size)
-		     :family (nth 2 valid-fonts)))
+	  (font-spec :slant 'italic :weight 'normal :size english-font-size
+		     :family (nth 0 valid-fonts)))
 	 (english-bold-italic-font
-	  (font-spec :slant 'italic :weight 'bold :size (+ 0.0 english-font-size)
-		     :family (nth 3 valid-fonts)))
-	 (english-symbol-font (font-spec :family (nth 4 valid-fonts))))
+	  (font-spec :slant 'italic :weight 'bold :size english-font-size
+		     :family (nth 0 valid-fonts)))
+	 (english-symbol-font (font-spec :family (nth 3 valid-fonts))))
     (set-face-attribute 'default nil :font english-main-font)
     (set-face-font 'italic english-italic-font)
     (set-face-font 'bold-italic english-bold-italic-font)
@@ -249,9 +247,6 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (defun eh-font-size-increase ()
   (interactive)
   (eh-step-frame-font-size 1))
-
-(global-set-key (kbd "C--") 'eh-font-size-decrease)
-(global-set-key (kbd "C-=") 'eh-font-size-increase)
 
 ;; Local Variables:
 ;; coding: utf-8-unix

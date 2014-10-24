@@ -47,11 +47,11 @@
 (global-set-key (kbd "C-x C-b") 'ido-display-buffer)
 
 ;; 放大字体，缩小字体
-(global-set-key (kbd "C-c -") 'eh-font-size-decrease)
-(global-set-key (kbd "C-c =") 'eh-font-size-increase)
+(global-set-key (kbd "C--") 'eh-font-size-decrease)
+(global-set-key (kbd "C-=") 'eh-font-size-increase)
 
 ;; expand-region
-(define-key global-map (kbd "C-c +") 'er/expand-region)
+(define-key global-map (kbd "C-c =") 'er/expand-region)
 
 ;; magit status
 (global-set-key (kbd "C-c g") 'magit-status)
