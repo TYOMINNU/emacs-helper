@@ -103,8 +103,9 @@
 (setq gnus-notifications-use-google-contacts nil)
 (setq gnus-notifications-use-gravatar nil)
 
-;; 设置EWW页面默认宽度为90字符
-(setq shr-width 90)
+;; 设置Eww网页浏览器默认页面宽度
+(setq shr-width 110)
+
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
 ;; 发送信件程序设置
@@ -414,8 +415,9 @@
 	"隐私政策" "不得转载" "版权所有" "未经许可" "今日热点" "猜你喜欢"))
 
 (defun eh-gnus-web-page-render (status url &optional point post-process-function)
-  (eww-render status url point)
-  (funcall post-process-function))
+  (let ((shr-width 90))
+    (eww-render status url point)
+    (funcall post-process-function)))
 
 (defun eh-eww-build-regexp (str)
   (mapconcat (lambda (x) (concat "\n*" (list x))) str ""))
