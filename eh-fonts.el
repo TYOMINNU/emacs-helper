@@ -144,8 +144,9 @@ Use this map to set additional keybindings for setup chinese font scale")
 	"\\^"  "\\\\"
 	(replace-regexp-in-string
 	 "@@"  "   "
-	 eh-font-test-string))))
-    (eh-set-font size scale)))
+	 eh-font-test-string)))
+      (when (and size scale)
+	(eh-set-font size scale)))))
 
 (defun eh-font-exists-p (font)
   (if (null (x-list-fonts font))
@@ -205,8 +206,11 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 		     :family (nth 0 valid-fonts)))
 	 (english-symbol-font (font-spec :family (nth 3 valid-fonts))))
     (set-face-attribute 'default nil :font english-main-font)
-    (set-face-font 'italic english-italic-font)
-    (set-face-font 'bold-italic english-bold-italic-font)
+
+    ;; 许多等宽字体没有斜体和粗斜体，所以这里默认将其设置为normal，便于实现对齐。
+    (set-face-font 'italic english-main-font)
+    (set-face-font 'bold-italic english-main-font)
+
     (set-fontset-font t 'symbol english-symbol-font)
     (set-fontset-font t nil (font-spec :family "DejaVu Sans"))
 
