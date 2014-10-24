@@ -37,7 +37,7 @@
 (setq eh-font-scale-conf "~/.emacs.d/emacs-font-scale.el")
 
 (setq eh-fonts-alist
-      '(("Monaco" "Consolas" "PragmataPro" "DejaVu Sans Mono" "Monospace" "Courier New")
+      '(("PragmataPro" "Monaco" "Consolas" "DejaVu Sans Mono" "Monospace" "Courier New")
 	("文泉驿等宽微米黑" "Microsoft Yahei" "Microsoft_Yahei" "微软雅黑"  "黑体" "新宋体" "宋体")
 	("PragmataPro" "Courier New")))
 
@@ -94,7 +94,6 @@ Use this map to set additional keybindings for setup chinese font scale")
 	 "@@"  "   "
 	 eh-font-test-string)))))
   (eh-font-scale-setup-mode 1)
-  (org-mode)
   (goto-char (point-min))
   (search-forward "("))
 
