@@ -30,6 +30,18 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+
+;; autopair
+(require 'autopair)
+(autopair-global-mode)
+
+;; visual-regexp
+(require 'visual-regexp)
+(require 'visual-regexp-steroids)
+(define-key global-map (kbd "C-c r") 'vr/replace)
+(define-key global-map (kbd "C-c q") 'vr/query-replace)
+(define-key global-map (kbd "C-c m") 'vr/mc-mark)
+
 ;; multi-term
 (require 'multi-term)
 (setq multi-term-program "/bin/bash")
@@ -113,7 +125,7 @@
     (add-hook 'after-make-frame-functions
 	      (lambda (frame)
 		(with-selected-frame frame
-                  (or ibus-mode (ibus-mode-on))))))
+		  (or ibus-mode (ibus-mode-on))))))
 
 ;; recentf
 (require 'recentf)
@@ -122,7 +134,9 @@
 (recentf-mode 1)
 (setq recentf-max-saved-items 99)
 (setq recentf-max-menu-items 99)
-(setq recentf-exclude '("/adb:" "COMMIT" "autoloads" "archive-contents" "eld" "newsrc"))
+(setq recentf-exclude '("/adb:" "COMMIT" "autoloads"
+			"archive-contents" "eld" "newsrc"
+			".recentf" "emacs-font-size.conf"))
 (setq recentf-menu-filter 'eh-recentf-buffer-filter)
 (setq recentf-show-file-shortcuts-flag nil)
 
@@ -136,8 +150,12 @@
 	    name (if (file-directory-p element)
 		     (concat (file-name-nondirectory full) "/")
 		   (file-name-nondirectory full))
-            recentf-string (format "[%2s]:  %-30s (%s)" index name (abbreviate-file-name directory)))
+	    recentf-string (format "[%2s]:  %-30s (%s)" index name (abbreviate-file-name directory)))
       (push (recentf-make-menu-element recentf-string full) filtered-list))))
+
+
+;; 自动保存recentf文件。
+(add-hook 'find-file-hook 'recentf-save-list)
 
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 
@@ -158,10 +176,10 @@
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
 (add-hook 'multiple-cursors-mode-enabled-hook
-          (lambda()
+	  (lambda()
 	    (require 'phi-search)
-            (local-set-key (kbd "C-s") 'phi-search)
-            (local-set-key (kbd "C-r") 'phi-search)))
+	    (local-set-key (kbd "C-s") 'phi-search)
+	    (local-set-key (kbd "C-r") 'phi-search)))
 
 ;; ace-jump
 (require 'ace-jump-mode)
@@ -202,7 +220,7 @@
 (defun eh-browse-kill-ring ()
   (interactive)
   (let ((clipboard-output (x-get-clipboard)))
-    (unless 
+    (unless
 	(string= (car kill-ring) clipboard-output)
       (kill-new clipboard-output))
     (if (car kill-ring)
@@ -331,25 +349,25 @@
 (defun eh-cfw-render-toolbar (width current-view prev-cmd next-cmd)
   "Translate words: 'Month', 'Week', 'Day' and 'Two day' to Chinese"
   (let* ((prev (cfw:render-button " < " prev-cmd))
-         (today (cfw:render-button "今天" 'cfw:navi-goto-today-command))
-         (next (cfw:render-button " > " next-cmd))
-         (month (cfw:render-button
-                 "显示一月" 'cfw:change-view-month
-                 (eq current-view 'month)))
-         (tweek (cfw:render-button
-                 "显示两周" 'cfw:change-view-two-weeks
-                 (eq current-view 'two-weeks)))
-         (week (cfw:render-button
-                "显示一周" 'cfw:change-view-week
-                (eq current-view 'week)))
-         (day (cfw:render-button
-               "显示一天" 'cfw:change-view-day
-               (eq current-view 'day)))
-         (sp  " ")
-         (toolbar-text
-          (cfw:render-add-right
-           width (concat sp prev sp next sp today sp)
-           (concat day sp week sp tweek sp month sp))))
+	 (today (cfw:render-button "今天" 'cfw:navi-goto-today-command))
+	 (next (cfw:render-button " > " next-cmd))
+	 (month (cfw:render-button
+		 "显示一月" 'cfw:change-view-month
+		 (eq current-view 'month)))
+	 (tweek (cfw:render-button
+		 "显示两周" 'cfw:change-view-two-weeks
+		 (eq current-view 'two-weeks)))
+	 (week (cfw:render-button
+		"显示一周" 'cfw:change-view-week
+		(eq current-view 'week)))
+	 (day (cfw:render-button
+	       "显示一天" 'cfw:change-view-day
+	       (eq current-view 'day)))
+	 (sp  " ")
+	 (toolbar-text
+	  (cfw:render-add-right
+	   width (concat sp prev sp next sp today sp)
+	   (concat day sp week sp tweek sp month sp))))
     (cfw:render-default-content-face toolbar-text 'cfw:face-toolbar)))
 
 (advice-add 'cfw:render-toolbar :override #'eh-cfw-render-toolbar)
@@ -372,14 +390,3 @@
 ;; End:
 
 ;;; eh-misc.el ends here
-
-
-
-
-
-
-
-
-
-
-

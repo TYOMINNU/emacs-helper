@@ -59,10 +59,6 @@
 ;; eshell
 (global-set-key (kbd "C-x c") 'eshell)
 
-;; search
-(global-set-key (kbd "C-s") 'phi-search)
-(global-set-key (kbd "C-r") 'phi-search)
-
 ;; 设置键盘绑定,发送邮件
 (global-set-key (kbd "C-x m") 'gnus-msg-mail)
 
@@ -82,14 +78,14 @@
 (global-set-key (kbd "<f11>") 'org-contacts)
 (global-set-key (kbd "<f12>") 'eh-org-mobile-sync-with-adb)
 
-;; (global-set-key (kbd "<f12>") 
-;;                 '(lambda () 
+;; (global-set-key (kbd "<f12>")
+;;                 '(lambda ()
 ;;                    (interactive)
 ;;                    (progn (org-mobile-push)
 ;;                           (org-contacts-export-as-vcard)
 ;;                           ;;  (shell-command "scp ~/Documents/org-mobile/* root@192.168.1.234:/sdcard/org-mobile/")
-;;                           ;;  (start-process "org-mobile-push with scp" 
-;;                           ;;  (get-buffer-create "*scp-to-android*")              
+;;                           ;;  (start-process "org-mobile-push with scp"
+;;                           ;;  (get-buffer-create "*scp-to-android*")
 ;;                           ;;  "/bin/bash"
 ;;                           ;;  "-c" "scp ~/documents/org-mobile/* root@192.168.1.234:/sdcard/org-mobile/")
 ;;                                                           )))
