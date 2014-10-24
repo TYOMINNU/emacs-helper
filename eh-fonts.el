@@ -198,18 +198,24 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
   (let* ((valid-fonts (eh-valid-fonts))
 	 (english-main-font (eh-make-font-string (nth 0 valid-fonts) english-font-size))
 	 (chinese-main-font (font-spec :family (nth 1 valid-fonts)))
+	 (english-bold-font
+	  (font-spec :slant 'normal :weight 'bold
+		     :size english-font-size
+		     :family (nth 0 valid-fonts)))
 	 (english-italic-font
-	  (font-spec :slant 'italic :weight 'normal :size english-font-size
+	  (font-spec :slant 'italic :weight 'normal
+		     :size english-font-size
 		     :family (nth 0 valid-fonts)))
 	 (english-bold-italic-font
-	  (font-spec :slant 'italic :weight 'bold :size english-font-size
+	  (font-spec :slant 'italic :weight 'bold
+		     :size english-font-size
 		     :family (nth 0 valid-fonts)))
 	 (english-symbol-font (font-spec :family (nth 3 valid-fonts))))
     (set-face-attribute 'default nil :font english-main-font)
 
     ;; 许多等宽字体没有斜体和粗斜体，所以这里默认将其设置为normal，便于实现对齐。
     (set-face-font 'italic english-main-font)
-    (set-face-font 'bold-italic english-main-font)
+    (set-face-font 'bold-italic english-bold-font)
 
     (set-fontset-font t 'symbol english-symbol-font)
     (set-fontset-font t nil (font-spec :family "DejaVu Sans"))
