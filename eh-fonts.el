@@ -94,6 +94,7 @@ Use this map to set additional keybindings for setup chinese font scale")
 	 "@@"  "   "
 	 eh-font-test-string)))))
   (eh-font-scale-setup-mode 1)
+  (org-mode)
   (goto-char (point-min))
   (search-forward "("))
 
