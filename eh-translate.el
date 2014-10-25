@@ -252,7 +252,7 @@
 (defun eh-sdcv-output-clean-common ()
   (goto-char (point-min))
   (while (re-search-forward "-->\\(.*\\)\n-->\\(.*\\)" nil t)
-    (replace-match "* \\1 (\\2) "))
+    (replace-match "* \\1 (\\2)"))
 
   (goto-char (point-min))
   (while (re-search-forward "\n+" nil t)
@@ -359,4 +359,3 @@
 ;; End:
 
 ;;; eh-translate.el ends here
-
