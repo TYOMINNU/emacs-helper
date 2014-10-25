@@ -102,8 +102,9 @@
 	(variable-fonts-scales "eh-custom-fonts-scales-list"))
     (with-temp-buffer
       (erase-buffer)
-      (insert ";;; Custom fonts order and scale. Show effect with `C-c C-c")
+      (insert ";;; 设置默认字体列表，按`C-c C-c'测试字体显示效果")
       (eh-font-dump-variable variable-fonts-names  fonts-names)
+      (insert (format "\n;;; 为每个字号%s设置中文调整系数，使中英文等宽度。" eh-font-size-steps))
       (eh-font-dump-variable variable-fonts-scales fonts-scales)
       (write-file (expand-file-name eh-fonts-info-conf)))))
 
@@ -253,10 +254,8 @@ Use this map to set additional keybindings for setup chinese font scale")
 	(setq size (nth (1- index) eh-font-size-steps))
 	(eh-set-font size scale)
 	(eh-show-font-effect size scale))
-      (eh-set-font 12.4 1.25)
-      (eh-show-font-effect 12.4 1.25 "
-# 如果需要调整scale设置，请将光标移动到`eh-custom-fonts-scales-list‘中相应的数字上。按C-c C-c，
-# 然后根据显示效果调整数字的大小。\n\n"))))
+      (eh-set-font 14 1.25)
+      (eh-show-font-effect 14 1.25 t))))
 
 (defun eh-show-font-effect (&optional size scale info)
   "show font and its size in a new buffer"
@@ -266,12 +265,15 @@ Use this map to set additional keybindings for setup chinese font scale")
       (set-buffer buffer-name)
       (when (featurep 'org)
 	(org-mode))
-      (when info
-	(insert info))
       (when size
-	(insert (format "# 英文字体大小设置为: %s，" size)))
+	(insert (format "# 英文字体大小设置为: %s ; " size)))
       (when scale
-	(insert (format "中文字体调整系数(scale)设置为: %s\n" scale)))
+	(insert (format "中文字体调整系数(scale)设置为: %s 。\n" scale)))
+      (when info
+	(insert
+	 (concat
+	  "# 将光标移动到`eh-custom-fonts-scales-list‘中各个数字上，"
+	  "按C-c C-c，测试对应字号的调整系数。\n")))
       (insert
        (replace-regexp-in-string
 	"\\^"  "\\\\"
