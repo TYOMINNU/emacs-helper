@@ -265,6 +265,7 @@ Use this map to set additional keybindings for setup chinese font scale")
       (set-buffer buffer-name)
       (when (featurep 'org)
 	(org-mode))
+      (setq truncate-lines 1)
       (when size
 	(insert (format "# 英文字体大小设置为: %s ; " size)))
       (when scale
