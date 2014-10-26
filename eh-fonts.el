@@ -37,10 +37,10 @@
 (setq eh-default-font-size-conf "~/.emacs.d/eh-custom-font-default-size.el")
 
 ;; 默认使用正常代替斜体。
-(setq eh-fonts-ignore-italic nil)
+(setq eh-fonts-ignore-italic t)
 
 ;; 默认使用粗体代替粗斜体。
-(setq eh-fonts-ignore-bold-italic nil)
+(setq eh-fonts-ignore-bold-italic t)
 
 (defconst eh-font-size-steps
   '(9 10.5 11.5 12.5 14 16 18 20 22))
