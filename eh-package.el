@@ -1,7 +1,7 @@
 (require 'package)
 
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+	     '("melpa" . "http://melpa.org/packages/") t)
 
 (package-initialize)
 (setq package-unsigned-archives '("gnu"))
@@ -30,8 +30,8 @@
 
 (defun eh-packages-installed-p ()
   (loop for p in eh-packages
-        when (not (package-installed-p p)) do (return nil)
-        finally (return t)))
+	when (not (package-installed-p p)) do (return nil)
+	finally (return t)))
 
 (defun eh-install-packages-1 ()
   (unless (eh-packages-installed-p)
