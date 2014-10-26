@@ -242,18 +242,18 @@ Use this map to set additional keybindings for setup chinese font scale")
   (let (scale index)
     (setq scale (sexp-at-point))
     (if (and scale (numberp scale))
-      (progn
-	(setq index
-	      (save-excursion
-		(let* ((point1 (point))
-		       (point2 (progn (search-backward "(")
-				      (point))))
-		  (length (split-string
-			   (buffer-substring-no-properties point1 point2)
-			   " ")))))
-	(setq size (nth (1- index) eh-font-size-steps))
-	(eh-set-font size scale)
-	(eh-show-font-effect size scale))
+	(progn
+	  (setq index
+		(save-excursion
+		  (let* ((point1 (point))
+			 (point2 (progn (search-backward "(")
+					(point))))
+		    (length (split-string
+			     (buffer-substring-no-properties point1 point2)
+			     " ")))))
+	  (setq size (nth (1- index) eh-font-size-steps))
+	  (eh-set-font size scale)
+	  (eh-show-font-effect size scale))
       (eh-set-font 14 1.25)
       (eh-show-font-effect 14 1.25 t))))
 
