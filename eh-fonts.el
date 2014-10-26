@@ -36,6 +36,12 @@
 (setq eh-fonts-info-conf "~/.emacs.d/eh-custom-fonts-info.el")
 (setq eh-default-font-size-conf "~/.emacs.d/eh-custom-font-default-size.el")
 
+;; 默认使用正常代替斜体。
+(setq eh-fonts-ignore-italic nil)
+
+;; 默认使用粗体代替粗斜体。
+(setq eh-fonts-ignore-bold-italic nil)
+
 (defconst eh-font-size-steps
   '(9 10.5 11.5 12.5 14 16 18 20 22))
 
@@ -170,11 +176,14 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 		     :family (nth 0 valid-fonts)))
 	 (english-symbol-font (font-spec :family (nth 3 valid-fonts))))
     (set-face-attribute 'default nil :font english-main-font)
-
-    ;; 许多等宽字体没有斜体和粗斜体，所以这里默认将其设置为normal，便于实现对齐。
-    (set-face-font 'italic english-main-font)
-    (set-face-font 'bold-italic english-bold-font)
-
+    (set-face-font 'italic
+		   (if eh-fonts-ignore-italic
+		       english-main-font
+		     english-italic-font))
+    (set-face-font 'bold-italic
+		   (if eh-fonts-ignore-bold-italic
+		       english-bold-font
+		     english-bold-italic-font))
     (set-fontset-font t 'symbol english-symbol-font)
     (set-fontset-font t nil (font-spec :family "DejaVu Sans"))
 
