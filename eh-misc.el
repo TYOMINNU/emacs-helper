@@ -31,6 +31,21 @@
 
 ;;; Code:
 
+;; elisp setting
+(defun eh-elisp-setup ()
+  ;; 跟踪行尾空格
+  (setq show-trailing-whitespace t)
+  ;; 高亮TAB
+  (setq highlight-tabs t)
+  ;; 自动缩进
+  (aggressive-indent-mode))
+
+(add-hook 'emacs-lisp-mode-hook
+	  #'eh-elisp-setup)
+
+;; aggressive-indent
+(require 'aggressive-indent)
+
 ;; autopair
 (require 'autopair)
 (autopair-global-mode)

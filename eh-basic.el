@@ -49,12 +49,6 @@
 ;; 高亮配对的括号
 (show-paren-mode 1)
 
-;; 高亮TAB
-(setq-default highlight-tabs t)
-
-;; 跟踪行尾空格
-(setq-default show-trailing-whitespace t)
-
 ;; 保存文件之前，删除无用的空格
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))
