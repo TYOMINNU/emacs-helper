@@ -190,12 +190,6 @@
 (global-set-key (kbd "C-c <") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
-(add-hook 'multiple-cursors-mode-enabled-hook
-	  (lambda()
-	    (require 'phi-search)
-	    (local-set-key (kbd "C-s") 'phi-search)
-	    (local-set-key (kbd "C-r") 'phi-search)))
-
 ;; ace-jump
 (require 'ace-jump-mode)
 (autoload
