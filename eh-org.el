@@ -1,4 +1,4 @@
-;;; eh-org.el --- Tumashu's org-mode configuation 
+;;; eh-org.el --- Tumashu's org-mode configuation
 
 ;; Copyright (c) 2012, Feng Shu
 
@@ -67,9 +67,9 @@
 
 (setq org-agenda-custom-commands
       '(("l" "agenda:"
-         ((agenda  "" ((org-agenda-overriding-header "Two-Days")
+	 ((agenda  "" ((org-agenda-overriding-header "Two-Days")
 		       (org-agenda-span 2)))
-          (tags-todo "生活|IT|购物")))))
+	  (tags-todo "生活|IT|购物")))))
 
 (setq org-agenda-remove-tags t)
 (setq org-todo-keywords
@@ -77,7 +77,7 @@
 
 (add-to-list 'auto-mode-alist '("\.\(org\|org_archive\)$" . org-mode))
 (setq org-insert-heading-respect-content nil)
-(setq org-log-done t)   
+(setq org-log-done t)
 (setq org-startup-indented nil)
 (setq org-confirm-babel-evaluate nil)
 (setq org-edit-src-content-indentation 0)
@@ -120,7 +120,7 @@
    (gnuplot . t)
    (haskell . nil)
    (mscgen . t)
-   (latex . t) 
+   (latex . t)
    (ocaml . nil)
    (perl . t)
    (python . t)
@@ -144,7 +144,7 @@
   (let ((location (org-babel-where-is-src-block-result nil info)))
     (when location
       (save-excursion
-        (goto-char location)
+	(goto-char location)
 	(when (looking-at (concat org-babel-result-regexp ".*$"))
 	  (while (< (point) (progn (forward-line 1) (org-babel-result-end)))
 	    (when (org-at-table-p)
@@ -157,10 +157,10 @@
 (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
 ;; 开启自动断行
 (add-hook 'org-mode-hook '(lambda ()
- 			    (setq visual-line-fringe-indicators '(nil nil))
- 			    (visual-line-mode)
- 			    (if visual-line-mode
- 				(setq word-wrap nil))))
+			    (setq visual-line-fringe-indicators '(nil nil))
+			    (visual-line-mode)
+			    (if visual-line-mode
+				(setq word-wrap nil))))
 
 ;; export filter
 ;; (defun eh-convert-punctuation (text backend info)
@@ -172,11 +172,11 @@
 ;;       ":" "："
 ;;       (replace-regexp-in-string
 ;;        "·" "。"
-;;        (replace-regexp-in-string 
-;; 	","  "，"
-;; 	(replace-regexp-in-string 
-;; 	 "\\."  "。"
-;; 	 (replace-regexp-in-string "\n" "" text))))))))
+;;        (replace-regexp-in-string
+;;	","  "，"
+;;	(replace-regexp-in-string
+;;	 "\\."  "。"
+;;	 (replace-regexp-in-string "\n" "" text))))))))
 
 ;; (add-to-list 'org-export-filter-plain-text-functions
 ;;              'eh-convert-punctuation)
@@ -290,45 +290,45 @@
 
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
-             '("ctexart"
-               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-               ("\\paragraph{%s}" . "\\paragraph*{%s}")
-               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+	     '("ctexart"
+	       "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+	       ("\\paragraph{%s}" . "\\paragraph*{%s}")
+	       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 (add-to-list 'org-latex-classes
-             '("ctexrep"
-               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
-               ("\\part{%s}" . "\\part*{%s}")
-               ("\\chapter{%s}" . "\\chapter*{%s}")
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+	     '("ctexrep"
+	       "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
+	       ("\\part{%s}" . "\\part*{%s}")
+	       ("\\chapter{%s}" . "\\chapter*{%s}")
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 (add-to-list 'org-latex-classes
-             '("ctexbook"
-               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
-               ("\\part{%s}" . "\\part*{%s}")
-               ("\\chapter{%s}" . "\\chapter*{%s}")
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+	     '("ctexbook"
+	       "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
+	       ("\\part{%s}" . "\\part*{%s}")
+	       ("\\chapter{%s}" . "\\chapter*{%s}")
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 (add-to-list 'org-latex-classes
-             '("beamer"
-               "\\documentclass{beamer}
-               \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
-               org-beamer-sectioning))
+	     '("beamer"
+	       "\\documentclass{beamer}
+	       \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
+	       org-beamer-sectioning))
 
 (add-to-list 'org-latex-classes
-             '("hbuuthesis"
-               "\\documentclass[unicode]{hbuuthesis}
+	     '("hbuuthesis"
+	       "\\documentclass[unicode]{hbuuthesis}
  [DEFAULT-PACKAGES]
  [NO-PACKAGES]
  [EXTRA]"
-               ("\\chapter{%s}" . "\\chapter*{%s}")
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+	       ("\\chapter{%s}" . "\\chapter*{%s}")
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 
 ;; org不建议自定义org-latex-default-package-alist变量，但"inputenc" and "fontenc"两个宏包似乎和
 ;; xelatex有冲突，调整默认值！
@@ -339,7 +339,7 @@
 (setf org-latex-default-packages-alist
       (remove '("normalem" "ulem" t) org-latex-default-packages-alist))
 (setcar (rassoc '("wasysym" t)
-                org-latex-default-packages-alist) "nointegrals")
+		org-latex-default-packages-alist) "nointegrals")
 
 (setq  org-latex-packages-alist
        '("
@@ -354,7 +354,7 @@
 \\setCJKmonofont{WenQuanYi Micro Hei}
 
 %%% 设置页面边距 %%%
-\\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} % 
+\\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} %
 "))
 
 ;; latex公式预览, 调整latex预览时使用的header,默认使用ctexart类
