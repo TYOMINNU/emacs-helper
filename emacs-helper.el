@@ -4,6 +4,7 @@
 (load-library "eh-mode-line")
 (load-library "eh-hanzi2pinyin")
 (load-library "eh-translate")
+(load-library "eh-eww")
 (load-library "eh-emms")
 (load-library "eh-org")
 (load-library "eh-org-capture")
