@@ -52,7 +52,7 @@
 	       (nnimap-stream network)))
 
 (add-to-list 'gnus-secondary-select-methods
-             '(nntp "localhost"))
+	     '(nntp "localhost"))
 
 (add-to-list 'gnus-secondary-select-methods
 	     '(nnimap "rss"
@@ -66,12 +66,12 @@
 ;;		      (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir/rss:LAYOUT=fs")))
 ;;
 ;; (add-to-list 'gnus-secondary-select-methods
-;; 	     '(nnmaildir "RSS"
-;; 			 (directory "~/RSS/")))
+;;	     '(nnmaildir "RSS"
+;;			 (directory "~/RSS/")))
 ;;
 ;; (setq gnus-select-method '(nnimap "gmail"
-;; 				  (nnimap-address "imap.gmail.com")
-;; 				  (nnimap-stream ssl)))
+;;				  (nnimap-address "imap.gmail.com")
+;;				  (nnimap-stream ssl)))
 ;;
 ;; (add-to-list 'gnus-secondary-select-methods
 ;;              '(nntp "news.gmane.org"))
@@ -103,9 +103,6 @@
 (setq gnus-notifications-use-google-contacts nil)
 (setq gnus-notifications-use-gravatar nil)
 
-;; 设置Eww网页浏览器默认页面宽度
-(setq shr-width 110)
-
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
 ;; 发送信件程序设置
@@ -120,14 +117,14 @@
 ;; (defun eh-send-mail-with-msmtp ()
 ;;   (if (message-mail-p)
 ;;       (save-excursion
-;; 	(let* ((from
-;; 		(save-restriction
-;; 		  (message-narrow-to-headers)
-;; 		  (message-fetch-field "from")))
-;; 	       (account
-;; 		(cond
-;; 		 ((string-match "tumashu@gmail.com" from) "tumashu@gmail.com"))))
-;; 	  (setq message-sendmail-extra-arguments (list "-a" account))))))
+;;	(let* ((from
+;;		(save-restriction
+;;		  (message-narrow-to-headers)
+;;		  (message-fetch-field "from")))
+;;	       (account
+;;		(cond
+;;		 ((string-match "tumashu@gmail.com" from) "tumashu@gmail.com"))))
+;;	  (setq message-sendmail-extra-arguments (list "-a" account))))))
 ;; (add-hook 'message-send-mail-hook 'eh-send-mail-with-msmtp)
 
 ;; 编码设置
@@ -137,7 +134,7 @@
 ;;根据我们选择的 method确定编码
 (setq gnus-group-name-charset-method-alist
       '(((nntp "news.newsfan.net") . gbk)
-        ((nntp "news.cn99.com") . gbk)))
+	((nntp "news.cn99.com") . gbk)))
 ;;根据组名确定组名采用的编码
 (setq gnus-group-name-charset-group-alist
       '((".*" . gbk)))
@@ -147,9 +144,9 @@
 ;; 如果还有乱码，手动调整
 (setq gnus-summary-show-article-charset-alist
       '((1 . gbk)
-        (2 . utf-8)
-        (3 . big5)
-        (4 . utf-7)))
+	(2 . utf-8)
+	(3 . big5)
+	(4 . utf-7)))
 ;; 邮件没有指定正确的MIME类型的时候的处理方式
 (setq gnus-newsgroup-ignored-charsets
       '(unknown-8bit x-unknown x-gbk ))
@@ -159,19 +156,19 @@
 ;; 2. 用什么程序发送邮件.
 (setq gnus-posting-styles
       '(("\(^INBOX\)\|\(\\[Gmail\\].*\)"
-         ("X-Message-SMTP-Method" "sendmail"))
-        (message-mail-p
-         ("X-Message-SMTP-Method" "sendmail"))
-        (".*"
-         (signature "")
-         (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1  utf-8  gb2312  gbk  utf-8 gb18030))))
-        (".*newsfan.*"
-         (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1   gb2312  gbk   gb18030  utf-8))))
-        (".*cn99.*"
-         (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1    gb2312    gbk    gb18030  utf-8))))))
+	 ("X-Message-SMTP-Method" "sendmail"))
+	(message-mail-p
+	 ("X-Message-SMTP-Method" "sendmail"))
+	(".*"
+	 (signature "")
+	 (eval (setq mm-coding-system-priorities
+		     '(iso-8859-1  utf-8  gb2312  gbk  utf-8 gb18030))))
+	(".*newsfan.*"
+	 (eval (setq mm-coding-system-priorities
+		     '(iso-8859-1   gb2312  gbk   gb18030  utf-8))))
+	(".*cn99.*"
+	 (eval (setq mm-coding-system-priorities
+		     '(iso-8859-1    gb2312    gbk    gb18030  utf-8))))))
 
 
 ;; 指定附件文件名和subject的编码方式
@@ -211,13 +208,13 @@
 ;; 这样设置主要是因为有些article下载速度极慢，
 ;; 会降低响应速度
 (setq gnus-auto-select-first nil)
-(setq gnus-auto-select-next nil)                  
+(setq gnus-auto-select-next nil)
 
 ;; 设置gnus启动时,组级别大于3的不自动更新。
 ;; 当你添加了许多速度慢的组时，比如rss,imap等，启动速度会相当慢。这时你
 ;; 可以把它们的组级别设置为大于3的值，这样启动时就不自动更新了。
 ;; 当你需要更新这些组的时候，使用 "4-g" "5-g" 等快捷键
-(setq gnus-activate-level 3) 
+(setq gnus-activate-level 3)
 
 ;; 双窗口布局(垂直)
 ;; (gnus-add-configuration '(article
@@ -227,7 +224,7 @@
 
 ;; 双窗口布局(水平)
 (gnus-add-configuration '(article
-                          (vertical 1.0
+			  (vertical 1.0
 				    (summary 0.25 point)
 				    (article 1.0))))
 
@@ -235,18 +232,18 @@
 ;; (gnus-add-configuration
 ;;  '(article
 ;;    (horizontal 1.0
-;; 	       (vertical 25
-;; 			 (group 1.0))
-;; 	       (vertical 1.0
-;; 			 (summary 0.25 point)
-;; 			 (article 1.0)))))
+;;	       (vertical 25
+;;			 (group 1.0))
+;;	       (vertical 1.0
+;;			 (summary 0.25 point)
+;;			 (article 1.0)))))
 ;; (gnus-add-configuration
 ;;  '(summary
 ;;    (horizontal 1.0
-;; 	       (vertical 25
-;; 			 (group 1.0))
-;; 	       (vertical 1.0
-;; 			 (summary 1.0 point)))))
+;;	       (vertical 25
+;;			 (group 1.0))
+;;	       (vertical 1.0
+;;			 (summary 1.0 point)))))
 
 ;; 显示设置
 (setq mm-inline-large-images t)                       ;显示内置图片
@@ -259,17 +256,17 @@
 (setq nnmail-extra-headers gnus-extra-headers)
 (setq gnus-summary-gather-subject-limit 'fuzzy) ;聚集题目用模糊算法
 (setq gnus-summary-make-false-root 'adopt)
-(setq gnus-summary-line-format (concat 
-                                "%U%R |"
-                                "%ua"
-                                "%2{%ub%}"
-                                "%uc"
-                                "%B"
-                                "%I"
-                                "%2{%ud%}"
-                                "%ue"
-                                "%3{%uf%}"
-                                "\n"))
+(setq gnus-summary-line-format (concat
+				"%U%R |"
+				"%ua"
+				"%2{%ub%}"
+				"%uc"
+				"%B"
+				"%I"
+				"%2{%ud%}"
+				"%ue"
+				"%3{%uf%}"
+				"\n"))
 
 (copy-face 'default 'eh-gnus-face-2)
 (set-face-foreground 'eh-gnus-face-2 "orange")
@@ -308,11 +305,11 @@
 ;; 显示主题设置
 (defun gnus-user-format-function-c (header)
   (let ((date (mail-header-date header))
-        (subject (mail-header-subject header)))
+	(subject (mail-header-subject header)))
     (if (zerop gnus-tmp-level)
-        (concat subject
-                " ("
-                (gnus-user-date date)")") "")))
+	(concat subject
+		" ("
+		(gnus-user-date date)")") "")))
 
 ;; 提取From名字
 (defun eh-mail-header-from-name (from)
@@ -320,11 +317,11 @@
    ((string-match "<[^>]+> *$" from)
     (let ((beg (match-beginning 0)))
       (or (and (string-match "^\".+\"" from)
-               (substring from 1 (1- (match-end 0))))
-          (substring from 0 beg))))
+	       (substring from 1 (1- (match-end 0))))
+	  (substring from 0 beg))))
    ((string-match "(.+)" from)
     (substring from
-               (1+ (match-beginning 0)) (1- (match-end 0))))
+	       (1+ (match-beginning 0)) (1- (match-end 0))))
    (t from)))
 
 ;; 显示发件人设置
@@ -341,20 +338,20 @@
 ;; 显示隐藏Subject, 用于搜索
 (defun gnus-user-format-function-f (header)
   (let ((date (mail-header-date header))
-        (subject (mail-header-subject header)))
+	(subject (mail-header-subject header)))
     (if (zerop gnus-tmp-level)
-        ""
+	""
       subject)))
 
 (setq gnus-user-date-format-alist
       '(((gnus-seconds-today) . "%H:%M")
-        ((+ (* 24 3600)    (gnus-seconds-today)) . "YD   ")
-        ((- (gnus-seconds-month) (* 72 3600)) . "%dth ")
-        ((- (gnus-seconds-month) (* 48 3600)) . "%drd ")
-        ((- (gnus-seconds-month) (* 24 3600)) . "%dnd ")
-        ((gnus-seconds-month) . "%dst ")
-        ((gnus-seconds-year)  . "%m-%d")
-        (t . "%Y ")))
+	((+ (* 24 3600)    (gnus-seconds-today)) . "YD   ")
+	((- (gnus-seconds-month) (* 72 3600)) . "%dth ")
+	((- (gnus-seconds-month) (* 48 3600)) . "%drd ")
+	((- (gnus-seconds-month) (* 24 3600)) . "%dnd ")
+	((gnus-seconds-month) . "%dst ")
+	((gnus-seconds-year)  . "%m-%d")
+	(t . "%Y ")))
 
 (setq gnus-thread-indent-level 0)
 ;; 线程的可视化外观, `%B'
@@ -532,26 +529,26 @@
 (define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-clear-view)
 
 (add-hook 'gnus-summary-mode-hook
-          (lambda ()
-            ;; summary buffer行距设置
-            (setq line-spacing 3)
-            ;; 设置一个face,用来隐藏不需要显示的文字
-            (set-face-foreground 'eh-gnus-face-3 (eh-gnus-find-invisible-foreground))
-            ;; summary buffer不显示右fringe
-            (set-fringe-style  '(nil . 0))
-            ;; 重新定义键盘绑定
-            (local-set-key (kbd "SPC") (lambda ()
-                                         (interactive)
-                                         (gnus-summary-next-page)
-                                         (move-beginning-of-line 1)))
+	  (lambda ()
+	    ;; summary buffer行距设置
+	    (setq line-spacing 3)
+	    ;; 设置一个face,用来隐藏不需要显示的文字
+	    (set-face-foreground 'eh-gnus-face-3 (eh-gnus-find-invisible-foreground))
+	    ;; summary buffer不显示右fringe
+	    (set-fringe-style  '(nil . 0))
+	    ;; 重新定义键盘绑定
+	    (local-set-key (kbd "SPC") (lambda ()
+					 (interactive)
+					 (gnus-summary-next-page)
+					 (move-beginning-of-line 1)))
 	    (local-set-key (kbd "C-p") (lambda ()
 					 (interactive)
-                                         (delete-other-windows)
-                                         (previous-line 1)))
+					 (delete-other-windows)
+					 (previous-line 1)))
 	    (local-set-key (kbd "C-n") (lambda ()
-                                         (interactive)
-                                         (delete-other-windows)
-                                         (next-line 1)))
+					 (interactive)
+					 (delete-other-windows)
+					 (next-line 1)))
 	    (local-set-key (kbd "<up>") (lambda ()
 					  (interactive)
 					  (delete-other-windows)
@@ -560,7 +557,7 @@
 					    (interactive)
 					    (delete-other-windows)
 					    (next-line 1)))
-            (local-set-key (kbd "<return>") (lambda ()
+	    (local-set-key (kbd "<return>") (lambda ()
 					      (interactive)
 					      (eh-gnus-view-article-with-eww)
 					      (move-beginning-of-line 1)))
@@ -568,9 +565,9 @@
 						(interactive)
 						(eh-gnus-view-article-with-eww t)
 						(move-beginning-of-line 1)))
-            (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
-            (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
-            (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
+	    (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
+	    (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
+	    (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread)))
 
 ;; visual
 (setq gnus-treat-emphasize t
@@ -592,12 +589,12 @@
 ;; 设置邮件报头显示的信息
 (setq gnus-visible-headers
       (mapconcat 'regexp-quote
-                 '("From:" "Newsgroups:" "Subject:" "Date:"
-                   "Organization:" "To:" "Cc:" "Followup-To" "Gnus-Warnings:"
-                   "X-Sent:" "X-URL:" "User-Agent:" "X-Newsreader:"
-                   "X-Mailer:" "Reply-To:" "X-Spam:" "X-Spam-Status:" "X-Now-Playing"
-                   "X-Attachments" "X-Diagnostic" "X-RSS-URL")
-                 "\\|"))
+		 '("From:" "Newsgroups:" "Subject:" "Date:"
+		   "Organization:" "To:" "Cc:" "Followup-To" "Gnus-Warnings:"
+		   "X-Sent:" "X-URL:" "User-Agent:" "X-Newsreader:"
+		   "X-Mailer:" "Reply-To:" "X-Spam:" "X-Spam-Status:" "X-Now-Playing"
+		   "X-Attachments" "X-Diagnostic" "X-RSS-URL")
+		 "\\|"))
 
 ;; 设置邮件日期显示格式,使用两行日期，一行具体日期时间，另一行显示article
 ;; 距现在多长时间
@@ -605,11 +602,11 @@
 (setq gnus-article-time-format
       (lambda (time)
 	(concat "X-Sent:   "
-                (format-time-string "%Y年%m月%d日 星期%u %R" time)
-                "\n"
-                "X-Lasped: "
-                (article-lapsed-string time)
-                )))
+		(format-time-string "%Y年%m月%d日 星期%u %R" time)
+		"\n"
+		"X-Lasped: "
+		(article-lapsed-string time)
+		)))
 
 
 ;; 用 Supercite 显示多种多样的引文形式
@@ -636,12 +633,12 @@
 ;; Thread root排序
 (setq gnus-thread-sort-functions
       '(gnus-thread-sort-by-most-recent-number
-        gnus-thread-sort-by-most-recent-date))
+	gnus-thread-sort-by-most-recent-date))
 
 ;; Subthread排序
 (setq gnus-subthread-sort-functions
       '(gnus-thread-sort-by-number
-        gnus-thread-sort-by-date))
+	gnus-thread-sort-by-date))
 
 ;; 自动跳到第一个没有阅读的组
 (add-hook 'gnus-switch-on-after-hook 'gnus-group-first-unread-group) ;gnus切换时
@@ -654,7 +651,7 @@
 
 ;; 每隔10分钟刷新一下
 (add-hook 'gnus-startup-hook
-          '(lambda () (progn
+	  '(lambda () (progn
 			(setq gnus-use-demon t)
 			(gnus-demon-add-handler 'gnus-demon-scan-news 10 nil))))
 
