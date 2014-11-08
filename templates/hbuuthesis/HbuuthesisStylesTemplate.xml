@@ -84,9 +84,9 @@
 	</style:list-level-properties>
       </text:outline-level-style>
     </text:outline-style>
-    
+
     <style:style style:name="PageBreak" style:family="paragraph"
-                 style:parent-style-name="Text_20_body">
+		 style:parent-style-name="Text_20_body">
       <style:paragraph-properties fo:break-before="page"/>
     </style:style>
 
@@ -318,23 +318,23 @@
     </style:style>
 
     <style:style style:name="OrgTableHeadingLeft" style:family="paragraph" style:parent-style-name="OrgTableHeading">
-      <style:paragraph-properties fo:text-align="left" style:justify-single-word="false"/>
+      <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" fo:text-align="left" style:justify-single-word="false"/>
     </style:style>
     <style:style style:name="OrgTableHeadingRight" style:family="paragraph" style:parent-style-name="OrgTableHeading">
-      <style:paragraph-properties fo:text-align="right" style:justify-single-word="false"/>
+      <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" fo:text-align="right" style:justify-single-word="false"/>
     </style:style>
     <style:style style:name="OrgTableHeadingCenter" style:family="paragraph" style:parent-style-name="OrgTableHeading">
       <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
     </style:style>
 
     <style:style style:name="OrgTableContentsLeft" style:family="paragraph" style:parent-style-name="OrgTableContents">
-      <style:paragraph-properties fo:text-align="left" style:justify-single-word="false"/>
+      <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" fo:text-align="left" style:justify-single-word="false"/>
     </style:style>
     <style:style style:name="OrgTableContentsRight" style:family="paragraph" style:parent-style-name="OrgTableContents">
-      <style:paragraph-properties fo:text-align="right" style:justify-single-word="false"/>
+      <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" fo:text-align="right" style:justify-single-word="false"/>
     </style:style>
     <style:style style:name="OrgTableContentsCenter" style:family="paragraph" style:parent-style-name="OrgTableContents">
-      <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
+      <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" fo:text-align="center" style:justify-single-word="false"/>
     </style:style>
     <style:style style:name="Text_20_body_20_bold" style:display-name="Text body bold" style:family="paragraph" style:parent-style-name="Text_20_body" style:next-style-name="Text_20_body">
       <style:text-properties fo:font-weight="bold"/>
@@ -790,7 +790,7 @@
       <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
       <style:text-properties fo:font-size="16pt" fo:font-weight="bold" style:font-size-asian="16pt" style:font-weight-asian="bold" style:font-size-complex="16pt" style:font-weight-complex="bold"/>
     </style:style>
-    
+
     <style:style style:name="Bibliography" style:family="paragraph" style:parent-style-name="Text_20_body">
       <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
     </style:style>
