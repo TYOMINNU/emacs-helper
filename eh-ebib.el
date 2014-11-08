@@ -72,6 +72,9 @@
 ;; allow the same keys
 (setq ebib-uniquify-keys nil)
 
+;; default column when wash bib file
+(setq eh-ebib-entry-buffer-abstact-fill-column 80)
+
 ;; record the last opened bibfile name
 (setq eh-ebib-recently-opened-bibfile nil)
 
@@ -86,8 +89,8 @@
   "Get abstract field of the entry"
   (or db (setq db ebib-cur-db))
   (let* ((case-fold-search t)
-         (value (ebib-db-get-field-value field key db 'noerror nil 'xref))
-         (abstract-string (if (car value)
+	 (value (ebib-db-get-field-value field key db 'noerror nil 'xref))
+	 (abstract-string (if (car value)
 			      (copy-sequence (car value)))))
     (eh-wash-text (or abstract-string "") 80 0)))
 
@@ -138,7 +141,7 @@
     (with-ebib-buffer-writable
       (setq cursor-type t)
       (insert (format "%-20s %-15s %-45s %s\n"
-                      entry-key
+		      entry-key
 		      ;; author
 		      (car (split-string
 			    (or (ebib-db-get-field-value 'author entry-key ebib-cur-db 'noerror 'unbraced)
@@ -255,22 +258,22 @@ The Ebib buffers are killed, all variables except the keymaps are set to nil."
     (ebib-keywords-save-all-new)
     (ebib-filters-update-filters-file)
     (mapc #'(lambda (buffer)
-              (kill-buffer buffer))
-          (mapcar #'cdr ebib-buffer-alist))
+	      (kill-buffer buffer))
+	  (mapcar #'cdr ebib-buffer-alist))
     (setq ebib-databases nil
-          ebib-cur-db nil
-          ebib-buffer-alist nil
-          ebib-initialized nil
-          ebib-index-highlight nil
-          ebib-fields-highlight nil
-          ebib-strings-highlight nil
-          ebib-export-filename nil
-          ebib-window-before nil
-          ebib-buffer-before nil
-          ebib-cur-keys-list nil
-          ebib-keywords-files-alist nil
-          ebib-keywords-list-per-session nil
-          ebib-filters-alist nil)
+	  ebib-cur-db nil
+	  ebib-buffer-alist nil
+	  ebib-initialized nil
+	  ebib-index-highlight nil
+	  ebib-fields-highlight nil
+	  ebib-strings-highlight nil
+	  ebib-export-filename nil
+	  ebib-window-before nil
+	  ebib-buffer-before nil
+	  ebib-cur-keys-list nil
+	  ebib-keywords-files-alist nil
+	  ebib-keywords-list-per-session nil
+	  ebib-filters-alist nil)
     (set-window-configuration ebib-saved-window-config)
     (remove-hook 'kill-emacs-query-functions 'ebib-kill-emacs-query-function)
     (message "")))
@@ -287,12 +290,12 @@ Then this function will return the applicable database files."
   (or
    ;; Try inside this file (and its includes)
    (cdr (reftex-last-assoc-before-elt
-         'bib (list 'eof (buffer-file-name))
-         (member (list 'bof (buffer-file-name))
-                 (symbol-value reftex-docstruct-symbol))))
+	 'bib (list 'eof (buffer-file-name))
+	 (member (list 'bof (buffer-file-name))
+		 (symbol-value reftex-docstruct-symbol))))
    ;; Try after the beginning of this file
    (cdr (assq 'bib (member (list 'bof (buffer-file-name))
-                           (symbol-value reftex-docstruct-symbol))))
+			   (symbol-value reftex-docstruct-symbol))))
    ;; Anywhere in the entire document
    (cdr (assq 'bib (symbol-value reftex-docstruct-symbol)))))
 
@@ -302,12 +305,12 @@ Then this function will return the applicable database files."
     (cond
 	((string= buffer-mode "org-mode")
 	 (eh-ebib-push-org-cite-link leave-ebib-window))
-	(t 
+	(t
 	 (ebib-push-bibtex-key)
 	 (when leave-ebib-window
 	   (setq eh-ebib-push-buffer nil)
 	   (ebib-leave-ebib-windows))))))
-	
+
 (defun eh-ebib-push-org-cite-link (&optional leave-ebib-window)
   "Pushes the cite link of current entry to a org-mode buffer."
   (interactive)
@@ -398,7 +401,7 @@ Then this function will return the applicable database files."
 
 	   ;; Wash abstract field
 	   (eh-bibtex-wash-field "abstract")
-	   
+
 	   ;; Add autokey
 	   (goto-char begin)
 	   (re-search-forward (if (bibtex-string= entry-type "string")
