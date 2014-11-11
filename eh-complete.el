@@ -60,7 +60,7 @@
 (add-hook 'ido-make-dir-list-hook 'eh-ido-sort-mtime) ;目录的排序方法
 (defun eh-ido-sort-mtime ()
   (setq ido-temp-list
-	(sort ido-temp-list 
+	(sort ido-temp-list
 	      (lambda (a b)
 		(time-less-p
 		 (sixth (file-attributes (concat ido-current-directory b)))
@@ -72,80 +72,96 @@
 
 (add-hook 'ido-setup-hook 'eh-ido-keybinding)
 (defun eh-ido-keybinding ()
-   (define-key ido-completion-map (kbd "C-SPC") nil)
-   (define-key ido-completion-map (kbd "C-@") nil)
-   (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
-   (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
+  (define-key ido-completion-map (kbd "C-SPC") nil)
+  (define-key ido-completion-map (kbd "C-@") nil)
+  (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
+  (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
 
-;; 打开auto-complete-mode模式
-(require 'auto-complete)
-(require 'auto-complete-config)
-(ac-config-default)
-(global-auto-complete-mode 1)
-(setq ac-auto-show-menu t)
-(setq ac-auto-start 2)
-(setq ac-dwim t)
-(setq ac-menu-height 5)
-(setq ac-max-width 25)
-(setq ac-use-menu-map t)
+;; company-mode
+(require 'company)
+(require 'color)
 
-(dolist (mode '(emacs-lisp-mode
-		lisp-interaction-mode
-		magit-log-edit-mode log-edit-mode
-		org-mode text-mode
-		yaml-mode csv-mode html-mode sh-mode
-		lisp-mode textile-mode
-		markdown-mode latex-mode))
-  (add-to-list 'ac-modes mode))
+(setq eh-origin-mode-line-format mode-line-format)
+(setq company-idle-delay 0.2)
+(setq company-minimum-prefix-length 2)
+(setq company-selection-wrap-around t)
+(setq company-show-numbers t)
+(setq company-dabbrev-downcase nil)
+(setq company-tooltip-limit 20)
+(setq company-echo-delay 0)
 
-(setq ac-sources '(ac-source-abbrev
-		   ac-source-words-in-buffer
-		   ac-source-words-in-all-buffer
-		   ac-source-filename
-		   ac-source-yasnippet
-		   ac-source-dictionary
-		   ac-source-functions
-		   ac-source-variables
-		   ac-source-features
-		   ac-source-symbols))
+(add-to-list 'company-begin-commands 'ibus-exec-callback)
+(add-to-list 'company-begin-commands 'ibus-handle-event)
 
-(global-set-key (kbd "M-/") 'auto-complete)
-(define-key ac-menu-map (kbd "M-i") 'ac-complete)
-(define-key ac-menu-map (kbd "M-n") 'ac-next)
-(define-key ac-menu-map (kbd "M-p")'ac-previous)
+(setq company-transformers '(company-sort-by-occurrence))
+(setq company-global-modes '(not git-commit-mode))
 
-;; hippie-expand
-;; (global-set-key (kbd "M-/") 'hippie-expand)
-(setq hippie-expand-try-functions-list
-      '(yas/hippie-try-expand
-	try-expand-dabbrev
-	try-expand-dabbrev-visible
-	try-expand-dabbrev-all-buffers
-	try-expand-dabbrev-from-kill
-        try-complete-file-name-partially
-	try-complete-file-name
-	try-expand-all-abbrevs
-	try-expand-list
-	try-expand-line
-	try-complete-lisp-symbol-partially
-	try-complete-lisp-symbol))
+(defun eh-company-echo-format ()
+  "show candidates like ido-vertical-mode"
+  (let ((lines 0)
+	;; Roll to selection.
+	(candidates (nthcdr company-selection company-candidates))
+	(i (if company-show-numbers company-selection 99999))
+	comp msg)
+    (while candidates
+      (setq comp (company-reformat (pop candidates))
+	    lines (+ lines 1))
+      (if (< i 10)
+	  ;; Add number.
+	  (progn
+	    (setq comp (propertize (format "%d: %s\n" i comp)
+				   'face 'company-echo))
+	    (cl-incf i)
+	    (add-text-properties 3 (+ 3 (length company-common))
+				 '(face company-echo-common) comp))
+	(setq comp (propertize (format "-> %s\n" comp) 'face 'company-echo))
+	(add-text-properties 0 (length company-common)
+			     '(face company-echo-common) comp))
+      (if (>= lines 5)
+	  (setq candidates nil)
+	(push comp msg)))
+    (mapconcat 'identity (nreverse msg) "")))
 
-;; yasnippet
-(setq yas-minor-mode-map ;This MUST before (require 'yasnippet)
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-i") 'yas-expand)
-    (define-key map (kbd "C-c C-n") 'yas-new-snippet)
-    (define-key map (kbd "C-c C-v") 'yas-visit-snippet-file)
-    map)) 
+(defun eh-company-echo-frontend (command)
+  "`company-mode' front-end showing the candidates in the echo area."
+  (pcase command
+    (`post-command (company-echo-show-soon 'eh-company-echo-format))
+    (`hide (company-echo-hide))))
 
-(require 'yasnippet)
-(add-to-list 'yas-snippet-dirs
-	     (file-name-as-directory 
-	      (concat (file-name-directory
-		       (locate-library "eh-complete.el")) "snippets")))
-(yas-reload-all)
-(yas-global-mode 1)
-(setq yas-trigger-key nil)
+(setq company-frontends '(eh-company-echo-frontend company-preview-if-just-one-frontend))
+;; (setq company-frontends '(company-pseudo-tooltip-unless-just-one-frontend
+;;			  company-preview-if-just-one-frontend
+;;			  company-echo-metadata-frontend))
+
+(setq company-backends
+      '((company-capf company-dabbrev company-files)
+	(company-dabbrev-code company-gtags company-etags
+			      company-keywords)))
+
+(defun eh-company-theme ()
+  (interactive)
+  (let ((bg (face-attribute 'default :background)))
+    (custom-set-faces
+     `(company-tooltip ((t (:inherit default :background ,(color-lighten-name bg 2)))))
+     `(company-scrollbar-bg ((t (:background ,(color-lighten-name bg 10)))))
+     `(company-scrollbar-fg ((t (:background ,(color-lighten-name bg 5)))))
+     `(company-tooltip-selection ((t (:inherit font-lock-function-name-face))))
+     `(company-tooltip-common ((t (:inherit font-lock-constant-face))))
+     `(company-preview ((t (:inherit default :background ,(color-lighten-name bg 2))))))))
+
+(if (and (fboundp 'daemonp) (daemonp))
+    (add-hook 'after-make-frame-functions
+	      (lambda (frame)
+		(with-selected-frame frame
+		  (eh-company-theme))))
+  (eh-company-theme))
+
+(global-set-key (kbd "M-/") 'company-complete)
+(define-key company-active-map (kbd "C-n") 'company-select-next)
+(define-key company-active-map (kbd "C-p")'company-select-previous)
+(define-key company-active-map (kbd "M-n") 'company-select-next)
+(define-key company-active-map (kbd "M-p")'company-select-previous)
+(add-hook 'after-init-hook 'global-company-mode)
 
 ;;;autoload(require 'eh-complete)
 (provide 'eh-complete)
@@ -155,5 +171,3 @@
 ;; End:
 
 ;;; eh-complete.el ends here
-
-
