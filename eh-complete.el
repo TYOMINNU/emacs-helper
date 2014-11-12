@@ -87,14 +87,18 @@
 (setq company-selection-wrap-around t)
 (setq company-show-numbers t)
 (setq company-dabbrev-downcase nil)
-(setq company-tooltip-limit 20)
+(setq company-tooltip-limit 10)
 (setq company-echo-delay 0)
 
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
 
-(setq company-transformers '(company-sort-by-occurrence))
 (setq company-global-modes '(not git-commit-mode))
+
+(setq company-backends
+      '((company-capf company-dabbrev company-files)
+	(company-dabbrev-code company-gtags company-etags
+			      company-keywords)))
 
 (defun eh-company-echo-format ()
   "show candidates like ido-vertical-mode"
@@ -103,6 +107,7 @@
 	(candidates (nthcdr company-selection company-candidates))
 	(i (if company-show-numbers company-selection 99999))
 	comp msg)
+    (setq eh-output-1 candidates)
     (while candidates
       (setq comp (company-reformat (pop candidates))
 	    lines (+ lines 1))
@@ -128,15 +133,42 @@
     (`post-command (company-echo-show-soon 'eh-company-echo-format))
     (`hide (company-echo-hide))))
 
-(setq company-frontends '(eh-company-echo-frontend company-preview-if-just-one-frontend))
-;; (setq company-frontends '(company-pseudo-tooltip-unless-just-one-frontend
-;;			  company-preview-if-just-one-frontend
-;;			  company-echo-metadata-frontend))
+(defun eh-remove-chinese-candidates (candidates)
+  (remove-if (lambda (x) (string-match-p "\\cc+" x))
+	     candidates))
 
-(setq company-backends
-      '((company-capf company-dabbrev company-files)
-	(company-dabbrev-code company-gtags company-etags
-			      company-keywords)))
+(defun eh-show-chinese-candidates (candidates)
+  (remove-if (lambda (x) (not (string-match-p "\\cc+" x)))
+	     candidates))
+
+(setq eh-company-use-default-setup t)
+(defun eh-company-switch-setup ()
+  (interactive)
+  (if eh-company-use-default-setup
+      (progn
+	(eh-company-default-setup)
+	(setq eh-company-use-default-setup nil))
+    (progn
+      (eh-company-chinese-setup)
+      (setq eh-company-use-default-setup t))))
+
+(defun eh-company-default-setup ()
+  (interactive)
+  (setq company-transformers
+	'(company-sort-by-occurrence
+	  eh-remove-chinese-candidates))
+  (setq company-frontends
+	'(company-pseudo-tooltip-unless-just-one-frontend
+	  company-preview-if-just-one-frontend
+	  company-echo-metadata-frontend)))
+
+(defun eh-company-chinese-setup ()
+  (interactive)
+  (setq company-transformers
+	'(company-sort-by-occurrence))
+  (setq company-frontends
+	'(eh-company-echo-frontend
+	  company-preview-if-just-one-frontend)))
 
 (defun eh-company-theme ()
   (interactive)
@@ -157,6 +189,7 @@
   (eh-company-theme))
 
 (global-set-key (kbd "M-/") 'company-complete)
+(define-key company-active-map (kbd "M-i") 'eh-company-switch-setup)
 (define-key company-active-map (kbd "C-n") 'company-select-next)
 (define-key company-active-map (kbd "C-p")'company-select-previous)
 (define-key company-active-map (kbd "M-n") 'company-select-next)
