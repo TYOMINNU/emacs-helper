@@ -89,11 +89,11 @@
 (setq company-dabbrev-downcase nil)
 (setq company-tooltip-limit 10)
 (setq company-echo-delay 0)
+(setq company-global-modes '(not git-commit-mode))
+(setq eh-company-use-default-setup t)
 
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
-
-(setq company-global-modes '(not git-commit-mode))
 
 (setq company-backends
       '((company-capf company-dabbrev company-files)
@@ -137,20 +137,19 @@
   (remove-if (lambda (x) (string-match-p "\\cc+" x))
 	     candidates))
 
-(defun eh-show-chinese-candidates (candidates)
+(defun eh-only-show-chinese-candidates (candidates)
   (remove-if (lambda (x) (not (string-match-p "\\cc+" x)))
 	     candidates))
 
-(setq eh-company-use-default-setup t)
 (defun eh-company-switch-setup ()
   (interactive)
   (if eh-company-use-default-setup
-      (progn
-	(eh-company-default-setup)
-	(setq eh-company-use-default-setup nil))
-    (progn
-      (eh-company-chinese-setup)
-      (setq eh-company-use-default-setup t))))
+      (progn (eh-company-default-setup)
+	     (setq eh-company-use-default-setup nil))
+    (progn (eh-company-chinese-setup)
+	   (setq eh-company-use-default-setup t)))
+  (company-abort)
+  (company-manual-begin))
 
 (defun eh-company-default-setup ()
   (interactive)
@@ -165,7 +164,8 @@
 (defun eh-company-chinese-setup ()
   (interactive)
   (setq company-transformers
-	'(company-sort-by-occurrence))
+	'(company-sort-by-occurrence
+	  eh-only-show-chinese-candidates))
   (setq company-frontends
 	'(eh-company-echo-frontend
 	  company-preview-if-just-one-frontend)))
@@ -188,7 +188,8 @@
 		  (eh-company-theme))))
   (eh-company-theme))
 
-(global-set-key (kbd "M-/") 'company-complete)
+(eh-company-default-setup)
+(global-set-key (kbd "M-/") 'eh-company-switch-setup)
 (define-key company-active-map (kbd "M-i") 'eh-company-switch-setup)
 (define-key company-active-map (kbd "C-n") 'company-select-next)
 (define-key company-active-map (kbd "C-p")'company-select-previous)
