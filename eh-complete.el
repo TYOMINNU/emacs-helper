@@ -90,7 +90,7 @@
 (setq company-tooltip-limit 10)
 (setq company-echo-delay 0)
 (setq company-global-modes '(not git-commit-mode))
-(setq eh-company-setup-name "ascii")
+(setq eh-company-current-setup nil)
 
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
@@ -143,16 +143,15 @@
 
 (defun eh-company-switch-setup ()
   (interactive)
-  (if (string= eh-company-setup-name "ascii")
-      (progn (eh-company-ascii-setup)
-	     (setq eh-company-setup-name "nonascii"))
-    (progn (eh-company-nonascii-setup)
-	   (setq eh-company-setup-name "ascii")))
+  (if (string= eh-company-current-setup "ascii")
+      (eh-company-nonascii-setup)
+    (eh-company-ascii-setup))
   (company-abort)
   (company-manual-begin))
 
 (defun eh-company-ascii-setup ()
   (interactive)
+  (setq eh-company-current-setup "ascii")
   (setq company-transformers
 	'(company-sort-by-occurrence
 	  eh-company-select-ascii-candidates))
@@ -163,9 +162,9 @@
 
 (defun eh-company-nonascii-setup ()
   (interactive)
+  (setq eh-company-current-setup "nonascii")
   (setq company-transformers
-	'(company-sort-by-occurrence
-	  eh-company-select-nonascii-candidates))
+	'(company-sort-by-occurrence))
   (setq company-frontends
 	'(eh-company-echo-frontend
 	  company-preview-if-just-one-frontend)))
