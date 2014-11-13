@@ -90,7 +90,7 @@
 (setq company-tooltip-limit 10)
 (setq company-echo-delay 0)
 (setq company-global-modes '(not git-commit-mode))
-(setq eh-company-use-default-setup t)
+(setq eh-company-setup-name "ascii")
 
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
@@ -133,39 +133,39 @@
     (`post-command (company-echo-show-soon 'eh-company-echo-format))
     (`hide (company-echo-hide))))
 
-(defun eh-remove-chinese-candidates (candidates)
-  (remove-if (lambda (x) (string-match-p "\\cc+" x))
+(defun eh-company-select-nonascii-candidates (candidates)
+  (remove-if (lambda (x) (not (string-match-p "[[:nonascii:]]+" x)))
 	     candidates))
 
-(defun eh-only-show-chinese-candidates (candidates)
-  (remove-if (lambda (x) (not (string-match-p "\\cc+" x)))
+(defun eh-company-select-ascii-candidates (candidates)
+  (remove-if (lambda (x) (string-match-p "[[:nonascii:]]+" x))
 	     candidates))
 
 (defun eh-company-switch-setup ()
   (interactive)
-  (if eh-company-use-default-setup
-      (progn (eh-company-default-setup)
-	     (setq eh-company-use-default-setup nil))
-    (progn (eh-company-chinese-setup)
-	   (setq eh-company-use-default-setup t)))
+  (if (string= eh-company-setup-name "ascii")
+      (progn (eh-company-ascii-setup)
+	     (setq eh-company-setup-name "nonascii"))
+    (progn (eh-company-nonascii-setup)
+	   (setq eh-company-setup-name "ascii")))
   (company-abort)
   (company-manual-begin))
 
-(defun eh-company-default-setup ()
+(defun eh-company-ascii-setup ()
   (interactive)
   (setq company-transformers
 	'(company-sort-by-occurrence
-	  eh-remove-chinese-candidates))
+	  eh-company-select-ascii-candidates))
   (setq company-frontends
 	'(company-pseudo-tooltip-unless-just-one-frontend
 	  company-preview-if-just-one-frontend
 	  company-echo-metadata-frontend)))
 
-(defun eh-company-chinese-setup ()
+(defun eh-company-nonascii-setup ()
   (interactive)
   (setq company-transformers
 	'(company-sort-by-occurrence
-	  eh-only-show-chinese-candidates))
+	  eh-company-select-nonascii-candidates))
   (setq company-frontends
 	'(eh-company-echo-frontend
 	  company-preview-if-just-one-frontend)))
@@ -188,7 +188,7 @@
 		  (eh-company-theme))))
   (eh-company-theme))
 
-(eh-company-default-setup)
+(eh-company-ascii-setup)
 (global-set-key (kbd "M-/") 'eh-company-switch-setup)
 (define-key company-active-map (kbd "M-i") 'eh-company-switch-setup)
 (define-key company-active-map (kbd "C-n") 'company-select-next)
