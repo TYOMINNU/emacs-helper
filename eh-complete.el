@@ -148,7 +148,8 @@
     (eh-company-ascii-setup))
   (company-abort)
   (company-auto-begin)
-  (message "Complete using \"%s\" company setup" eh-company-current-setup))
+  (unless company-candidates
+    (message "No candicates using \"%s\" setup" eh-company-current-setup)))
 
 (defun eh-company-ascii-setup ()
   (interactive)
@@ -165,7 +166,8 @@
   (interactive)
   (setq eh-company-current-setup "nonascii")
   (setq company-transformers
-	'(company-sort-by-occurrence))
+	'(company-sort-by-occurrence
+	  eh-company-select-nonascii-candidates))
   (setq company-frontends
 	'(eh-company-echo-frontend
 	  company-preview-if-just-one-frontend)))
