@@ -147,7 +147,8 @@
       (eh-company-nonascii-setup)
     (eh-company-ascii-setup))
   (company-abort)
-  (company-manual-begin))
+  (company-auto-begin)
+  (message "Complete using \"%s\" company setup" eh-company-current-setup))
 
 (defun eh-company-ascii-setup ()
   (interactive)
