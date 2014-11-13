@@ -91,6 +91,8 @@
 (setq company-echo-delay 0)
 (setq company-global-modes '(not git-commit-mode))
 (setq eh-company-current-setup nil)
+(setq eh-company-nonascii-candidates-number nil)
+(setq eh-company-ascii-candidates-number nil)
 
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
@@ -125,13 +127,39 @@
       (if (>= lines 5)
 	  (setq candidates nil)
 	(push comp msg)))
-    (mapconcat 'identity (nreverse msg) "")))
+    (concat (eh-company-metadata-or-reminder-format)
+	    "\n"
+	    (mapconcat 'identity (nreverse msg) ""))))
 
 (defun eh-company-echo-frontend (command)
   "`company-mode' front-end showing the candidates in the echo area."
   (pcase command
     (`post-command (company-echo-show-soon 'eh-company-echo-format))
     (`hide (company-echo-hide))))
+
+(defun eh-company-metadata-or-reminder-format ()
+  (let ((metadata (company-fetch-metadata))
+	(reminder
+	 (format "NOTE: %s ascii and %s Nonascii candidates, Type M-/ switch to show."
+		 (or eh-company-ascii-candidates-number 0)
+		 (or eh-company-nonascii-candidates-number 0))))
+    (or metadata reminder)))
+
+(defun eh-company-echo-metadata-or-reminder-frontend (command)
+  (pcase command
+    (`post-command (company-echo-show-soon
+		    'eh-company-metadata-or-reminder-format))
+    (`hide (company-echo-hide))))
+
+(defun eh-company-count-candidates (candidates)
+  (let ((new-candidates
+	 (remove-if (lambda (x) (string-match-p "[[:nonascii:]]+" x))
+		    candidates)))
+    (setq eh-company-ascii-candidates-number
+	  (length new-candidates))
+    (setq eh-company-nonascii-candidates-number
+	  (- (length candidates) (length new-candidates)))
+    candidates))
 
 (defun eh-company-select-nonascii-candidates (candidates)
   (remove-if (lambda (x) (not (string-match-p "[[:nonascii:]]+" x)))
@@ -156,32 +184,39 @@
   (setq eh-company-current-setup "ascii")
   (setq company-transformers
 	'(company-sort-by-occurrence
+	  eh-company-count-candidates
 	  eh-company-select-ascii-candidates))
   (setq company-frontends
-	'(company-pseudo-tooltip-unless-just-one-frontend
-	  company-preview-if-just-one-frontend
-	  company-echo-metadata-frontend)))
+	'(company-pseudo-tooltip-frontend
+	  eh-company-echo-metadata-or-reminder-frontend)))
 
 (defun eh-company-nonascii-setup ()
   (interactive)
   (setq eh-company-current-setup "nonascii")
   (setq company-transformers
 	'(company-sort-by-occurrence
+	  eh-company-count-candidates
 	  eh-company-select-nonascii-candidates))
   (setq company-frontends
-	'(eh-company-echo-frontend
-	  company-preview-if-just-one-frontend)))
+	'(eh-company-echo-frontend)))
 
 (defun eh-company-theme ()
   (interactive)
-  (let ((bg (face-attribute 'default :background)))
-    (custom-set-faces
-     `(company-tooltip ((t (:inherit default :background ,(color-lighten-name bg 2)))))
-     `(company-scrollbar-bg ((t (:background ,(color-lighten-name bg 10)))))
-     `(company-scrollbar-fg ((t (:background ,(color-lighten-name bg 5)))))
-     `(company-tooltip-selection ((t (:inherit font-lock-function-name-face))))
-     `(company-tooltip-common ((t (:inherit font-lock-constant-face))))
-     `(company-preview ((t (:inherit default :background ,(color-lighten-name bg 2))))))))
+  (custom-set-faces
+   '(company-preview
+     ((t (:foreground "darkgray" :underline t))))
+   '(company-preview-common
+     ((t (:inherit company-preview))))
+   '(company-tooltip
+     ((t (:background "lightgray" :foreground "black"))))
+   '(company-tooltip-selection
+     ((t (:background "steelblue" :foreground "white"))))
+   '(company-tooltip-common
+     ((((type x)) (:inherit company-tooltip :weight bold))
+      (t (:inherit company-tooltip))))
+   '(company-tooltip-common-selection
+     ((((type x)) (:inherit company-tooltip-selection :weight bold))
+      (t (:inherit company-tooltip-selection))))))
 
 (if (and (fboundp 'daemonp) (daemonp))
     (add-hook 'after-make-frame-functions
@@ -192,7 +227,6 @@
 
 (eh-company-ascii-setup)
 (global-set-key (kbd "M-/") 'eh-company-switch-setup)
-(define-key company-active-map (kbd "M-i") 'eh-company-switch-setup)
 (define-key company-active-map (kbd "C-n") 'company-select-next)
 (define-key company-active-map (kbd "C-p")'company-select-previous)
 (define-key company-active-map (kbd "M-n") 'company-select-next)
