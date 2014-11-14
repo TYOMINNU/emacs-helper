@@ -90,9 +90,6 @@
 (setq company-tooltip-limit 10)
 (setq company-echo-delay 0)
 (setq company-global-modes '(not git-commit-mode))
-(setq eh-company-current-setup nil)
-(setq eh-company-nonascii-candidates-number nil)
-(setq eh-company-ascii-candidates-number nil)
 
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
@@ -108,6 +105,7 @@
 	;; Roll to selection.
 	(candidates (nthcdr company-selection company-candidates))
 	(i (if company-show-numbers company-selection 99999))
+	(metadata (company-fetch-metadata))
 	comp msg)
     (setq eh-output-1 candidates)
     (while candidates
@@ -127,9 +125,10 @@
       (if (>= lines 5)
 	  (setq candidates nil)
 	(push comp msg)))
-    (concat (eh-company-metadata-or-reminder-format)
-	    "\n"
-	    (mapconcat 'identity (nreverse msg) ""))))
+    (concat
+     (when (> (length metadata) 0)
+       (format "NOTE: %s\n" metadata))
+     (mapconcat 'identity (nreverse msg) ""))))
 
 (defun eh-company-echo-frontend (command)
   "`company-mode' front-end showing the candidates in the echo area."
@@ -137,68 +136,31 @@
     (`post-command (company-echo-show-soon 'eh-company-echo-format))
     (`hide (company-echo-hide))))
 
-(defun eh-company-metadata-or-reminder-format ()
-  (let ((metadata (company-fetch-metadata))
-	(reminder
-	 (format "NOTE: %s ascii and %s Nonascii candidates, Type M-/ switch to show."
-		 (or eh-company-ascii-candidates-number 0)
-		 (or eh-company-nonascii-candidates-number 0))))
-    (or metadata reminder)))
-
-(defun eh-company-echo-metadata-or-reminder-frontend (command)
-  (pcase command
-    (`post-command (company-echo-show-soon
-		    'eh-company-metadata-or-reminder-format))
-    (`hide (company-echo-hide))))
-
-(defun eh-company-count-candidates (candidates)
-  (let ((new-candidates
-	 (remove-if (lambda (x) (string-match-p "[[:nonascii:]]+" x))
-		    candidates)))
-    (setq eh-company-ascii-candidates-number
-	  (length new-candidates))
-    (setq eh-company-nonascii-candidates-number
-	  (- (length candidates) (length new-candidates)))
-    candidates))
-
-(defun eh-company-select-nonascii-candidates (candidates)
-  (remove-if (lambda (x) (not (string-match-p "[[:nonascii:]]+" x)))
-	     candidates))
-
-(defun eh-company-select-ascii-candidates (candidates)
-  (remove-if (lambda (x) (string-match-p "[[:nonascii:]]+" x))
-	     candidates))
-
-(defun eh-company-switch-setup ()
-  (interactive)
-  (if (string= eh-company-current-setup "ascii")
-      (eh-company-nonascii-setup)
-    (eh-company-ascii-setup))
-  (company-abort)
-  (company-auto-begin)
-  (unless company-candidates
-    (message "No candicates using \"%s\" setup" eh-company-current-setup)))
-
 (defun eh-company-ascii-setup ()
   (interactive)
-  (setq eh-company-current-setup "ascii")
   (setq company-transformers
-	'(company-sort-by-occurrence
-	  eh-company-count-candidates
-	  eh-company-select-ascii-candidates))
+	'(company-sort-by-occurrence))
   (setq company-frontends
 	'(company-pseudo-tooltip-frontend
-	  eh-company-echo-metadata-or-reminder-frontend)))
+	  company-echo-metadata-frontend)))
 
 (defun eh-company-nonascii-setup ()
   (interactive)
-  (setq eh-company-current-setup "nonascii")
   (setq company-transformers
-	'(company-sort-by-occurrence
-	  eh-company-count-candidates
-	  eh-company-select-nonascii-candidates))
+	'(company-sort-by-occurrence))
   (setq company-frontends
 	'(eh-company-echo-frontend)))
+
+(defun eh-company-auto-begin (orig-fun)
+  (let ((company-candidates (funcall orig-fun)))
+    ;; ascii candidates and nonascii use different setup
+    (if (some (lambda (x) (string-match-p "[[:nonascii:]]+" x))
+	      company-candidates)
+	(eh-company-nonascii-setup)
+      (eh-company-ascii-setup))
+    company-candidates))
+
+(advice-add 'company-auto-begin :around #'eh-company-auto-begin)
 
 (defun eh-company-theme ()
   (interactive)
@@ -225,8 +187,8 @@
 		  (eh-company-theme))))
   (eh-company-theme))
 
-(eh-company-ascii-setup)
-(global-set-key (kbd "M-/") 'eh-company-switch-setup)
+;; (eh-company-ascii-setup)
+(global-set-key (kbd "M-/") 'company-complete)
 (define-key company-active-map (kbd "C-n") 'company-select-next)
 (define-key company-active-map (kbd "C-p")'company-select-previous)
 (define-key company-active-map (kbd "M-n") 'company-select-next)
