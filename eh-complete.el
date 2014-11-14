@@ -151,16 +151,15 @@
   (setq company-frontends
 	'(eh-company-echo-frontend)))
 
-(defun eh-company-auto-begin (orig-fun)
-  (let ((company-candidates (funcall orig-fun)))
-    ;; ascii candidates and nonascii use different setup
-    (if (some (lambda (x) (string-match-p "[[:nonascii:]]+" x))
-	      company-candidates)
-	(eh-company-nonascii-setup)
-      (eh-company-ascii-setup))
-    company-candidates))
+(defun eh-company-call-frontend (orig-fun command)
+  ;; different setup for ascii and nonascii candidates.
+  (if (some (lambda (x) (string-match-p "[[:nonascii:]]+" x))
+	    company-candidates)
+      (eh-company-nonascii-setup)
+    (eh-company-ascii-setup))
+  (funcall orig-fun command))
 
-(advice-add 'company-auto-begin :around #'eh-company-auto-begin)
+(advice-add 'company-call-frontends :around #'eh-company-call-frontend)
 
 (defun eh-company-theme ()
   (interactive)
