@@ -116,8 +116,8 @@
       '(("git" "--help")))
 
 (defun eh-eshell-setup ()
-  (setup-esh-help-eldoc)
-  (eldoc-mode)
+  ;; (setup-esh-help-eldoc)
+  ;; (eldoc-mode)
   (local-set-key (kbd "M-q") 'eshell-push-command))
 
 (add-hook 'eshell-mode-hook 'eh-eshell-setup)
