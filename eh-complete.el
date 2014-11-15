@@ -79,9 +79,7 @@
 
 ;; company-mode
 (require 'company)
-(require 'color)
 
-(setq eh-origin-mode-line-format mode-line-format)
 (setq company-idle-delay 0.2)
 (setq company-minimum-prefix-length 2)
 (setq company-selection-wrap-around t)
@@ -107,7 +105,6 @@
 	(i (if company-show-numbers company-selection 99999))
 	(metadata (company-fetch-metadata))
 	comp msg)
-    (setq eh-output-1 candidates)
     (while candidates
       (setq comp (company-reformat (pop candidates))
 	    lines (+ lines 1))
@@ -152,12 +149,20 @@
 	'(eh-company-echo-frontend)))
 
 (defun eh-company-call-frontend (orig-fun command)
-  ;; different setup for ascii and nonascii candidates.
-  (if (some (lambda (x) (string-match-p "[[:nonascii:]]+" x))
-	    company-candidates)
-      (eh-company-nonascii-setup)
-    (eh-company-ascii-setup))
-  (funcall orig-fun command))
+  "提取`comapny-candidates'的一个子列表，
+其上限为`company-selection' + `company-tooltip-limit',
+下限为`company-selection' - `company-tooltip-limit',
+检测这个列表是否包含非ascii元素。根据结果选择设置。"
+  (let* ((list (mapcar (lambda (x) (string-match-p "[[:nonascii:]]+" x))
+		       company-candidates))
+	 (length (length list))
+	 (offset (min company-tooltip-limit length))
+	 (begin (+ length (- company-selection offset)))
+	 (end (+ length (+ company-selection offset))))
+    (if (some 'identity (subseq (append list list list) begin end))
+	(eh-company-nonascii-setup)
+      (eh-company-ascii-setup))
+    (funcall orig-fun command)))
 
 (advice-add 'company-call-frontends :around #'eh-company-call-frontend)
 
