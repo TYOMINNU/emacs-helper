@@ -79,6 +79,7 @@
 
 ;; company-mode
 (require 'company)
+(require 'adaptive-wrap)
 
 (setq company-idle-delay 0.2)
 (setq company-minimum-prefix-length 2)
@@ -89,6 +90,9 @@
 (setq company-echo-delay 0)
 (setq company-global-modes '(not git-commit-mode))
 
+(setq eh-company-sidebar-side 'right)
+(setq eh-company-sidebar-width 25)
+
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
 
@@ -96,9 +100,14 @@
       '((company-capf company-dabbrev company-files)
 	(company-dabbrev-code company-gtags company-etags
 			      company-keywords)))
+(setq company-transformers
+      '(company-sort-by-occurrence))
 
-(defun eh-company-echo-format ()
-  "show candidates like ido-vertical-mode"
+(setq company-frontends
+      '(eh-company-sidebar-frontend company-echo-metadata-frontend))
+
+(defun eh-company-sidebar-format ()
+  "show candidates in sidebar"
   (let ((lines 0)
 	;; Roll to selection.
 	(candidates (nthcdr company-selection company-candidates))
@@ -111,60 +120,72 @@
       (if (< i 10)
 	  ;; Add number.
 	  (progn
-	    (setq comp (propertize (format "%d: %s\n" i comp)
+	    (setq comp (propertize (format "%d　%s\n\n" i comp)
 				   'face 'company-echo))
 	    (cl-incf i)
 	    (add-text-properties 3 (+ 3 (length company-common))
 				 '(face company-echo-common) comp))
-	(setq comp (propertize (format "-> %s\n" comp) 'face 'company-echo))
+	(setq comp (propertize (format "+　%s\n\n" comp)
+			       'face 'company-echo))
 	(add-text-properties 0 (length company-common)
 			     '(face company-echo-common) comp))
-      (if (>= lines 5)
+      (if (>= lines 100)
 	  (setq candidates nil)
 	(push comp msg)))
     (concat
-     (when (> (length metadata) 0)
-       (format "NOTE: %s\n" metadata))
+     (when company-search-string
+       (format "Search: %s\n"
+	       company-search-string))
      (mapconcat 'identity (nreverse msg) ""))))
 
-(defun eh-company-echo-frontend (command)
-  "`company-mode' front-end showing the candidates in the echo area."
+(defun eh-company-sidebar-show-or-hide (&optional string hide)
+  (let* ((buffer-name "*eh-company-buffer*")
+	 (buffer (get-buffer-create buffer-name))
+	 existing-window window)
+
+    (cl-dolist (win (window-list))
+      (and (string= (buffer-name (window-buffer win)) buffer-name)
+	   (not (window-parameter win 'window-side))
+	   (eq t (window-deletable-p win))
+	   (delete-window win)))
+
+    (setq existing-window
+	  (cl-find-if
+	   (lambda (window)
+	     (and (string= (buffer-name (window-buffer window)) buffer-name)
+		  (window-parameter window 'window-side)))
+	   (window-list)))
+
+    (setq window
+	  (or existing-window
+	      (display-buffer-in-side-window
+	       buffer
+	       `((side . ,eh-company-sidebar-side)
+		 (window-width . ,eh-company-sidebar-width)))))
+
+    (when existing-window
+      (setf (window-dedicated-p window) nil
+	    (window-buffer window) buffer))
+    (setf (window-dedicated-p window) t)
+
+    (with-current-buffer buffer
+      (setq adaptive-wrap-extra-indent 3)
+      (visual-line-mode 1)
+      (adaptive-wrap-prefix-mode t)
+      (delete-region (point-min) (point-max))
+      (when string
+	(insert string)))
+
+    (when hide
+      (and (window-live-p window)
+	   (window-deletable-p window)
+	   (delete-window window)))))
+
+(defun eh-company-sidebar-frontend (command)
   (pcase command
-    (`post-command (company-echo-show-soon 'eh-company-echo-format))
-    (`hide (company-echo-hide))))
-
-(defun eh-company-ascii-setup ()
-  (interactive)
-  (setq company-transformers
-	'(company-sort-by-occurrence))
-  (setq company-frontends
-	'(company-pseudo-tooltip-frontend
-	  company-echo-metadata-frontend)))
-
-(defun eh-company-nonascii-setup ()
-  (interactive)
-  (setq company-transformers
-	'(company-sort-by-occurrence))
-  (setq company-frontends
-	'(eh-company-echo-frontend)))
-
-(defun eh-company-call-frontend (orig-fun command)
-  "提取`comapny-candidates'的一个子列表，
-其上限为`company-selection' + `company-tooltip-limit',
-下限为`company-selection' - `company-tooltip-limit',
-检测这个列表是否包含非ascii元素。根据结果选择设置。"
-  (let* ((list (mapcar (lambda (x) (string-match-p "[[:nonascii:]]+" x))
-		       company-candidates))
-	 (length (length list))
-	 (offset (min company-tooltip-limit length))
-	 (begin (+ length (- company-selection offset)))
-	 (end (+ length (+ company-selection offset))))
-    (if (some 'identity (subseq (append list list list) begin end))
-	(eh-company-nonascii-setup)
-      (eh-company-ascii-setup))
-    (funcall orig-fun command)))
-
-(advice-add 'company-call-frontends :around #'eh-company-call-frontend)
+    (`post-command (eh-company-sidebar-show-or-hide
+		    (eh-company-sidebar-format)))
+    (`hide (eh-company-sidebar-show-or-hide nil t))))
 
 (defun eh-company-theme ()
   (interactive)
