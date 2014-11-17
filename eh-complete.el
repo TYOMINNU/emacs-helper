@@ -85,10 +85,13 @@
 (setq company-minimum-prefix-length 2)
 (setq company-selection-wrap-around t)
 (setq company-show-numbers t)
-(setq company-dabbrev-downcase nil)
 (setq company-tooltip-limit 10)
 (setq company-echo-delay 0)
 (setq company-global-modes '(not git-commit-mode))
+
+(setq company-dabbrev-downcase nil)
+(setq company-dabbrev-ignore-case nil)
+(setq company-require-match nil)
 
 (setq eh-company-sidebar-side 'right)
 (setq eh-company-sidebar-width 25)
@@ -129,7 +132,7 @@
 			       'face 'company-echo))
 	(add-text-properties 0 (length company-common)
 			     '(face company-echo-common) comp))
-      (if (>= lines 100)
+      (if (>= lines 30)
 	  (setq candidates nil)
 	(push comp msg)))
     (concat
@@ -171,6 +174,7 @@
     (with-current-buffer buffer
       (setq adaptive-wrap-extra-indent 3)
       (visual-line-mode 1)
+      (set-fringe-mode '(0 . 1))
       (adaptive-wrap-prefix-mode t)
       (delete-region (point-min) (point-max))
       (when string
@@ -181,11 +185,15 @@
 	   (window-deletable-p window)
 	   (delete-window window)))))
 
+(defun eh-company-sidebar-hide ()
+  (interactive)
+  (eh-company-sidebar-show-or-hide nil t))
+
 (defun eh-company-sidebar-frontend (command)
   (pcase command
     (`post-command (eh-company-sidebar-show-or-hide
 		    (eh-company-sidebar-format)))
-    (`hide (eh-company-sidebar-show-or-hide nil t))))
+    (`hide (eh-company-sidebar-show-or-hide))))
 
 (defun eh-company-theme ()
   (interactive)
