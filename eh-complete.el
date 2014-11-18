@@ -93,6 +93,7 @@
 (setq company-dabbrev-ignore-case nil)
 (setq company-require-match nil)
 
+(setq eh-company-buffer-name "*eh-company-buffer*")
 (setq eh-company-sidebar-side 'right)
 (setq eh-company-sidebar-width 25)
 
@@ -141,22 +142,24 @@
 	       company-search-string))
      (mapconcat 'identity (nreverse msg) ""))))
 
-(defun eh-company-sidebar-show-or-hide (&optional string hide)
-  (let* ((buffer-name "*eh-company-buffer*")
-	 (buffer (get-buffer-create buffer-name))
+(defun eh-company-sidebar-show (&optional string)
+  (let* ((origin-window (selected-window))
+	 (buffer (get-buffer-create eh-company-buffer-name))
 	 existing-window window)
 
     (cl-dolist (win (window-list))
-      (and (string= (buffer-name (window-buffer win)) buffer-name)
+      (and (string= (buffer-name (window-buffer win))
+		    eh-company-buffer-name)
 	   (not (window-parameter win 'window-side))
 	   (eq t (window-deletable-p win))
 	   (delete-window win)))
 
     (setq existing-window
 	  (cl-find-if
-	   (lambda (window)
-	     (and (string= (buffer-name (window-buffer window)) buffer-name)
-		  (window-parameter window 'window-side)))
+	   (lambda (win)
+	     (and (string= (buffer-name (window-buffer win))
+			   eh-company-buffer-name)
+		  (window-parameter win 'window-side)))
 	   (window-list)))
 
     (setq window
@@ -172,28 +175,39 @@
     (setf (window-dedicated-p window) t)
 
     (with-current-buffer buffer
-      (setq adaptive-wrap-extra-indent 3)
       (visual-line-mode 1)
-      (set-fringe-mode '(0 . 1))
       (adaptive-wrap-prefix-mode t)
+      (setq adaptive-wrap-extra-indent 3)
+      (setq left-fringe-width 2)
+      (setq scroll-bar-width 1)
+      (setq cursor-type nil)
+      (setq mode-line-format
+	    (list "  "
+		  '(:eval (propertize "%b " 'face 'font-lock-keyword-)
+			  'help-echo (buffer-file-name))))
       (delete-region (point-min) (point-max))
       (when string
 	(insert string)))
-
-    (when hide
-      (and (window-live-p window)
-	   (window-deletable-p window)
-	   (delete-window window)))))
+    (select-window origin-window)))
 
 (defun eh-company-sidebar-hide ()
   (interactive)
-  (eh-company-sidebar-show-or-hide nil t))
+  (let ((window
+	 (cl-find-if
+	  (lambda (window)
+	    (and (string= (buffer-name (window-buffer window))
+			  eh-company-buffer-name)
+		 (window-parameter window 'window-side)))
+	  (window-list))))
+    (and (window-live-p window)
+	 (window-deletable-p window)
+	 (delete-window window))))
 
 (defun eh-company-sidebar-frontend (command)
   (pcase command
-    (`post-command (eh-company-sidebar-show-or-hide
+    (`post-command (eh-company-sidebar-show
 		    (eh-company-sidebar-format)))
-    (`hide (eh-company-sidebar-show-or-hide))))
+    (`hide (eh-company-sidebar-show ""))))
 
 (defun eh-company-theme ()
   (interactive)
@@ -220,8 +234,14 @@
 		  (eh-company-theme))))
   (eh-company-theme))
 
+(defun eh-delete-other-window ()
+  (interactive)
+  (eh-company-sidebar-hide)
+  (delete-other-window))
+
 ;; (eh-company-ascii-setup)
 (global-set-key (kbd "M-/") 'company-complete)
+(global-set-key (kbd "C-x 1") 'eh-delete-other-window)
 (define-key company-active-map [return] nil)
 (define-key company-active-map (kbd "RET") nil)
 (define-key company-active-map (kbd "M-i") 'company-complete-selection)
