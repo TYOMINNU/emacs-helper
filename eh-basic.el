@@ -45,6 +45,7 @@
 ;; 默认显示菜单栏
 (menu-bar-mode 1)
 (tool-bar-mode -1)
+(scroll-bar-mode -1)
 
 ;; 高亮配对的括号
 (show-paren-mode 1)
