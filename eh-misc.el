@@ -201,6 +201,33 @@
 
 ;; switch window
 (require 'switch-window)
+(setq switch-window-increase 8)
+
+(defun eh-switch-window-display-number (win num)
+  "prepare a temp buffer to diplay in the window while choosing"
+  (let* ((label (switch-window-label num))
+	 (buf (get-buffer-create
+	       (format " *%s: %s*" label (buffer-name (window-buffer win))))))
+    (with-current-buffer buf
+      (let* ((h (window-body-height win))
+	     (increased-lines (/ (float h) switch-window-increase))
+	     (scale (if (> increased-lines 1) switch-window-increase h)))
+	;; hide cursor
+	(setq cursor-type nil)
+	;; increase to maximum switch-window-increase
+	(when (fboundp 'text-scale-increase)
+	  (text-scale-increase scale))
+	;; insert the label, with a hack to support ancient emacs
+	(if (fboundp 'text-scale-increase)
+	    (insert label)
+	  (insert (propertize label 'face
+			      (list :height (* (* h switch-window-increase)
+					       (if (> w h) 2 1))))))))
+    (set-window-buffer win buf)
+    buf))
+
+(advice-add 'switch-window-display-number :override #'eh-switch-window-display-number)
+
 (global-set-key (kbd "C-x o") 'switch-window)
 (setq  switch-window-shortcut-style 'qwerty)
 
