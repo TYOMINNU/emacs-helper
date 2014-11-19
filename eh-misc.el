@@ -209,20 +209,17 @@
 	 (buf (get-buffer-create
 	       (format " *%s: %s*" label (buffer-name (window-buffer win))))))
     (with-current-buffer buf
-      (let* ((h (window-body-height win))
-	     (increased-lines (/ (float h) switch-window-increase))
-	     (scale (if (> increased-lines 1) switch-window-increase h)))
-	;; hide cursor
-	(setq cursor-type nil)
-	;; increase to maximum switch-window-increase
-	(when (fboundp 'text-scale-increase)
-	  (text-scale-increase scale))
-	;; insert the label, with a hack to support ancient emacs
-	(if (fboundp 'text-scale-increase)
-	    (insert label)
-	  (insert (propertize label 'face
-			      (list :height (* (* h switch-window-increase)
-					       (if (> w h) 2 1))))))))
+      ;; hide cursor
+      (setq cursor-type nil)
+      ;; increase to maximum switch-window-increase
+      (when (fboundp 'text-scale-increase)
+	(text-scale-increase switch-window-increase))
+      ;; insert the label, with a hack to support ancient emacs
+      (if (fboundp 'text-scale-increase)
+	  (insert label)
+	(insert (propertize label 'face
+			    (list :height (* (* h switch-window-increase)
+					     (if (> w h) 2 1)))))))
     (set-window-buffer win buf)
     buf))
 

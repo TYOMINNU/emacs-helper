@@ -96,6 +96,7 @@
 (setq eh-company-buffer-name "*eh-company-buffer*")
 (setq eh-company-sidebar-side 'right)
 (setq eh-company-sidebar-width 25)
+(fringe-mode '(nil . 0))
 
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
@@ -178,8 +179,16 @@
       (visual-line-mode 1)
       (adaptive-wrap-prefix-mode t)
       (setq adaptive-wrap-extra-indent 3)
-      (setq left-fringe-width 2)
-      (setq scroll-bar-width 1)
+      ;; hide all the border between two window
+      (let ((color (face-attribute 'default :background)))
+	(set-face-attribute 'vertical-border nil
+			    :foreground color))
+      (setq left-fringe-width 0)
+      (setq right-fringe-width 8)
+      (setq scroll-bar-width 0)
+      (setq left-margin-width 0)
+      (setq right-margin-width 0)
+      ;; hide cursor
       (setq cursor-type nil)
       (setq mode-line-format
 	    (list "  "
