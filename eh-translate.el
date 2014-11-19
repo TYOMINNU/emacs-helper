@@ -32,6 +32,31 @@
 
 ;;; Code:
 
+;;; bing-translate
+(setq eh-bing-url-format "http://cn.bing.com/dict/search?q=%s")
+(setq eh-bing-translate-timer nil)
+
+(defun eh-bing-translate-at-point ()
+  "Translate current word at point with sdcv"
+  (interactive)
+  (save-restriction
+    (let* ((word (or (if mark-active
+			 (buffer-substring-no-properties
+			  (region-beginning) (region-end))
+		       (eh-current-word)) "")))
+      (eww (format eh-bing-url-format word))
+      (if (not (string= (buffer-name) "*eww*"))
+	  (switch-to-buffer-other-window "*eww*"))
+      (when eh-bing-translate-timer
+	(cancel-timer eh-bing-translate-timer))
+      (setq eh-bing-translate-timer
+	    (run-with-timer
+	     2 nil
+	     '(lambda ()
+		(goto-char (point-min))
+		(forward-line 18)
+		(eh-eww-narrow-to-region (point) (point-max))))))))
+
 ;;; google-translate
 (require 'google-translate)
 (require 'google-translate-smooth-ui)
@@ -349,8 +374,9 @@
 (eval-after-load "org"
   '(add-to-list 'org-src-lang-modes '("translate" . text)))
 
-(global-set-key (kbd "C-c D") 'google-translate-at-point)
-(global-set-key (kbd "C-c d") 'eh-sdcv-translate-at-point)
+(global-set-key (kbd "C-c d d") 'eh-sdcv-translate-at-point)
+(global-set-key (kbd "C-c d g") 'google-translate-at-point)
+(global-set-key (kbd "C-c d b") 'eh-bing-translate-at-point)
 
 (provide 'eh-translate)
 
