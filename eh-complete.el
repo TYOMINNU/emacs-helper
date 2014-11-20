@@ -96,7 +96,6 @@
 (setq eh-company-buffer-name "*eh-company-buffer*")
 (setq eh-company-sidebar-side 'right)
 (setq eh-company-sidebar-width 25)
-(fringe-mode '(nil . 0))
 
 (add-to-list 'company-begin-commands 'ibus-exec-callback)
 (add-to-list 'company-begin-commands 'ibus-handle-event)
@@ -179,15 +178,12 @@
       (visual-line-mode 1)
       (adaptive-wrap-prefix-mode t)
       (setq adaptive-wrap-extra-indent 3)
-      ;; hide all the border between two window
+      ;; hide fringe and vertical-border
       (let ((color (face-attribute 'default :background)))
 	(set-face-attribute 'vertical-border nil
-			    :foreground color))
-      (setq left-fringe-width 0)
-      (setq right-fringe-width 8)
-      (setq scroll-bar-width 0)
-      (setq left-margin-width 0)
-      (setq right-margin-width 0)
+			    :foreground color)
+	(set-face-attribute 'fringe nil
+			    :background color))
       ;; hide cursor
       (setq cursor-type nil)
       (setq mode-line-format
@@ -212,12 +208,12 @@
 	 (window-deletable-p window)
 	 (delete-window window))))
 
-(defun eh-pop-to-buffer (orig-fun &rest args)
+(defun eh-display-buffer (orig-fun &rest args)
   "hide company sidebar before pop to buffer"
   (eh-company-sidebar-hide)
   (apply orig-fun args))
 
-(advice-add 'pop-to-buffer :around #'eh-pop-to-buffer)
+(advice-add 'display-buffer :around #'eh-display-buffer)
 
 (defun eh-company-sidebar-frontend (command)
   (pcase command
@@ -250,7 +246,12 @@
 		  (eh-company-theme))))
   (eh-company-theme))
 
-;; (eh-company-ascii-setup)
+(defun eh-delete-other-window ()
+  (interactive)
+  (eh-company-sidebar-hide)
+  (delete-other-window))
+
+(global-set-key (kbd "C-x 1") 'eh-delete-other-window)
 (global-set-key (kbd "M-/") 'company-complete)
 (define-key company-active-map [return] nil)
 (define-key company-active-map (kbd "RET") nil)
@@ -263,7 +264,6 @@
 (if (and (fboundp 'daemonp) (daemonp))
     (add-hook 'after-make-frame-functions
 	      (lambda (x)
-		(require 'eh-complete)
 		(global-company-mode)))
   (global-company-mode))
 
