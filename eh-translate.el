@@ -53,6 +53,7 @@
 	    (run-with-timer
 	     2 nil
 	     '(lambda ()
+		(setq header-line-format nil)
 		(goto-char (point-min))
 		(forward-line 18)
 		(eh-eww-narrow-to-region (point) (point-max))))))))
