@@ -212,6 +212,13 @@
 	 (window-deletable-p window)
 	 (delete-window window))))
 
+(defun eh-pop-to-buffer (orig-fun &rest args)
+  "hide company sidebar before pop to buffer"
+  (eh-company-sidebar-hide)
+  (apply orig-fun args))
+
+(advice-add 'pop-to-buffer :around #'eh-pop-to-buffer)
+
 (defun eh-company-sidebar-frontend (command)
   (pcase command
     (`post-command (eh-company-sidebar-show
@@ -243,14 +250,8 @@
 		  (eh-company-theme))))
   (eh-company-theme))
 
-(defun eh-delete-other-window ()
-  (interactive)
-  (eh-company-sidebar-hide)
-  (delete-other-window))
-
 ;; (eh-company-ascii-setup)
 (global-set-key (kbd "M-/") 'company-complete)
-(global-set-key (kbd "C-x 1") 'eh-delete-other-window)
 (define-key company-active-map [return] nil)
 (define-key company-active-map (kbd "RET") nil)
 (define-key company-active-map (kbd "M-i") 'company-complete-selection)
@@ -258,7 +259,13 @@
 (define-key company-active-map (kbd "C-p")'company-select-previous)
 (define-key company-active-map (kbd "M-n") 'company-select-next)
 (define-key company-active-map (kbd "M-p")'company-select-previous)
-(add-hook 'after-init-hook 'global-company-mode)
+
+(if (and (fboundp 'daemonp) (daemonp))
+    (add-hook 'after-make-frame-functions
+	      (lambda (x)
+		(require 'eh-complete)
+		(global-company-mode)))
+  (global-company-mode))
 
 ;;;autoload(require 'eh-complete)
 (provide 'eh-complete)
