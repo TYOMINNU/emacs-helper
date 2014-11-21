@@ -178,12 +178,14 @@
       (visual-line-mode 1)
       (adaptive-wrap-prefix-mode t)
       (setq adaptive-wrap-extra-indent 3)
+
       ;; hide fringe and vertical-border
-      (let ((color (face-attribute 'default :background)))
-	(set-face-attribute 'vertical-border nil
-			    :foreground color)
-	(set-face-attribute 'fringe nil
-			    :background color))
+      ;; (let ((color (face-attribute 'default :background)))
+      ;;	(set-face-attribute 'vertical-border nil
+      ;;			    :foreground color)
+      ;;	(set-face-attribute 'fringe nil
+      ;;			    :background color))
+
       ;; hide cursor
       (setq cursor-type nil)
       (setq mode-line-format
