@@ -114,6 +114,7 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((R . t)
+   (org . t)
    (ditaa . t)
    (dot . t)
    (emacs-lisp . t)
@@ -204,7 +205,7 @@
 ;;; Add new easy templates
 (setq org-structure-template-alist
       (append '(("r" "#+BEGIN_SRC R\n?\n#+END_SRC")
-		("rh" "#+PROPERTY: header-args:R  :session *R* :tangle yes :colnames yes :rownames no :width 700 :height 500")
+		("rh" "#+PROPERTY: header-args:R  :session *R* :tangle yes :colnames yes :rownames no :width 700 :height 500 :exports both")
 		("rv" "#+BEGIN_SRC R :results value\n?\n#+END_SRC")
 		("ro" "#+BEGIN_SRC R :results output verbatim\n?\n#+END_SRC")
 		("rg" "#+BEGIN_SRC R :results graphics :file ?\n\n#+END_SRC")
