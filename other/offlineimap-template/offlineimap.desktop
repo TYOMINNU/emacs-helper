@@ -1,8 +1,0 @@
-[Desktop Entry]
-Exec="x-terminal-emulator " "-e" "start_daemon -n19 -c2 -p7 python2.7 offlineimap"
-Icon=/home/feng/Picture/icons/offlineimap.png
-Name=OfflineIMAP
-Encoding=UTF-8
-Terminal=false
-Type=Application
-Categories=Application;Network;

@@ -1,0 +1,72 @@
+#+TITLE: emacs-helper配图使用说明
+#+LANGUAGE: zh-CN
+#+TAGS: noexport(n) ignoreheading(i)
+# \bibliography{emacs-helper.bib}
+#+OPTIONS: H:10 num:t tex:imagemagick ^:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="./style/worg.css" />
+#+HTML_HEAD_EXTRA: <link rel="alternate stylesheet" type="text/css" href="style2.css" />
+
+* eh-translate.el 简要介绍
+** 截图显摆
+*** sdcv字典
+  [[file:./images/eh-sdcv.png]]
+*** google翻译
+  [[file:./images/eh-google-translate.png]]
+*** bing翻译
+  [[file:./images/eh-bing-translate.png]]
+
+** 命令介绍
+*** eh-bing-translate-at-point
+ 1. 翻译光标处的单词，不可以翻译句子。
+ 2. 使用eww调用bing网页，在线翻译。
+*** eh-sdcv-translate-at-point
+ 1. 可以翻译单词，不可以翻译句子。
+ 2. 可以英译汉，也可以汉译英（需要stardict词库支持）。
+ 3. 使用org-mode显示sdcv翻译输出的结果。
+*** google-translate-at-point
+ 1. 使用google在线翻译。
+ 2. 可以翻译单词和句子。
+* eh-fonts.el 简要介绍
+** 安装
+#+BEGIN_SRC emacs-lisp
+(require 'eh-fonts)
+#+END_SRC
+** 设置
+
+#+BEGIN_SRC emacs-lisp :eval no
+(eh-fonts-setup)
+#+END_SRC
+
+[[file:./images/eh-fonts-setup.png]]
+
+eh-custom-fonts-names-alist第一个列表为英文等宽字体列表，第二个列表为中文字体列表。调整（添加字体名称，删除字体名称或者排序字体名称）后， 按C-c C-c查看字体显示效果（只能查看字体显示是否正确，不能查看字体是否对齐）。
+
+[[file:./images/eh-fonts-setup-fontnames.png]]
+
+中文和英文字体设定无误后，继续调整eh-custom-fonts-scales-list，以实现中英文对齐。将光标移动到每一个数字上，按C-c C-c，根据对齐结果调整数字大小，直到中文和英文可以完美对齐。
+
+[[file:./images/eh-fonts-setup-scales1.png]]
+
+9个数字一一调整， 调整完成后保存文件。
+
+[[file:./images/eh-fonts-setup-scales1.png]]
+
+** 使用
+放大字体
+
+#+BEGIN_SRC emacs-lisp :eval no
+eh-font-size-increase
+#+END_SRC
+
+缩小字体
+
+#+BEGIN_SRC emacs-lisp :eval no
+eh-font-size-decrease
+#+END_SRC
+
+* eh-complete.el 简要介绍
+company默认使用overlay菜单frontend， 中文显示存在问题。我简单的写了一个sidebar frontend, 效果如下：
+
+[[file:./images/eh-company-sidebar-effect1.png]]
+
+[[file:./images/eh-company-sidebar-effect2.png]]

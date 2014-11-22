@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
+<head>
+<title>emacs-helper配图使用说明</title>
+<!-- 2014-11-22 六 17:14 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Feng Shu" />
+<link rel="stylesheet" type="text/css" href="./style/worg.css" />
+<link rel="alternate stylesheet" type="text/css" href="style2.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">emacs-helper配图使用说明</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#24405;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. eh-translate.el 简要介绍</a>
+<ul>
+<li><a href="#sec-1-1">1.1. 截图显摆</a>
+<ul>
+<li><a href="#sec-1-1-1">1.1.1. sdcv字典</a></li>
+<li><a href="#sec-1-1-2">1.1.2. google翻译</a></li>
+<li><a href="#sec-1-1-3">1.1.3. bing翻译</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-2">1.2. 命令介绍</a>
+<ul>
+<li><a href="#sec-1-2-1">1.2.1. eh-bing-translate-at-point</a></li>
+<li><a href="#sec-1-2-2">1.2.2. eh-sdcv-translate-at-point</a></li>
+<li><a href="#sec-1-2-3">1.2.3. google-translate-at-point</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-2">2. eh-fonts.el 简要介绍</a>
+<ul>
+<li><a href="#sec-2-1">2.1. 安装</a></li>
+<li><a href="#sec-2-2">2.2. 设置</a></li>
+<li><a href="#sec-2-3">2.3. 使用</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. eh-complete.el 简要介绍</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> eh-translate.el 简要介绍</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> 截图显摆</h3>
+<div class="outline-text-3" id="text-1-1">
+</div><div id="outline-container-sec-1-1-1" class="outline-4">
+<h4 id="sec-1-1-1"><span class="section-number-4">1.1.1</span> sdcv字典</h4>
+<div class="outline-text-4" id="text-1-1-1">
+
+<div class="figure">
+<p><img src="./images/eh-sdcv.png" alt="eh-sdcv.png" />
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-1-1-2" class="outline-4">
+<h4 id="sec-1-1-2"><span class="section-number-4">1.1.2</span> google翻译</h4>
+<div class="outline-text-4" id="text-1-1-2">
+
+<div class="figure">
+<p><img src="./images/eh-google-translate.png" alt="eh-google-translate.png" />
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-1-1-3" class="outline-4">
+<h4 id="sec-1-1-3"><span class="section-number-4">1.1.3</span> bing翻译</h4>
+<div class="outline-text-4" id="text-1-1-3">
+
+<div class="figure">
+<p><img src="./images/eh-bing-translate.png" alt="eh-bing-translate.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> 命令介绍</h3>
+<div class="outline-text-3" id="text-1-2">
+</div><div id="outline-container-sec-1-2-1" class="outline-4">
+<h4 id="sec-1-2-1"><span class="section-number-4">1.2.1</span> eh-bing-translate-at-point</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<ol class="org-ol">
+<li>翻译光标处的单词，不可以翻译句子。
+</li>
+<li>使用eww调用bing网页，在线翻译。
+</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-sec-1-2-2" class="outline-4">
+<h4 id="sec-1-2-2"><span class="section-number-4">1.2.2</span> eh-sdcv-translate-at-point</h4>
+<div class="outline-text-4" id="text-1-2-2">
+<ol class="org-ol">
+<li>可以翻译单词，不可以翻译句子。
+</li>
+<li>可以英译汉，也可以汉译英（需要stardict词库支持）。
+</li>
+<li>使用org-mode显示sdcv翻译输出的结果。
+</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-sec-1-2-3" class="outline-4">
+<h4 id="sec-1-2-3"><span class="section-number-4">1.2.3</span> google-translate-at-point</h4>
+<div class="outline-text-4" id="text-1-2-3">
+<ol class="org-ol">
+<li>使用google在线翻译。
+</li>
+<li>可以翻译单词和句子。
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> eh-fonts.el 简要介绍</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> 安装</h3>
+<div class="outline-text-3" id="text-2-1">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #FBDE2D;">require</span> '<span style="color: #4c83ff;">eh-fonts</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 设置</h3>
+<div class="outline-text-3" id="text-2-2">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(eh-fonts-setup)
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./images/eh-fonts-setup.png" alt="eh-fonts-setup.png" />
+</p>
+</div>
+
+<p>
+eh-custom-fonts-names-alist第一个列表为英文等宽字体列表，第二个列表为中文字体列表。调整（添加字体名称，删除字体名称或者排序字体名称）后， 按C-c C-c查看字体显示效果（只能查看字体显示是否正确，不能查看字体是否对齐）。
+</p>
+
+
+<div class="figure">
+<p><img src="./images/eh-fonts-setup-fontnames.png" alt="eh-fonts-setup-fontnames.png" />
+</p>
+</div>
+
+<p>
+中文和英文字体设定无误后，继续调整eh-custom-fonts-scales-list，以实现中英文对齐。将光标移动到每一个数字上，按C-c C-c，根据对齐结果调整数字大小，直到中文和英文可以完美对齐。
+</p>
+
+
+<div class="figure">
+<p><img src="./images/eh-fonts-setup-scales1.png" alt="eh-fonts-setup-scales1.png" />
+</p>
+</div>
+
+<p>
+9个数字一一调整， 调整完成后保存文件。
+</p>
+
+
+<div class="figure">
+<p><img src="./images/eh-fonts-setup-scales1.png" alt="eh-fonts-setup-scales1.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> 使用</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+放大字体
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">eh-font-size-increase
+</pre>
+</div>
+
+<p>
+缩小字体
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">eh-font-size-decrease
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> eh-complete.el 简要介绍</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+company默认使用overlay菜单frontend， 中文显示存在问题。我简单的写了一个sidebar frontend, 效果如下：
+</p>
+
+
+<div class="figure">
+<p><img src="./images/eh-company-sidebar-effect1.png" alt="eh-company-sidebar-effect1.png" />
+</p>
+</div>
+
+
+<div class="figure">
+<p><img src="./images/eh-company-sidebar-effect2.png" alt="eh-company-sidebar-effect2.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">&#20316;&#32773;: Feng Shu</p>
+<p class="date">Created: 2014-11-22 六 17:14</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.3beta)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
