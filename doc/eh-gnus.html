@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
 <head>
 <title>eh-gnus配置说明</title>
-<!-- 2014-11-22 六 17:15 -->
+<!-- 2014-11-24 一 10:32 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Feng Shu" />
@@ -36,12 +36,33 @@
 <li><a href="#sec-4">4. 安装辅助程序</a></li>
 <li><a href="#sec-5">5. 配置辅助程序</a>
 <ul>
-<li><a href="#sec-5-1">5.1. msmtp</a></li>
-<li><a href="#sec-5-2">5.2. dovecot</a></li>
-<li><a href="#sec-5-3">5.3. offlineimap (与isync两者选一）</a></li>
-<li><a href="#sec-5-4">5.4. isync（与offlineimap两者选一）</a></li>
-<li><a href="#sec-5-5">5.5. leafnode</a></li>
-<li><a href="#sec-5-6">5.6. rss2email</a></li>
+<li><a href="#sec-5-1">5.1. 邮件发送程序</a>
+<ul>
+<li><a href="#sec-5-1-1">5.1.1. msmtp</a></li>
+</ul>
+</li>
+<li><a href="#sec-5-2">5.2. Imap服务器程序</a>
+<ul>
+<li><a href="#sec-5-2-1">5.2.1. dovecot</a></li>
+</ul>
+</li>
+<li><a href="#sec-5-3">5.3. 邮件下载程序</a>
+<ul>
+<li><a href="#sec-5-3-1">5.3.1. offlineimap</a></li>
+<li><a href="#sec-5-3-2">5.3.2. isync</a></li>
+<li><a href="#sec-5-3-3">5.3.3. fdm</a></li>
+</ul>
+</li>
+<li><a href="#sec-5-4">5.4. 新闻组下载程序</a>
+<ul>
+<li><a href="#sec-5-4-1">5.4.1. leafnode</a></li>
+</ul>
+</li>
+<li><a href="#sec-5-5">5.5. rss下载程序</a>
+<ul>
+<li><a href="#sec-5-5-1">5.5.1. rss2email</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#sec-6">6. cron配置</a></li>
@@ -163,7 +184,7 @@
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org">sudo apt-get install msmtp msmtp-gnome offlineimap isync leafnode dovecot-core dovecot-imapd
+<pre class="src src-shell">sudo apt-get install msmtp msmtp-gnome offlineimap isync leafnode dovecot-core dovecot-imapd
 </pre>
 </div>
 
@@ -177,7 +198,7 @@ Debian 7软件库中的html2test和feedparser版本太低，只能使用其他�
 
 <div class="org-src-container">
 
-<pre class="src src-org">sudo apt-get install python3-setuptools
+<pre class="src src-shell">sudo apt-get install python3-setuptools
 </pre>
 </div>
 
@@ -187,9 +208,9 @@ Debian 7软件库中的html2test和feedparser版本太低，只能使用其他�
 
 <div class="org-src-container">
 
-<pre class="src src-org">sudo easy_install3 html2text
+<pre class="src src-shell">sudo easy_install3 html2text
 sudo easy_install3 feedparser
-sudo easy_insatll3 rss2email
+sudo easy_install3 rss2email
 </pre>
 </div>
 
@@ -198,11 +219,81 @@ rss2email使用base64编码中文，procmail处理起来非常费事，我这里
 </p>
 
 <p>
-将rss2email_post_hooks所在的目录添加到PYTHONPATH（语法与shell里面的PATH一样），将下面一行代码写入~/.bashrc文件。
+rss2email后处理插件是标准的python包，我们使用 <code>rss2email_post_hooks</code> 作为其名称。
+首先创建目录： <code>rss2email_post_hooks</code>
+</p>
+
+<p>
+然后在目录下添加一个空白文件：__init__.py，表明这个目录是一个python包。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">This is a blank file.</span>
+</pre>
+</div>
+
+<p>
+最后在目录中添加pinyin_header.py文件。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">This file is a post_process of rss2email</span>
+<span style="color: #8B8989; font-style: italic;">#</span>
+<span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">rss2email will encode UTF-8 string with base64 before send mail,</span>
+<span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">which is difficult filted by procmail. This post_process will</span>
+<span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">add addition headers: X-Pinyin-From header and X-Pinyin-Subject,</span>
+<span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">They will store pinyin strings converted From header and Subject header</span>
+<span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">before send mail.</span>
+<span style="color: #8B8989; font-style: italic;">#</span>
+<span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">Use:</span>
+<span style="color: #8B8989; font-style: italic;"># </span><span style="color: #8B8989; font-style: italic;">add the below line to your rss2email configure:</span>
+<span style="color: #8B8989; font-style: italic;">#</span>
+<span style="color: #8B8989; font-style: italic;">#       </span><span style="color: #8B8989; font-style: italic;">post-process = rss2email_post_hooks.pinyin_header add_pinyin_header</span>
+<span style="color: #8B8989; font-style: italic;">#</span>
+
+<span style="color: #FBDE2D;">import</span> rss2email.email
+<span style="color: #FBDE2D;">import</span> pinyin
+
+<span style="color: #FBDE2D;">def</span> <span style="color: #ff1493;">remove_non_ascii</span>(string):
+    <span style="color: #61CE3C;">"""remove no ascii char in string"""</span>
+    <span style="color: #FBDE2D;">return</span> <span style="color: #61CE3C;">""</span>.join([i <span style="color: #FBDE2D;">for</span> i <span style="color: #FBDE2D;">in</span> string <span style="color: #FBDE2D;">if</span> <span style="color: #FF6400;">ord</span>(i)&lt;128])
+
+<span style="color: #FBDE2D;">def</span> <span style="color: #ff1493;">add_pinyin_header</span>(message, **kwargs):
+    <span style="color: #D8FA3C;">header_subject</span> = rss2email.email._decode_header(message[<span style="color: #61CE3C;">'Subject'</span>])
+    <span style="color: #D8FA3C;">header_from</span> = rss2email.email._decode_header(message[<span style="color: #61CE3C;">'From'</span>])
+    <span style="color: #D8FA3C;">message</span>[<span style="color: #61CE3C;">'X-Pinyin-Subject'</span>] = remove_non_ascii(pinyin.get(header_subject))
+    <span style="color: #D8FA3C;">message</span>[<span style="color: #61CE3C;">'X-Pinyin-From'</span>] = remove_non_ascii(pinyin.get(header_from))
+    <span style="color: #FBDE2D;">return</span> message
+</pre>
+</div>
+
+<p>
+将rss2email_post_hooks所在的目录添加到PYTHONPATH（语法与shell里面的PATH一样），比如， 在~/.bashrc文件中写入下面一行语句。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-org">export PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
+</pre>
+</div>
+
+<p>
+也可以在编写shell脚本的时候，插入赋值语句：
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org">export PYTHONPATH=$PYTHONPATH:/home/feng/project/emacs-packages/emacs-helper/other/rss2email-template/
+<pre class="src src-org" id="rss2email-setup-python-path">PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
+</pre>
+</div>
+
+<p>
+在rss2email配置文件中写入一行配置：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org" id="rss2email-setup-post-process">post-process = rss2email_post_hooks.pinyin_header add_pinyin_header
 </pre>
 </div>
 </div>
@@ -212,8 +303,11 @@ rss2email使用base64编码中文，procmail处理起来非常费事，我这里
 <h2 id="sec-5"><span class="section-number-2">5</span> 配置辅助程序</h2>
 <div class="outline-text-2" id="text-5">
 </div><div id="outline-container-sec-5-1" class="outline-3">
-<h3 id="sec-5-1"><span class="section-number-3">5.1</span> msmtp</h3>
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> 邮件发送程序</h3>
 <div class="outline-text-3" id="text-5-1">
+</div><div id="outline-container-sec-5-1-1" class="outline-4">
+<h4 id="sec-5-1-1"><span class="section-number-4">5.1.1</span> msmtp</h4>
+<div class="outline-text-4" id="text-5-1-1">
 <p>
 msmpt配置文件~/.msmptrc的内容如下：
 </p>
@@ -235,7 +329,7 @@ user YOUREMAIL@gmail.com
 from YOUREMAIL@gmail.com
 <span id="coderef-password" class="coderef-off">password YOURPASSWORD</span>
 port 587
-logfile ~/.msmtp.log
+logfile /home/feng/.config/eh-gnus/configs/log/msmtp.log
 </pre>
 </div>
 
@@ -250,9 +344,13 @@ python ./msmtp-gnome-tool.py --username=YOUREMAIL@gmail.com --server=smtp.gmail.
 </div>
 </div>
 </div>
+</div>
 <div id="outline-container-sec-5-2" class="outline-3">
-<h3 id="sec-5-2"><span class="section-number-3">5.2</span> dovecot</h3>
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> Imap服务器程序</h3>
 <div class="outline-text-3" id="text-5-2">
+</div><div id="outline-container-sec-5-2-1" class="outline-4">
+<h4 id="sec-5-2-1"><span class="section-number-4">5.2.1</span> dovecot</h4>
+<div class="outline-text-4" id="text-5-2-1">
 <p>
 dovecot的配置文件： /etc/dovecot/dovecot.conf
 </p>
@@ -262,8 +360,8 @@ dovecot的配置文件： /etc/dovecot/dovecot.conf
 
 <span style="color: #8B8989; font-style: italic;"># It's nice to have separate log files for Dovecot. You could do this</span>
 <span style="color: #8B8989; font-style: italic;"># by changing syslog configuration also, but this is easier.</span>
-log_path = /var/log/dovecot.log
-info_log_path = /var/log/dovecot-info.log
+log_path = /home/feng/.config/eh-gnus/configs/log/dovecot.log
+info_log_path = /home/feng/.config/eh-gnus/configs/log/dovecot-info.log
 
 <span style="color: #8B8989; font-style: italic;"># Disable SSL for now.</span>
 ssl = no
@@ -278,7 +376,7 @@ auth_mechanisms = plain
 
 passdb {
   driver = password-file
-  args = /etc/dovecot/password
+  args = /home/feng/.config/eh-gnus/configs/password-file
 }
 userdb {
   driver = static
@@ -299,10 +397,13 @@ myrss:{plain}myrss-password:feng:feng::/home/feng/maildir/.home/myrss::userdb_ma
 </div>
 </div>
 </div>
-
+</div>
 <div id="outline-container-sec-5-3" class="outline-3">
-<h3 id="sec-5-3"><span class="section-number-3">5.3</span> offlineimap (与isync两者选一）</h3>
+<h3 id="sec-5-3"><span class="section-number-3">5.3</span> 邮件下载程序</h3>
 <div class="outline-text-3" id="text-5-3">
+</div><div id="outline-container-sec-5-3-1" class="outline-4">
+<h4 id="sec-5-3-1"><span class="section-number-4">5.3.1</span> offlineimap</h4>
+<div class="outline-text-4" id="text-5-3-1">
 <p>
 offlineimap配置文件:  ~/.offlineimaprc
 </p>
@@ -310,7 +411,7 @@ offlineimap配置文件:  ~/.offlineimaprc
 
 <pre class="src src-org">[general]
 accounts = default-email-account
-pythonfile = .offlineimap.py
+pythonfile = /home/feng/.config/eh-gnus/configs/offlineimap.py
 ui = quiet
 
 [Account default-email-account]
@@ -342,12 +443,21 @@ realdelete = no
 <span style="color: #8B8989; font-style: italic;"># keepalive = 60</span>
 
 <span style="color: #8B8989; font-style: italic;"># nametrans = lambda folder: re.sub('.*Spam$', 'Spam',</span>
-<span style="color: #8B8989; font-style: italic;">#         re.sub('.*Drafts$', 'Drafts',</span>
-<span style="color: #8B8989; font-style: italic;">#         re.sub('.*Sent Mail$', 'Sent',</span>
-<span style="color: #8B8989; font-style: italic;">#         re.sub('.*Starred$', 'Flagged',</span>
-<span style="color: #8B8989; font-style: italic;">#         re.sub('.*Trash$', 'Trash',</span>
-<span style="color: #8B8989; font-style: italic;">#         re.sub('.*All Mail$', 'Archive', folder))))))</span>
+<span style="color: #8B8989; font-style: italic;">#        re.sub('.*Drafts$', 'Drafts',</span>
+<span style="color: #8B8989; font-style: italic;">#        re.sub('.*Sent Mail$', 'Sent',</span>
+<span style="color: #8B8989; font-style: italic;">#        re.sub('.*Starred$', 'Flagged',</span>
+<span style="color: #8B8989; font-style: italic;">#        re.sub('.*Trash$', 'Trash',</span>
+<span style="color: #8B8989; font-style: italic;">#        re.sub('.*All Mail$', 'Archive', folder))))))</span>
 folderfilter = lambda foldername: not re.search('(Trash|Del|Archive|All Mail|Spam|Chats)', foldername)
+</pre>
+</div>
+
+<p>
+offlineimap.py文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org"><span style="color: #8B8989; font-style: italic;"># This is a blank file</span>
 </pre>
 </div>
 
@@ -361,8 +471,8 @@ folderfilter = lambda foldername: not re.search('(Trash|Del|Archive|All Mail|Spa
 <div class="org-src-container">
 
 <pre class="src src-org">[Desktop Entry]
-Exec="x-terminal-emulator " "-e" "start_daemon -n19 -c2 -p7 python2.7 offlineimap"
-Icon=/home/feng/Picture/icons/offlineimap.png
+Exec="x-terminal-emulator " "-e" "/home/feng/.config/eh-gnus/configs/offlineimap.sh"
+Icon=/home/feng/.config/eh-gnus/configs/icons/offlineimap.png
 Name=OfflineIMAP
 Encoding=UTF-8
 Terminal=false
@@ -372,53 +482,27 @@ Categories=Application;Network;
 </div>
 
 <p>
-offlineimap启动器：start-daemon.sh
+offlineimap启动器：offlineimap.sh
 </p>
 <div class="org-src-container">
 
 <pre class="src src-org">#!/bin/sh
 
 set -efu
+command="offlineimap -c /home/feng/.config/eh-gnus/configs/offlineimaprc"
 
-ionice_class=
-ionice_priority=
-nice=
-
-while getopts c:p:n: f; do
-	case $f in
-	c) ionice_class=$OPTARG;;
-	p) ionice_priority=$OPTARG;;
-	n) nice=$OPTARG;;
-	*) exit 2;;
-	esac
-done
-shift $((OPTIND - 1))
-
-cmd=$*
-io=
-
-if pgrep -u "$(id -u)" -xf -- "$cmd" &gt;/dev/null 2&gt;&amp;1; then
+if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
 	exit 0
 fi
 
-if type ionice &gt;/dev/null 2&gt;&amp;1; then
-	[ -n "$ionice_class" ]    &amp;&amp; { io=1; cmd="-c $ionice_class $cmd"; }
-	[ -n "$ionice_priority" ] &amp;&amp; { io=1; cmd="-n $ionice_priority $cmd"; }
-	[ -n "$io" ] &amp;&amp; cmd="ionice $cmd"
-fi
-
-if type nice &gt;/dev/null 2&gt;&amp;1; then
-	[ -n "$nice" ] &amp;&amp; cmd="nice -n $nice $cmd"
-fi
-
-exec $cmd
+exec $command
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-sec-5-4" class="outline-3">
-<h3 id="sec-5-4"><span class="section-number-3">5.4</span> isync（与offlineimap两者选一）</h3>
-<div class="outline-text-3" id="text-5-4">
+<div id="outline-container-sec-5-3-2" class="outline-4">
+<h4 id="sec-5-3-2"><span class="section-number-4">5.3.2</span> isync</h4>
+<div class="outline-text-4" id="text-5-3-2">
 <p>
 isync配置文件： ~/.mbsyncrc
 </p>
@@ -454,7 +538,7 @@ Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred"
 <span style="color: #8B8989; font-style: italic;"># Automatically create missing mailboxes, both locally and on the server</span>
 Create Both
 <span style="color: #8B8989; font-style: italic;"># Save the synchronization state files in the relevant directory</span>
-SyncState ~/.mbsyncstate/get-default-email
+SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-default-email
 
 Channel get-all-email
 Master :remote-email-store:
@@ -462,7 +546,7 @@ Slave :local-dovecot-store:
 Patterns "[Gmail]/All Mail"
 Create Slave
 Sync New
-SyncState ~/.mbsyncstate/get-all-email
+SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-all-email
 
 Channel get-spam-email
 Master :gmail-store:
@@ -470,22 +554,49 @@ Slave :local-dovecot-store:
 Patterns "[Gmail]/Spam"
 Create Master
 Sync Push
-SyncState ~/.mbsyncstate/get-spam-email
+SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-spam-email
+</pre>
+</div>
+
+<p>
+isync启动器：isync.sh
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org">#!/bin/sh
+
+set -efu
+command="isync --config /home/feng/.config/eh-gnus/configs/mbsyncrc"
+
+if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
+	exit 0
+fi
+
+exec $command
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-sec-5-5" class="outline-3">
-<h3 id="sec-5-5"><span class="section-number-3">5.5</span> leafnode</h3>
-<div class="outline-text-3" id="text-5-5">
+
+<div id="outline-container-sec-5-3-3" class="outline-4">
+<h4 id="sec-5-3-3"><span class="section-number-4">5.3.3</span> fdm</h4>
+</div>
+</div>
+
+<div id="outline-container-sec-5-4" class="outline-3">
+<h3 id="sec-5-4"><span class="section-number-3">5.4</span> 新闻组下载程序</h3>
+<div class="outline-text-3" id="text-5-4">
+</div><div id="outline-container-sec-5-4-1" class="outline-4">
+<h4 id="sec-5-4-1"><span class="section-number-4">5.4.1</span> leafnode</h4>
+<div class="outline-text-4" id="text-5-4-1">
 <p>
 leafnode运行必须有完整的域名， 如果只将leafnode作为一个news下载器，我们可以设定一个伪造的域名，比如：在debian系统中，我们可以更改/etc/hosts文件：
 </p>
 
 <div class="org-src-container">
 
-<pre class="src src-org">127.0.0.1       news.tumashu-localhost.org localhost
-127.0.1.1       news.tumashu-localhost.org tumashu
+<pre class="src src-org">127.0.0.1      news.tumashu-localhost.org localhost
+127.0.1.1      news.tumashu-localhost.org tumashu
 
 <span style="color: #8B8989; font-style: italic;"># The following lines are desirable for IPv6 capable hosts</span>
 ::1     localhost ip6-localhost ip6-loopback
@@ -529,11 +640,15 @@ leafnode配置
 </div>
 </div>
 </div>
-<div id="outline-container-sec-5-6" class="outline-3">
-<h3 id="sec-5-6"><span class="section-number-3">5.6</span> rss2email</h3>
-<div class="outline-text-3" id="text-5-6">
+</div>
+<div id="outline-container-sec-5-5" class="outline-3">
+<h3 id="sec-5-5"><span class="section-number-3">5.5</span> rss下载程序</h3>
+<div class="outline-text-3" id="text-5-5">
+</div><div id="outline-container-sec-5-5-1" class="outline-4">
+<h4 id="sec-5-5-1"><span class="section-number-4">5.5.1</span> rss2email</h4>
+<div class="outline-text-4" id="text-5-5-1">
 <p>
-rss2email配置文件: ~/.config/rss2email.conf
+rss2email配置文件: ~/.configs/rss2email.conf
 </p>
 <div class="org-src-container">
 
@@ -597,7 +712,7 @@ css = h1 {
 unicode-snob = False
 links-after-each-paragraph = False
 body-width = 0
-email-protocol = sendmail
+email-protocol = imap
 sendmail = /usr/sbin/sendmail
 smtp-auth = False
 smtp-username = username
@@ -605,10 +720,10 @@ smtp-password = password
 smtp-server = smtp.yourisp.net:25
 smtp-ssl = False
 smtp-ssl-protocol = SSLv3
-imap-auth = False
-imap-username = username
-imap-password = password
-imap-server = imap.yourisp.net
+imap-auth = True
+imap-username = myrss
+imap-password = myrss-password
+imap-server = localhost
 imap-port = 143
 imap-ssl = False
 imap-mailbox = INBOX
@@ -626,36 +741,21 @@ url = <span style="color: #96CBFE; text-decoration: underline;"><a href="http://
 </div>
 
 <p>
-procmailrc配置文件: ~/.procmailrc
+rss2email启动器：rss2email.sh
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org">## VERBOSE=on
-## LOGFILE=$HOME/.procmail.log
+<pre class="src src-org">#!/bin/sh
 
-:0
-<span style="color: #ff1493; font-size: 130%;">* ^From.*Cron Daemon</span>
-RSS/.cron-log/
+set -efu
+PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
+command="r2e --config /home/feng/.config/eh-gnus/configs/rss2email.cfg run "
 
-:0
-<span style="color: #ff1493; font-size: 130%;">* X-RSS-Feed.*baidu.*class=</span>
-{
-	:0
-	* ^X-Pinyin-Subject.*(apple|pingguo|htc|sanxin)
-	Maildir/rss/.news-baidu-mobile/
+if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
+	exit 0
+fi
 
-<span style="color: #FBDE2D;">        :0:</span>
-	Maildir/rss/.news-baidu/
-}
-
-:0
-<span style="color: #ff1493; font-size: 130%;">* ^User-Agent.*rss2email</span>
-<span style="color: #ff1493; font-size: 130%;">* ^From.*emacs|Emacs|EMACS</span>
-Maildir/rss/.emacs/
-
-:0
-<span style="color: #ff1493; font-size: 130%;">* ^User-Agent.*rss2email</span>
-Maildir/rss/.others/
+exec $command
 </pre>
 </div>
 
@@ -663,7 +763,7 @@ Maildir/rss/.others/
 直接使用r2e命令添加rss地址太罗嗦，写一个shell脚本来处理：
 </p>
 <ol class="org-ol">
-<li>保存下面代码到一个目录, 比如： ~/bin/rss2email.sh
+<li>保存下面代码到一个目录, 比如： ~/bin/add-rss-with-rss2email.sh
 </li>
 <li>安装firefox扩展： AppLauncher
 </li>
@@ -673,7 +773,7 @@ Maildir/rss/.others/
 </li>
 <li>path:  /usr/bin/x-terminal-emulator
 </li>
-<li>arguments: &#x2013;command=~/bin/rss2email.sh &amp;url
+<li>arguments: &#x2013;command=~/bin/add-rss-with-rss2email.sh &amp;url
 </li>
 </ol>
 </li>
@@ -683,6 +783,7 @@ Maildir/rss/.others/
 
 <pre class="src src-org">#!/bin/bash
 
+PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
 echo "The Feed url is: $1"
 echo "Please enter a name for this feed"
 read feed_name
@@ -692,6 +793,7 @@ r2e list
 echo "Wait 10 second or press C-c to quit."
 read -t 10
 </pre>
+</div>
 </div>
 </div>
 </div>
@@ -710,15 +812,25 @@ read -t 10
 </div>
 
 <p>
+cron最常见的问题是环境变量的问题，许多程序由于环境变量设置不正确，不能正常启动，
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org" id="cron-setup-environment-variable">PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
+PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
+</pre>
+</div>
+
+<p>
 然后添加如下内容： 设定5分钟运行一次offlineimap，1个小时运行一下rss2email。
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org">PYTHONPATH=/home/feng/project/emacs-packages/emacs-helper/other/rss2email-template/
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
+<pre class="src src-org">PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
+PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
 
-*/5 * * * * /usr/local/bin/start_daemon -n19 -c2 -p7 python2.7 /usr/bin/offlineimap &gt;/dev/null 2&gt;&amp;1
-0 */1 * * * /usr/local/bin/r2e run
+*/5 * * * * /home/feng/.config/eh-gnus/configs/offlineimap.sh &gt;/dev/null 2&gt;&amp;1
+0 */1 * * * /home/feng/.config/eh-gnus/configs/rss2email.sh
 ### DON'T REMOVE THIS LINE ###
 </pre>
 </div>
@@ -742,12 +854,12 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/us
 <div class="org-src-container">
 
 <pre class="src src-elisp">(setq gnus-select-method
-      '(nnimap <span style="color: #61CE3C;">"myemail"</span>
+      '(nnimap <span style="color: #61CE3C;">"&lt;&lt;dovecot-user-for-email&gt;&gt;"</span>
 	       (nnimap-address <span style="color: #61CE3C;">"localhost"</span>)
 	       (nnimap-stream network)))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nnimap <span style="color: #61CE3C;">"myrss"</span>
+	     '(nnimap <span style="color: #61CE3C;">"&lt;&lt;dovecot-user-for-rss&gt;&gt;"</span>
 		      (nnimap-address <span style="color: #61CE3C;">"localhost"</span>)
 		      (nnimap-stream network)))
 
@@ -764,7 +876,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/us
 </div>
 <div id="postamble" class="status">
 <p class="author">&#20316;&#32773;: Feng Shu</p>
-<p class="date">Created: 2014-11-22 六 17:15</p>
+<p class="date">Created: 2014-11-24 一 10:32</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.3beta)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
