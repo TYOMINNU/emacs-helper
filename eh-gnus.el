@@ -61,27 +61,48 @@
 		      (nnimap-inbox "INBOX")
 		      (nnimap-split-methods 'nnmail-split-fancy)))
 
+(setq nnmail-treat-duplicates 'delete
+      nnmail-split-fancy-match-partial-words t)
+
+(defun eh-build-fancy-regexp (list)
+  (concat ".*\\(" (mapconcat 'regexp-quote list "\\|") "\\).*"))
+
 (setq nnmail-split-fancy
-      '(| ("^From" ".*Cron" ".cron-log")
-	  ("^From" ".*gmane.mail.rss2email" "rss2email")
+      `(| ("^From" ,(eh-build-fancy-regexp '("Cron")) "cron-log")
+	  ("^From" ,(eh-build-fancy-regexp '("gmane.mail.rss2email")) "rss2email")
+	  ("^From" ,(eh-build-fancy-regexp '("EmacsWiki")) "emacswiki")
+	  ("^From" ,(eh-build-fancy-regexp '("emacs\.git")) "emacs-git")
+	  ("^From" ,(eh-build-fancy-regexp '("org-mode.git")) "org-mode-git")
+	  ("^From" ,(eh-build-fancy-regexp '("emacs" "Emacs" "EMACS")) "emacs")
+	  ("^From" ,(eh-build-fancy-regexp '("Debian" "debian" "DEBIAN")) "debian")
+	  ("^From" ,(eh-build-fancy-regexp '("Gnome" "gnome" "GNOME")) "gnome")
+	  ;; baidu news
+	  ("^X-RSS-Feed" ".*baidu.*word.*"
+	   (| ("^X-Pinyin-Subject" ,(eh-build-fancy-regexp
+				     '("shanxi" "hebei" "chifen"))
+	       (| ("^X-Pinyin-Subject" ,(eh-build-fancy-regexp
+					 '("kaoshi" "zhaosheng"))
+		   (| ("^X-Pinyin-Subject"
+		       ,(eh-build-fancy-regexp
+			 '("gongwuyuan" "jiaoshi" "shiye" "yiyuan" "weishen" "laoshi"))
+		       "news-baidu-kaoshi")
+		      "news-baidu-other-kaoshi"))))
+	      ("^X-Pinyin-Subject"
+	       ,(eh-build-fancy-regexp '("zhence" "zhengce")) "news-baidu-zhengce")
+	      ("^X-Pinyin-Subject"
+	       ,(eh-build-fancy-regexp '("weisheng" "weishen" "yiliao" "yiyuan")) "news-baidu-weisheng")
+	      "news-baidu"))
 
-	  ("^X-RSS-Feed" ".*baidu.*word"
-	   (| ("^X-Pinyin-Subject" ".*\\(shanxi\\|hebei\\|chifen\\)"
-	       (| ("^X-Pinyin-Subject" ".*\\(kaoshi\\|zhaosheng\\)"
-		   (| ("^X-Pinyin-Subject" ".*\\(gongwuyuan\\|jiaoshi\\|shiye\\|yiyuan\\|weishen\\|laoshi\\)"
-		       "news-baidu-kaoshi")))))
-	      ("^X-Pinyin-Subject" ".*\\(zhence\\|zhengce\\)" "news-baidu-zhengce")
-	      ("^X-Pinyin-Subject" ".*\\(weisheng\\|weishen\\|yiliao\\|yiyuan\\)" "news-baidu-weisheng")
-	      "news-baidu-others"))
-
-	  ("^X-RSS-Feed" ".*baidu.*class"
-	   (| ("^X-Pinyin-Subject" ".*\\(shouji\\|shanxi\\|chifen\\|pinguo\\|pingguo\\|arm\\|ARM\\|bijiben\\|yumi\\|chukong\\|keji\\|dashuju\\|guge\\|Google\\|google\\|PC\\|diannao\\|kexue\\|lianxiang\\|xiaomi\\|Android\\|anzhuo\\|android\\|xueshen\\)"
-	       "news-baidu")
-	      "news-baidu-others"))
-
-	  ("^From" ".*org-mode.git" "org-mode-git")
-	  ("^From" ".*\\(emacs\\|Emacs\\|EMACS\\)" "emacs")
-	  ("^From" ".*\\(Debian\|debian\\|DEBIAN\\)" "debian")
+	  ("^X-RSS-Feed" ".*baidu.*class.*"
+	   (| ("X-Pinyin-Subject"
+	       ,(eh-build-fancy-regexp
+		 '("shouji" "shanxi" "chifen" "pinguo" "pingguo" "arm" "ARM"
+		   "bijiben" "yumi" "chukong" "keji" "dashuju" "guge" "Google"
+		   "google" "PC" "diannao" "kexue" "lianxiang" "xiaomi"
+		   "Android" "anzhuo" "android" "xueshen" "heimei" "huawei"
+		   "xinji"))
+	       "news-baidu-interesting")
+	      "news-baidu"))
 	  "others"))
 
 ;;; 其他一些常见的配置例子

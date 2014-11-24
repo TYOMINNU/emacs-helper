@@ -1,12 +1,674 @@
-#+TITLE: emacs-helper配图使用说明
+#+TITLE: emacs-helper配置说明
 #+LANGUAGE: zh-CN
 #+TAGS: noexport(n) ignoreheading(i)
 # \bibliography{emacs-helper.bib}
 #+OPTIONS: H:10 num:t tex:imagemagick ^:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="./style/worg.css" />
 #+HTML_HEAD_EXTRA: <link rel="alternate stylesheet" type="text/css" href="style2.css" />
+#+PROPERTY: header-args:org  :noweb yes :mkdirp yes :exports both
+#+PROPERTY: header-args:python :eval no :noweb yes :mkdirp yes :results output scala  :exports code
+#+PROPERTY: header-args:emacs-lisp :eval no :noweb yes :results output scala :mkdirp yes  :exports code
+#+PROPERTY: header-args:shell :noweb yes :eval no :results output scala :exports code
+* eh-gnus.el
+** 显摆gnus截图
+*** gnus组名称列表（group buffer）
+  [[file:./images/gnus-group.png]]
 
-* eh-translate.el 简要介绍
+*** gnus新闻标题列表（summary buffer）
+  [[file:./images/gnus-summary1.png]]
+
+  [[file:./images/gnus-summary2.png]]
+
+*** gnus新闻标题+正文（summary buffer + article buffer）
+  [[file:./images/gnus-summary+article.png]]
+
+** 解释配置原理
+ #+BEGIN_SRC plantuml :file "images/gnus配置基本原理.png"
+ skinparam defaultFontSize 20
+ start
+ fork
+   :下载email;
+   note right
+   offlineimap
+   & isync
+   end note
+   :保存邮件到\n本地imap账户;
+   note right: dovecot
+ fork again
+   :下载rss订阅\n生成rss邮件;
+   note right: rss2email
+   :保存邮件到\n本地imap账户;
+   note right: dovecot
+ fork again
+   :下载news;
+   note right: leafnode
+   :保存邮件到\n本地nntp账户;
+   note right: leafnode
+ end fork
+ :访问本地imap\n和本地nntp账户;
+ note right: gnus nnimap and nntp method
+ :邮件或者新闻分类;
+ note right
+  gnus split
+ (mmmail-split-fancy)
+ end note
+ :邮件或者新闻阅读;
+ note right: gnus
+ end
+ #+END_SRC
+
+ #+RESULTS:
+ [[file:images/gnus配置基本原理.png]]
+** 设定基本信息
+ #+NAME: configs-path
+ #+BEGIN_SRC org :exports none
+ /home/feng/.config/eh-gnus/configs
+ #+END_SRC
+
+ #+NAME: email-address
+ #+BEGIN_SRC org :exports none
+ YOUREMAIL@gmail.com
+ #+END_SRC
+
+ #+NAME: email-password
+ #+BEGIN_SRC org :exports none
+ YOURPASSWORD
+ #+END_SRC
+
+ #+NAME: gmail-cert-fingerprint
+ #+BEGIN_SRC org :exports none
+ f3043dd689a2e7dddfbef82703a6c65ea9b634c1
+ #+END_SRC
+
+ #+NAME: email-smtp-server
+ #+BEGIN_SRC org :exports none
+ smtp.gmail.com
+ #+END_SRC
+
+ #+NAME: email-smtp-server-port
+ #+BEGIN_SRC org :exports none
+ 587
+ #+END_SRC
+
+ #+NAME: email-imap-server
+ #+BEGIN_SRC org :exports none
+ imap.gmail.com
+ #+END_SRC
+
+ #+NAME: email-imap-server-port
+ #+BEGIN_SRC org :exports none
+ 993
+ #+END_SRC
+
+ #+NAME: local-user
+ #+BEGIN_SRC org :exports none
+ feng
+ #+END_SRC
+
+ #+NAME: local-home
+ #+BEGIN_SRC org :exports none
+ /home/feng
+ #+END_SRC
+
+ #+NAME: local-maildir
+ #+BEGIN_SRC org :exports none
+ /home/feng/maildir
+ #+END_SRC
+
+ #+NAME: dovecot-user-for-email
+ #+BEGIN_SRC org :exports none
+ myemail
+ #+END_SRC
+
+ #+NAME: dovecot-password-for-email
+ #+BEGIN_SRC org :exports none
+ myemail-password
+ #+END_SRC
+
+ #+NAME: dovecot-user-for-rss
+ #+BEGIN_SRC org :exports none
+ myrss
+ #+END_SRC
+
+ #+NAME: dovecot-password-for-rss
+ #+BEGIN_SRC org :exports none
+ myrss-password
+ #+END_SRC
+
+*** 邮箱访问设置
+  1. 邮箱地址: call_email-address()
+  2. 邮箱密码: call_email-password()
+  3. smtp服务器地址: call_email-smtp-server()
+  4. smtp服务器端口: call_email-smtp-server-port()
+  5. imap服务器地址: call_email-imap-server()
+  6. imap服务器端口: call_email-imap-server-port()
+*** 本机设置
+  1. 本机登陆用户: call_local-user()
+  2. HOME目录: call_local-home()
+*** dovecot设置
+  1. email保存目录:  call_local-maildir()
+  2. dovecot常规邮件保存账户: call_dovecot-user-for-email()
+  3. dovecot常规邮件保存账户密码: call_dovecot-password-for-email()
+  4. dovecot rss订阅邮件保存账户: call_dovecot-user-for-rss()
+  5. dovecot rss订阅邮件保存账户: call_dovecot-password-for-rss()
+
+** 安装辅助程序
+ 安装msmtp, offlineimap, isync, leafnode, dovecot
+ #+BEGIN_SRC shell
+ sudo apt-get install msmtp msmtp-gnome offlineimap isync leafnode dovecot-core dovecot-imapd
+ #+END_SRC
+
+ Debian 7软件库中的html2test和feedparser版本太低，只能使用其他方式安装rss2email
+
+ 首先： 安装easy_install和easy_install3。
+
+ #+BEGIN_SRC shell
+ sudo apt-get install python3-setuptools
+ #+END_SRC
+
+ 然后： 使用easy_install3安装rss2email。注意： rss2email使用python3。
+
+ #+BEGIN_SRC shell
+ sudo easy_install3 html2text
+ sudo easy_install3 feedparser
+ sudo easy_install3 rss2email
+ sudo easy_install3 pinyin
+ #+END_SRC
+
+ rss2email使用base64编码中文，procmail处理起来非常费事，我这里使用一个拼音后处理插件，在rss转化为邮件的过程中，自动添加两个邮件field：X-Pinyin-From 和 X-Pinyin-Subject，用来保存Subject和From中文字符串的拼音，这样就可以在procmailrc中使用拼音来分类rss。
+
+ rss2email后处理插件是标准的python包，我们使用 call_rss2email-post-hooks-package-name() 作为其名称。
+ #+NAME: rss2email-post-hooks-package-name
+ #+BEGIN_SRC org :exports none
+ rss2email_post_hooks
+ #+END_SRC
+
+ 首先创建目录： call_rss2email-post-hooks-package-name()
+
+ 然后在目录下添加一个空白文件：__init__.py，表明这个目录是一个python包。
+
+ #+BEGIN_SRC python :noweb yes :eval no :tangle configs/rss2email_post_hooks/__init__.py
+ # This is a blank file.
+ #+END_SRC
+
+ 最后在目录中添加pinyin_header.py文件。
+
+ #+BEGIN_SRC python  :tangle configs/rss2email_post_hooks/pinyin_header.py
+ # This file is a post_process of rss2email
+ #
+ # rss2email will encode UTF-8 string with base64 before send mail,
+ # which is difficult filted by procmail. This post_process will
+ # add addition headers: X-Pinyin-From header and X-Pinyin-Subject,
+ # They will store pinyin strings converted From header and Subject header
+ # before send mail.
+ #
+ # Use:
+ # add the below line to your rss2email configure:
+ #
+ #       post-process = rss2email_post_hooks.pinyin_header add_pinyin_header
+ #
+
+ import rss2email.email
+ import pinyin
+
+ def remove_non_ascii(string):
+     """remove no ascii char in string"""
+     return "".join([i for i in string if ord(i)<128])
+
+ def add_pinyin_header(message, **kwargs):
+     header_subject = rss2email.email._decode_header(message['Subject'])
+     header_from = rss2email.email._decode_header(message['From'])
+     message['X-Pinyin-Subject'] = remove_non_ascii(pinyin.get(header_subject))
+     message['X-Pinyin-From'] = remove_non_ascii(pinyin.get(header_from))
+     return message
+
+ #+END_SRC
+
+ 将rss2email_post_hooks所在的目录添加到PYTHONPATH（语法与shell里面的PATH一样），比如， 在~/.bashrc文件中写入下面一行语句。
+
+ #+NAME: python-path
+ #+BEGIN_SRC org :exports none
+ <<configs-path>>
+ #+END_SRC
+
+ #+BEGIN_SRC org
+ export PYTHONPATH=$PYTHONPATH:<<python-path>>
+ #+END_SRC
+
+ 也可以在编写shell脚本的时候，插入赋值语句：
+ #+NAME: rss2email-setup-python-path
+ #+BEGIN_SRC org
+ PYTHONPATH=$PYTHONPATH:<<python-path>>
+ #+END_SRC
+
+ 在rss2email配置文件中写入一行配置：
+ #+NAME: rss2email-setup-post-process
+ #+BEGIN_SRC org
+ post-process = <<rss2email-post-hooks-package-name>>.pinyin_header add_pinyin_header
+ #+END_SRC
+
+** 配置辅助程序
+*** 邮件发送程序
+**** msmtp
+  msmpt配置文件~/.msmptrc的内容如下：
+  #+NAME: msmtprc
+  #+BEGIN_SRC org -r :tangle configs/msmtprc :tangle-mode (identity #o600)
+  defaults
+  tls on
+  tls_certcheck off
+  tls_starttls on
+
+  account default
+  host <<email-smtp-server>>
+  domain <<email-smtp-server>>
+  tls on
+  tls_certcheck off
+  tls_starttls on
+  auth on
+  user <<email-address>>
+  from <<email-address>>
+  password <<email-password>>  (ref:password)
+  port <<email-smtp-server-port>>
+  logfile <<configs-path>>/log/msmtp.log
+  #+END_SRC
+
+  上述配置中保存邮箱的 *明文密码* ，安全性相对较低[[(password)]]，如果需要较高的安全性，可以使用smtp-gnome，将邮箱帐号密码保存到gnome-key-ring中。同时要删除或者注释掉password一行[[(password)]]。
+  #+BEGIN_SRC org
+  cd  /usr/share/doc/msmtp-gnome/scripts/
+  python ./msmtp-gnome-tool.py --username=<<email-address>> --server=<<email-smtp-server>>
+  #+END_SRC
+*** Imap服务器程序
+**** dovecot
+  dovecot的配置文件： /etc/dovecot/dovecot.conf
+  #+BEGIN_SRC org  :tangle configs/dovecot.conf :tangle-mode (identity #o600)
+  protocols = imap
+
+  # It's nice to have separate log files for Dovecot. You could do this
+  # by changing syslog configuration also, but this is easier.
+  log_path = <<configs-path>>/log/dovecot.log
+  info_log_path = <<configs-path>>/log/dovecot-info.log
+
+  # Disable SSL for now.
+  ssl = no
+  disable_plaintext_auth = no
+
+  # We're using Maildir format
+  mail_location = maildir:<<local-maildir>>/%u
+
+  # Authentication configuration:
+  auth_verbose = yes
+  auth_mechanisms = plain
+
+  passdb {
+    driver = password-file
+    args = <<configs-path>>/password-file
+  }
+  userdb {
+    driver = static
+    args = uid=<<local-user>> gid=<<local-user>> home=<<local-maildir>>/.home/%u
+  }
+  #+END_SRC
+
+  与dovecot配置文件对应的password文件： /etc/devecot/password
+
+  #+BEGIN_SRC org :tangle configs/password-file :tangle-mode (identity #o600)
+  <<dovecot-user-for-email>>:{plain}<<dovecot-password-for-email>>:<<local-user>>:<<local-user>>::<<local-maildir>>/.home/<<dovecot-user-for-email>>::userdb_mail=maildir:<<local-maildir>>/<<dovecot-user-for-email>>
+  <<dovecot-user-for-rss>>:{plain}<<dovecot-password-for-rss>>:<<local-user>>:<<local-user>>::<<local-maildir>>/.home/<<dovecot-user-for-rss>>::userdb_mail=maildir:<<local-maildir>>/<<dovecot-user-for-rss>>
+  #+END_SRC
+*** 邮件下载程序
+**** offlineimap
+  offlineimap配置文件:  ~/.offlineimaprc
+  #+BEGIN_SRC org :tangle configs/offlineimaprc :tangle-mode (identity #o600)
+  [general]
+  accounts = default-email-account
+  pythonfile = <<configs-path>>/offlineimap.py
+  ui = quiet
+
+  [Account default-email-account]
+  localrepository = LocalIMAP
+  remoterepository = RemoteIMAP
+  # autorefresh = 3
+
+  [Repository LocalIMAP]
+  type = IMAP
+  remotehost = localhost
+  remoteuser = <<dovecot-user-for-email>>
+  remotepass = <<dovecot-password-for-email>>
+  holdconnectionopen = yes
+
+  [Repository RemoteIMAP]
+  type = IMAP
+  remotehost = <<email-imap-server>>
+  remoteuser = <<email-address>>
+  # 安装包python-keyring,然后使用下的命令保存密码。
+  # import keyring
+  # keyring.set_password("<<email-imap-server>>","<<email-address>>", "<<email-password>>")
+  # remotepasseval = keyring.get_password("<<email-imap-server>>","<<email-address>>")
+  remotepass = <<email-password>>
+  ssl = yes
+  cert_fingerprint=<<gmail-cert-fingerprint>>
+  maxconnections = 3
+  realdelete = no
+  # holdconnectionopen = true
+  # keepalive = 60
+
+  # nametrans = lambda folder: re.sub('.*Spam$', 'Spam',
+  #	  re.sub('.*Drafts$', 'Drafts',
+  #	  re.sub('.*Sent Mail$', 'Sent',
+  #	  re.sub('.*Starred$', 'Flagged',
+  #	  re.sub('.*Trash$', 'Trash',
+  #	  re.sub('.*All Mail$', 'Archive', folder))))))
+  folderfilter = lambda foldername: not re.search('(Trash|Del|Archive|All Mail|Spam|Chats)', foldername)
+
+  #+END_SRC
+
+  offlineimap.py文件
+  #+BEGIN_SRC org :tangle configs/offlineimap.py :tangle-mode (identity #o600)
+  # This is a blank file
+  #+END_SRC
+
+  可以在桌面添加offlineimap的启动图标，双击图标后开始同步邮件：
+
+  保存下面的配置到文件:  ~/.local/share/Application/offlineimap.desktop
+  #+BEGIN_SRC org  :tangle configs/offlineimap.desktop :tangle-mode (identity #o644)
+  [Desktop Entry]
+  Exec="x-terminal-emulator " "-e" "<<configs-path>>/offlineimap.sh"
+  Icon=<<configs-path>>/icons/offlineimap.png
+  Name=OfflineIMAP
+  Encoding=UTF-8
+  Terminal=false
+  Type=Application
+  Categories=Application;Network;
+  #+END_SRC
+
+  offlineimap启动器：offlineimap.sh
+  #+BEGIN_SRC org :tangle configs/offlineimap.sh :tangle-mode (identity #o600)
+  #!/bin/sh
+
+  set -efu
+  command="offlineimap -c <<configs-path>>/offlineimaprc"
+
+  if pgrep -u "$(id -u)" -xf -- "$command" >/dev/null 2>&1; then
+	  exit 0
+  fi
+
+  exec $command
+
+  #+END_SRC
+**** isync
+  isync配置文件： ~/.mbsyncrc
+  #+BEGIN_SRC org :tangle configs/mbsyncrc :tangle-mode (identity #o600)
+  IMAPAccount remote-email-account
+  Host <<email-imap-server>>
+  User <<email-address>>
+  Pass <<email-password>>
+  UseIMAPS yes
+  # RequireSSL yes
+  # You should install package: ca-certificates.
+  CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+  IMAPStore remote-email-store
+  Account remote-email-account
+
+  IMAPAccount local-dovecot-account
+  Host localhost
+  User <<dovecot-user-for-email>>
+  Pass <<dovecot-password-for-email>>
+
+  IMAPStore local-dovecot-store
+  Account local-dovecot-account
+
+  Channel get-default-email
+  Master :remote-email-store:
+  Slave :local-dovecot-store:
+  # Exclude everything under the internal [Gmail] folder, except the interesting folders
+  Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred"
+  # Or include everything
+  #Patterns *
+  # Automatically create missing mailboxes, both locally and on the server
+  Create Both
+  # Save the synchronization state files in the relevant directory
+  SyncState <<configs-path>>/mbsyncstate/get-default-email
+
+  Channel get-all-email
+  Master :remote-email-store:
+  Slave :local-dovecot-store:
+  Patterns "[Gmail]/All Mail"
+  Create Slave
+  Sync New
+  SyncState <<configs-path>>/mbsyncstate/get-all-email
+
+  Channel get-spam-email
+  Master :gmail-store:
+  Slave :local-dovecot-store:
+  Patterns "[Gmail]/Spam"
+  Create Master
+  Sync Push
+  SyncState <<configs-path>>/mbsyncstate/get-spam-email
+  #+END_SRC
+
+  isync启动器：isync.sh
+  #+BEGIN_SRC org :tangle configs/isync.sh :tangle-mode (identity #o600)
+  #!/bin/sh
+
+  set -efu
+  command="isync --config <<configs-path>>/mbsyncrc"
+
+  if pgrep -u "$(id -u)" -xf -- "$command" >/dev/null 2>&1; then
+	  exit 0
+  fi
+
+  exec $command
+
+  #+END_SRC
+
+**** fdm
+
+*** 新闻组下载程序
+**** leafnode
+  leafnode运行必须有完整的域名， 如果只将leafnode作为一个news下载器，我们可以设定一个伪造的域名，比如：在debian系统中，我们可以更改/etc/hosts文件：
+
+  #+BEGIN_SRC org
+  127.0.0.1	news.tumashu-localhost.org localhost
+  127.0.1.1	news.tumashu-localhost.org tumashu
+
+  # The following lines are desirable for IPv6 capable hosts
+  ::1     localhost ip6-localhost ip6-loopback
+  ff02::1 ip6-allnodes
+  ff02::2 ip6-allrouters
+  #+END_SRC
+  注意： 设定域名这个步骤非常关键， 建议重新启动系统，另外系统时间也要设定正确。
+
+  leafnode配置
+  #+BEGIN_SRC org
+  sudo dpkg-reconfigure leafnode
+  #+END_SRC
+  配置选项选择：
+  1. Server to download news from:  (我使用 news.gmane.org)
+  2. Network connection type:   (permanent，一小时下载一次)
+  3. Enable access controls for Leafnode?  (yes)
+  4. Update the list of available groups? (第一次使用建议选yes)
+
+  配置完成后，建议手动下载news:
+  #+BEGIN_SRC org
+  sudo /etc/news/leafnode/do-fetch-news
+  #+END_SRC
+*** rss下载程序
+**** rss2email
+  rss2email配置文件: ~/.configs/rss2email.conf
+  #+BEGIN_SRC org :tangle configs/rss2email.cfg :tangle-mode (identity #o644)
+  [DEFAULT]
+  from = user@rss2email.invalid
+  use-8bit = False
+  force-from = False
+  use-publisher-email = False
+  name-format = {feed-title}: {author}
+  to = feng@localhost
+  proxy =
+  feed-timeout = 120
+  active = True
+  digest = False
+  date-header = False
+  date-header-order = modified, issued, created, expired
+  bonus-header =
+  trust-guid = True
+  trust-link = False
+  encodings = US-ASCII, ISO-8859-1, UTF-8, BIG5, ISO-2022-JP
+  <<rss2email-setup-post-process>>
+  digest-post-process =
+  html-mail = True
+  use-css = True
+  css = h1 {
+	  font: 18pt Georgia, "Times New Roman";
+	  }
+	  body {
+	  font: 12pt Arial;
+	  }
+	  a:link {
+	  font: 12pt Arial;
+	  font-weight: bold;
+	  color: #0000cc;
+	  }
+	  blockquote {
+	  font-family: monospace;
+	  }
+	  .header {
+	  background: #e0ecff;
+	  border-bottom: solid 4px #c3d9ff;
+	  padding: 5px;
+	  margin-top: 0px;
+	  color: red;
+	  }
+	  .header a {
+	  font-size: 20px;
+	  text-decoration: none;
+	  }
+	  .footer {
+	  background: #c3d9ff;
+	  border-top: solid 4px #c3d9ff;
+	  padding: 5px;
+	  margin-bottom: 0px;
+	  }
+	  border: solid 4px #c3d9ff;
+	  }
+	  margin-left: 5px;
+	  margin-right: 5px;
+	  }
+  unicode-snob = False
+  links-after-each-paragraph = False
+  body-width = 0
+  email-protocol = imap
+  sendmail = /usr/sbin/sendmail
+  smtp-auth = False
+  smtp-username = username
+  smtp-password = password
+  smtp-server = smtp.yourisp.net:25
+  smtp-ssl = False
+  smtp-ssl-protocol = SSLv3
+  imap-auth = True
+  imap-username = <<dovecot-user-for-rss>>
+  imap-password = <<dovecot-password-for-rss>>
+  imap-server = localhost
+  imap-port = 143
+  imap-ssl = False
+  imap-mailbox = INBOX
+  verbose = warning
+
+  [feed.org-mode.git]
+  url = http://repo.or.cz/w/org-mode.git/rss
+
+  [feed.emacs.git]
+  url = http://repo.or.cz/w/emacs.git/rss
+
+  [feed.baidu.internet.news]
+  url = http://news.baidu.com/n?cmd=1&class=internet&tn=rss
+
+  #+END_SRC
+
+  rss2email启动器：rss2email.sh
+  #+BEGIN_SRC org :tangle configs/rss2email.sh :tangle-mode (identity #o600)
+  #!/bin/sh
+
+  set -efu
+  <<rss2email-setup-python-path>>
+  command="r2e --config <<configs-path>>/rss2email.cfg run "
+
+  if pgrep -u "$(id -u)" -xf -- "$command" >/dev/null 2>&1; then
+	  exit 0
+  fi
+
+  exec $command
+
+  #+END_SRC
+
+  直接使用r2e命令添加rss地址太罗嗦，写一个shell脚本来处理：
+  1. 保存下面代码到一个目录, 比如： ~/bin/add-rss-with-rss2email.sh
+  2. 安装firefox扩展： AppLauncher
+  3. 配置AppLauncher
+     1. name:  rss2email
+     2. path:  /usr/bin/x-terminal-emulator
+     3. arguments: --command=~/bin/add-rss-with-rss2email.sh &url
+
+  #+BEGIN_SRC org :tangle configs/add-rss-with-rss2email.sh :tangle-mode (identity #o755)
+  #!/bin/bash
+
+  <<rss2email-setup-python-path>>
+  echo "The Feed url is: $1"
+  echo "Please enter a name for this feed"
+  read feed_name
+  echo "run command: r2e add $feed_name $1"
+  r2e add $feed_name $1
+  r2e list
+  echo "Wait 10 second or press C-c to quit."
+  read -t 10
+
+  #+END_SRC
+
+** cron配置
+ 在shell中运行crontab命令：
+ #+BEGIN_SRC org
+ crontab -e
+ #+END_SRC
+
+ cron最常见的问题是环境变量的问题，许多程序由于环境变量设置不正确，不能正常启动，
+ #+NAME: cron-setup-environment-variable
+ #+BEGIN_SRC org
+ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
+ <<rss2email-setup-python-path>>
+ #+END_SRC
+
+ 然后添加如下内容： 设定5分钟运行一次offlineimap，1个小时运行一下rss2email。
+ #+BEGIN_SRC org
+ <<cron-setup-environment-variable>>
+
+ */5 * * * * <<configs-path>>/offlineimap.sh >/dev/null 2>&1
+ 0 */1 * * * <<configs-path>>/rss2email.sh
+ ### DON'T REMOVE THIS LINE ###
+ #+END_SRC
+
+ 然后运行命令：
+ #+BEGIN_SRC org
+ sudo /etc/init.d/cron restart
+ #+END_SRC
+** gnus配置
+ 调整eh-gnus.el文件中如下几行：
+ #+BEGIN_SRC elisp
+ (setq gnus-select-method
+       '(nnimap "<<dovecot-user-for-email>>"
+		(nnimap-address "localhost")
+		(nnimap-stream network)))
+
+ (add-to-list 'gnus-secondary-select-methods
+	      '(nnimap "<<dovecot-user-for-rss>>"
+		       (nnimap-address "localhost")
+		       (nnimap-stream network)))
+
+ (add-to-list 'gnus-secondary-select-methods
+	      '(nntp "localhost"))
+ #+END_SRC
+
+ 然后运行gnus。
+* eh-translate.el
 ** 截图显摆
 *** sdcv字典
   [[file:./images/eh-sdcv.png]]
@@ -26,7 +688,7 @@
 *** google-translate-at-point
  1. 使用google在线翻译。
  2. 可以翻译单词和句子。
-* eh-fonts.el 简要介绍
+* eh-fonts.el
 ** 安装
 #+BEGIN_SRC emacs-lisp
 (require 'eh-fonts)
@@ -64,7 +726,7 @@ eh-font-size-increase
 eh-font-size-decrease
 #+END_SRC
 
-* eh-complete.el 简要介绍
+* eh-complete.el
 company默认使用overlay菜单frontend， 中文显示存在问题。我简单的写了一个sidebar frontend, 效果如下：
 
 [[file:./images/eh-company-sidebar-effect1.png]]
