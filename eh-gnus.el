@@ -57,7 +57,32 @@
 (add-to-list 'gnus-secondary-select-methods
 	     '(nnimap "rss"
 		      (nnimap-address "localhost")
-		      (nnimap-stream network)))
+		      (nnimap-stream network)
+		      (nnimap-inbox "INBOX")
+		      (nnimap-split-methods 'nnmail-split-fancy)))
+
+(setq nnmail-split-fancy
+      '(| ("^From" ".*Cron" ".cron-log")
+	  ("^From" ".*gmane.mail.rss2email" "rss2email")
+
+	  ("^X-RSS-Feed" ".*baidu.*word"
+	   (| ("^X-Pinyin-Subject" ".*\\(shanxi\\|hebei\\|chifen\\)"
+	       (| ("^X-Pinyin-Subject" ".*\\(kaoshi\\|zhaosheng\\)"
+		   (| ("^X-Pinyin-Subject" ".*\\(gongwuyuan\\|jiaoshi\\|shiye\\|yiyuan\\|weishen\\|laoshi\\)"
+		       "news-baidu-kaoshi")))))
+	      ("^X-Pinyin-Subject" ".*\\(zhence\\|zhengce\\)" "news-baidu-zhengce")
+	      ("^X-Pinyin-Subject" ".*\\(weisheng\\|weishen\\|yiliao\\|yiyuan\\)" "news-baidu-weisheng")
+	      "news-baidu-others"))
+
+	  ("^X-RSS-Feed" ".*baidu.*class"
+	   (| ("^X-Pinyin-Subject" ".*\\(shouji\\|shanxi\\|chifen\\|pinguo\\|pingguo\\|arm\\|ARM\\|bijiben\\|yumi\\|chukong\\|keji\\|dashuju\\|guge\\|Google\\|google\\|PC\\|diannao\\|kexue\\|lianxiang\\|xiaomi\\|Android\\|anzhuo\\|android\\|xueshen\\)"
+	       "news-baidu")
+	      "news-baidu-others"))
+
+	  ("^From" ".*org-mode.git" "org-mode-git")
+	  ("^From" ".*\\(emacs\\|Emacs\\|EMACS\\)" "emacs")
+	  ("^From" ".*\\(Debian\|debian\\|DEBIAN\\)" "debian")
+	  "others"))
 
 ;;; 其他一些常见的配置例子
 ;;
