@@ -1,14 +1,17 @@
 #+TITLE: emacs-helper配置说明
+#+AUTHOR: 冯书
 #+LANGUAGE: zh-CN
 #+TAGS: noexport(n) ignoreheading(i)
 # \bibliography{emacs-helper.bib}
 #+OPTIONS: H:10 num:t tex:imagemagick ^:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="./style/worg.css" />
-#+HTML_HEAD_EXTRA: <link rel="alternate stylesheet" type="text/css" href="style2.css" />
+#+HTML_HEAD_EXTRA: <link rel="alternate stylesheet" type="text/css" href="./style/zenburn-emacs.css" />
+#+HTML_HEAD_EXTRA: <link rel="alternate stylesheet" type="text/css" href="./style/worg-classic.css" />
 #+PROPERTY: header-args:org  :noweb yes :mkdirp yes :exports both
 #+PROPERTY: header-args:python :eval no :noweb yes :mkdirp yes :results output scala  :exports code
 #+PROPERTY: header-args:emacs-lisp :eval no :noweb yes :results output scala :mkdirp yes  :exports code
 #+PROPERTY: header-args:shell :noweb yes :eval no :results output scala :exports code
+
 * eh-gnus.el
 ** 显摆gnus截图
 *** gnus组名称列表（group buffer）
@@ -652,7 +655,7 @@
  #+END_SRC
 ** gnus配置
  调整eh-gnus.el文件中如下几行：
- #+BEGIN_SRC elisp
+ #+BEGIN_SRC emacs-lisp
  (setq gnus-select-method
        '(nnimap "<<dovecot-user-for-email>>"
 		(nnimap-address "localhost")

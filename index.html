@@ -4,12 +4,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
 <head>
 <title>emacs-helper配置说明</title>
-<!-- 2014-11-25 二 11:04 -->
+<!-- 2014-11-25 二 15:12 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
-<meta  name="author" content="Feng Shu" />
+<meta  name="author" content="冯书" />
 <link rel="stylesheet" type="text/css" href="./style/worg.css" />
-<link rel="alternate stylesheet" type="text/css" href="style2.css" />
+<link rel="alternate stylesheet" type="text/css" href="./style/zenburn-emacs.css" />
+<link rel="alternate stylesheet" type="text/css" href="./style/worg-classic.css" />
 </head>
 <body>
 <div id="content">
@@ -100,6 +101,7 @@
 </ul>
 </div>
 </div>
+
 <div id="outline-container-sec-1" class="outline-2">
 <h2 id="sec-1"><span class="section-number-2">1</span> eh-gnus.el</h2>
 <div class="outline-text-2" id="text-1">
@@ -886,13 +888,13 @@ PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(setq gnus-select-method
-      '(nnimap <span style="color: #61CE3C;">"&lt;&lt;dovecot-user-for-email&gt;&gt;"</span>
+<pre class="src src-emacs-lisp">(setq gnus-select-method
+      '(nnimap <span style="color: #61CE3C;">"myemail"</span>
 	       (nnimap-address <span style="color: #61CE3C;">"localhost"</span>)
 	       (nnimap-stream network)))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nnimap <span style="color: #61CE3C;">"&lt;&lt;dovecot-user-for-rss&gt;&gt;"</span>
+	     '(nnimap <span style="color: #61CE3C;">"myrss"</span>
 		      (nnimap-address <span style="color: #61CE3C;">"localhost"</span>)
 		      (nnimap-stream network)))
 
@@ -1093,8 +1095,8 @@ company默认使用overlay菜单frontend， 中文显示存在问题。我简单
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="author">&#20316;&#32773;: Feng Shu</p>
-<p class="date">Created: 2014-11-25 二 11:04</p>
+<p class="author">&#20316;&#32773;: 冯书</p>
+<p class="date">Created: 2014-11-25 二 15:12</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.3beta)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
