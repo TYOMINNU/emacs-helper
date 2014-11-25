@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
 <head>
 <title>emacs-helper配置说明</title>
-<!-- 2014-11-25 二 08:48 -->
+<!-- 2014-11-25 二 11:04 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Feng Shu" />
@@ -308,7 +308,7 @@ rss2email后处理插件是标准的python包，我们使用 <code>rss2email_pos
 
 <div class="org-src-container">
 
-<pre class="src src-org">export PYTHONPATH=$PYTHONPATH:<span style="text-decoration: underline;">&lt;&lt;python-path&gt;&gt;</span>
+<pre class="src src-org">export PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
 </pre>
 </div>
 
@@ -317,7 +317,7 @@ rss2email后处理插件是标准的python包，我们使用 <code>rss2email_pos
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org" id="rss2email-setup-python-path">PYTHONPATH=$PYTHONPATH:<span style="text-decoration: underline;">&lt;&lt;python-path&gt;&gt;</span>
+<pre class="src src-org" id="rss2email-setup-python-path">PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
 </pre>
 </div>
 
@@ -326,7 +326,7 @@ rss2email后处理插件是标准的python包，我们使用 <code>rss2email_pos
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org" id="rss2email-setup-post-process">post-process = <span style="text-decoration: underline;">&lt;&lt;rss2email-post-hooks-package-name&gt;&gt;</span>.pinyin_header add_pinyin_header
+<pre class="src src-org" id="rss2email-setup-post-process">post-process = rss2email_post_hooks.pinyin_header add_pinyin_header
 </pre>
 </div>
 </div>
@@ -352,17 +352,17 @@ tls_certcheck off
 tls_starttls on
 
 account default
-host <span style="text-decoration: underline;">&lt;&lt;email-smtp-server&gt;&gt;</span>
-domain <span style="text-decoration: underline;">&lt;&lt;email-smtp-server&gt;&gt;</span>
+host smtp.gmail.com
+domain smtp.gmail.com
 tls on
 tls_certcheck off
 tls_starttls on
 auth on
-user <span style="text-decoration: underline;">&lt;&lt;email-address&gt;&gt;</span>
-from <span style="text-decoration: underline;">&lt;&lt;email-address&gt;&gt;</span>
-<span id="coderef-password" class="coderef-off">password <span style="text-decoration: underline;">&lt;&lt;email-password&gt;&gt;</span></span>
-port <span style="text-decoration: underline;">&lt;&lt;email-smtp-server-port&gt;&gt;</span>
-logfile <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/log/msmtp.log
+user YOUREMAIL@gmail.com
+from YOUREMAIL@gmail.com
+<span id="coderef-password" class="coderef-off">password YOURPASSWORD</span>
+port 587
+logfile /home/feng/.config/eh-gnus/configs/log/msmtp.log
 </pre>
 </div>
 
@@ -372,7 +372,7 @@ logfile <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</
 <div class="org-src-container">
 
 <pre class="src src-org">cd  /usr/share/doc/msmtp-gnome/scripts/
-python ./msmtp-gnome-tool.py --username=<span style="text-decoration: underline;">&lt;&lt;email-address&gt;&gt;</span> --server=<span style="text-decoration: underline;">&lt;&lt;email-smtp-server&gt;&gt;</span>
+python ./msmtp-gnome-tool.py --username=YOUREMAIL@gmail.com --server=smtp.gmail.com
 </pre>
 </div>
 </div>
@@ -393,15 +393,15 @@ dovecot的配置文件： /etc/dovecot/dovecot.conf
 
 <span style="color: #8B8989; font-style: italic;"># It's nice to have separate log files for Dovecot. You could do this</span>
 <span style="color: #8B8989; font-style: italic;"># by changing syslog configuration also, but this is easier.</span>
-log_path = <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/log/dovecot.log
-info_log_path = <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/log/dovecot-info.log
+log_path = /home/feng/.config/eh-gnus/configs/log/dovecot.log
+info_log_path = /home/feng/.config/eh-gnus/configs/log/dovecot-info.log
 
 <span style="color: #8B8989; font-style: italic;"># Disable SSL for now.</span>
 ssl = no
 disable_plaintext_auth = no
 
 <span style="color: #8B8989; font-style: italic;"># We're using Maildir format</span>
-mail_location = maildir:<span style="text-decoration: underline;">&lt;&lt;local-maildir&gt;&gt;</span>/%u
+mail_location = maildir:/home/feng/maildir/%u
 
 <span style="color: #8B8989; font-style: italic;"># Authentication configuration:</span>
 auth_verbose = yes
@@ -409,11 +409,11 @@ auth_mechanisms = plain
 
 passdb {
   driver = password-file
-  args = <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/password-file
+  args = /home/feng/.config/eh-gnus/configs/password-file
 }
 userdb {
   driver = static
-  args = uid=<span style="text-decoration: underline;">&lt;&lt;local-user&gt;&gt;</span> gid=<span style="text-decoration: underline;">&lt;&lt;local-user&gt;&gt;</span> home=<span style="text-decoration: underline;">&lt;&lt;local-maildir&gt;&gt;</span>/.home/%u
+  args = uid=feng gid=feng home=/home/feng/maildir/.home/%u
 }
 </pre>
 </div>
@@ -424,8 +424,8 @@ userdb {
 
 <div class="org-src-container">
 
-<pre class="src src-org"><span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-email&gt;&gt;</span>:{plain}<span style="text-decoration: underline;">&lt;&lt;dovecot-password-for-email&gt;&gt;</span>:<span style="text-decoration: underline;">&lt;&lt;local-user&gt;&gt;</span>:<span style="text-decoration: underline;">&lt;&lt;local-user&gt;&gt;</span>::<span style="text-decoration: underline;">&lt;&lt;local-maildir&gt;&gt;</span>/.home/<span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-email&gt;&gt;</span>::userdb_mail=maildir:<span style="text-decoration: underline;">&lt;&lt;local-maildir&gt;&gt;</span>/<span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-email&gt;&gt;</span>
-<span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-rss&gt;&gt;</span>:{plain}<span style="text-decoration: underline;">&lt;&lt;dovecot-password-for-rss&gt;&gt;</span>:<span style="text-decoration: underline;">&lt;&lt;local-user&gt;&gt;</span>:<span style="text-decoration: underline;">&lt;&lt;local-user&gt;&gt;</span>::<span style="text-decoration: underline;">&lt;&lt;local-maildir&gt;&gt;</span>/.home/<span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-rss&gt;&gt;</span>::userdb_mail=maildir:<span style="text-decoration: underline;">&lt;&lt;local-maildir&gt;&gt;</span>/<span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-rss&gt;&gt;</span>
+<pre class="src src-org">myemail:{plain}myemail-password:feng:feng::/home/feng/maildir/.home/myemail::userdb_mail=maildir:/home/feng/maildir/myemail
+myrss:{plain}myrss-password:feng:feng::/home/feng/maildir/.home/myrss::userdb_mail=maildir:/home/feng/maildir/myrss
 </pre>
 </div>
 </div>
@@ -444,7 +444,7 @@ offlineimap配置文件:  ~/.offlineimaprc
 
 <pre class="src src-org">[general]
 accounts = default-email-account
-pythonfile = <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/offlineimap.py
+pythonfile = /home/feng/.config/eh-gnus/configs/offlineimap.py
 ui = quiet
 
 [Account default-email-account]
@@ -455,21 +455,21 @@ remoterepository = RemoteIMAP
 [Repository LocalIMAP]
 type = IMAP
 remotehost = localhost
-remoteuser = <span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-email&gt;&gt;</span>
-remotepass = <span style="text-decoration: underline;">&lt;&lt;dovecot-password-for-email&gt;&gt;</span>
+remoteuser = myemail
+remotepass = myemail-password
 holdconnectionopen = yes
 
 [Repository RemoteIMAP]
 type = IMAP
-remotehost = <span style="text-decoration: underline;">&lt;&lt;email-imap-server&gt;&gt;</span>
-remoteuser = <span style="text-decoration: underline;">&lt;&lt;email-address&gt;&gt;</span>
+remotehost = imap.gmail.com
+remoteuser = YOUREMAIL@gmail.com
 <span style="color: #8B8989; font-style: italic;"># &#23433;&#35013;&#21253;python-keyring,&#28982;&#21518;&#20351;&#29992;&#19979;&#30340;&#21629;&#20196;&#20445;&#23384;&#23494;&#30721;&#12290;</span>
 <span style="color: #8B8989; font-style: italic;"># import keyring</span>
-<span style="color: #8B8989; font-style: italic;"># keyring.set_password("&lt;&lt;email-imap-server&gt;&gt;","&lt;&lt;email-address&gt;&gt;", "&lt;&lt;email-password&gt;&gt;")</span>
-<span style="color: #8B8989; font-style: italic;"># remotepasseval = keyring.get_password("&lt;&lt;email-imap-server&gt;&gt;","&lt;&lt;email-address&gt;&gt;")</span>
-remotepass = <span style="text-decoration: underline;">&lt;&lt;email-password&gt;&gt;</span>
+<span style="color: #8B8989; font-style: italic;"># keyring.set_password("imap.gmail.com","YOUREMAIL@gmail.com", "YOURPASSWORD")</span>
+<span style="color: #8B8989; font-style: italic;"># remotepasseval = keyring.get_password("imap.gmail.com","YOUREMAIL@gmail.com")</span>
+remotepass = YOURPASSWORD
 ssl = yes
-cert_fingerprint=<span style="text-decoration: underline;">&lt;&lt;gmail-cert-fingerprint&gt;&gt;</span>
+cert_fingerprint=f3043dd689a2e7dddfbef82703a6c65ea9b634c1
 maxconnections = 3
 realdelete = no
 <span style="color: #8B8989; font-style: italic;"># holdconnectionopen = true</span>
@@ -504,8 +504,8 @@ offlineimap.py文件
 <div class="org-src-container">
 
 <pre class="src src-org">[Desktop Entry]
-Exec="x-terminal-emulator " "-e" "<span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/offlineimap.sh"
-Icon=<span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/icons/offlineimap.png
+Exec="x-terminal-emulator " "-e" "/home/feng/.config/eh-gnus/configs/offlineimap.sh"
+Icon=/home/feng/.config/eh-gnus/configs/icons/offlineimap.png
 Name=OfflineIMAP
 Encoding=UTF-8
 Terminal=false
@@ -522,7 +522,7 @@ offlineimap启动器：offlineimap.sh
 <pre class="src src-org">#!/bin/sh
 
 set -efu
-command="offlineimap -c <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/offlineimaprc"
+command="offlineimap -c /home/feng/.config/eh-gnus/configs/offlineimaprc"
 
 if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
 	exit 0
@@ -542,9 +542,9 @@ isync配置文件： ~/.mbsyncrc
 <div class="org-src-container">
 
 <pre class="src src-org">IMAPAccount remote-email-account
-Host <span style="text-decoration: underline;">&lt;&lt;email-imap-server&gt;&gt;</span>
-User <span style="text-decoration: underline;">&lt;&lt;email-address&gt;&gt;</span>
-Pass <span style="text-decoration: underline;">&lt;&lt;email-password&gt;&gt;</span>
+Host imap.gmail.com
+User YOUREMAIL@gmail.com
+Pass YOURPASSWORD
 UseIMAPS yes
 <span style="color: #8B8989; font-style: italic;"># RequireSSL yes</span>
 <span style="color: #8B8989; font-style: italic;"># You should install package: ca-certificates.</span>
@@ -555,8 +555,8 @@ Account remote-email-account
 
 IMAPAccount local-dovecot-account
 Host localhost
-User <span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-email&gt;&gt;</span>
-Pass <span style="text-decoration: underline;">&lt;&lt;dovecot-password-for-email&gt;&gt;</span>
+User myemail
+Pass myemail-password
 
 IMAPStore local-dovecot-store
 Account local-dovecot-account
@@ -571,7 +571,7 @@ Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred"
 <span style="color: #8B8989; font-style: italic;"># Automatically create missing mailboxes, both locally and on the server</span>
 Create Both
 <span style="color: #8B8989; font-style: italic;"># Save the synchronization state files in the relevant directory</span>
-SyncState <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/mbsyncstate/get-default-email
+SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-default-email
 
 Channel get-all-email
 Master :remote-email-store:
@@ -579,7 +579,7 @@ Slave :local-dovecot-store:
 Patterns "[Gmail]/All Mail"
 Create Slave
 Sync New
-SyncState <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/mbsyncstate/get-all-email
+SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-all-email
 
 Channel get-spam-email
 Master :gmail-store:
@@ -587,7 +587,7 @@ Slave :local-dovecot-store:
 Patterns "[Gmail]/Spam"
 Create Master
 Sync Push
-SyncState <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/mbsyncstate/get-spam-email
+SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-spam-email
 </pre>
 </div>
 
@@ -599,7 +599,7 @@ isync启动器：isync.sh
 <pre class="src src-org">#!/bin/sh
 
 set -efu
-command="isync --config <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/mbsyncrc"
+command="isync --config /home/feng/.config/eh-gnus/configs/mbsyncrc"
 
 if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
 	exit 0
@@ -702,7 +702,7 @@ bonus-header =
 trust-guid = True
 trust-link = False
 encodings = US-ASCII, ISO-8859-1, UTF-8, BIG5, ISO-2022-JP
-<span style="text-decoration: underline;">&lt;&lt;rss2email-setup-post-process&gt;&gt;</span>
+post-process = rss2email_post_hooks.pinyin_header add_pinyin_header
 digest-post-process =
 html-mail = True
 use-css = True
@@ -754,8 +754,8 @@ smtp-server = smtp.yourisp.net:25
 smtp-ssl = False
 smtp-ssl-protocol = SSLv3
 imap-auth = True
-imap-username = <span style="text-decoration: underline;">&lt;&lt;dovecot-user-for-rss&gt;&gt;</span>
-imap-password = <span style="text-decoration: underline;">&lt;&lt;dovecot-password-for-rss&gt;&gt;</span>
+imap-username = myrss
+imap-password = myrss-password
 imap-server = localhost
 imap-port = 143
 imap-ssl = False
@@ -781,8 +781,8 @@ rss2email启动器：rss2email.sh
 <pre class="src src-org">#!/bin/sh
 
 set -efu
-<span style="text-decoration: underline;">&lt;&lt;rss2email-setup-python-path&gt;&gt;</span>
-command="r2e --config <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/rss2email.cfg run "
+PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
+command="r2e --config /home/feng/.config/eh-gnus/configs/rss2email.cfg run "
 
 if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
 	exit 0
@@ -816,7 +816,7 @@ exec $command
 
 <pre class="src src-org">#!/bin/bash
 
-<span style="text-decoration: underline;">&lt;&lt;rss2email-setup-python-path&gt;&gt;</span>
+PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
 echo "The Feed url is: $1"
 echo "Please enter a name for this feed"
 read feed_name
@@ -850,7 +850,7 @@ cron最常见的问题是环境变量的问题，许多程序由于环境变量�
 <div class="org-src-container">
 
 <pre class="src src-org" id="cron-setup-environment-variable">PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
-<span style="text-decoration: underline;">&lt;&lt;rss2email-setup-python-path&gt;&gt;</span>
+PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
 </pre>
 </div>
 
@@ -859,10 +859,11 @@ cron最常见的问题是环境变量的问题，许多程序由于环境变量�
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org"><span style="text-decoration: underline;">&lt;&lt;cron-setup-environment-variable&gt;&gt;</span>
+<pre class="src src-org">PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
+PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
 
-*/5 * * * * <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/offlineimap.sh &gt;/dev/null 2&gt;&amp;1
-0 */1 * * * <span style="text-decoration: underline;">&lt;&lt;configs-path&gt;&gt;</span>/rss2email.sh
+*/5 * * * * /home/feng/.config/eh-gnus/configs/offlineimap.sh &gt;/dev/null 2&gt;&amp;1
+0 */1 * * * /home/feng/.config/eh-gnus/configs/rss2email.sh
 ### DON'T REMOVE THIS LINE ###
 </pre>
 </div>
@@ -1093,7 +1094,7 @@ company默认使用overlay菜单frontend， 中文显示存在问题。我简单
 </div>
 <div id="postamble" class="status">
 <p class="author">&#20316;&#32773;: Feng Shu</p>
-<p class="date">Created: 2014-11-25 二 08:48</p>
+<p class="date">Created: 2014-11-25 二 11:04</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.3beta)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
