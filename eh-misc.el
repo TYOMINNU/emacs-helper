@@ -232,7 +232,8 @@ ask user for the window where move to and delete other windows"
   (interactive)
   (let ((index (prompt-for-selected-window "Move to window: "))
 	(eobps (switch-window-list-eobp)))
-    (apply-to-window-index 'select-window index "Moved to %S")
+    (apply-to-window-index
+     'select-window index "Moved to %S and delete other windows")
     (switch-window-restore-eobp eobps))
   (when (featurep 'eh-complete)
     (eh-company-sidebar-hide))
