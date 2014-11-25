@@ -230,14 +230,17 @@
   "Display an overlay in each window showing a unique key, then
 ask user for the window where move to and delete other windows"
   (interactive)
-  (let ((index (prompt-for-selected-window "Move to window: "))
-	(eobps (switch-window-list-eobp)))
-    (apply-to-window-index
-     'select-window index "Moved to %S and delete other windows")
-    (switch-window-restore-eobp eobps))
   (when (featurep 'eh-complete)
     (eh-company-sidebar-hide))
-  (delete-other-windows))
+  (if (<= (length (window-list)) switch-window-threshold)
+      (call-interactively 'delete-other-windows)
+    (progn
+      (let ((index (prompt-for-selected-window "Move to window: "))
+	    (eobps (switch-window-list-eobp)))
+	(apply-to-window-index
+	 'select-window index "Moved to %S and delete other windows")
+	(switch-window-restore-eobp eobps))
+      (delete-other-windows))))
 
 (global-set-key (kbd "C-x o") 'switch-window)
 (global-set-key (kbd "C-x 1") 'eh-delete-other-windows)
