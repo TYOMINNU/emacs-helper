@@ -248,12 +248,6 @@
 		  (eh-company-theme))))
   (eh-company-theme))
 
-(defun eh-delete-other-window ()
-  (interactive)
-  (eh-company-sidebar-hide)
-  (delete-other-window))
-
-(global-set-key (kbd "C-x 1") 'eh-delete-other-window)
 (global-set-key (kbd "M-/") 'company-complete)
 (define-key company-active-map [return] nil)
 (define-key company-active-map (kbd "RET") nil)

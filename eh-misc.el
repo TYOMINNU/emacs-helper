@@ -202,6 +202,7 @@
 ;; switch window
 (require 'switch-window)
 (setq switch-window-increase 8)
+(setq  switch-window-shortcut-style 'qwerty)
 
 (defun eh-switch-window-display-number (win num)
   "prepare a temp buffer to diplay in the window while choosing"
@@ -225,8 +226,20 @@
 
 (advice-add 'switch-window-display-number :override #'eh-switch-window-display-number)
 
+(defun eh-delete-other-windows ()
+  "Display an overlay in each window showing a unique key, then
+ask user for the window where move to and delete other windows"
+  (interactive)
+  (let ((index (prompt-for-selected-window "Move to window: "))
+	(eobps (switch-window-list-eobp)))
+    (apply-to-window-index 'select-window index "Moved to %S")
+    (switch-window-restore-eobp eobps))
+  (when (featurep 'eh-complete)
+    (eh-company-sidebar-hide))
+  (delete-other-windows))
+
 (global-set-key (kbd "C-x o") 'switch-window)
-(setq  switch-window-shortcut-style 'qwerty)
+(global-set-key (kbd "C-x 1") 'eh-delete-other-windows)
 
 ;; expand-region
 (require 'expand-region)
