@@ -43,16 +43,23 @@
     (let* ((word (or (if mark-active
 			 (buffer-substring-no-properties
 			  (region-beginning) (region-end))
-		       (eh-current-word)) "")))
-      (eww (format eh-bing-url-format word))
-      (if (not (string= (buffer-name) "*eww*"))
-	  (switch-to-buffer-other-window "*eww*"))
+		       (eh-current-word)) ""))
+	   (url (format eh-bing-url-format word)))
+      (set-buffer (get-buffer-create "*bing-eww*"))
+      (let ((inhibit-read-only t))
+	(remove-overlays)
+	(erase-buffer))
+      (url-retrieve url 'eww-render
+		    (list url nil (current-buffer)))
+      (unless (eq major-mode 'eww-mode)
+	(eww-mode))
       (when eh-bing-translate-timer
 	(cancel-timer eh-bing-translate-timer))
       (setq eh-bing-translate-timer
 	    (run-with-timer
 	     2 nil
 	     '(lambda ()
+		(switch-to-buffer-other-window "*bing-eww*")
 		(setq header-line-format nil)
 		(goto-char (point-min))
 		(forward-line 18)
