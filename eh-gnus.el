@@ -454,6 +454,8 @@
 
 (defvar eh-eww-hide-region-overlays  nil)
 
+(defvar eh-gnus-eww-timer nil)
+
 (setq eh-eww-buffer-position-string-1 nil)
 (setq eh-eww-buffer-position-string-2
       '("责编" "责任编辑" "关键字" "更多相关消息" "新闻推荐"
@@ -467,11 +469,6 @@
 	"您可能感兴趣的文章" "今日热读" "版面编辑" "收藏此页"
 	"条评论" "提交文章" "往日文章" "过去的投票" "编辑介绍"
 	"隐私政策" "不得转载" "版权所有" "未经许可" "今日热点" "猜你喜欢"))
-
-(defun eh-gnus-web-page-render (status url &optional point post-process-function)
-  (let ((shr-width 90))
-    (eww-render status url point)
-    (funcall post-process-function)))
 
 (defun eh-eww-build-regexp (str)
   (mapconcat (lambda (x) (concat "\n*" (list x))) str ""))
@@ -507,9 +504,28 @@
 		begin (point)))))))
   (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
 	     eh-gnus-current-article-url)
-    (url-retrieve eh-gnus-current-article-url 'eh-gnus-web-page-render
-		  (list eh-gnus-current-article-url nil 'eh-eww-clean-view))
+    (eh-gnus-eww eh-gnus-current-article-url)
     (delete-other-windows)))
+
+(defun eh-gnus-eww (url)
+  (set-buffer (get-buffer-create "*gnus-eww*"))
+  (let ((inhibit-read-only t))
+    (remove-overlays)
+    (erase-buffer))
+  (url-retrieve url 'eww-render
+		(list url nil (current-buffer)))
+  (unless (eq major-mode 'eww-mode)
+    (eww-mode))
+  (when eh-gnus-eww-timer
+    (cancel-timer eh-gnus-eww-timer))
+  (setq eh-gnus-eww-timer
+	(run-with-timer
+	 3 nil
+	 '(lambda ()
+	    (switch-to-buffer "*gnus-eww*")
+	    (setq header-line-format nil)
+	    (eh-eww-clean-view)
+	    (local-set-key (kbd "C-c C-c") 'eh-eww-toggle-clear-view)))))
 
 (defun eh-eww-narrow-to-region (position1 position2)
   (let ((new-overlay1 (make-overlay (point-min) position1))
@@ -530,7 +546,7 @@
 
 (defun eh-eww-clean-view ()
   (interactive)
-  (when (string= (buffer-name) "*eww*")
+  (when (string= (buffer-name) "*gnus-eww*")
     (save-excursion
       (goto-char (point-min))
       (when (not
@@ -543,8 +559,8 @@
 	;; 行距设置为0.2
 	(setq line-spacing 0.1)
 	;; 设置字号
-	(let ((text-scale-mode-amount 1.0))
-	  (text-scale-mode))
+	;; (let ((text-scale-mode-amount 1.0))
+	;;   (text-scale-mode))
 	(goto-char (point-min))
 	(let* ((string eh-eww-buffer-position-string-1)
 	       (length (length string))
@@ -576,7 +592,7 @@
 
 (defun eh-eww-toggle-clear-view ()
   (interactive)
-  (when (string= (buffer-name) "*eww*")
+  (when (string= (buffer-name) "*gnus-eww*")
     (if eh-eww-hide-region-overlays
 	(progn
 	  (eh-eww-widen)
@@ -584,8 +600,6 @@
       (progn
 	(eh-eww-clean-view)
 	(message "Show only article")))))
-
-(define-key eww-mode-map (kbd "C-c C-c") 'eh-eww-toggle-clear-view)
 
 (defun eh-gnus-summary-setup ()
   (interactive)
