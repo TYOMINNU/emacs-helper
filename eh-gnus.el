@@ -476,8 +476,8 @@
 (defun eh-gnus-view-article-with-eww (&optional force)
   (interactive)
   (gnus-summary-scroll-up 1)
-  (when (member "*eww*" (mapcar (function buffer-name) (buffer-list)))
-    (kill-buffer "*eww*"))
+  (when (member "*gnus-eww*" (mapcar (function buffer-name) (buffer-list)))
+    (kill-buffer "*gnus-eww*"))
   (gnus-eval-in-buffer-window gnus-article-buffer
     (setq eh-gnus-current-article-subject
 	  (progn
