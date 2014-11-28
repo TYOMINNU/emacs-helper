@@ -42,15 +42,43 @@
 ;; bibtex autokey rule
 ;; the below will generate a auto named : xulinling2013
 ;; [3] 徐琳玲. P公司标准成本制度研究[D]. 华东理工大学, 2013.
+
 (setq bibtex-autokey-names 1)
 (setq bibtex-autokey-name-separator "")
+
 (setq bibtex-autokey-year-length 4)
-(setq bibtex-autokey-titleword-length 0)
-(setq bibtex-autokey-titleword-separator "")
+
 (setq bibtex-autokey-name-year-separator "")
 (setq bibtex-autokey-year-title-separator "")
-(setq bibtex-autokey-before-presentation-function
-      '(lambda (x) (downcase (eh-hanzi2pinyin-simple x))))
+
+(defun eh-bibtex-chinese-autokey-setup ()
+  (setq bibtex-autokey-titlewords 2)
+  (setq bibtex-autokey-titleword-length 2)
+  (setq bibtex-autokey-titlewords-stretch 0)
+  (setq bibtex-autokey-titleword-separator "_")
+  (setq bibtex-autokey-titleword-ignore nil)
+  (setq bibtex-autokey-before-presentation-function
+	'(lambda (x) (downcase (eh-hanzi2pinyin-simple x)))))
+
+(defun eh-bibtex-english-autokey-setup ()
+  (setq bibtex-autokey-titlewords 3)
+  (setq bibtex-autokey-titleword-length 5)
+  (setq bibtex-autokey-titlewords-stretch 0)
+  (setq bibtex-autokey-titleword-separator "_")
+  (setq bibtex-autokey-titleword-ignore
+	'("A" "An" "On" "The" "Eine?" "Der" "Die" "Das"
+	  "[^[:upper:]].*" ".*[^[:upper:][:lower:]0-9].*")))
+
+(defun eh-bibtex-autokey-get-title (orig-fun &rest args)
+  (let ((case-fold-search t)
+	(titlestring
+	 (bibtex-autokey-get-field "title")))
+    (if (string-match-p "\\cc" titlestring)
+	(eh-bibtex-chinese-autokey-setup)
+      (eh-bibtex-english-autokey-setup))
+    (apply orig-fun args)))
+
+(advice-add 'bibtex-autokey-get-title :around #'eh-bibtex-autokey-get-title)
 
 ;; ebib window setting
 (setq ebib-layout 'full)
@@ -132,7 +160,7 @@
   (with-current-ebib-buffer 'index
     (with-ebib-buffer-writable
       (setq cursor-type t)
-      (insert (format "%-20s %-15s %-45s %s\n"
+      (insert (format "%-30s %-15s %-45s %s\n"
 		      entry-key
 		      ;; author
 		      (car (split-string
@@ -300,15 +328,17 @@ Then this function will return the applicable database files."
      (t
       (ebib-push-bibtex-key)
       (when leave-ebib-window
+	(ebib--db-unmark-entry 'all ebib--cur-db)
+	(ebib--fill-index-buffer)
 	(setq eh-ebib-push-buffer nil)
-	(ebib-leave-ebib-windows))))))
+	(ebib-leave-ebib--windows))))))
 
 (defun eh-ebib-format-org-cite-link (key)
   (let ((author (car (split-string
 		      (or (ebib--db-get-field-value 'author key ebib--cur-db 'noerror 'unbraced 'xref)
 			  "  ") "[ \t\n]+and[ \t\n]+\\|," )))
 	(year (or (ebib--db-get-field-value 'year key ebib--cur-db 'noerror 'unbraced 'xref) "20??")))
-    (format "[[cite:%s][(%s %s)]]" key author year)))
+    (format " [[cite:%s][(%s %s)]]" key author year)))
 
 (defun eh-ebib-push-org-cite-link (&optional leave-ebib-window)
   "Pushes the cite link of current entry to a org-mode buffer."
@@ -336,6 +366,8 @@ Then this function will return the applicable database files."
 	   (setq eh-ebib-the-last-entry-key (ebib--cur-entry-key))
 	   ;; 隐藏ebib窗口
 	   (when leave-ebib-window
+	     (ebib--db-unmark-entry 'all ebib--cur-db)
+	     (ebib--fill-index-buffer)
 	     (setq eh-ebib-push-buffer nil)
 	     (ebib-leave-ebib--windows)))))
       ((default)
@@ -419,24 +451,24 @@ Then this function will return the applicable database files."
    2. Add alias field to all entries.
    3. reformat all the entries"
   (interactive)
-  (let* ((current-bib-file (ebib-db-get-filename ebib-cur-db)))
-    (ebib-execute-when
-     ((entries)
-      (when (yes-or-no-p (concat (format "Reformat bibfile: %s  " current-bib-file)))
-	(ebib-save-current-database)
-	(message "Reformat ... ")
-	(with-current-buffer (find-file-noselect current-bib-file)
-	  (goto-char (point-min))
-	  (eh-bibtex-reformat)
-	  (save-buffer)
-	  (kill-buffer))
-	;; reload the current database
-	(ebib-reload-database ebib-cur-db)
-	(ebib-set-modified nil)
-	(ebib-redisplay)
-	(message "Reformat complete")))
-     ((default)
-      (beep)))))
+  (let* ((current-bib-file (ebib--db-get-filename ebib--cur-db)))
+    (ebib--execute-when
+      ((entries)
+       (when (yes-or-no-p (concat (format "Reformat bibfile: %s  " current-bib-file)))
+	 (ebib-save-current-database)
+	 (message "Reformat ... ")
+	 (with-current-buffer (find-file-noselect current-bib-file)
+	   (goto-char (point-min))
+	   (eh-bibtex-reformat)
+	   (save-buffer)
+	   (kill-buffer))
+	 ;; reload the current database
+	 (ebib--reload-database ebib--cur-db)
+	 (ebib--set-modified nil)
+	 (ebib--redisplay)
+	 (message "Reformat complete")))
+      ((default)
+       (beep)))))
 
 (defun eh-convert-cite-key-to-pinyin ()
   "Convert bibtex key to pinyin"
