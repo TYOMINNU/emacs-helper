@@ -61,6 +61,26 @@
 		      (nnimap-inbox "INBOX")
 		      (nnimap-split-methods 'nnmail-split-fancy)))
 
+;;; 其他一些常见的配置例子
+;;
+;; (add-to-list 'gnus-secondary-select-methods
+;;	     '(nnimap "RSS"
+;;		      (nnimap-address "localhost")
+;;		      (nnimap-stream shell)
+;;		      (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir/rss:LAYOUT=fs")))
+;;
+;; (setq gnus-select-method
+;;       '(nnimap "gmail"
+;;	       (nnimap-address "imap.gmail.com")
+;;	       (nnimap-stream ssl)))
+;;
+;; (add-to-list 'gnus-secondary-select-methods
+;;	     '(nntp "news.gmane.org"))
+;;
+;; (add-to-list 'gnus-secondary-select-methods
+;;	     '(nntp "news.newsfan.net"))
+
+;;; 邮件分类设置
 (setq nnmail-treat-duplicates 'delete
       nnmail-split-fancy-match-partial-words t)
 
@@ -105,25 +125,6 @@
 	      "news-baidu"))
 	  "others"))
 
-;;; 其他一些常见的配置例子
-;;
-;; (add-to-list 'gnus-secondary-select-methods
-;;	     '(nnimap "RSS"
-;;		      (nnimap-address "localhost")
-;;		      (nnimap-stream shell)
-;;		      (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir/rss:LAYOUT=fs")))
-;;
-;; (setq gnus-select-method
-;;       '(nnimap "gmail"
-;;	       (nnimap-address "imap.gmail.com")
-;;	       (nnimap-stream ssl)))
-;;
-;; (add-to-list 'gnus-secondary-select-methods
-;;	     '(nntp "news.gmane.org"))
-;;
-;; (add-to-list 'gnus-secondary-select-methods
-;;	     '(nntp "news.newsfan.net"))
-
 ;; 存储设置
 (setq gnus-startup-file "~/Gnus/.newsrc")                  ;初始文件
 (setq gnus-init-file "~/Gnus/.gnus")                       ;.gnus位置
@@ -152,28 +153,10 @@
 ;; 默认禁用nnfolder
 (setq gnus-message-archive-group nil)
 
-;; 设置默认邮件发送程序
-;; (setq sendmail-program "msmtp")
-
-;; 设置message-mode发信的方式
+;; 设置message-mode发信的方式，这里默认使用/usr/sbin/sendmail.
+;; 在 `gnus-posting-styles' 中设置 "X-Message-SMTP-Method" 邮件头可以实现
+;; 更为复杂的邮件发送方式。
 (setq message-send-mail-function 'message-send-mail-with-sendmail)
-
-;; (setq message-send-mail-function 'message-send-mail-with-mailclient)
-;; (setq message-sendmail-extra-arguments '("-a" "default"))
-;; (setq message-sendmail-envelope-from 'header)
-;;
-;; (defun eh-send-mail-with-msmtp ()
-;;   (if (message-mail-p)
-;;       (save-excursion
-;;	(let* ((from
-;;		(save-restriction
-;;		  (message-narrow-to-headers)
-;;		  (message-fetch-field "from")))
-;;	       (account
-;;		(cond
-;;		 ((string-match "tumashu@gmail.com" from) "tumashu@gmail.com"))))
-;;	  (setq message-sendmail-extra-arguments (list "-a" account))))))
-;; (add-hook 'message-send-mail-hook 'eh-send-mail-with-msmtp)
 
 ;; 设置gnus默认编码: 如果常与国外联系，可以设置为utf-8
 ;; 如果只在本国使用，可以设置为本地编码，比如: gbk
