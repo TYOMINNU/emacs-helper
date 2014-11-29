@@ -43,16 +43,15 @@
   (let* ((buffer (get-buffer-create eh-offlineimap-buffer-name)))
     (if (get-buffer-process buffer)
 	(message "offlineimap is running")
-      (progn
-	(with-current-buffer buffer
-	  (let ((inhibit-read-only t))
-	    (remove-overlays)
-	    (erase-buffer)
-	    (insert "###### offlineimap verbose log #####\n")))
-	(let ((process (start-process-shell-command
-			"offlineimap"
-			buffer
-			eh-offlineimap-command))))))))
+      (with-current-buffer buffer
+	(let ((inhibit-read-only t))
+	  (remove-overlays)
+	  (erase-buffer)
+	  (insert "###### offlineimap verbose log #####\n")))
+      (start-process-shell-command
+       "offlineimap"
+       buffer
+       eh-offlineimap-command))))
 
 (defun eh-offlineimap-cron ()
   (interactive)

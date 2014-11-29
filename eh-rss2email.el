@@ -43,16 +43,15 @@
   (let* ((buffer (get-buffer-create eh-rss2email-buffer-name)))
     (if (get-buffer-process buffer)
 	(message "rss2email is running")
-      (progn
-	(with-current-buffer buffer
-	  (let ((inhibit-read-only t))
-	    (remove-overlays)
-	    (erase-buffer)
-	    (insert "###### rss2email verbose log #####\n")))
-	(let ((process (start-process-shell-command
-			"rss2email"
-			buffer
-			eh-rss2email-command))))))))
+      (with-current-buffer buffer
+	(let ((inhibit-read-only t))
+	  (remove-overlays)
+	  (erase-buffer)
+	  (insert "###### rss2email verbose log #####\n")))
+      (start-process-shell-command
+       "rss2email"
+       buffer
+       eh-rss2email-command))))
 
 (defun eh-rss2email-cron ()
   (interactive)
