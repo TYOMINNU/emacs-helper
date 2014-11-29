@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
 <head>
 <title>emacs-helper配置说明</title>
-<!-- 2014-11-25 二 15:12 -->
+<!-- 2014-11-29 六 12:55 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="冯书" />
@@ -68,7 +68,7 @@
 </li>
 </ul>
 </li>
-<li><a href="#sec-1-6">1.6. cron配置</a></li>
+<li><a href="#sec-1-6">1.6. 定时下载rss和同步邮件</a></li>
 <li><a href="#sec-1-7">1.7. gnus配置</a></li>
 </ul>
 </li>
@@ -495,46 +495,9 @@ offlineimap.py文件
 <pre class="src src-org"><span style="color: #8B8989; font-style: italic;"># This is a blank file</span>
 </pre>
 </div>
-
-<p>
-可以在桌面添加offlineimap的启动图标，双击图标后开始同步邮件：
-</p>
-
-<p>
-保存下面的配置到文件:  ~/.local/share/Application/offlineimap.desktop
-</p>
-<div class="org-src-container">
-
-<pre class="src src-org">[Desktop Entry]
-Exec="x-terminal-emulator " "-e" "/home/feng/.config/eh-gnus/configs/offlineimap.sh"
-Icon=/home/feng/.config/eh-gnus/configs/icons/offlineimap.png
-Name=OfflineIMAP
-Encoding=UTF-8
-Terminal=false
-Type=Application
-Categories=Application;Network;
-</pre>
-</div>
-
-<p>
-offlineimap启动器：offlineimap.sh
-</p>
-<div class="org-src-container">
-
-<pre class="src src-org">#!/bin/sh
-
-set -efu
-command="offlineimap -c /home/feng/.config/eh-gnus/configs/offlineimaprc"
-
-if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
-	exit 0
-fi
-
-exec $command
-</pre>
 </div>
 </div>
-</div>
+
 <div id="outline-container-sec-1-5-3-2" class="outline-5">
 <h5 id="sec-1-5-3-2"><span class="section-number-5">1.5.3.2</span> isync</h5>
 <div class="outline-text-5" id="text-1-5-3-2">
@@ -592,32 +555,12 @@ Sync Push
 SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-spam-email
 </pre>
 </div>
-
-<p>
-isync启动器：isync.sh
-</p>
-<div class="org-src-container">
-
-<pre class="src src-org">#!/bin/sh
-
-set -efu
-command="isync --config /home/feng/.config/eh-gnus/configs/mbsyncrc"
-
-if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
-	exit 0
-fi
-
-exec $command
-</pre>
 </div>
 </div>
-</div>
-
 <div id="outline-container-sec-1-5-3-3" class="outline-5">
 <h5 id="sec-1-5-3-3"><span class="section-number-5">1.5.3.3</span> fdm</h5>
 </div>
 </div>
-
 <div id="outline-container-sec-1-5-4" class="outline-4">
 <h4 id="sec-1-5-4"><span class="section-number-4">1.5.4</span> 新闻组下载程序</h4>
 <div class="outline-text-4" id="text-1-5-4">
@@ -776,25 +719,6 @@ url = <span style="color: #96CBFE; text-decoration: underline;"><a href="http://
 </div>
 
 <p>
-rss2email启动器：rss2email.sh
-</p>
-<div class="org-src-container">
-
-<pre class="src src-org">#!/bin/sh
-
-set -efu
-PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
-command="r2e --config /home/feng/.config/eh-gnus/configs/rss2email.cfg run "
-
-if pgrep -u "$(id -u)" -xf -- "$command" &gt;/dev/null 2&gt;&amp;1; then
-	exit 0
-fi
-
-exec $command
-</pre>
-</div>
-
-<p>
 直接使用r2e命令添加rss地址太罗嗦，写一个shell脚本来处理：
 </p>
 <ol class="org-ol">
@@ -835,51 +759,114 @@ read -t 10
 </div>
 
 <div id="outline-container-sec-1-6" class="outline-3">
-<h3 id="sec-1-6"><span class="section-number-3">1.6</span> cron配置</h3>
+<h3 id="sec-1-6"><span class="section-number-3">1.6</span> 定时下载rss和同步邮件</h3>
 <div class="outline-text-3" id="text-1-6">
 <p>
-在shell中运行crontab命令：
+定时运行程序最常用的方法是设置cron程序。但由于环境变量问题，rss2email和offlineimap在cron环境下经常莫名奇妙的不工作，而且很难调试。
 </p>
+
+<p>
+我这里使用两个简单的elisp程序来实现定时同步邮件和定时下载rss，设置简单，调试方便。
+另外也可以使用offlineimap专用emacs包：offlineimap。
+</p>
+
+<p>
+eh-offlineimap.el文件:
+</p>
+
 <div class="org-src-container">
 
-<pre class="src src-org">crontab -e
+<pre class="src src-emacs-lisp">(setq eh-offlineimap-buffer-name <span style="color: #61CE3C;">"*eh-offlineimap*"</span>)
+(setq eh-offlineimap-command <span style="color: #61CE3C;">"offlineimap -u MachineUI"</span>)
+(<span style="color: #FBDE2D;">defvar</span> <span style="color: #D8FA3C;">eh-offlineimap-timer</span> nil)
+
+<span style="color: #8B8989; font-style: italic;">;;;</span><span style="color: #8B8989; font-style: italic;">###</span><span style="color: #ff69b4; font-style: italic;">autoload</span>
+(<span style="color: #FBDE2D;">defun</span> <span style="color: #ff1493;">eh-offlineimap</span> ()
+  <span style="color: #61CE3C;">"Start Offlineimap."</span>
+  (interactive)
+  (<span style="color: #FBDE2D;">let*</span> ((buffer (get-buffer-create eh-offlineimap-buffer-name)))
+    (<span style="color: #FBDE2D;">if</span> (get-buffer-process buffer)
+	(message <span style="color: #61CE3C;">"offlineimap is running"</span>)
+      (<span style="color: #FBDE2D;">progn</span>
+	(<span style="color: #FBDE2D;">with-current-buffer</span> buffer
+	  (<span style="color: #FBDE2D;">let</span> ((inhibit-read-only t))
+	    (remove-overlays)
+	    (erase-buffer)
+	    (insert <span style="color: #61CE3C;">"###### offlineimap verbose log #####\n"</span>)))
+	(<span style="color: #FBDE2D;">let</span> ((process (start-process-shell-command
+			<span style="color: #61CE3C;">"offlineimap"</span>
+			buffer
+			eh-offlineimap-command))))))))
+
+(<span style="color: #FBDE2D;">defun</span> <span style="color: #ff1493;">eh-offlineimap-cron</span> ()
+  (interactive)
+  (<span style="color: #FBDE2D;">when</span> eh-offlineimap-timer
+    (cancel-timer eh-offlineimap-timer))
+  (setq eh-offlineimap-timer
+	(run-with-timer
+	 nil (* 5 60)
+	 '(<span style="color: #FBDE2D;">lambda</span> ()
+	    (message <span style="color: #61CE3C;">"Sync email with eh-offlineimap ..."</span>)
+	    (eh-offlineimap)))))
 </pre>
 </div>
 
 <p>
-cron最常见的问题是环境变量的问题，许多程序由于环境变量设置不正确，不能正常启动，
+eh-rss2email.el文件:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org" id="cron-setup-environment-variable">PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
-PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
+<pre class="src src-emacs-lisp">(setq eh-rss2email-buffer-name <span style="color: #61CE3C;">"*eh-rss2email*"</span>)
+(setq eh-rss2email-command <span style="color: #61CE3C;">"PYTHONPATH=/home/feng/.config/eh-gnus/configs; r2e -V run"</span>)
+(<span style="color: #FBDE2D;">defvar</span> <span style="color: #D8FA3C;">eh-rss2email-timer</span> nil)
+
+<span style="color: #8B8989; font-style: italic;">;;;</span><span style="color: #8B8989; font-style: italic;">###</span><span style="color: #ff69b4; font-style: italic;">autoload</span>
+(<span style="color: #FBDE2D;">defun</span> <span style="color: #ff1493;">eh-rss2email</span> ()
+  <span style="color: #61CE3C;">"Start Rss2email."</span>
+  (interactive)
+  (<span style="color: #FBDE2D;">let*</span> ((buffer (get-buffer-create eh-rss2email-buffer-name)))
+    (<span style="color: #FBDE2D;">if</span> (get-buffer-process buffer)
+	(message <span style="color: #61CE3C;">"rss2email is running"</span>)
+      (<span style="color: #FBDE2D;">progn</span>
+	(<span style="color: #FBDE2D;">with-current-buffer</span> buffer
+	  (<span style="color: #FBDE2D;">let</span> ((inhibit-read-only t))
+	    (remove-overlays)
+	    (erase-buffer)
+	    (insert <span style="color: #61CE3C;">"###### rss2email verbose log #####\n"</span>)))
+	(<span style="color: #FBDE2D;">let</span> ((process (start-process-shell-command
+			<span style="color: #61CE3C;">"rss2email"</span>
+			buffer
+			eh-rss2email-command))))))))
+
+(<span style="color: #FBDE2D;">defun</span> <span style="color: #ff1493;">eh-rss2email-cron</span> ()
+  (interactive)
+  (<span style="color: #FBDE2D;">when</span> eh-rss2email-timer
+    (cancel-timer eh-rss2email-timer))
+  (setq eh-rss2email-timer
+	(run-with-timer
+	 nil (* 120 60)
+	 '(<span style="color: #FBDE2D;">lambda</span> ()
+	    (message <span style="color: #61CE3C;">"Download rss with eh-rss2email ..."</span>)
+	    (eh-rss2email)))))
 </pre>
 </div>
 
 <p>
-然后添加如下内容： 设定5分钟运行一次offlineimap，1个小时运行一下rss2email。
+将下述几行代码添加到emacs配置文件中，gnus启动之前就会运行eh-offlineimap-cron和eh-rss2email-cron两个函数，让其定时同步邮件和下载程序。
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org">PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
-PYTHONPATH=$PYTHONPATH:/home/feng/.config/eh-gnus/configs
-
-*/5 * * * * /home/feng/.config/eh-gnus/configs/offlineimap.sh &gt;/dev/null 2&gt;&amp;1
-0 */1 * * * /home/feng/.config/eh-gnus/configs/rss2email.sh
-### DON'T REMOVE THIS LINE ###
-</pre>
-</div>
-
-<p>
-然后运行命令：
-</p>
-<div class="org-src-container">
-
-<pre class="src src-org">sudo /etc/init.d/cron restart
+<pre class="src src-emacs-lisp">(add-hook 'gnus-before-startup-hook
+	  '(<span style="color: #FBDE2D;">lambda</span> ()
+	     (load <span style="color: #61CE3C;">"/home/feng/.config/eh-gnus/configs/eh-offlineimap.el"</span>)
+	     (load <span style="color: #61CE3C;">"/home/feng/.config/eh-gnus/configs/eh-rss2email.el"</span>)
+	     (eh-offlineimap-cron)
+	     (eh-rss2email-cron)))
 </pre>
 </div>
 </div>
 </div>
+
 <div id="outline-container-sec-1-7" class="outline-3">
 <h3 id="sec-1-7"><span class="section-number-3">1.7</span> gnus配置</h3>
 <div class="outline-text-3" id="text-1-7">
@@ -1096,7 +1083,7 @@ company默认使用overlay菜单frontend， 中文显示存在问题。我简单
 </div>
 <div id="postamble" class="status">
 <p class="author">&#20316;&#32773;: 冯书</p>
-<p class="date">Created: 2014-11-25 二 15:12</p>
+<p class="date">Created: 2014-11-29 六 12:55</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.3beta)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

@@ -370,34 +370,6 @@
   # This is a blank file
   #+END_SRC
 
-  可以在桌面添加offlineimap的启动图标，双击图标后开始同步邮件：
-
-  保存下面的配置到文件:  ~/.local/share/Application/offlineimap.desktop
-  #+BEGIN_SRC org  :tangle configs/offlineimap.desktop :tangle-mode (identity #o644)
-  [Desktop Entry]
-  Exec="x-terminal-emulator " "-e" "<<configs-path>>/offlineimap.sh"
-  Icon=<<configs-path>>/icons/offlineimap.png
-  Name=OfflineIMAP
-  Encoding=UTF-8
-  Terminal=false
-  Type=Application
-  Categories=Application;Network;
-  #+END_SRC
-
-  offlineimap启动器：offlineimap.sh
-  #+BEGIN_SRC org :tangle configs/offlineimap.sh :tangle-mode (identity #o600)
-  #!/bin/sh
-
-  set -efu
-  command="offlineimap -c <<configs-path>>/offlineimaprc"
-
-  if pgrep -u "$(id -u)" -xf -- "$command" >/dev/null 2>&1; then
-	  exit 0
-  fi
-
-  exec $command
-
-  #+END_SRC
 **** isync
   isync配置文件： ~/.mbsyncrc
   #+BEGIN_SRC org :tangle configs/mbsyncrc :tangle-mode (identity #o600)
@@ -449,24 +421,7 @@
   Sync Push
   SyncState <<configs-path>>/mbsyncstate/get-spam-email
   #+END_SRC
-
-  isync启动器：isync.sh
-  #+BEGIN_SRC org :tangle configs/isync.sh :tangle-mode (identity #o600)
-  #!/bin/sh
-
-  set -efu
-  command="isync --config <<configs-path>>/mbsyncrc"
-
-  if pgrep -u "$(id -u)" -xf -- "$command" >/dev/null 2>&1; then
-	  exit 0
-  fi
-
-  exec $command
-
-  #+END_SRC
-
 **** fdm
-
 *** 新闻组下载程序
 **** leafnode
   leafnode运行必须有完整的域名， 如果只将leafnode作为一个news下载器，我们可以设定一个伪造的域名，比如：在debian系统中，我们可以更改/etc/hosts文件：
@@ -588,22 +543,6 @@
 
   #+END_SRC
 
-  rss2email启动器：rss2email.sh
-  #+BEGIN_SRC org :tangle configs/rss2email.sh :tangle-mode (identity #o600)
-  #!/bin/sh
-
-  set -efu
-  <<rss2email-setup-python-path>>
-  command="r2e --config <<configs-path>>/rss2email.cfg run "
-
-  if pgrep -u "$(id -u)" -xf -- "$command" >/dev/null 2>&1; then
-	  exit 0
-  fi
-
-  exec $command
-
-  #+END_SRC
-
   直接使用r2e命令添加rss地址太罗嗦，写一个shell脚本来处理：
   1. 保存下面代码到一个目录, 比如： ~/bin/add-rss-with-rss2email.sh
   2. 安装firefox扩展： AppLauncher
@@ -627,32 +566,97 @@
 
   #+END_SRC
 
-** cron配置
- 在shell中运行crontab命令：
- #+BEGIN_SRC org
- crontab -e
- #+END_SRC
+** 定时下载rss和同步邮件
+定时运行程序最常用的方法是设置cron程序。但由于环境变量问题，rss2email和offlineimap在cron环境下经常莫名奇妙的不工作，而且很难调试。
 
- cron最常见的问题是环境变量的问题，许多程序由于环境变量设置不正确，不能正常启动，
- #+NAME: cron-setup-environment-variable
- #+BEGIN_SRC org
- PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/local/games:/usr/games
- <<rss2email-setup-python-path>>
- #+END_SRC
+我这里使用两个简单的elisp程序来实现定时同步邮件和定时下载rss，设置简单，调试方便。
+另外也可以使用offlineimap专用emacs包：offlineimap。
 
- 然后添加如下内容： 设定5分钟运行一次offlineimap，1个小时运行一下rss2email。
- #+BEGIN_SRC org
- <<cron-setup-environment-variable>>
+eh-offlineimap.el文件:
 
- */5 * * * * <<configs-path>>/offlineimap.sh >/dev/null 2>&1
- 0 */1 * * * <<configs-path>>/rss2email.sh
- ### DON'T REMOVE THIS LINE ###
- #+END_SRC
+#+BEGIN_SRC emacs-lisp :tangle configs/eh-offlineimap.el
+(setq eh-offlineimap-buffer-name "*eh-offlineimap*")
+(setq eh-offlineimap-command "offlineimap -u MachineUI")
+(defvar eh-offlineimap-timer nil)
 
- 然后运行命令：
- #+BEGIN_SRC org
- sudo /etc/init.d/cron restart
- #+END_SRC
+;;;###autoload
+(defun eh-offlineimap ()
+  "Start Offlineimap."
+  (interactive)
+  (let* ((buffer (get-buffer-create eh-offlineimap-buffer-name)))
+    (if (get-buffer-process buffer)
+	(message "offlineimap is running")
+      (progn
+	(with-current-buffer buffer
+	  (let ((inhibit-read-only t))
+	    (remove-overlays)
+	    (erase-buffer)
+	    (insert "###### offlineimap verbose log #####\n")))
+	(let ((process (start-process-shell-command
+			"offlineimap"
+			buffer
+			eh-offlineimap-command))))))))
+
+(defun eh-offlineimap-cron ()
+  (interactive)
+  (when eh-offlineimap-timer
+    (cancel-timer eh-offlineimap-timer))
+  (setq eh-offlineimap-timer
+	(run-with-timer
+	 nil (* 5 60)
+	 '(lambda ()
+	    (message "Sync email with eh-offlineimap ...")
+	    (eh-offlineimap)))))
+
+#+END_SRC
+
+eh-rss2email.el文件:
+#+BEGIN_SRC emacs-lisp :tangle configs/eh-rss2email.el
+(setq eh-rss2email-buffer-name "*eh-rss2email*")
+(setq eh-rss2email-command "PYTHONPATH=<<python-path>>; r2e -V run")
+(defvar eh-rss2email-timer nil)
+
+;;;###autoload
+(defun eh-rss2email ()
+  "Start Rss2email."
+  (interactive)
+  (let* ((buffer (get-buffer-create eh-rss2email-buffer-name)))
+    (if (get-buffer-process buffer)
+	(message "rss2email is running")
+      (progn
+	(with-current-buffer buffer
+	  (let ((inhibit-read-only t))
+	    (remove-overlays)
+	    (erase-buffer)
+	    (insert "###### rss2email verbose log #####\n")))
+	(let ((process (start-process-shell-command
+			"rss2email"
+			buffer
+			eh-rss2email-command))))))))
+
+(defun eh-rss2email-cron ()
+  (interactive)
+  (when eh-rss2email-timer
+    (cancel-timer eh-rss2email-timer))
+  (setq eh-rss2email-timer
+	(run-with-timer
+	 nil (* 120 60)
+	 '(lambda ()
+	    (message "Download rss with eh-rss2email ...")
+	    (eh-rss2email)))))
+
+#+END_SRC
+
+将下述几行代码添加到emacs配置文件中，gnus启动之前就会运行eh-offlineimap-cron和eh-rss2email-cron两个函数，让其定时同步邮件和下载程序。
+#+BEGIN_SRC emacs-lisp
+(add-hook 'gnus-before-startup-hook
+	  '(lambda ()
+	     (load "<<configs-path>>/eh-offlineimap.el")
+	     (load "<<configs-path>>/eh-rss2email.el")
+	     (eh-offlineimap-cron)
+	     (eh-rss2email-cron)))
+#+END_SRC
+
 ** gnus配置
  调整eh-gnus.el文件中如下几行：
  #+BEGIN_SRC emacs-lisp
