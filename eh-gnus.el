@@ -46,10 +46,12 @@
 ;; 使用offlineimap, leafnode以及rss2email
 ;; 将邮件，新闻组和rss订阅同步到本地dovecot服务器
 ;; 然后使用gnus访问。
-(setq gnus-select-method
-      '(nnimap "offlineimap"
-	       (nnimap-address "localhost")
-	       (nnimap-stream network)))
+(setq gnus-select-method '(nnml ""))
+
+(add-to-list 'gnus-secondary-select-methods
+	     '(nnimap "gmail"
+		      (nnimap-address "localhost")
+		      (nnimap-stream network)))
 
 (add-to-list 'gnus-secondary-select-methods
 	     '(nntp "localhost"))
@@ -60,6 +62,16 @@
 		      (nnimap-stream network)
 		      (nnimap-inbox "INBOX")
 		      (nnimap-split-methods 'nnmail-split-fancy)))
+
+(add-to-list 'gnus-secondary-select-methods
+	     '(nnimap "163mail"
+		      (nnimap-address "localhost")
+		      (nnimap-stream network)))
+
+(add-to-list 'gnus-secondary-select-methods
+	     '(nnimap "qqmail"
+		      (nnimap-address "localhost")
+		      (nnimap-stream network)))
 
 ;;; 其他一些常见的配置例子
 ;;
