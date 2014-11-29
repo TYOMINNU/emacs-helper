@@ -743,7 +743,12 @@
 
 ;;;###autoload
 (add-hook 'gnus-before-startup-hook
-	  '(lambda () (require 'eh-gnus)))
+	  '(lambda ()
+	     (require 'eh-offlineimap)
+	     (eh-offlineimap-cron)
+	     (require 'eh-rss2email)
+	     (eh-rss2email-cron)
+	     (require 'eh-gnus)))
 
 (provide 'eh-gnus)
 
