@@ -156,9 +156,9 @@
   5. dovecot rss订阅邮件保存账户: call_dovecot-password-for-rss()
 
 ** 安装辅助程序
- 安装msmtp, offlineimap, isync, leafnode, dovecot
+ 安装msmtp, offlineimap, isync, leafnode, dovecot and gnupg-agent
  #+BEGIN_SRC shell
- sudo apt-get install msmtp msmtp-gnome offlineimap isync leafnode dovecot-core dovecot-imapd
+ sudo apt-get install msmtp msmtp-gnome offlineimap isync leafnode dovecot-core dovecot-imapd gnupg-agent
  #+END_SRC
 
  Debian 7软件库中的html2test和feedparser版本太低，只能使用其他方式安装rss2email
@@ -251,6 +251,53 @@
  #+END_SRC
 
 ** 配置辅助程序
+*** gnupg-agent
+~/.gnupg/gpg-agent.conf
+#+BEGIN_SRC org
+### PIN entry Program
+# pinentry-program /usr/bin/pinentry-curses
+# pinentry-program /usr/bin/pinentry-qt4
+# pinentry-program /usr/bin/pinentry-kwallet
+pinentry-program /usr/bin/pinentry-gtk-2
+
+### Keyboard control
+no-grab
+
+### Cache timeout: 3 hours
+default-cache-ttl 10800
+# default-cache-ttl-ssh 10800
+#+END_SRC
+
+~/.gnupg/gpg.conf
+#+BEGIN_SRC org
+
+... （忽略）
+
+use-agent
+
+... （忽略）
+#+END_SRC
+
+Debian系统中，gnupg-agent软件包自带启动脚本，只要gnupg配置文件（~/.gnupg/gpg.conf或~/.gnupg/options）中，use-agent选项激活，gnupg-agent就会随着X自动启动，启动脚本为：
+#+BEGIN_SRC org
+/etc/X11/Xsession.d/90gpg-agent
+#+END_SRC
+
+如果需要手动启动gpg-agent,可以使用下面的命令:
+#+BEGIN_SRC org
+eval "$(gpg-agent --daemon)"
+#+END_SRC
+或者
+#+BEGIN_SRC org
+bash /etc/X11/Xsession.d/90gpg-agent
+#+END_SRC
+
+关闭 gnupg-agent
+#+BEGIN_SRC shell :tangle configs/gnupg-agent-stop.sh
+if [ -n "${GPG_AGENT_INFO}" ]; then
+  kill $(echo ${GPG_AGENT_INFO} | cut -d':' -f 2) >/dev/null 2>&1
+fi
+#+END_SRC
 *** 邮件发送程序
 **** msmtp
   msmpt配置文件~/.msmptrc的内容如下：
@@ -323,31 +370,27 @@
   offlineimap配置文件:  ~/.offlineimaprc
   #+BEGIN_SRC org :tangle configs/offlineimaprc :tangle-mode (identity #o600)
   [general]
-  accounts = default-email-account
+  accounts = email-account-1
   pythonfile = <<configs-path>>/offlineimap.py
   ui = quiet
 
-  [Account default-email-account]
-  localrepository = LocalIMAP
-  remoterepository = RemoteIMAP
+  [Account email-account-1]
+  localrepository = local-imap-1
+  remoterepository = remote-imap-1
   # autorefresh = 3
 
-  [Repository LocalIMAP]
+  [Repository local-imap-1]
   type = IMAP
   remotehost = localhost
   remoteuser = <<dovecot-user-for-email>>
-  remotepass = <<dovecot-password-for-email>>
+  remotepasseval = get_password("local-imap-1")
   holdconnectionopen = yes
 
-  [Repository RemoteIMAP]
+  [Repository remote-imap-1]
   type = IMAP
   remotehost = <<email-imap-server>>
   remoteuser = <<email-address>>
-  # 安装包python-keyring,然后使用下的命令保存密码。
-  # import keyring
-  # keyring.set_password("<<email-imap-server>>","<<email-address>>", "<<email-password>>")
-  # remotepasseval = keyring.get_password("<<email-imap-server>>","<<email-address>>")
-  remotepass = <<email-password>>
+  remotepasseval = get_password("remote-imap-1")
   ssl = yes
   cert_fingerprint=<<gmail-cert-fingerprint>>
   maxconnections = 3
@@ -367,8 +410,23 @@
 
   offlineimap.py文件
   #+BEGIN_SRC org :tangle configs/offlineimap.py :tangle-mode (identity #o600)
-  # This is a blank file
+#!/usr/bin/python
+import re, os
+
+def get_password(repository):
+    s = "#[ ]+offlineimap[ ]+%s[ ]+([^ \n]*)" % (repository)
+    p = re.compile(s)
+    ### you should setup gpg-agent proper ###
+    authinfo = os.popen("gpg -q --no-tty -d ~/.authinfo.gpg").read()
+    return p.search(authinfo).group(1)
   #+END_SRC
+
+~/.authinfo.gpg文件:
+#+BEGIN_SRC org
+### offlineimap remote-imap-1 <<email-password>>
+### offlineimap local-imap-1 <<dovecot-password-for-email>>
+
+#+END_SRC
 
 **** isync
   isync配置文件： ~/.mbsyncrc

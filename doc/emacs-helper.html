@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
 <head>
 <title>emacs-helper配置说明</title>
-<!-- 2014-11-29 六 12:55 -->
+<!-- 2014-12-01 一 13:56 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="冯书" />
@@ -39,31 +39,32 @@
 <li><a href="#sec-1-4">1.4. 安装辅助程序</a></li>
 <li><a href="#sec-1-5">1.5. 配置辅助程序</a>
 <ul>
-<li><a href="#sec-1-5-1">1.5.1. 邮件发送程序</a>
+<li><a href="#sec-1-5-1">1.5.1. gnupg-agent</a></li>
+<li><a href="#sec-1-5-2">1.5.2. 邮件发送程序</a>
 <ul>
-<li><a href="#sec-1-5-1-1">1.5.1.1. msmtp</a></li>
+<li><a href="#sec-1-5-2-1">1.5.2.1. msmtp</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-5-2">1.5.2. Imap服务器程序</a>
+<li><a href="#sec-1-5-3">1.5.3. Imap服务器程序</a>
 <ul>
-<li><a href="#sec-1-5-2-1">1.5.2.1. dovecot</a></li>
+<li><a href="#sec-1-5-3-1">1.5.3.1. dovecot</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-5-3">1.5.3. 邮件下载程序</a>
+<li><a href="#sec-1-5-4">1.5.4. 邮件下载程序</a>
 <ul>
-<li><a href="#sec-1-5-3-1">1.5.3.1. offlineimap</a></li>
-<li><a href="#sec-1-5-3-2">1.5.3.2. isync</a></li>
-<li><a href="#sec-1-5-3-3">1.5.3.3. fdm</a></li>
+<li><a href="#sec-1-5-4-1">1.5.4.1. offlineimap</a></li>
+<li><a href="#sec-1-5-4-2">1.5.4.2. isync</a></li>
+<li><a href="#sec-1-5-4-3">1.5.4.3. fdm</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-5-4">1.5.4. 新闻组下载程序</a>
+<li><a href="#sec-1-5-5">1.5.5. 新闻组下载程序</a>
 <ul>
-<li><a href="#sec-1-5-4-1">1.5.4.1. leafnode</a></li>
+<li><a href="#sec-1-5-5-1">1.5.5.1. leafnode</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-5-5">1.5.5. rss下载程序</a>
+<li><a href="#sec-1-5-6">1.5.6. rss下载程序</a>
 <ul>
-<li><a href="#sec-1-5-5-1">1.5.5.1. rss2email</a></li>
+<li><a href="#sec-1-5-6-1">1.5.6.1. rss2email</a></li>
 </ul>
 </li>
 </ul>
@@ -214,11 +215,11 @@
 <h3 id="sec-1-4"><span class="section-number-3">1.4</span> 安装辅助程序</h3>
 <div class="outline-text-3" id="text-1-4">
 <p>
-安装msmtp, offlineimap, isync, leafnode, dovecot
+安装msmtp, offlineimap, isync, leafnode, dovecot and gnupg-agent
 </p>
 <div class="org-src-container">
 
-<pre class="src src-shell">sudo apt-get install msmtp msmtp-gnome offlineimap isync leafnode dovecot-core dovecot-imapd
+<pre class="src src-shell">sudo apt-get install msmtp msmtp-gnome offlineimap isync leafnode dovecot-core dovecot-imapd gnupg-agent
 </pre>
 </div>
 
@@ -338,11 +339,85 @@ rss2email后处理插件是标准的python包，我们使用 <code>rss2email_pos
 <h3 id="sec-1-5"><span class="section-number-3">1.5</span> 配置辅助程序</h3>
 <div class="outline-text-3" id="text-1-5">
 </div><div id="outline-container-sec-1-5-1" class="outline-4">
-<h4 id="sec-1-5-1"><span class="section-number-4">1.5.1</span> 邮件发送程序</h4>
+<h4 id="sec-1-5-1"><span class="section-number-4">1.5.1</span> gnupg-agent</h4>
 <div class="outline-text-4" id="text-1-5-1">
-</div><div id="outline-container-sec-1-5-1-1" class="outline-5">
-<h5 id="sec-1-5-1-1"><span class="section-number-5">1.5.1.1</span> msmtp</h5>
-<div class="outline-text-5" id="text-1-5-1-1">
+<p>
+~/.gnupg/gpg-agent.conf
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org">### PIN entry Program
+<span style="color: #8B8989; font-style: italic;"># pinentry-program /usr/bin/pinentry-curses</span>
+<span style="color: #8B8989; font-style: italic;"># pinentry-program /usr/bin/pinentry-qt4</span>
+<span style="color: #8B8989; font-style: italic;"># pinentry-program /usr/bin/pinentry-kwallet</span>
+pinentry-program /usr/bin/pinentry-gtk-2
+
+### Keyboard control
+no-grab
+
+### Cache timeout: 3 hours
+default-cache-ttl 10800
+<span style="color: #8B8989; font-style: italic;"># default-cache-ttl-ssh 10800</span>
+</pre>
+</div>
+
+<p>
+~/.gnupg/gpg.conf
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org">... &#65288;&#24573;&#30053;&#65289;
+
+use-agent
+
+... &#65288;&#24573;&#30053;&#65289;
+</pre>
+</div>
+
+<p>
+Debian系统中，gnupg-agent软件包自带启动脚本，只要gnupg配置文件（~/.gnupg/gpg.conf或~/.gnupg/options）中，use-agent选项激活，gnupg-agent就会随着X自动启动，启动脚本为：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org">/etc/X11/Xsession.d/90gpg-agent
+</pre>
+</div>
+
+<p>
+如果需要手动启动gpg-agent,可以使用下面的命令:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org">eval "$(gpg-agent --daemon)"
+</pre>
+</div>
+<p>
+或者
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org">bash /etc/X11/Xsession.d/90gpg-agent
+</pre>
+</div>
+
+<p>
+关闭 gnupg-agent
+</p>
+<div class="org-src-container">
+
+<pre class="src src-shell"><span style="color: #FBDE2D;">if</span> [ -n <span style="color: #61CE3C;">"${GPG_AGENT_INFO}"</span> ]; <span style="color: #FBDE2D;">then</span>
+  <span style="color: #FF6400;">kill</span> $(<span style="color: #fa8072;">echo</span> ${<span style="color: #D8FA3C;">GPG_AGENT_INFO</span>} | cut -d<span style="color: #61CE3C;">':'</span> -f 2) &gt;/dev/null 2&gt;&amp;1
+<span style="color: #FBDE2D;">fi</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-1-5-2" class="outline-4">
+<h4 id="sec-1-5-2"><span class="section-number-4">1.5.2</span> 邮件发送程序</h4>
+<div class="outline-text-4" id="text-1-5-2">
+</div><div id="outline-container-sec-1-5-2-1" class="outline-5">
+<h5 id="sec-1-5-2-1"><span class="section-number-5">1.5.2.1</span> msmtp</h5>
+<div class="outline-text-5" id="text-1-5-2-1">
 <p>
 msmpt配置文件~/.msmptrc的内容如下：
 </p>
@@ -380,12 +455,12 @@ python ./msmtp-gnome-tool.py --username=YOUREMAIL@gmail.com --server=smtp.gmail.
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-2" class="outline-4">
-<h4 id="sec-1-5-2"><span class="section-number-4">1.5.2</span> Imap服务器程序</h4>
-<div class="outline-text-4" id="text-1-5-2">
-</div><div id="outline-container-sec-1-5-2-1" class="outline-5">
-<h5 id="sec-1-5-2-1"><span class="section-number-5">1.5.2.1</span> dovecot</h5>
-<div class="outline-text-5" id="text-1-5-2-1">
+<div id="outline-container-sec-1-5-3" class="outline-4">
+<h4 id="sec-1-5-3"><span class="section-number-4">1.5.3</span> Imap服务器程序</h4>
+<div class="outline-text-4" id="text-1-5-3">
+</div><div id="outline-container-sec-1-5-3-1" class="outline-5">
+<h5 id="sec-1-5-3-1"><span class="section-number-5">1.5.3.1</span> dovecot</h5>
+<div class="outline-text-5" id="text-1-5-3-1">
 <p>
 dovecot的配置文件： /etc/dovecot/dovecot.conf
 </p>
@@ -433,43 +508,39 @@ myrss:{plain}myrss-password:feng:feng::/home/feng/maildir/.home/myrss::userdb_ma
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-3" class="outline-4">
-<h4 id="sec-1-5-3"><span class="section-number-4">1.5.3</span> 邮件下载程序</h4>
-<div class="outline-text-4" id="text-1-5-3">
-</div><div id="outline-container-sec-1-5-3-1" class="outline-5">
-<h5 id="sec-1-5-3-1"><span class="section-number-5">1.5.3.1</span> offlineimap</h5>
-<div class="outline-text-5" id="text-1-5-3-1">
+<div id="outline-container-sec-1-5-4" class="outline-4">
+<h4 id="sec-1-5-4"><span class="section-number-4">1.5.4</span> 邮件下载程序</h4>
+<div class="outline-text-4" id="text-1-5-4">
+</div><div id="outline-container-sec-1-5-4-1" class="outline-5">
+<h5 id="sec-1-5-4-1"><span class="section-number-5">1.5.4.1</span> offlineimap</h5>
+<div class="outline-text-5" id="text-1-5-4-1">
 <p>
 offlineimap配置文件:  ~/.offlineimaprc
 </p>
 <div class="org-src-container">
 
 <pre class="src src-org">[general]
-accounts = default-email-account
+accounts = email-account-1
 pythonfile = /home/feng/.config/eh-gnus/configs/offlineimap.py
 ui = quiet
 
-[Account default-email-account]
-localrepository = LocalIMAP
-remoterepository = RemoteIMAP
+[Account email-account-1]
+localrepository = local-imap-1
+remoterepository = remote-imap-1
 <span style="color: #8B8989; font-style: italic;"># autorefresh = 3</span>
 
-[Repository LocalIMAP]
+[Repository local-imap-1]
 type = IMAP
 remotehost = localhost
 remoteuser = myemail
-remotepass = myemail-password
+remotepasseval = get_password("local-imap-1")
 holdconnectionopen = yes
 
-[Repository RemoteIMAP]
+[Repository remote-imap-1]
 type = IMAP
 remotehost = imap.gmail.com
 remoteuser = YOUREMAIL@gmail.com
-<span style="color: #8B8989; font-style: italic;"># &#23433;&#35013;&#21253;python-keyring,&#28982;&#21518;&#20351;&#29992;&#19979;&#30340;&#21629;&#20196;&#20445;&#23384;&#23494;&#30721;&#12290;</span>
-<span style="color: #8B8989; font-style: italic;"># import keyring</span>
-<span style="color: #8B8989; font-style: italic;"># keyring.set_password("imap.gmail.com","YOUREMAIL@gmail.com", "YOURPASSWORD")</span>
-<span style="color: #8B8989; font-style: italic;"># remotepasseval = keyring.get_password("imap.gmail.com","YOUREMAIL@gmail.com")</span>
-remotepass = YOURPASSWORD
+remotepasseval = get_password("remote-imap-1")
 ssl = yes
 cert_fingerprint=f3043dd689a2e7dddfbef82703a6c65ea9b634c1
 maxconnections = 3
@@ -492,15 +563,33 @@ offlineimap.py文件
 </p>
 <div class="org-src-container">
 
-<pre class="src src-org"><span style="color: #8B8989; font-style: italic;"># This is a blank file</span>
+<pre class="src src-org">#!/usr/bin/python
+import re, os
+
+def get_password(repository):
+    s = "#[ ]+offlineimap[ ]+%s[ ]+([^ \n]*)" % (repository)
+    p = re.compile(s)
+    ### you should setup gpg-agent proper ###
+    authinfo = os.popen("gpg -q --no-tty -d ~/.authinfo.gpg").read()
+    return p.search(authinfo).group(1)
+</pre>
+</div>
+
+<p>
+~/.authinfo.gpg文件:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org">### offlineimap remote-imap-1 YOURPASSWORD
+### offlineimap local-imap-1 myemail-password
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-sec-1-5-3-2" class="outline-5">
-<h5 id="sec-1-5-3-2"><span class="section-number-5">1.5.3.2</span> isync</h5>
-<div class="outline-text-5" id="text-1-5-3-2">
+<div id="outline-container-sec-1-5-4-2" class="outline-5">
+<h5 id="sec-1-5-4-2"><span class="section-number-5">1.5.4.2</span> isync</h5>
+<div class="outline-text-5" id="text-1-5-4-2">
 <p>
 isync配置文件： ~/.mbsyncrc
 </p>
@@ -557,16 +646,16 @@ SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-spam-email
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-3-3" class="outline-5">
-<h5 id="sec-1-5-3-3"><span class="section-number-5">1.5.3.3</span> fdm</h5>
+<div id="outline-container-sec-1-5-4-3" class="outline-5">
+<h5 id="sec-1-5-4-3"><span class="section-number-5">1.5.4.3</span> fdm</h5>
 </div>
 </div>
-<div id="outline-container-sec-1-5-4" class="outline-4">
-<h4 id="sec-1-5-4"><span class="section-number-4">1.5.4</span> 新闻组下载程序</h4>
-<div class="outline-text-4" id="text-1-5-4">
-</div><div id="outline-container-sec-1-5-4-1" class="outline-5">
-<h5 id="sec-1-5-4-1"><span class="section-number-5">1.5.4.1</span> leafnode</h5>
-<div class="outline-text-5" id="text-1-5-4-1">
+<div id="outline-container-sec-1-5-5" class="outline-4">
+<h4 id="sec-1-5-5"><span class="section-number-4">1.5.5</span> 新闻组下载程序</h4>
+<div class="outline-text-4" id="text-1-5-5">
+</div><div id="outline-container-sec-1-5-5-1" class="outline-5">
+<h5 id="sec-1-5-5-1"><span class="section-number-5">1.5.5.1</span> leafnode</h5>
+<div class="outline-text-5" id="text-1-5-5-1">
 <p>
 leafnode运行必须有完整的域名， 如果只将leafnode作为一个news下载器，我们可以设定一个伪造的域名，比如：在debian系统中，我们可以更改/etc/hosts文件：
 </p>
@@ -619,12 +708,12 @@ leafnode配置
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-5" class="outline-4">
-<h4 id="sec-1-5-5"><span class="section-number-4">1.5.5</span> rss下载程序</h4>
-<div class="outline-text-4" id="text-1-5-5">
-</div><div id="outline-container-sec-1-5-5-1" class="outline-5">
-<h5 id="sec-1-5-5-1"><span class="section-number-5">1.5.5.1</span> rss2email</h5>
-<div class="outline-text-5" id="text-1-5-5-1">
+<div id="outline-container-sec-1-5-6" class="outline-4">
+<h4 id="sec-1-5-6"><span class="section-number-4">1.5.6</span> rss下载程序</h4>
+<div class="outline-text-4" id="text-1-5-6">
+</div><div id="outline-container-sec-1-5-6-1" class="outline-5">
+<h5 id="sec-1-5-6-1"><span class="section-number-5">1.5.6.1</span> rss2email</h5>
+<div class="outline-text-5" id="text-1-5-6-1">
 <p>
 rss2email配置文件: ~/.configs/rss2email.conf
 </p>
@@ -1083,7 +1172,7 @@ company默认使用overlay菜单frontend， 中文显示存在问题。我简单
 </div>
 <div id="postamble" class="status">
 <p class="author">&#20316;&#32773;: 冯书</p>
-<p class="date">Created: 2014-11-29 六 12:55</p>
+<p class="date">Created: 2014-12-01 一 13:56</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.3beta)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
