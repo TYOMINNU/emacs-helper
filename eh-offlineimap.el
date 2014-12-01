@@ -59,7 +59,7 @@
     (cancel-timer eh-offlineimap-timer))
   (setq eh-offlineimap-timer
 	(run-with-timer
-	 nil (* 5 60)
+	 30 (* 5 60)
 	 '(lambda ()
 	    (message "Sync email with eh-offlineimap ...")
 	    (eh-offlineimap)))))
