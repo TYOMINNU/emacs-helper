@@ -353,7 +353,6 @@
 ;;; ob-gtranslate
 (require 'org)
 (require 'ob)
-(require 'ob-translate)
 
 (defun org-babel-execute:translate (text params)
   "org-babel translation hook."

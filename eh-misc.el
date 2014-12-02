@@ -102,7 +102,6 @@
 (require 'eshell)
 (require 'em-term)
 (require 'em-unix)
-(require 'esh-help)
 
 (setq eshell-visual-commands
       (append '("aptitude" "mutt" "nano" "crontab" "vim" "less")
@@ -114,13 +113,6 @@
 
 (setq eshell-visual-options
       '(("git" "--help")))
-
-(defun eh-eshell-setup ()
-  ;; (setup-esh-help-eldoc)
-  ;; (eldoc-mode)
-  (local-set-key (kbd "M-q") 'eshell-push-command))
-
-(add-hook 'eshell-mode-hook 'eh-eshell-setup)
 
 (defun eh-eshell (&optional arg)
   (interactive)

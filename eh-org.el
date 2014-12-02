@@ -43,7 +43,6 @@
 (require 'ox-deck)
 (require 'ox-rss)
 (require 'ox-s5)
-(require 'ox-pandoc)
 
 (require 'org-contacts)
 (require 'org-mime)
