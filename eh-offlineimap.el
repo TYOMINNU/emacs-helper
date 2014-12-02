@@ -54,6 +54,7 @@
        eh-offlineimap-command))))
 
 (defun eh-offlineimap-cron ()
+  "5分钟运行一次`eh-offlineimap', 延迟启动30秒, 等待gpg-agent密码输入."
   (interactive)
   (when eh-offlineimap-timer
     (cancel-timer eh-offlineimap-timer))

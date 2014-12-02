@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
 <head>
 <title>emacs-helper配置说明</title>
-<!-- 2014-12-01 一 13:56 -->
+<!-- 2014-12-02 二 10:43 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="冯书" />
@@ -19,99 +19,183 @@
 <h2>&#30446;&#24405;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1. eh-gnus.el</a>
+<li><a href="#sec-1">1. 安装emacs</a></li>
+<li><a href="#sec-2">2. eh-gnus.el</a>
 <ul>
-<li><a href="#sec-1-1">1.1. 显摆gnus截图</a>
+<li><a href="#sec-2-1">2.1. 显摆gnus截图</a>
 <ul>
-<li><a href="#sec-1-1-1">1.1.1. gnus组名称列表（group buffer）</a></li>
-<li><a href="#sec-1-1-2">1.1.2. gnus新闻标题列表（summary buffer）</a></li>
-<li><a href="#sec-1-1-3">1.1.3. gnus新闻标题+正文（summary buffer + article buffer）</a></li>
+<li><a href="#sec-2-1-1">2.1.1. gnus组名称列表（group buffer）</a></li>
+<li><a href="#sec-2-1-2">2.1.2. gnus新闻标题列表（summary buffer）</a></li>
+<li><a href="#sec-2-1-3">2.1.3. gnus新闻标题+正文（summary buffer + article buffer）</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-2">1.2. 解释配置原理</a></li>
-<li><a href="#sec-1-3">1.3. 设定基本信息</a>
+<li><a href="#sec-2-2">2.2. 解释配置原理</a></li>
+<li><a href="#sec-2-3">2.3. 设定基本信息</a>
 <ul>
-<li><a href="#sec-1-3-1">1.3.1. 邮箱访问设置</a></li>
-<li><a href="#sec-1-3-2">1.3.2. 本机设置</a></li>
-<li><a href="#sec-1-3-3">1.3.3. dovecot设置</a></li>
+<li><a href="#sec-2-3-1">2.3.1. 邮箱访问设置</a></li>
+<li><a href="#sec-2-3-2">2.3.2. 本机设置</a></li>
+<li><a href="#sec-2-3-3">2.3.3. dovecot设置</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-4">1.4. 安装辅助程序</a></li>
-<li><a href="#sec-1-5">1.5. 配置辅助程序</a>
+<li><a href="#sec-2-4">2.4. 安装辅助程序</a></li>
+<li><a href="#sec-2-5">2.5. 配置辅助程序</a>
 <ul>
-<li><a href="#sec-1-5-1">1.5.1. gnupg-agent</a></li>
-<li><a href="#sec-1-5-2">1.5.2. 邮件发送程序</a>
+<li><a href="#sec-2-5-1">2.5.1. gnupg-agent</a></li>
+<li><a href="#sec-2-5-2">2.5.2. 邮件发送程序</a>
 <ul>
-<li><a href="#sec-1-5-2-1">1.5.2.1. msmtp</a></li>
+<li><a href="#sec-2-5-2-1">2.5.2.1. msmtp</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-5-3">1.5.3. Imap服务器程序</a>
+<li><a href="#sec-2-5-3">2.5.3. Imap服务器程序</a>
 <ul>
-<li><a href="#sec-1-5-3-1">1.5.3.1. dovecot</a></li>
+<li><a href="#sec-2-5-3-1">2.5.3.1. dovecot</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-5-4">1.5.4. 邮件下载程序</a>
+<li><a href="#sec-2-5-4">2.5.4. 邮件下载程序</a>
 <ul>
-<li><a href="#sec-1-5-4-1">1.5.4.1. offlineimap</a></li>
-<li><a href="#sec-1-5-4-2">1.5.4.2. isync</a></li>
-<li><a href="#sec-1-5-4-3">1.5.4.3. fdm</a></li>
+<li><a href="#sec-2-5-4-1">2.5.4.1. offlineimap</a></li>
+<li><a href="#sec-2-5-4-2">2.5.4.2. isync</a></li>
+<li><a href="#sec-2-5-4-3">2.5.4.3. fdm</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-5-5">1.5.5. 新闻组下载程序</a>
+<li><a href="#sec-2-5-5">2.5.5. 新闻组下载程序</a>
 <ul>
-<li><a href="#sec-1-5-5-1">1.5.5.1. leafnode</a></li>
+<li><a href="#sec-2-5-5-1">2.5.5.1. leafnode</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-5-6">1.5.6. rss下载程序</a>
+<li><a href="#sec-2-5-6">2.5.6. rss下载程序</a>
 <ul>
-<li><a href="#sec-1-5-6-1">1.5.6.1. rss2email</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#sec-1-6">1.6. 定时下载rss和同步邮件</a></li>
-<li><a href="#sec-1-7">1.7. gnus配置</a></li>
-</ul>
-</li>
-<li><a href="#sec-2">2. eh-translate.el</a>
-<ul>
-<li><a href="#sec-2-1">2.1. 截图显摆</a>
-<ul>
-<li><a href="#sec-2-1-1">2.1.1. sdcv字典</a></li>
-<li><a href="#sec-2-1-2">2.1.2. google翻译</a></li>
-<li><a href="#sec-2-1-3">2.1.3. bing翻译</a></li>
-</ul>
-</li>
-<li><a href="#sec-2-2">2.2. 命令介绍</a>
-<ul>
-<li><a href="#sec-2-2-1">2.2.1. eh-bing-translate-at-point</a></li>
-<li><a href="#sec-2-2-2">2.2.2. eh-sdcv-translate-at-point</a></li>
-<li><a href="#sec-2-2-3">2.2.3. google-translate-at-point</a></li>
+<li><a href="#sec-2-5-6-1">2.5.6.1. rss2email</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#sec-3">3. eh-fonts.el</a>
-<ul>
-<li><a href="#sec-3-1">3.1. 安装</a></li>
-<li><a href="#sec-3-2">3.2. 设置</a></li>
-<li><a href="#sec-3-3">3.3. 使用</a></li>
+<li><a href="#sec-2-6">2.6. 定时下载rss和同步邮件</a></li>
+<li><a href="#sec-2-7">2.7. gnus配置</a></li>
 </ul>
 </li>
-<li><a href="#sec-4">4. eh-complete.el</a></li>
+<li><a href="#sec-3">3. eh-translate.el</a>
+<ul>
+<li><a href="#sec-3-1">3.1. 截图显摆</a>
+<ul>
+<li><a href="#sec-3-1-1">3.1.1. sdcv字典</a></li>
+<li><a href="#sec-3-1-2">3.1.2. google翻译</a></li>
+<li><a href="#sec-3-1-3">3.1.3. bing翻译</a></li>
+</ul>
+</li>
+<li><a href="#sec-3-2">3.2. 命令介绍</a>
+<ul>
+<li><a href="#sec-3-2-1">3.2.1. eh-bing-translate-at-point</a></li>
+<li><a href="#sec-3-2-2">3.2.2. eh-sdcv-translate-at-point</a></li>
+<li><a href="#sec-3-2-3">3.2.3. google-translate-at-point</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-4">4. eh-fonts.el</a>
+<ul>
+<li><a href="#sec-4-1">4.1. 安装</a></li>
+<li><a href="#sec-4-2">4.2. 设置</a></li>
+<li><a href="#sec-4-3">4.3. 使用</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. eh-complete.el</a></li>
 </ul>
 </div>
+</div>
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> 安装emacs</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+emacs-snapshot挂掉之后，我就开始使用evm来安装emacs了。用起来比较简单:
+</p>
+
+<p>
+首先创建emacs安装目录，然后将目录所有者设为自己。（注意：下面目录不可以更改）
+</p>
+<div class="org-src-container">
+
+<pre class="src src-shell">sudo mkdir /usr/local/evm
+sudo chown $<span style="color: #D8FA3C;">USER</span>: /usr/local/evm
+</pre>
 </div>
 
-<div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1"><span class="section-number-2">1</span> eh-gnus.el</h2>
-<div class="outline-text-2" id="text-1">
-</div><div id="outline-container-sec-1-1" class="outline-3">
-<h3 id="sec-1-1"><span class="section-number-3">1.1</span> 显摆gnus截图</h3>
-<div class="outline-text-3" id="text-1-1">
-</div><div id="outline-container-sec-1-1-1" class="outline-4">
-<h4 id="sec-1-1-1"><span class="section-number-4">1.1.1</span> gnus组名称列表（group buffer）</h4>
-<div class="outline-text-4" id="text-1-1-1">
+<p>
+安装evm
+</p>
+<div class="org-src-container">
+
+<pre class="src src-shell">git clone https://github.com/rejeep/evm.git ~/.evm
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-org">export PATH="~/.evm/bin:$PATH"
+</pre>
+</div>
+
+<p>
+自定义一个recipes文件(tumashu-emacs.rb),然后放入~/.evm/recipes/中。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-org">recipe 'tumashu-emacs' do
+  git '/home/feng/project/emacs/'
+
+  osx do
+    option '--with-ns'
+    option '--without-x'
+    option '--without-dbus'
+  end
+
+  linux do
+    option '--prefix', installation_path
+    option '--without-gif'
+  end
+
+  install do
+    autogen
+    configure
+    make 'bootstrap'
+    make 'install'
+
+    osx do
+      copy File.join(build_path, 'nextstep', 'Emacs.app'), installation_path
+    end
+  end
+end
+</pre>
+</div>
+
+<p>
+编译tumashu-emacs
+</p>
+<div class="org-src-container">
+
+<pre class="src src-R">evm install tumashu-emacs
+</pre>
+</div>
+
+<p>
+使用tumashu-emacs
+</p>
+<div class="org-src-container">
+
+<pre class="src src-R">evm use tumashu-emacs
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> eh-gnus.el</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> 显摆gnus截图</h3>
+<div class="outline-text-3" id="text-2-1">
+</div><div id="outline-container-sec-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> gnus组名称列表（group buffer）</h4>
+<div class="outline-text-4" id="text-2-1-1">
 
 <div class="figure">
 <p><img src="./images/gnus-group.png" alt="gnus-group.png" />
@@ -120,9 +204,9 @@
 </div>
 </div>
 
-<div id="outline-container-sec-1-1-2" class="outline-4">
-<h4 id="sec-1-1-2"><span class="section-number-4">1.1.2</span> gnus新闻标题列表（summary buffer）</h4>
-<div class="outline-text-4" id="text-1-1-2">
+<div id="outline-container-sec-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> gnus新闻标题列表（summary buffer）</h4>
+<div class="outline-text-4" id="text-2-1-2">
 
 <div class="figure">
 <p><img src="./images/gnus-summary1.png" alt="gnus-summary1.png" />
@@ -137,9 +221,9 @@
 </div>
 </div>
 
-<div id="outline-container-sec-1-1-3" class="outline-4">
-<h4 id="sec-1-1-3"><span class="section-number-4">1.1.3</span> gnus新闻标题+正文（summary buffer + article buffer）</h4>
-<div class="outline-text-4" id="text-1-1-3">
+<div id="outline-container-sec-2-1-3" class="outline-4">
+<h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> gnus新闻标题+正文（summary buffer + article buffer）</h4>
+<div class="outline-text-4" id="text-2-1-3">
 
 <div class="figure">
 <p><img src="./images/gnus-summary+article.png" alt="gnus-summary+article.png" />
@@ -149,9 +233,9 @@
 </div>
 </div>
 
-<div id="outline-container-sec-1-2" class="outline-3">
-<h3 id="sec-1-2"><span class="section-number-3">1.2</span> 解释配置原理</h3>
-<div class="outline-text-3" id="text-1-2">
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 解释配置原理</h3>
+<div class="outline-text-3" id="text-2-2">
 
 <div class="figure">
 <p><img src="images/gnus配置基本原理.png" alt="gnus配置基本原理.png" />
@@ -159,12 +243,12 @@
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-3" class="outline-3">
-<h3 id="sec-1-3"><span class="section-number-3">1.3</span> 设定基本信息</h3>
-<div class="outline-text-3" id="text-1-3">
-</div><div id="outline-container-sec-1-3-1" class="outline-4">
-<h4 id="sec-1-3-1"><span class="section-number-4">1.3.1</span> 邮箱访问设置</h4>
-<div class="outline-text-4" id="text-1-3-1">
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> 设定基本信息</h3>
+<div class="outline-text-3" id="text-2-3">
+</div><div id="outline-container-sec-2-3-1" class="outline-4">
+<h4 id="sec-2-3-1"><span class="section-number-4">2.3.1</span> 邮箱访问设置</h4>
+<div class="outline-text-4" id="text-2-3-1">
 <ol class="org-ol">
 <li>邮箱地址: <code>YOUREMAIL@gmail.com</code>
 </li>
@@ -181,9 +265,9 @@
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-1-3-2" class="outline-4">
-<h4 id="sec-1-3-2"><span class="section-number-4">1.3.2</span> 本机设置</h4>
-<div class="outline-text-4" id="text-1-3-2">
+<div id="outline-container-sec-2-3-2" class="outline-4">
+<h4 id="sec-2-3-2"><span class="section-number-4">2.3.2</span> 本机设置</h4>
+<div class="outline-text-4" id="text-2-3-2">
 <ol class="org-ol">
 <li>本机登陆用户: <code>feng</code>
 </li>
@@ -192,9 +276,9 @@
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-1-3-3" class="outline-4">
-<h4 id="sec-1-3-3"><span class="section-number-4">1.3.3</span> dovecot设置</h4>
-<div class="outline-text-4" id="text-1-3-3">
+<div id="outline-container-sec-2-3-3" class="outline-4">
+<h4 id="sec-2-3-3"><span class="section-number-4">2.3.3</span> dovecot设置</h4>
+<div class="outline-text-4" id="text-2-3-3">
 <ol class="org-ol">
 <li>email保存目录:  <code>/home/feng/maildir</code>
 </li>
@@ -211,9 +295,9 @@
 </div>
 </div>
 
-<div id="outline-container-sec-1-4" class="outline-3">
-<h3 id="sec-1-4"><span class="section-number-3">1.4</span> 安装辅助程序</h3>
-<div class="outline-text-3" id="text-1-4">
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> 安装辅助程序</h3>
+<div class="outline-text-3" id="text-2-4">
 <p>
 安装msmtp, offlineimap, isync, leafnode, dovecot and gnupg-agent
 </p>
@@ -335,12 +419,12 @@ rss2email后处理插件是标准的python包，我们使用 <code>rss2email_pos
 </div>
 </div>
 
-<div id="outline-container-sec-1-5" class="outline-3">
-<h3 id="sec-1-5"><span class="section-number-3">1.5</span> 配置辅助程序</h3>
-<div class="outline-text-3" id="text-1-5">
-</div><div id="outline-container-sec-1-5-1" class="outline-4">
-<h4 id="sec-1-5-1"><span class="section-number-4">1.5.1</span> gnupg-agent</h4>
-<div class="outline-text-4" id="text-1-5-1">
+<div id="outline-container-sec-2-5" class="outline-3">
+<h3 id="sec-2-5"><span class="section-number-3">2.5</span> 配置辅助程序</h3>
+<div class="outline-text-3" id="text-2-5">
+</div><div id="outline-container-sec-2-5-1" class="outline-4">
+<h4 id="sec-2-5-1"><span class="section-number-4">2.5.1</span> gnupg-agent</h4>
+<div class="outline-text-4" id="text-2-5-1">
 <p>
 ~/.gnupg/gpg-agent.conf
 </p>
@@ -412,12 +496,12 @@ Debian系统中，gnupg-agent软件包自带启动脚本，只要gnupg配置文�
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-2" class="outline-4">
-<h4 id="sec-1-5-2"><span class="section-number-4">1.5.2</span> 邮件发送程序</h4>
-<div class="outline-text-4" id="text-1-5-2">
-</div><div id="outline-container-sec-1-5-2-1" class="outline-5">
-<h5 id="sec-1-5-2-1"><span class="section-number-5">1.5.2.1</span> msmtp</h5>
-<div class="outline-text-5" id="text-1-5-2-1">
+<div id="outline-container-sec-2-5-2" class="outline-4">
+<h4 id="sec-2-5-2"><span class="section-number-4">2.5.2</span> 邮件发送程序</h4>
+<div class="outline-text-4" id="text-2-5-2">
+</div><div id="outline-container-sec-2-5-2-1" class="outline-5">
+<h5 id="sec-2-5-2-1"><span class="section-number-5">2.5.2.1</span> msmtp</h5>
+<div class="outline-text-5" id="text-2-5-2-1">
 <p>
 msmpt配置文件~/.msmptrc的内容如下：
 </p>
@@ -455,12 +539,12 @@ python ./msmtp-gnome-tool.py --username=YOUREMAIL@gmail.com --server=smtp.gmail.
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-3" class="outline-4">
-<h4 id="sec-1-5-3"><span class="section-number-4">1.5.3</span> Imap服务器程序</h4>
-<div class="outline-text-4" id="text-1-5-3">
-</div><div id="outline-container-sec-1-5-3-1" class="outline-5">
-<h5 id="sec-1-5-3-1"><span class="section-number-5">1.5.3.1</span> dovecot</h5>
-<div class="outline-text-5" id="text-1-5-3-1">
+<div id="outline-container-sec-2-5-3" class="outline-4">
+<h4 id="sec-2-5-3"><span class="section-number-4">2.5.3</span> Imap服务器程序</h4>
+<div class="outline-text-4" id="text-2-5-3">
+</div><div id="outline-container-sec-2-5-3-1" class="outline-5">
+<h5 id="sec-2-5-3-1"><span class="section-number-5">2.5.3.1</span> dovecot</h5>
+<div class="outline-text-5" id="text-2-5-3-1">
 <p>
 dovecot的配置文件： /etc/dovecot/dovecot.conf
 </p>
@@ -508,12 +592,12 @@ myrss:{plain}myrss-password:feng:feng::/home/feng/maildir/.home/myrss::userdb_ma
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-4" class="outline-4">
-<h4 id="sec-1-5-4"><span class="section-number-4">1.5.4</span> 邮件下载程序</h4>
-<div class="outline-text-4" id="text-1-5-4">
-</div><div id="outline-container-sec-1-5-4-1" class="outline-5">
-<h5 id="sec-1-5-4-1"><span class="section-number-5">1.5.4.1</span> offlineimap</h5>
-<div class="outline-text-5" id="text-1-5-4-1">
+<div id="outline-container-sec-2-5-4" class="outline-4">
+<h4 id="sec-2-5-4"><span class="section-number-4">2.5.4</span> 邮件下载程序</h4>
+<div class="outline-text-4" id="text-2-5-4">
+</div><div id="outline-container-sec-2-5-4-1" class="outline-5">
+<h5 id="sec-2-5-4-1"><span class="section-number-5">2.5.4.1</span> offlineimap</h5>
+<div class="outline-text-5" id="text-2-5-4-1">
 <p>
 offlineimap配置文件:  ~/.offlineimaprc
 </p>
@@ -587,9 +671,9 @@ def get_password(repository):
 </div>
 </div>
 
-<div id="outline-container-sec-1-5-4-2" class="outline-5">
-<h5 id="sec-1-5-4-2"><span class="section-number-5">1.5.4.2</span> isync</h5>
-<div class="outline-text-5" id="text-1-5-4-2">
+<div id="outline-container-sec-2-5-4-2" class="outline-5">
+<h5 id="sec-2-5-4-2"><span class="section-number-5">2.5.4.2</span> isync</h5>
+<div class="outline-text-5" id="text-2-5-4-2">
 <p>
 isync配置文件： ~/.mbsyncrc
 </p>
@@ -646,16 +730,16 @@ SyncState /home/feng/.config/eh-gnus/configs/mbsyncstate/get-spam-email
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-4-3" class="outline-5">
-<h5 id="sec-1-5-4-3"><span class="section-number-5">1.5.4.3</span> fdm</h5>
+<div id="outline-container-sec-2-5-4-3" class="outline-5">
+<h5 id="sec-2-5-4-3"><span class="section-number-5">2.5.4.3</span> fdm</h5>
 </div>
 </div>
-<div id="outline-container-sec-1-5-5" class="outline-4">
-<h4 id="sec-1-5-5"><span class="section-number-4">1.5.5</span> 新闻组下载程序</h4>
-<div class="outline-text-4" id="text-1-5-5">
-</div><div id="outline-container-sec-1-5-5-1" class="outline-5">
-<h5 id="sec-1-5-5-1"><span class="section-number-5">1.5.5.1</span> leafnode</h5>
-<div class="outline-text-5" id="text-1-5-5-1">
+<div id="outline-container-sec-2-5-5" class="outline-4">
+<h4 id="sec-2-5-5"><span class="section-number-4">2.5.5</span> 新闻组下载程序</h4>
+<div class="outline-text-4" id="text-2-5-5">
+</div><div id="outline-container-sec-2-5-5-1" class="outline-5">
+<h5 id="sec-2-5-5-1"><span class="section-number-5">2.5.5.1</span> leafnode</h5>
+<div class="outline-text-5" id="text-2-5-5-1">
 <p>
 leafnode运行必须有完整的域名， 如果只将leafnode作为一个news下载器，我们可以设定一个伪造的域名，比如：在debian系统中，我们可以更改/etc/hosts文件：
 </p>
@@ -708,12 +792,12 @@ leafnode配置
 </div>
 </div>
 </div>
-<div id="outline-container-sec-1-5-6" class="outline-4">
-<h4 id="sec-1-5-6"><span class="section-number-4">1.5.6</span> rss下载程序</h4>
-<div class="outline-text-4" id="text-1-5-6">
-</div><div id="outline-container-sec-1-5-6-1" class="outline-5">
-<h5 id="sec-1-5-6-1"><span class="section-number-5">1.5.6.1</span> rss2email</h5>
-<div class="outline-text-5" id="text-1-5-6-1">
+<div id="outline-container-sec-2-5-6" class="outline-4">
+<h4 id="sec-2-5-6"><span class="section-number-4">2.5.6</span> rss下载程序</h4>
+<div class="outline-text-4" id="text-2-5-6">
+</div><div id="outline-container-sec-2-5-6-1" class="outline-5">
+<h5 id="sec-2-5-6-1"><span class="section-number-5">2.5.6.1</span> rss2email</h5>
+<div class="outline-text-5" id="text-2-5-6-1">
 <p>
 rss2email配置文件: ~/.configs/rss2email.conf
 </p>
@@ -847,9 +931,9 @@ read -t 10
 </div>
 </div>
 
-<div id="outline-container-sec-1-6" class="outline-3">
-<h3 id="sec-1-6"><span class="section-number-3">1.6</span> 定时下载rss和同步邮件</h3>
-<div class="outline-text-3" id="text-1-6">
+<div id="outline-container-sec-2-6" class="outline-3">
+<h3 id="sec-2-6"><span class="section-number-3">2.6</span> 定时下载rss和同步邮件</h3>
+<div class="outline-text-3" id="text-2-6">
 <p>
 定时运行程序最常用的方法是设置cron程序。但由于环境变量问题，rss2email和offlineimap在cron环境下经常莫名奇妙的不工作，而且很难调试。
 </p>
@@ -956,9 +1040,9 @@ eh-rss2email.el文件:
 </div>
 </div>
 
-<div id="outline-container-sec-1-7" class="outline-3">
-<h3 id="sec-1-7"><span class="section-number-3">1.7</span> gnus配置</h3>
-<div class="outline-text-3" id="text-1-7">
+<div id="outline-container-sec-2-7" class="outline-3">
+<h3 id="sec-2-7"><span class="section-number-3">2.7</span> gnus配置</h3>
+<div class="outline-text-3" id="text-2-7">
 <p>
 调整eh-gnus.el文件中如下几行：
 </p>
@@ -985,15 +1069,15 @@ eh-rss2email.el文件:
 </div>
 </div>
 </div>
-<div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> eh-translate.el</h2>
-<div class="outline-text-2" id="text-2">
-</div><div id="outline-container-sec-2-1" class="outline-3">
-<h3 id="sec-2-1"><span class="section-number-3">2.1</span> 截图显摆</h3>
-<div class="outline-text-3" id="text-2-1">
-</div><div id="outline-container-sec-2-1-1" class="outline-4">
-<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> sdcv字典</h4>
-<div class="outline-text-4" id="text-2-1-1">
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> eh-translate.el</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> 截图显摆</h3>
+<div class="outline-text-3" id="text-3-1">
+</div><div id="outline-container-sec-3-1-1" class="outline-4">
+<h4 id="sec-3-1-1"><span class="section-number-4">3.1.1</span> sdcv字典</h4>
+<div class="outline-text-4" id="text-3-1-1">
 
 <div class="figure">
 <p><img src="./images/eh-sdcv.png" alt="eh-sdcv.png" />
@@ -1001,9 +1085,9 @@ eh-rss2email.el文件:
 </div>
 </div>
 </div>
-<div id="outline-container-sec-2-1-2" class="outline-4">
-<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> google翻译</h4>
-<div class="outline-text-4" id="text-2-1-2">
+<div id="outline-container-sec-3-1-2" class="outline-4">
+<h4 id="sec-3-1-2"><span class="section-number-4">3.1.2</span> google翻译</h4>
+<div class="outline-text-4" id="text-3-1-2">
 
 <div class="figure">
 <p><img src="./images/eh-google-translate.png" alt="eh-google-translate.png" />
@@ -1011,9 +1095,9 @@ eh-rss2email.el文件:
 </div>
 </div>
 </div>
-<div id="outline-container-sec-2-1-3" class="outline-4">
-<h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> bing翻译</h4>
-<div class="outline-text-4" id="text-2-1-3">
+<div id="outline-container-sec-3-1-3" class="outline-4">
+<h4 id="sec-3-1-3"><span class="section-number-4">3.1.3</span> bing翻译</h4>
+<div class="outline-text-4" id="text-3-1-3">
 
 <div class="figure">
 <p><img src="./images/eh-bing-translate.png" alt="eh-bing-translate.png" />
@@ -1023,12 +1107,12 @@ eh-rss2email.el文件:
 </div>
 </div>
 
-<div id="outline-container-sec-2-2" class="outline-3">
-<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 命令介绍</h3>
-<div class="outline-text-3" id="text-2-2">
-</div><div id="outline-container-sec-2-2-1" class="outline-4">
-<h4 id="sec-2-2-1"><span class="section-number-4">2.2.1</span> eh-bing-translate-at-point</h4>
-<div class="outline-text-4" id="text-2-2-1">
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> 命令介绍</h3>
+<div class="outline-text-3" id="text-3-2">
+</div><div id="outline-container-sec-3-2-1" class="outline-4">
+<h4 id="sec-3-2-1"><span class="section-number-4">3.2.1</span> eh-bing-translate-at-point</h4>
+<div class="outline-text-4" id="text-3-2-1">
 <ol class="org-ol">
 <li>翻译光标处的单词，不可以翻译句子。
 </li>
@@ -1037,9 +1121,9 @@ eh-rss2email.el文件:
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-2-2-2" class="outline-4">
-<h4 id="sec-2-2-2"><span class="section-number-4">2.2.2</span> eh-sdcv-translate-at-point</h4>
-<div class="outline-text-4" id="text-2-2-2">
+<div id="outline-container-sec-3-2-2" class="outline-4">
+<h4 id="sec-3-2-2"><span class="section-number-4">3.2.2</span> eh-sdcv-translate-at-point</h4>
+<div class="outline-text-4" id="text-3-2-2">
 <ol class="org-ol">
 <li>可以翻译单词，不可以翻译句子。
 </li>
@@ -1050,9 +1134,9 @@ eh-rss2email.el文件:
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-2-2-3" class="outline-4">
-<h4 id="sec-2-2-3"><span class="section-number-4">2.2.3</span> google-translate-at-point</h4>
-<div class="outline-text-4" id="text-2-2-3">
+<div id="outline-container-sec-3-2-3" class="outline-4">
+<h4 id="sec-3-2-3"><span class="section-number-4">3.2.3</span> google-translate-at-point</h4>
+<div class="outline-text-4" id="text-3-2-3">
 <ol class="org-ol">
 <li>使用google在线翻译。
 </li>
@@ -1063,12 +1147,12 @@ eh-rss2email.el文件:
 </div>
 </div>
 </div>
-<div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3"><span class="section-number-2">3</span> eh-fonts.el</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-sec-3-1" class="outline-3">
-<h3 id="sec-3-1"><span class="section-number-3">3.1</span> 安装</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> eh-fonts.el</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> 安装</h3>
+<div class="outline-text-3" id="text-4-1">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #FBDE2D;">require</span> '<span style="color: #4c83ff;">eh-fonts</span>)
@@ -1076,9 +1160,9 @@ eh-rss2email.el文件:
 </div>
 </div>
 </div>
-<div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> 设置</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> 设置</h3>
+<div class="outline-text-3" id="text-4-2">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(eh-fonts-setup)
@@ -1123,9 +1207,9 @@ eh-custom-fonts-names-alist第一个列表为英文等宽字体列表，第二�
 </div>
 </div>
 
-<div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3"><span class="section-number-3">3.3</span> 使用</h3>
-<div class="outline-text-3" id="text-3-3">
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> 使用</h3>
+<div class="outline-text-3" id="text-4-3">
 <p>
 放大字体
 </p>
@@ -1149,9 +1233,9 @@ eh-custom-fonts-names-alist第一个列表为英文等宽字体列表，第二�
 </div>
 </div>
 
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4"><span class="section-number-2">4</span> eh-complete.el</h2>
-<div class="outline-text-2" id="text-4">
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> eh-complete.el</h2>
+<div class="outline-text-2" id="text-5">
 <p>
 company默认使用overlay菜单frontend， 中文显示存在问题。我简单的写了一个sidebar frontend, 效果如下：
 </p>
@@ -1172,7 +1256,7 @@ company默认使用overlay菜单frontend， 中文显示存在问题。我简单
 </div>
 <div id="postamble" class="status">
 <p class="author">&#20316;&#32773;: 冯书</p>
-<p class="date">Created: 2014-12-01 一 13:56</p>
+<p class="date">Created: 2014-12-02 二 10:43</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.3beta)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

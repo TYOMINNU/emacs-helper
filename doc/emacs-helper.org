@@ -11,7 +11,63 @@
 #+PROPERTY: header-args:python :eval no :noweb yes :mkdirp yes :results output scala  :exports code
 #+PROPERTY: header-args:emacs-lisp :eval no :noweb yes :results output scala :mkdirp yes  :exports code
 #+PROPERTY: header-args:shell :noweb yes :eval no :results output scala :exports code
+* 安装emacs
+emacs-snapshot挂掉之后，我就开始使用evm来安装emacs了。用起来比较简单:
 
+首先创建emacs安装目录，然后将目录所有者设为自己。（注意：下面目录不可以更改）
+#+BEGIN_SRC shell
+sudo mkdir /usr/local/evm
+sudo chown $USER: /usr/local/evm
+#+END_SRC
+
+安装evm
+#+BEGIN_SRC shell
+git clone https://github.com/rejeep/evm.git ~/.evm
+#+END_SRC
+
+#+BEGIN_SRC org
+export PATH="~/.evm/bin:$PATH"
+#+END_SRC
+
+自定义一个recipes文件(tumashu-emacs.rb),然后放入~/.evm/recipes/中。
+#+BEGIN_SRC org
+recipe 'tumashu-emacs' do
+  git '/home/feng/project/emacs/'
+
+  osx do
+    option '--with-ns'
+    option '--without-x'
+    option '--without-dbus'
+  end
+
+  linux do
+    option '--prefix', installation_path
+    option '--without-gif'
+  end
+
+  install do
+    autogen
+    configure
+    make 'bootstrap'
+    make 'install'
+
+    osx do
+      copy File.join(build_path, 'nextstep', 'Emacs.app'), installation_path
+    end
+  end
+end
+
+#+END_SRC
+
+编译tumashu-emacs
+#+BEGIN_SRC R
+evm install tumashu-emacs
+#+END_SRC
+
+使用tumashu-emacs
+#+BEGIN_SRC R
+evm use tumashu-emacs
+#+END_SRC
 * eh-gnus.el
 ** 显摆gnus截图
 *** gnus组名称列表（group buffer）

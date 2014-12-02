@@ -50,19 +50,12 @@
   (isearch-yank-string string)
   (isearch-exit))
 
-(defun eh-toggle-debug-on-error ()
-  (interactive)
-  (setq debug-on-error (not debug-on-error))
-  (if debug-on-error
-      (message "debug-on-error on")
-    (message "debug-on-error off")))
-
 (defun eh-mark-word ()
   "Mark the entire word around or in front of point."
   (interactive)
   (let ((word-regexp "\\sw"))
     (when (or (looking-at word-regexp)
-              (looking-back word-regexp (line-beginning-position)))
+	      (looking-back word-regexp (line-beginning-position)))
       (skip-syntax-forward "w")
       (set-mark (point))
       (skip-syntax-backward "w"))))
@@ -71,22 +64,22 @@
   "recursively list all the files in a directory"
   (let* ((directory (or directory default-directory))
 	 (regexp  (if regexp regexp ".*"))
-         (predfunc (case type
-                     (dir 'file-directory-p)
-                     (file 'file-regular-p)
-                     (otherwise 'identity)))
-         (files (delete-if
-                 (lambda (s)
-                   (string-match (rx bol (repeat 1 2 ".") eol)
-                                 (file-name-nondirectory s)))
-                 (directory-files directory t nil t))))
+	 (predfunc (case type
+		     (dir 'file-directory-p)
+		     (file 'file-regular-p)
+		     (otherwise 'identity)))
+	 (files (delete-if
+		 (lambda (s)
+		   (string-match (rx bol (repeat 1 2 ".") eol)
+				 (file-name-nondirectory s)))
+		 (directory-files directory t nil t))))
     (loop for file in files
-          when (and (funcall predfunc file)
-                    (string-match regexp (file-name-nondirectory file)))
-          collect file into ret
-          when (file-directory-p file)
-          nconc (eh-directory-files-recursively file type regexp) into ret
-          finally return ret)))
+	  when (and (funcall predfunc file)
+		    (string-match regexp (file-name-nondirectory file)))
+	  collect file into ret
+	  when (file-directory-p file)
+	  nconc (eh-directory-files-recursively file type regexp) into ret
+	  finally return ret)))
 
 (defun eh-wash-text (text &optional fill-width indent)
   "Insert text into a temp buffer and wash it,
@@ -145,7 +138,7 @@ this function  derived from `article-strip-multiple-blank-lines' in
       (indent-region (point-min) (point-max) indent))
     (buffer-string)))
 
-(defun eh-dos2unix () 
+(defun eh-dos2unix ()
   "将dos换行方式转换为unix的换行方式,用于去除^M"
   (interactive)
   (goto-char (point-min))
