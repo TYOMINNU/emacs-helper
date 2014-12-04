@@ -1,7 +1,7 @@
 (load-library "eh-package")
 (load-library "eh-basic")
 (load-library "eh-fonts")
-(load-library "eh-mode-line")
+;; (load-library "eh-mode-line")
 (load-library "eh-hanzi2pinyin")
 (load-library "eh-translate")
 (load-library "eh-eww")
