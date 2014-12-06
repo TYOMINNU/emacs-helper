@@ -134,6 +134,25 @@
 		(with-selected-frame frame
 		  (or ibus-mode (ibus-mode-on))))))
 
+;; Emacs Input Method (eim)
+(autoload 'eim-use-package "eim" "Another emacs input method")
+(setq eim-use-tooltip nil)
+(setq default-input-method "eim-py")
+
+(register-input-method
+ "eim-py" "euc-cn" 'eim-use-package
+ "拼音" "汉字拼音输入法" "py.txt")
+
+(add-hook 'eim-py-load-hook
+	  (lambda ()
+	    (let ((map (eim-mode-map)))
+	      (define-key map "-" 'eim-previous-page)
+	      (define-key map "=" 'eim-next-page))))
+
+;; 用 ; 暂时输入英文
+(require 'eim-extra)
+(global-set-key ";" 'eim-insert-ascii)
+
 ;; recentf
 (require 'recentf)
 (require 'recentf-ext)
