@@ -115,11 +115,13 @@
 	("lanconghy"  "懒虫简明汉英词典" nil nil)
 	("lancongyh"  "懒虫简明英汉词典" nil nil)
 
+
 	("xdictyh"    "XDICT英汉辞典" nil t)
 	("xdicthy"    "XDICT汉英辞典" nil t)
 
 	("xiandai"    "现代英汉综合大辞典" eh-sdcv-output-clean-powerword2007 t)
-	("niujing"    "牛津高阶英汉双解"  eh-sdcv-output-clean-oald t)
+
+	("niujing"    "牛津高阶英汉双解"  eh-sdcv-output-clean-oald nil)
 	(""           "英文相关词典" eh-sdcv-output-clean-powerword2007 nil)
 
 	("langdaohy"  "朗道汉英字典5.0" eh-sdcv-output-clean-langdao nil)
@@ -132,7 +134,7 @@
 	(""           "新世纪汉英科技大词典" nil nil)
 
 	(""           "现代商务汉英大词典" eh-sdcv-output-clean-powerword2007 nil)
-	(""           "英汉双解计算机词典" eh-sdcv-output-clean-powerword2007 t)
+	(""           "英汉双解计算机词典" eh-sdcv-output-clean-powerword2007 nil)
 	(""           "汉语成语词典" eh-sdcv-output-clean-chengyu t)
 	(""           "高级汉语大词典" nil nil)
 	(""           "现代汉语词典" nil nil)
@@ -144,7 +146,7 @@
 	(""           "CEDICT汉英辞典" nil nil)
 	(""           "英文字根字典" nil t)
 
-	(""           "湘雅医学专业词典" nil t)
+	(""           "湘雅医学专业词典" nil nil)
 
 	(""           "[七国语言]英汉化学大词典" eh-sdcv-output-clean-powerword2007 nil)
 	(""           "[七国语言]英汉数学大词典" eh-sdcv-output-clean-powerword2007 nil)
