@@ -122,36 +122,31 @@
   (eshell-command "less")
   (eshell arg))
 
-;; 在emacs中使用ibus
-(require 'ibus)
-(add-hook 'after-init-hook 'ibus-mode-on)
-;; Change cursor color depending on IBus status
-(setq ibus-cursor-color "red")
-;; daemon模式下使用ibus
-(if (and (fboundp 'daemonp) (daemonp))
-    (add-hook 'after-make-frame-functions
-	      (lambda (frame)
-		(with-selected-frame frame
-		  (or ibus-mode (ibus-mode-on))))))
+;; ;; 在emacs中使用ibus
+;; (require 'ibus)
+;; (add-hook 'after-init-hook 'ibus-mode-on)
+;; ;; Change cursor color depending on IBus status
+;; (setq ibus-cursor-color "red")
+;; ;; daemon模式下使用ibus
+;; (if (and (fboundp 'daemonp) (daemonp))
+;;     (add-hook 'after-make-frame-functions
+;;	      (lambda (frame)
+;;		(with-selected-frame frame
+;;		  (or ibus-mode (ibus-mode-on))))))
 
 ;; Emacs Input Method (eim)
-(autoload 'eim-use-package "eim" "Another emacs input method")
+(require 'eim)
+(require 'eim-extra)
+
 (setq eim-use-tooltip nil)
-(setq default-input-method "eim-py")
+(setq default-input-method "eim-pinyin")
 
 (register-input-method
- "eim-py" "euc-cn" 'eim-use-package
- "拼音" "汉字拼音输入法" "py.txt")
+ "eim-pinyin" "euc-cn" 'eim-use-package
+ "[PinYin]" "汉字拼音输入法" "pinyin.txt")
 
-(add-hook 'eim-py-load-hook
-	  (lambda ()
-	    (let ((map (eim-mode-map)))
-	      (define-key map "-" 'eim-previous-page)
-	      (define-key map "=" 'eim-next-page))))
-
-;; 用 ; 暂时输入英文
-(require 'eim-extra)
-(global-set-key ";" 'eim-insert-ascii)
+(global-set-key (kbd "C-<SPC>") 'toggle-input-method)
+(global-set-key (kbd ";") 'eim-insert-ascii)
 
 ;; recentf
 (require 'recentf)
