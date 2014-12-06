@@ -10,7 +10,6 @@
 first-char=zyxwtsrqponmlkjhgfedcbaiv
 total-char=pwmvtkfdcuoishznxyljqgreb-'a
 lib=eim-pinyin.el
-other-files=~/.emacs.d/eim/pinyin.txt
 
 [Punctuation]
 { 『

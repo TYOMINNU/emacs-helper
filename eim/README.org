@@ -1,4 +1,4 @@
-* 说明
+* EIM说明
 emacs-eim 的作者似乎已经停止更新eim了，我将eim拼音输入法的相关文件合并到我的emacs配置中，删除了其他输入法，比如：五笔，仓颉等。这个文件是emacs-eim说明文件的缩减版。
 * EIM 拼音输入法的特点
 Emacs Input Method (EIM) 拼音输入法类似紫光输入法，其特点是：
@@ -22,9 +22,10 @@ M-x eim-punc-translate-toggle
 ;; Tooltip 暂时还不好用
 (setq eim-use-tooltip nil)
 
+;; 使用默认拼音词库
 (register-input-method
- "eim-py" "euc-cn" 'eim-use-package
- "拼音" "汉字拼音输入法" "py.txt")
+ "eim-pinyin" "euc-cn" 'eim-use-package
+ "拼音" "汉字拼音输入法" "pinyin.txt")
 
 ;; 用 ; 暂时输入英文
 (require 'eim-extra)
@@ -48,30 +49,42 @@ M-x eim-punc-translate-toggle
 
 按键绑定可以用 C-h I(M-x describe-input-method) 查看。
 
-* 增加自定义词汇
-eim默认使用 otherpy.txt 来保存用户自定义词库，我使用~/.emacs.d/eim/pinyin.txt保存我的自定义词库。
+* 如何自定义词库
+** 词库转换
+如果eim拼音输入法默认词库不能满足你的需要，你可以自定义一个词库。
+ 1. 下载其他输入法的词库，比如： 搜狗输入法的细胞词库。
+ 2. 使用 “深蓝词库转换” 转换词库格式（使用自定义输出格式： 类似： “pin|yin 拼音”）。
+ 3. 将生成的文件转码为UTF-8文件并将 "|" 替换为："-"。
 
-可以为eim添加其他输入法的词库，具体方式：
-1. 下载其他输入法的词库，比如： 搜狗输入法的细胞词库。
-2. 使用 “深蓝词库转换” 转换词库格式（使用自定义输出格式： 类似： “pin|yin 拼音”）。
-3. 将生成的文件转码为UTF-8文件。
-4. 将文件中的 "|" 替换为："-"。
-5. M-x eim-create-word-file 新建一个词库buffer。
-6. 将上述文件中的内容粘贴到[table]区。
-7. M-x eim-build-table 合并和排序词库。
-8. 保存buffer到文件 ~/.emacs.d/eim/pinyin.txt
-9. 重新启动emacs。
-* 词库merge程序（mergepy.pl）的用法
-如果想要更新使用新的拼音词库又不想丢失自己词库里新造的词和词频信息，这时就可以用这个程序。
-在命令行中用这样的命令：
-
+** 词库合并
+将新词库文件内容粘贴到正在使用的词库文件的末尾（这样不会覆盖原来的词频信息）
 #+BEGIN_SRC org
-$ perl mergepy.pl 自己的词库文件 新词库文件 -o py-new.txt
+[Table]
+a ...
+b ...
+c ...
+<在这里粘贴>
 #+END_SRC
 
-然后把自己的词库文件备份或者删除，把 py-new.txt 改名成 py.txt 就行了。
+如果想让新词库的词语优先显示，那么将新词库的内容粘贴到[Table]后面。
+#+BEGIN_SRC org
+[Table]
+<在这里粘贴>
+a ...
+b ...
+c ...
+#+END_SRC
 
-* EIM拼音输入法如何增加汉字
+然后：
+1. M-x eim-build-table
+2. 保存词库文件
+3. 重新启动emacs
+** 词库使用
+#+BEGIN_SRC emacs-lisp
+(register-input-method "eim-pinyin" "euc-cn" 'eim-use-package "拼音" "汉字拼音输入法" "~/.emacs.d/eim/pinyin.txt")
+#+END_SRC
+
+* 增加汉字
 在 .emacs 中加上：
 #+BEGIN_SRC emacs-lisp
 (add-hook 'eim-py-load-hook
@@ -91,9 +104,7 @@ rong 镕
 M-x eim-build-table
 #+END_SRC
 
-这样应该就能正常使用了。
-
-* 如何使用EIM定制一个输入法
+* 定制EIM
 ** 初级定制方法：
 例如，要设置按键，可以这样：
 

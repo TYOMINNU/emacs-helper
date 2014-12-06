@@ -962,7 +962,9 @@ to the position of point in the selected window."
 	  first-char total-char currw)
       (narrow-to-region (car table) (cdr table))
       (perform-replace "[ \t]+$" "" nil t nil nil nil (point-min) (point-max))
-      (sort-lines nil (point-min) (point-max))
+      (sort-regexp-fields nil "^.*$" "[a-z-]+[ ]+"
+			  (point-min)
+			  (point-max))
       (goto-char (point-min))
       (while (not (eobp))
 	(if (looking-at "^[ \t]*$")     ; 如果有空行，删除
