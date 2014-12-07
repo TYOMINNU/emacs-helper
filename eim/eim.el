@@ -396,6 +396,24 @@ beginning of line"
 	(buffer-substring-no-properties (line-beginning-position) (1- (point)))
       (error "文件类型错误！%s 的第 %d 行没有词条！" (buffer-name) (line-number-at-pos)))))
 
+(defun eim-line-string-at-point ()
+  (interactive)
+  (save-excursion
+    (if (re-search-forward "[ \t]" (line-end-position) t)
+	(buffer-substring-no-properties (line-beginning-position) (line-end-position))
+      (error "文件类型错误！%s 的第 %d 行没有词条！" (buffer-name) (line-number-at-pos)))))
+
+(defun eim-delete-duplicate-word ()
+  (interactive)
+  (let ((line-string (eim-line-string-at-point)))
+    (when line-string
+      (delete-region (line-beginning-position) (line-end-position))
+      (insert (mapconcat
+	       'identity
+	       (delete-dups (split-string line-string " "))
+	       " "))
+      (goto-char (line-beginning-position)))))
+
 ;;;_. interface
 (defun eim-check-buffers ()
   "检查所有的 buffer 是否还存在，如果不存在，重新打开文件，如果文件不
@@ -976,6 +994,10 @@ to the position of point in the selected window."
 	      (delete-region (1- (point)) (+ (point) (length currw))))
 	  (setq lastw currw)
 	  (forward-line 1)))
+      (goto-char (point-min))
+      (while (not (eobp))
+	(eim-delete-duplicate-word)
+	(forward-line 1))
       (narrow-to-region (car param) (cdr param))
       (goto-char (point-min))
       (insert "first-char=" (concat first-char) "\n"
