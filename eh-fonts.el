@@ -226,7 +226,8 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 	      (lambda (frame)
 		(with-selected-frame frame
 		  (eh-set-font-with-saved-size))))
-  (eh-set-font-with-saved-size))
+  (when (eq window-system 'x)
+    (eh-set-font-with-saved-size)))
 
 (defun eh-font-size-decrease ()
   (interactive)

@@ -247,7 +247,8 @@
 	      (lambda (frame)
 		(with-selected-frame frame
 		  (eh-company-theme))))
-  (eh-company-theme))
+  (when (eq window-system 'x)
+    (eh-company-theme)))
 
 (global-set-key (kbd "M-/") 'company-complete)
 (define-key company-active-map [return] nil)
