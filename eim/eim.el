@@ -396,22 +396,15 @@ beginning of line"
 	(buffer-substring-no-properties (line-beginning-position) (1- (point)))
       (error "文件类型错误！%s 的第 %d 行没有词条！" (buffer-name) (line-number-at-pos)))))
 
-(defun eim-line-string-at-point ()
-  (interactive)
-  (save-excursion
-    (if (re-search-forward "[ \t]" (line-end-position) t)
-	(buffer-substring-no-properties (line-beginning-position) (line-end-position))
-      (error "文件类型错误！%s 的第 %d 行没有词条！" (buffer-name) (line-number-at-pos)))))
-
 (defun eim-delete-duplicate-word ()
   (interactive)
-  (let ((line-string (eim-line-string-at-point)))
-    (when line-string
-      (delete-region (line-beginning-position) (line-end-position))
-      (insert (mapconcat
-	       'identity
-	       (delete-dups (split-string line-string " "))
-	       " "))
+  (let* ((words-list1 (eim-line-content " "))
+	 (length (length words-list1))
+	 (words-list2 (delete-dups words-list1)))
+    (when (> length (length words-list2))
+      (eim-delete-line)
+      (insert (mapconcat 'identity words-list2 " "))
+      (insert "\n")
       (goto-char (line-beginning-position)))))
 
 ;;;_. interface
