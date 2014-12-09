@@ -1,5 +1,6 @@
-* EIM说明
-emacs-eim 的作者似乎已经停止更新eim了，我将eim拼音输入法的相关文件合并到我的emacs配置中，删除了其他输入法，比如：五笔，仓颉等。这个文件是emacs-eim说明文件的缩减版。
+#+TITLE: EIM说明文件
+emacs-eim 的作者似乎已经停止更新eim了，我将eim拼音输入法的相关文件合并到我的emacs配置中，删除了我不用的输入法，比如：五笔，仓颉等。这个文件是emacs-eim说明文件的缩减版。
+
 * EIM 拼音输入法的特点
 Emacs Input Method (EIM) 拼音输入法类似紫光输入法，其特点是：
  1. 自动调频
@@ -25,7 +26,7 @@ M-x eim-punc-translate-toggle
 ;; 使用默认拼音词库
 (register-input-method
  "eim-pinyin" "euc-cn" 'eim-use-package
- "拼音" "汉字拼音输入法" "pinyin.txt")
+ "拼音" "汉字拼音输入法" "~/.emacs.d/eim/pinyin-default.txt")
 
 ;; 用 ; 暂时输入英文
 (require 'eim-extra)
@@ -33,10 +34,7 @@ M-x eim-punc-translate-toggle
 
 #+END_SRC
 
-注意，如果所有文件都在 load-path 里的某个目录中，就能找到（如果没有同名
-文件的话），否则，请在文件或者配置中使用文件全名。
-
-常用的按键：
+EIM常用的按键：
 |------+----------|
 | 按键 | 功能     |
 |------+----------|
@@ -49,15 +47,33 @@ M-x eim-punc-translate-toggle
 
 按键绑定可以用 C-h I(M-x describe-input-method) 查看。
 
-* 如何自定义词库
+
+* 自定义词库
+** 词库组织
+原始版本eim默认携带了2个拼音词库：
+1. py.txt
+2. otherpy.txt
+
+第一个词库是主词库，第二个词库为扩展词库，两者的区别就是：eim会将你个人的词频纪录写入主词库，而不会写入扩展词库。
+
+我使用的词库方案是：
+1. 主词库只用来纪录我个人的词频信息（~/.emacs.d/eim/pinyin-default.txt）。
+2. 扩展词库用来保存其他输入法的词库信息，比如：搜狗细胞词库，QQ拼音词库，baidu输入法词库等 （~/.emacs.d/eim/pinyin-ext.txt）。
+
+这样作的主要原因是：
+1. 辅助词库一般很大（我的大概有20M），如果频繁变动，使用git管理会占用很多空间。
+2. 辅助词库中如果包含个人词频信息，与其他朋友共享词库时存在信息泄露的问题。
+
+如果需要，可以将主词库的词频信息合并到扩展词库，具体方法见: ([[词库合并]])
+
 ** 词库转换
-如果eim拼音输入法默认词库不能满足你的需要，你可以自定义一个词库。
+这个主要用来构建扩展词库。
  1. 下载其他输入法的词库，比如： 搜狗输入法的细胞词库。
  2. 使用 “深蓝词库转换” 转换词库格式（使用自定义输出格式： 类似： “pin|yin 拼音”）。
  3. 将生成的文件转码为UTF-8文件并将 "|" 替换为："-"。
 
 ** 词库合并
-将新词库文件内容粘贴到正在使用的词库文件的末尾（这样不会覆盖原来的词频信息）
+将新的词库文件内容粘贴到扩展词库文件的末尾（这样不会覆盖扩展词库原来的词频信息）
 #+BEGIN_SRC org
 [Table]
 a ...
@@ -66,7 +82,7 @@ c ...
 <在这里粘贴>
 #+END_SRC
 
-如果想让新词库的词语优先显示，那么将新词库的内容粘贴到[Table]后面。
+如果想将主词库中的词频信息合并到扩展词库，那么将主词库中的内容粘贴到[Table]后面。
 #+BEGIN_SRC org
 [Table]
 <在这里粘贴>
@@ -81,10 +97,10 @@ c ...
 3. 重新启动emacs
 ** 词库使用
 #+BEGIN_SRC emacs-lisp
-(register-input-method "eim-pinyin" "euc-cn" 'eim-use-package "拼音" "汉字拼音输入法" "~/.emacs.d/eim/pinyin.txt")
+(register-input-method "eim-pinyin" "euc-cn" 'eim-use-package "拼音" "汉字拼音输入法" "~/.emacs.d/eim/pinyin-default.txt")
 #+END_SRC
 
-* 增加汉字
+* 增加生僻汉字
 在 .emacs 中加上：
 #+BEGIN_SRC emacs-lisp
 (add-hook 'eim-py-load-hook
@@ -93,7 +109,7 @@ c ...
 	     '(("ye" "葉")
 	       ("rong" "镕")))))
 #+END_SRC
-然后在 otherpy.txt 的 [Table] 一行后加上：
+然后在你自己使用的词库的 [Table] 一行后加上：
 
 #+BEGIN_SRC org
 ye 葉

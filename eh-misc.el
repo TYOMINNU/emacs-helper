@@ -143,7 +143,7 @@
 
 (register-input-method
  "eim-pinyin" "euc-cn" 'eim-use-package
- "[PinYin]" "汉字拼音输入法" "~/.emacs.d/eim/pinyin.txt")
+ "[PinYin]" "汉字拼音输入法" "~/.emacs.d/eim/pinyin-default.txt")
 
 (global-set-key (kbd "C-<SPC>") 'toggle-input-method)
 (global-set-key (kbd ";") 'eim-insert-ascii)
