@@ -162,6 +162,24 @@ this function  derived from `article-strip-multiple-blank-lines' in
   (while (re-search-forward "\\(\\cc+\\) +" nil t)
     (replace-match "\\1")))
 
+(defun eh-revert-buffer-with-gbk ()
+  (interactive)
+  (revert-buffer-with-coding-system 'gbk-dos))
+
+(defun eh-revert-buffer-with-utf8 ()
+  (interactive)
+  (revert-buffer-with-coding-system 'utf-8-unix))
+
+(defun eh-save-buffer-with-gbk (&optional arg)
+  (interactive)
+  (set-buffer-file-coding-system 'gbk-dos)
+  (save-buffer arg))
+
+(defun eh-save-buffer-with-utf8 (&optional arg)
+  (interactive)
+  (set-buffer-file-coding-system 'utf-8-unix)
+  (save-buffer arg))
+
 (defun eh-utf8-language-environment ()
   "设置utf-8语言环境"
   (interactive)
