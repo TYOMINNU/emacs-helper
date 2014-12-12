@@ -48,7 +48,8 @@
       ido-file-extensions-order '(".org" ".R" ".el" ".java" ".js" ".el" ".xml")
       ido-use-filename-at-point 'guess
       ido-use-faces nil
-      flx-ido-use-faces t)
+      flx-ido-use-faces t
+      tramp-default-method nil)
 
 (ido-mode 1)
 (ido-ubiquitous)
