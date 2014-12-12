@@ -506,6 +506,8 @@
       (define-key map " " 'eim-py-select-current)
       (define-key map "\C-n" 'eim-py-next-page)
       (define-key map "\C-p" 'eim-py-previous-page)
+      (define-key map "=" 'eim-py-next-page)
+      (define-key map "-" 'eim-py-previous-page)
       (define-key map "\M-n" 'eim-py-next-page)
       (define-key map "\M-p" 'eim-py-previous-page)
       (define-key map "\C-m" 'eim-py-quit-no-clear)

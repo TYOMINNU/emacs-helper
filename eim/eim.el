@@ -124,6 +124,8 @@ completion  下一个可能的字母（如果 eim-do-completion 为 t）
     (define-key map "\177" 'eim-delete-last-char)
     (define-key map "\C-n" 'eim-next-page)
     (define-key map "\C-p" 'eim-previous-page)
+    (define-key map "=" 'eim-next-page)
+    (define-key map "-" 'eim-previous-page)
     (define-key map "\M-n" 'eim-next-page)
     (define-key map "\M-p" 'eim-previous-page)
     (define-key map "\C-m" 'eim-quit-no-clear)
