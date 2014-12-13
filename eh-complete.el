@@ -88,7 +88,7 @@
 (setq company-show-numbers t)
 (setq company-tooltip-limit 10)
 (setq company-echo-delay 0)
-(setq company-global-modes '(not git-commit-mode))
+(setq company-global-modes '(not git-commit-mode eshell-mode))
 
 (setq company-dabbrev-downcase nil)
 (setq company-dabbrev-ignore-case nil)
@@ -225,35 +225,7 @@
 		    (eh-company-sidebar-format)))
     (`hide (eh-company-sidebar-show ""))))
 
-(defun eh-company-theme ()
-  (interactive)
-  (custom-set-faces
-   '(company-preview
-     ((t (:foreground "darkgray" :underline t))))
-   '(company-preview-common
-     ((t (:inherit company-preview))))
-   '(company-tooltip
-     ((t (:background "lightgray" :foreground "black"))))
-   '(company-tooltip-selection
-     ((t (:background "steelblue" :foreground "white"))))
-   '(company-tooltip-common
-     ((((type x)) (:inherit company-tooltip :weight bold))
-      (t (:inherit company-tooltip))))
-   '(company-tooltip-common-selection
-     ((((type x)) (:inherit company-tooltip-selection :weight bold))
-      (t (:inherit company-tooltip-selection))))))
-
-(if (and (fboundp 'daemonp) (daemonp))
-    (add-hook 'after-make-frame-functions
-	      (lambda (frame)
-		(with-selected-frame frame
-		  (eh-company-theme))))
-  (when (eq window-system 'x)
-    (eh-company-theme)))
-
 (global-set-key (kbd "M-/") 'company-complete)
-(define-key company-active-map [return] nil)
-(define-key company-active-map (kbd "RET") nil)
 (define-key company-active-map (kbd "M-i") 'company-complete-selection)
 (define-key company-active-map (kbd "C-n") 'company-select-next)
 (define-key company-active-map (kbd "C-p")'company-select-previous)
