@@ -32,6 +32,12 @@
 
 ;;; Code:
 
+;; Theme设置
+(add-to-list 'custom-theme-load-path
+	     (file-name-directory
+	      (locate-library "cyberpunk-theme.el")))
+;; (load-theme 'cyberpunk)
+
 ;; Charset设置
 (set-language-environment "UTF-8")
 (set-buffer-file-coding-system 'utf-8-unix)
