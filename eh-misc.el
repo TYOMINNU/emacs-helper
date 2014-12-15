@@ -43,6 +43,12 @@
 (add-hook 'emacs-lisp-mode-hook
 	  #'eh-elisp-setup)
 
+;; ESS
+(require 'ess-site)
+(setq ess-eval-visibly-p nil)
+(setq ess-ask-for-ess-directory nil)
+(setq ess-use-auto-complete t)
+
 ;; aggressive-indent
 (require 'aggressive-indent)
 
