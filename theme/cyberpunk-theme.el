@@ -83,7 +83,6 @@
       (cyberpunk-blue-6 "#96CBFE")
       (cyberpunk-blue-7 "#00ffff")
       (cyberpunk-blue-8 "#4F94CD")
-      (cyberpunk-blue-9 "steelblue")
       (cyberpunk-magenta "#dc8cc3")
       (cyberpunk-black "#000000")
       (cyberpunk-black-2 "#0C1021")
@@ -96,7 +95,6 @@
       (cyberpunk-gray-6 "#1A1A1A")
       (cyberpunk-gray-7 "#4D4D4D")
       (cyberpunk-gray-8 "#262626")
-      (cyberpunk-gray-9 "lightgray")
       (cyberpunk-white "#ffffff")
       (cyberpunk-white-2 "#F8F8F8")
       (cyberpunk-white-3 "#fffafa"))
@@ -251,14 +249,14 @@
    `(window-number-face ((,class (:background ,cyberpunk-gray-6 :foreground ,cyberpunk-blue-5))))
 
    ;; company-mode
-   `(company-tooltip ((,class (:background ,cyberpunk-gray-9 :foreground ,cyberpunk-black-3))))
+   `(company-tooltip ((,class (:background ,cyberpunk-gray :foreground ,cyberpunk-black-3))))
    `(company-tooltip-common ((,class (:inherit company-tooltip :weight bold :foreground ,cyberpunk-blue))))
    `(company-tooltip-common-selection ((,class (:inherit company-tooltip-selection :weight bold))))
-   `(company-tooltip-selection ((,class (:foreground ,cyberpunk-white :background ,cyberpunk-blue-9))))
+   `(company-tooltip-selection ((,class (:foreground ,cyberpunk-white :background ,cyberpunk-blue-8))))
    `(company-tooltip-annotation ((,class (:foreground ,cyberpunk-black-3))))
    `(company-scrollbar-fg ((,class (:background ,cyberpunk-black-3))))
    `(company-scrollbar-bg ((,class (:background ,cyberpunk-gray-5))))
-   `(company-preview ((,class (:foreground ,cyberpunk-gray-9 :background ,cyberpunk-black-3 :underline t))))
+   `(company-preview ((,class (:foreground ,cyberpunk-gray :background ,cyberpunk-black-3 :underline t))))
 
    ;; diff
    `(diff-added ((,class (:foreground ,cyberpunk-green))))
