@@ -108,97 +108,30 @@
 (org-defkey org-mode-map "\C-c\C-c" 'eh-org-ctrl-c-ctrl-c)
 
 ;;; Chinese hack
+(defun eh-org-clean-space (text backend info)
+  "在export为HTML时，删除中文之间不必要的空格"
+  (when (org-export-derived-backend-p backend 'html)
+    (let ((regexp "[[:multibyte:]]")
+	  (string text))
+      ;; org默认将一个换行符转换为空格，但中文不需要这个空格，删除。
+      (setq string
+	    (replace-regexp-in-string
+	     (format "\\(%s\\) *\n *\\(%s\\)" regexp regexp)
+	     "\\1\\2" string))
+      ;; 删除粗体之前的空格
+      (setq string
+	    (replace-regexp-in-string
+	     (format "\\(%s\\) +\\(<\\)" regexp)
+	     "\\1\\2" string))
+      ;; 删除粗体之后的空格
+      (setq string
+	    (replace-regexp-in-string
+	     (format "\\(>\\) +\\(%s\\)" regexp)
+	     "\\1\\2" string))
+      string)))
 
-;; org默认使用 *粗体* 来定义一个粗体，两个星号外围必需使用空格包围，
-;; 空格在输入英文时是必需的，但输入中文时，空格是多余的。
-;; 这里让 "这是一个*粗体*呀!" 工作。
-(setq org-emphasis-regexp-components
-      '(" \t('\"{[:multibyte:]" "- \t.,:!?;'\")}\\[:multibyte:]" " \t\r\n,\"'" "." 1))
-
-(org-set-emph-re 'org-emphasis-regexp-components
-		 org-emphasis-regexp-components)
-
-(defun eh-org-html-paragraph (orig-fun &rest args)
-  "org默认将一个换行符转换为空格，连续多个换行符转化为一个换行符。
-这样设置对于英文来说没什么问题。但中文不需要使用空格来强制分词，
-所以，这样设置会添加许多不必要的空格。这个advice在export为HTML时，
-删除中文之间不必要的空格。"
-  (let* ((paragraph-contents (apply orig-fun args))
-	 (regexp "[[:multibyte:]]"))
-    (replace-regexp-in-string
-     (format "\\(%s\\) *\n *\\(%s\\)" regexp regexp)
-     "\\1\\2" paragraph-contents)))
-
-(advice-add 'org-html-paragraph :around #'eh-org-html-paragraph)
-
-;;; To shown chinese font correctly in Emacs buffer
-(defvar eh-prev-marker-end-list
-  '((bold . 0)
-    (italic . 0)
-    (underline .  0)
-    (strike . 0)
-    (code . 0)
-    (verbatim . 0))
-  "Record location of previous marker_end, thus emacs buffer will show
-chinese font correctly. Hacked by cnglen@gmail.com")
-
-(make-variable-buffer-local 'eh-prev-marker-end-list)
-
-(defun eh-get-prev-marker-end (item)
-  (cdr (assoc item eh-prev-marker-end-list)))
-
-(defun eh-update-prev-marker-end (item value)
-  (setcdr (assoc item eh-prev-marker-end-list) value))
-
-(defun eh-org-do-emphasis-faces (limit)
-  "Run through the buffer and emphasize strings."
-  (let (rtn a)
-    (while (and (not rtn) (re-search-forward org-emph-re limit t))
-      (let* ((border (char-after (match-beginning 3)))
-	     (bre (regexp-quote (char-to-string border))))
-	(if (and (not (= border (char-after (match-beginning 4))))
-		 (not (save-match-data
-			(string-match (concat bre ".*" bre)
-				      (replace-regexp-in-string
-				       "\n" " "
-				       (substring (match-string 2) 1 -1)))))
-		 ;; not matched to previous marker end
-		 (not  (or (eq (match-beginning 2) (eh-get-prev-marker-end 'bold))
-			   (eq (match-beginning 2) (eh-get-prev-marker-end 'italic))
-			   (eq (match-beginning 2) (eh-get-prev-marker-end 'underline))
-			   (eq (match-beginning 2) (eh-get-prev-marker-end 'strike))
-			   (eq (match-beginning 2) (eh-get-prev-marker-end 'code))
-			   (eq (match-beginning 2) (eh-get-prev-marker-end 'verbatim))))
-		 (not (and (equal (char-after (+ (match-beginning 3) 1)) ?{) ;; _{ -> subscript, NOT underline
-			   (equal (char-after (match-beginning 3)) ?_))))
-	    (progn
-	      (let ((value (- (match-end 2) 1)))
-		(case border ;; Update prev-marker-end-list
-		  (?* (eh-update-prev-marker-end 'bold value))
-		  (?/ (eh-update-prev-marker-end 'italic value))
-		  (?_ (eh-update-prev-marker-end 'underline value))
-		  (?+ (eh-update-prev-marker-end 'strike value))
-		  (?~ (eh-update-prev-marker-end 'code value))
-		  (?= (eh-update-prev-marker-end 'verbatim value))))
-	      (setq rtn t)
-	      (setq a (assoc (match-string 3) org-emphasis-alist))
-	      (font-lock-prepend-text-property (match-beginning 2) (match-end 2)
-					       'face
-					       (nth 1 a))
-	      (and (nth 2 a)
-		   (org-remove-flyspell-overlays-in
-		    (match-beginning 0) (match-end 0)))
-	      (add-text-properties (match-beginning 2) (match-end 2)
-				   '(font-lock-multiline t org-emphasis t))
-	      (when org-hide-emphasis-markers
-		(add-text-properties (match-end 4) (match-beginning 5)
-				     '(invisible org-link))
-		(add-text-properties (match-beginning 3) (match-end 3)
-				     '(invisible org-link))))))
-      (goto-char (1+ (match-beginning 0))))
-    rtn))
-
-(advice-add 'org-do-emphasis-faces :override #'eh-org-do-emphasis-faces)
+(add-to-list 'org-export-filter-paragraph-functions
+	     'eh-org-clean-space)
 
 ;; org默认使用"_下标"来定义一个下标，使用"^上标"定义一个上标，
 ;; 但这种方式在中文环境中与下划线冲突。
@@ -315,8 +248,8 @@ chinese font correctly. Hacked by cnglen@gmail.com")
 
 ;;; html
 (setq org-html-coding-system 'utf-8)
-(setq org-html-head-include-default-style nil)
-(setq org-html-head-include-scripts nil)
+(setq org-html-head-include-default-style t)
+(setq org-html-head-include-scripts t)
 
 ;;; latex
 (setq org-latex-coding-system 'utf-8)
