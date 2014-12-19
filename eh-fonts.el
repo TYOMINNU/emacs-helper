@@ -283,7 +283,7 @@ Use this map to set additional keybindings for setup chinese font scale")
       (eh-set-font 14 1.25)
       (eh-show-font-effect 14 1.25 t))))
 
-(defun eh-change-font-size-at-point (step)
+(defun eh-change-font-scale-at-point (step)
   (interactive)
   (skip-chars-backward "0123456789\\.")
   (or (looking-at "[0123456789.]+")
@@ -295,13 +295,13 @@ Use this map to set additional keybindings for setup chinese font scale")
   (backward-char 1)
   (eh-test-scale-at-point))
 
-(defun eh-increment-font-size-at-point ()
+(defun eh-increment-font-scale-at-point ()
   (interactive)
-  (eh-change-font-size-at-point 0.01))
+  (eh-change-font-scale-at-point 0.01))
 
-(defun eh-decrement-font-size-at-point ()
+(defun eh-decrement-font-scale-at-point ()
   (interactive)
-  (eh-change-font-size-at-point -0.01))
+  (eh-change-font-scale-at-point -0.01))
 
 (defun eh-show-font-effect (&optional size scale info)
   "show font and its size in a new buffer"
