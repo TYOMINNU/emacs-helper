@@ -59,9 +59,9 @@
      "Courier" "Cousine" "Fira Mono" "Lekton" "Ubuntu Mono" "Liberation Mono"
      "M+ 1mn" "BPmono" "Free Mono" "Anonymous Pro" "ProFont" "ProFontWindows"
      "Latin Modern Mono" "Code 2002" "ProggyCleanTT" "ProggyTinyTT")
-    ("文泉驿等宽微米黑" "Microsoft Yahei" "Microsoft_Yahei" "微软雅黑"
+    ("黑体" "文泉驿等宽微米黑" "Microsoft Yahei" "Microsoft_Yahei" "微软雅黑"
      "Hiragino Sans GB" "文泉驿等宽正黑" "文泉驿正黑" "文泉驿点阵正黑"
-     "黑体" "新宋体" "宋体" "楷体_GB2312" "仿宋_GB2312" "幼圆" "隶书"
+     "新宋体" "宋体" "楷体_GB2312" "仿宋_GB2312" "幼圆" "隶书"
      "方正姚体" "方正舒体" "方正粗圆_GBK" "华文仿宋" "华文中宋" "华文彩云"
      "华文新魏" "华文细黑" "华文行楷")
     ("PragmataPro" "Courier New")))
