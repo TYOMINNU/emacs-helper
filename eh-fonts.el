@@ -265,7 +265,7 @@ Use this map to set additional keybindings for setup chinese font scale")
 (defun eh-test-scale-at-point ()
   "Test scale list at point, which is usd to write font scale list"
   (interactive)
-  (let (scale index)
+  (let (scale size index)
     (setq scale (sexp-at-point))
     (if (and scale (numberp scale))
 	(progn
@@ -320,7 +320,7 @@ Use this map to set additional keybindings for setup chinese font scale")
 	(insert
 	 (concat
 	  "# 将光标移动到`eh-custom-fonts-scales-list‘中各个数字上，"
-	  "按C-c C-c，测试对应字号的调整系数。\n")))
+	  "C-<up> 增大 scale 的值，C-<down> 减小 scale 的值。")))
       (insert
        (replace-regexp-in-string
 	"\\^"  "\\\\"
