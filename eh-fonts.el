@@ -289,7 +289,7 @@ Use this map to set additional keybindings for setup chinese font scale")
   (or (looking-at "[0123456789.]+")
       (error "No number at point"))
   (replace-match
-   (format "%.4s"
+   (format "%.5s"
 	   (number-to-string
 	    (+ step (string-to-number (match-string 0))))))
   (backward-char 1)
@@ -297,11 +297,11 @@ Use this map to set additional keybindings for setup chinese font scale")
 
 (defun eh-increment-font-size-at-point ()
   (interactive)
-  (eh-change-font-size-at-point 0.05))
+  (eh-change-font-size-at-point 0.01))
 
 (defun eh-decrement-font-size-at-point ()
   (interactive)
-  (eh-change-font-size-at-point -0.05))
+  (eh-change-font-size-at-point -0.01))
 
 (defun eh-show-font-effect (&optional size scale info)
   "show font and its size in a new buffer"
