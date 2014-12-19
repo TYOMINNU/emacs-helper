@@ -237,15 +237,20 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
   (interactive)
   (eh-step-frame-font-size 1))
 
-(defvar eh-font-scale-setup-mode-map (make-sparse-keymap)
+(defvar eh-font-scale-setup-mode-map
+  (let ((keymap (make-sparse-keymap)))
+    (define-key keymap "\C-c\C-c" 'eh-test-scale-at-point)
+    (define-key keymap (kbd "C-<up>") 'eh-increment-font-size-at-point)
+    (define-key keymap (kbd "C-<down>") 'eh-decrement-font-size-at-point)
+    (define-key keymap (kbd "C-<right>") 'eh-increment-font-size-at-point)
+    (define-key keymap (kbd "C-<left>") 'eh-decrement-font-size-at-point)
+    keymap)
   "Keymap for `eh-font-scale-setup-mode', a minor mode.
 Use this map to set additional keybindings for setup chinese font scale")
 
 (define-minor-mode eh-font-scale-setup-mode
   "Minor for edit chinese font scale"
-  nil " Rem" eh-font-scale-setup-mode-map
-  (define-key eh-font-scale-setup-mode-map
-    "\C-c\C-c" 'eh-test-scale-at-point))
+  nil " Rem" eh-font-scale-setup-mode-map)
 
 (defun eh-fonts-setup ()
   (interactive)
@@ -277,6 +282,26 @@ Use this map to set additional keybindings for setup chinese font scale")
 	  (eh-show-font-effect size scale))
       (eh-set-font 14 1.25)
       (eh-show-font-effect 14 1.25 t))))
+
+(defun eh-change-font-size-at-point (step)
+  (interactive)
+  (skip-chars-backward "0123456789\\.")
+  (or (looking-at "[0123456789.]+")
+      (error "No number at point"))
+  (replace-match
+   (format "%.4s"
+	   (number-to-string
+	    (+ step (string-to-number (match-string 0))))))
+  (backward-char 1)
+  (eh-test-scale-at-point))
+
+(defun eh-increment-font-size-at-point ()
+  (interactive)
+  (eh-change-font-size-at-point 0.05))
+
+(defun eh-decrement-font-size-at-point ()
+  (interactive)
+  (eh-change-font-size-at-point -0.05))
 
 (defun eh-show-font-effect (&optional size scale info)
   "show font and its size in a new buffer"
