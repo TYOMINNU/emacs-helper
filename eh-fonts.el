@@ -31,7 +31,7 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(require 'cl-lib)
+(require 'cl)
 
 (setq eh-fonts-info-conf "~/.emacs.d/eh-custom-fonts-info.el")
 (setq eh-default-font-size-conf "~/.emacs.d/eh-custom-font-default-size.el")
@@ -240,10 +240,10 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (defvar eh-font-scale-setup-mode-map
   (let ((keymap (make-sparse-keymap)))
     (define-key keymap "\C-c\C-c" 'eh-test-scale-at-point)
-    (define-key keymap (kbd "C-<up>") 'eh-increment-font-size-at-point)
-    (define-key keymap (kbd "C-<down>") 'eh-decrement-font-size-at-point)
-    (define-key keymap (kbd "C-<right>") 'eh-increment-font-size-at-point)
-    (define-key keymap (kbd "C-<left>") 'eh-decrement-font-size-at-point)
+    (define-key keymap (kbd "C-<up>") 'eh-increment-font-scale-at-point)
+    (define-key keymap (kbd "C-<down>") 'eh-decrement-font-scale-at-point)
+    (define-key keymap (kbd "C-<right>") 'eh-increment-font-scale-at-point)
+    (define-key keymap (kbd "C-<left>") 'eh-decrement-font-scale-at-point)
     keymap)
   "Keymap for `eh-font-scale-setup-mode', a minor mode.
 Use this map to set additional keybindings for setup chinese font scale")
