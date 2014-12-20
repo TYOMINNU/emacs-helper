@@ -343,7 +343,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
       (when info
 	(insert
 	 (concat
-	  "# 将光标移动到`eh-custom-fonts-scales-list‘中各个数字上，"
+	  "# 将光标移动到`eh-fonts--custom-set-fonts-scales‘中各个数字上，"
 	  "C-<up> 增大 scale 的值，C-<down> 减小 scale 的值。")))
       (insert
        (replace-regexp-in-string
@@ -353,6 +353,9 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 	 eh-fonts--test-string)))
       (when (and size scale)
 	(eh-fonts--set-font size scale)))))
+
+;;;###autoload(require 'eh-fonts)
+(provide 'eh-fonts)
 
 ;; Local Variables:
 ;; coding: utf-8-unix
