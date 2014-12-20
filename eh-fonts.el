@@ -86,12 +86,12 @@
 
 (defconst eh-fonts--test-string "
 ;; 请看下面中文和英文能否对齐.
-;;                +------------------------------------------------+
-;;   |^_/|        |  一二三四五六七八九十   /一二三四五六七八九十/ |      (^_/)
-;;  / @ @ \\  @@  | *一二三四五六七八九十*  +一二三四五六七八九十+ |     (='.'=)
-;; ( > º < )      | aaaaaaaaaaaaaaaaaaaaaa  /aaaaaaaaaaaaaaaaaaaa/ |     (0)_(0)
-;;  `>>x<<´	  | *aaaaaaaaaaaaaaaaaaaa*  +aaaaaaaaaaaaaaaaaaaa+ |
-;;  /  O  \\  @@  +------------------------------------------------+
+;; +----------------------------------+
+;; |  天生我材必有用，千金散尽还复来。|  (^_/)
+;; |  abcdefghigklmnopqrstuvwxyz,.?!  | (='.'=)
+;; | *abcdefghigklmnopqrstuvwxyz,.?!* | (0)_(0)
+;; | /abcdefghigklmnopqrstuvwxyz,.?!/ |
+;; +----------------------------------+
 ")
 
 (defun eh-fonts--get-current-profile ()
