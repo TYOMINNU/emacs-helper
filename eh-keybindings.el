@@ -49,6 +49,7 @@
 ;; 放大字体，缩小字体
 (global-set-key (kbd "C--") 'eh-fonts--decrease-font-size)
 (global-set-key (kbd "C-=") 'eh-fonts--increase-font-size)
+(global-set-key (kbd "C-+") 'eh-fonts--next-profile)
 
 ;; expand-region
 (define-key global-map (kbd "C-c =") 'er/expand-region)
