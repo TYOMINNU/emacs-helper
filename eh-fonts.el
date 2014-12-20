@@ -158,7 +158,7 @@
   (let* ((scale-list (car (cdr (eh-fonts--read-profile))))
 	 (index (or (position size eh-fonts--size-steps) 1)))
     (unless (file-exists-p (eh-fonts--get-current-profile))
-      (message "如果中英文不能对齐，请运行`eh-fonts--setup'设置。"))
+      (message "如果中英文不能对齐，请运行`eh-fonts--edit-profile'编辑当前profile。"))
     (or (nth index scale-list) 1)))
 
 (defun eh-fonts--set-font (font-size &optional font-scale)
@@ -239,7 +239,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
   (interactive)
   (eh-fonts--step-font-size 1))
 
-(defvar eh-fonts--setup-mode-map
+(defvar eh-fonts--profile-edit-mode-map
   (let ((keymap (make-sparse-keymap)))
     (define-key keymap "\C-c\C-c" 'eh-fonts--test-scale-at-point)
     (define-key keymap (kbd "C-<up>") 'eh-fonts--increment-font-scale-at-point)
@@ -247,11 +247,11 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
     (define-key keymap (kbd "C-<right>") 'eh-fonts--increment-font-scale-at-point)
     (define-key keymap (kbd "C-<left>") 'eh-fonts--decrement-font-scale-at-point)
     keymap)
-  "Keymap for `eh-fonts--setup-mode', a minor mode used to setup fonts names and scales")
+  "Keymap for `eh-fonts--profile-edit-mode', a minor mode used to setup fonts names and scales")
 
-(define-minor-mode eh-fonts--setup-mode
+(define-minor-mode eh-fonts--profile-edit-mode
   "Minor for setup fonts names and scales"
-  nil " Rem" eh-fonts--setup-mode-map)
+  nil " Rem" eh-fonts--profile-edit-mode-map)
 
 (defun eh-fonts--switch-profile ()
   (interactive)
@@ -261,15 +261,29 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
     (when (display-graphic-p)
       (eh-fonts--set-font-with-saved-size))))
 
-(defun eh-fonts--setup ()
+(defun eh-fonts--next-profile (&optional step)
   (interactive)
-  (eh-fonts--switch-profile)
+  (let ((profiles eh-fonts--profiles)
+	(current-profile eh-fonts--current-profile-name)
+	next-profile)
+    (setq next-profile
+	  (or (cadr (member current-profile profiles))
+	      (car profiles)))
+    (when next-profile
+      (setq eh-fonts--current-profile-name next-profile)
+      (customize-save-variable 'eh-fonts--current-profile-name next-profile))
+    (when (display-graphic-p)
+      (eh-fonts--set-font-with-saved-size))
+    (message "Current eh-font profile is set to: \"%s\"" next-profile)))
+
+(defun eh-fonts--edit-profile ()
+  (interactive)
   (let ((file (eh-fonts--get-current-profile)))
     (unless (file-readable-p file)
       (eh-fonts--save-profile eh-fonts--names-fallback
 			      eh-fonts--scale-fallback))
     (find-file file)
-    (eh-fonts--setup-mode 1)
+    (eh-fonts--profile-edit-mode 1)
     (goto-char (point-min))))
 
 (defun eh-fonts--test-scale-at-point ()
