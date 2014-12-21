@@ -31,6 +31,9 @@
 
 ;;; Code:
 
+;; Chinese fonts setup
+(require 'chinese-fonts-setup)
+
 ;; elisp setting
 (defun eh-elisp-setup ()
   ;; 跟踪行尾空格

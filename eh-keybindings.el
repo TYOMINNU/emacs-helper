@@ -47,9 +47,9 @@
 (global-set-key (kbd "C-x C-b") 'ido-display-buffer)
 
 ;; 放大字体，缩小字体
-(global-set-key (kbd "C--") 'eh-fonts--decrease-font-size)
-(global-set-key (kbd "C-=") 'eh-fonts--increase-font-size)
-(global-set-key (kbd "C-+") 'eh-fonts--next-profile)
+(global-set-key (kbd "C--") 'cfs--decrease-font-size)
+(global-set-key (kbd "C-=") 'cfs--increase-font-size)
+(global-set-key (kbd "C-+") 'cfs--next-profile)
 
 ;; expand-region
 (define-key global-map (kbd "C-c =") 'er/expand-region)
