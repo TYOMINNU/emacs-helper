@@ -220,7 +220,8 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (defun eh-fonts--set-font-with-saved-size ()
   (let* ((font-size eh-fonts--current-size)
 	 (font-size-scale (eh-fonts--get-scale font-size)))
-    (eh-fonts--set-font font-size font-size-scale)))
+    (when (display-graphic-p)
+      (eh-fonts--set-font font-size font-size-scale))))
 
 ;; 正常启动emacs时设置字体
 (if (and (fboundp 'daemonp) (daemonp))
@@ -228,8 +229,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 	      (lambda (frame)
 		(with-selected-frame frame
 		  (eh-fonts--set-font-with-saved-size))))
-  (when (display-graphic-p)
-    (eh-fonts--set-font-with-saved-size)))
+  (eh-fonts--set-font-with-saved-size))
 
 (defun eh-fonts--decrease-font-size ()
   (interactive)
@@ -258,8 +258,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
   (let ((profile (ido-completing-read "Set eh-fonts profile to:" eh-fonts--profiles)))
     (setq eh-fonts--current-profile-name profile)
     (customize-save-variable 'eh-fonts--current-profile-name profile)
-    (when (display-graphic-p)
-      (eh-fonts--set-font-with-saved-size))))
+    (eh-fonts--set-font-with-saved-size)))
 
 (defun eh-fonts--next-profile (&optional step)
   (interactive)
