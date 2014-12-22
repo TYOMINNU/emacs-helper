@@ -56,6 +56,11 @@
 ;; 高亮配对的括号
 (show-paren-mode 1)
 
+;; 使用空格缩进
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+(setq tab-width 4)
+
 ;; 保存文件之前，删除无用的空格
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))
