@@ -59,29 +59,29 @@
 get pinyin shouzimu string"
   (let* ((pinyin-list (mapcar
                        (lambda (x) (if (gethash x eh-hanzi2pinyin-table)
-                                   (gethash x eh-hanzi2pinyin-table)
-                                 (list (char-to-string x)))) string)))
+                                       (gethash x eh-hanzi2pinyin-table)
+                                     (list (char-to-string x)))) string)))
     (mapconcat 'identity
                (remove-duplicates
                 (let ((result '("")))
-                 (loop for i in pinyin-list
-                       do (setq result
-                                (loop for j in i
-                                      append (loop for k in result
-                                                   collect (concat k (if shou-zi-mu (substring j 0 1) j)))))) result)
+                  (loop for i in pinyin-list
+                        do (setq result
+                                 (loop for j in i
+                                       append (loop for k in result
+                                                    collect (concat k (if shou-zi-mu (substring j 0 1) j)))))) result)
                 :test (lambda (x y) (or (null y) (equal x y)))
                 :from-end t) " ")))
 
 (defun eh-hanzi2pinyin-simple (string &optional shou-zi-mu)
   "This is a simple version of eh-hanzi2pinyin, and it only get the first pinyin of polyphones"
   (mapconcat 'identity
-	     (mapcar
-	      (lambda (x) (if (gethash x eh-hanzi2pinyin-table)
-			      (let ((pinyin (car (gethash x eh-hanzi2pinyin-table))))
-				(if shou-zi-mu
-				    (substring pinyin 0 1)
-				  pinyin))
-			    (char-to-string x))) string) ""))
+             (mapcar
+              (lambda (x) (if (gethash x eh-hanzi2pinyin-table)
+                              (let ((pinyin (car (gethash x eh-hanzi2pinyin-table))))
+                                (if shou-zi-mu
+                                    (substring pinyin 0 1)
+                                  pinyin))
+                            (char-to-string x))) string) ""))
 
 (provide 'eh-hanzi2pinyin)
 

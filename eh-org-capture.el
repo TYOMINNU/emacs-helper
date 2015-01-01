@@ -58,14 +58,14 @@
          "* %?\n %T\n  %a")
 
         ("n" "Notes" entry  (file+headline eh-org-note-file "Notes")
-	 "** %?
+         "** %?
    :PROPERTIES:
    :DATE: %u
    :END:
 "
-	 :empty-lines 1)
-	("f" "firefox-org-capture" entry  (file+headline eh-org-note-file "Notes-from-web")
-	 "** %?
+         :empty-lines 1)
+        ("f" "firefox-org-capture" entry  (file+headline eh-org-note-file "Notes-from-web")
+         "** %?
    :PROPERTIES:
    :DATE: %u
    :END:
@@ -74,18 +74,18 @@
 
 (原始链接: %a)
 "
-	 :empty-lines 1)
+     :empty-lines 1)
 
         ("d" "Simple-Notes" entry  (file+headline eh-org-note-file "Simple-Notes")
-	 "** %?"
-	 :empty-lines 1)
+     "** %?"
+     :empty-lines 1)
         ("c" "Contacts" entry (file eh-org-contacts-file)
-	 "* %?
+     "* %?
 :PROPERTIES:
-:ALIAS: 
-:PHONE: 
-:EMAIL:  
-:NOTE: 
+:ALIAS:
+:PHONE:
+:EMAIL:
+:NOTE:
 :END:")))
 
 (setq eh-org-capture-frame-name "org-capture")
@@ -121,17 +121,17 @@
   "Create a new frame and run org-capture."
   (interactive)
   (let ((after-make-frame-functions
-	 (lambda (frame)
-	   (progn
-	     (select-frame frame)
-	     (setq word-wrap nil)
-	     (setq truncate-lines nil)
-	     (org-capture goto keys)
-	     (eh-default-font)))))
+         (lambda (frame)
+           (progn
+             (select-frame frame)
+             (setq word-wrap nil)
+             (setq truncate-lines nil)
+             (org-capture goto keys)
+             (eh-default-font)))))
     (make-frame `((name . ,eh-org-capture-frame-name)
-		  (window-system . x)
-		  (width . 120)
-		  (height . 15)))))
+                  (window-system . x)
+                  (width . 120)
+                  (height . 15)))))
 
 ;; keybinding
 (define-key global-map "\C-ct"

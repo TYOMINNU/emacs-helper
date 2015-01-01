@@ -65,9 +65,9 @@
 
 (setq org-agenda-custom-commands
       '(("l" "agenda:"
-	 ((agenda  "" ((org-agenda-overriding-header "Two-Days")
-		       (org-agenda-span 2)))
-	  (tags-todo "生活|IT|购物")))))
+         ((agenda  "" ((org-agenda-overriding-header "Two-Days")
+                       (org-agenda-span 2)))
+          (tags-todo "生活|IT|购物")))))
 
 (setq org-agenda-remove-tags t)
 (setq org-todo-keywords
@@ -87,8 +87,8 @@
   (interactive "P")
   (cond
    ((or (and (boundp 'org-clock-overlays) org-clock-overlays)
-	org-occur-highlights
-	org-latex-fragment-image-overlays)
+        org-occur-highlights
+        org-latex-fragment-image-overlays)
     (and (boundp 'org-clock-overlays) (org-clock-remove-overlays))
     (org-remove-occur-highlights)
     (org-remove-latex-fragment-image-overlays)
@@ -96,9 +96,9 @@
    (t
     (let* ((context (org-element-context)) (type (org-element-type context)))
       (case type
-	((table table-cell table-row item plain-list)
-	 (toggle-truncate-lines 1))
-	(t (toggle-truncate-lines -1)))))))
+        ((table table-cell table-row item plain-list)
+         (toggle-truncate-lines 1))
+        (t (toggle-truncate-lines -1)))))))
 
 (defun eh-org-ctrl-c-ctrl-c (&optional arg)
   (interactive)
@@ -112,26 +112,26 @@
   "在export为HTML时，删除中文之间不必要的空格"
   (when (org-export-derived-backend-p backend 'html)
     (let ((regexp "[[:multibyte:]]")
-	  (string text))
+          (string text))
       ;; org默认将一个换行符转换为空格，但中文不需要这个空格，删除。
       (setq string
-	    (replace-regexp-in-string
-	     (format "\\(%s\\) *\n *\\(%s\\)" regexp regexp)
-	     "\\1\\2" string))
+            (replace-regexp-in-string
+             (format "\\(%s\\) *\n *\\(%s\\)" regexp regexp)
+             "\\1\\2" string))
       ;; 删除粗体之前的空格
       (setq string
-	    (replace-regexp-in-string
-	     (format "\\(%s\\) +\\(<\\)" regexp)
-	     "\\1\\2" string))
+            (replace-regexp-in-string
+             (format "\\(%s\\) +\\(<\\)" regexp)
+             "\\1\\2" string))
       ;; 删除粗体之后的空格
       (setq string
-	    (replace-regexp-in-string
-	     (format "\\(>\\) +\\(%s\\)" regexp)
-	     "\\1\\2" string))
+            (replace-regexp-in-string
+             (format "\\(>\\) +\\(%s\\)" regexp)
+             "\\1\\2" string))
       string)))
 
 (add-to-list 'org-export-filter-paragraph-functions
-	     'eh-org-clean-space)
+             'eh-org-clean-space)
 
 ;; org默认使用"_下标"来定义一个下标，使用"^上标"定义一个上标，
 ;; 但这种方式在中文环境中与下划线冲突。
@@ -175,23 +175,23 @@
   (let ((location (org-babel-where-is-src-block-result nil info)))
     (when location
       (save-excursion
-	(goto-char location)
-	(when (looking-at (concat org-babel-result-regexp ".*$"))
-	  (while (< (point) (progn (forward-line 1) (org-babel-result-end)))
-	    (when (org-at-table-p)
-	      (toggle-truncate-lines 1)
-	      (org-table-align)
-	      (goto-char (org-table-end)))
-	    (forward-line)))))))
+        (goto-char location)
+        (when (looking-at (concat org-babel-result-regexp ".*$"))
+          (while (< (point) (progn (forward-line 1) (org-babel-result-end)))
+            (when (org-at-table-p)
+              (toggle-truncate-lines 1)
+              (org-table-align)
+              (goto-char (org-table-end)))
+            (forward-line)))))))
 
 ;; 开启cdlatex
 (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
 ;; 开启自动断行
 (add-hook 'org-mode-hook '(lambda ()
-			    (setq visual-line-fringe-indicators '(nil nil))
-			    (visual-line-mode)
-			    (if visual-line-mode
-				(setq word-wrap nil))))
+                            (setq visual-line-fringe-indicators '(nil nil))
+                            (visual-line-mode)
+                            (if visual-line-mode
+                                (setq word-wrap nil))))
 
 ;; export filter
 ;; (defun eh-convert-punctuation (text backend info)
@@ -206,8 +206,8 @@
 ;;        (replace-regexp-in-string
 ;;	","  "，"
 ;;	(replace-regexp-in-string
-;;	 "\\."  "。"
-;;	 (replace-regexp-in-string "\n" "" text))))))))
+;;   "\\."  "。"
+;;   (replace-regexp-in-string "\n" "" text))))))))
 
 ;; (add-to-list 'org-export-filter-plain-text-functions
 ;;              'eh-convert-punctuation)
@@ -235,13 +235,13 @@
 ;;; Add new easy templates
 (setq org-structure-template-alist
       (append '(("r" "#+BEGIN_SRC R\n?\n#+END_SRC")
-		("rh" "#+PROPERTY: header-args:R  :session *R* :tangle yes :colnames yes :rownames no :width 700 :height 500 :exports both")
-		("rv" "#+BEGIN_SRC R :results value\n?\n#+END_SRC")
-		("ro" "#+BEGIN_SRC R :results output verbatim\n?\n#+END_SRC")
-		("rg" "#+BEGIN_SRC R :results graphics :file ?\n\n#+END_SRC")
-		("rs" "#+BEGIN_SRC R :results output silent\n?\n#+END_SRC")
-		("rd" "#+BEGIN_SRC R :colnames no :results value drawer\n`%c%` <- function(a,b){c(a,b)}\n?\n#+END_SRC"))
-	      org-structure-template-alist))
+                ("rh" "#+PROPERTY: header-args:R  :session *R* :tangle yes :colnames yes :rownames no :width 700 :height 500 :exports both")
+                ("rv" "#+BEGIN_SRC R :results value\n?\n#+END_SRC")
+                ("ro" "#+BEGIN_SRC R :results output verbatim\n?\n#+END_SRC")
+                ("rg" "#+BEGIN_SRC R :results graphics :file ?\n\n#+END_SRC")
+                ("rs" "#+BEGIN_SRC R :results output silent\n?\n#+END_SRC")
+                ("rd" "#+BEGIN_SRC R :colnames no :results value drawer\n`%c%` <- function(a,b){c(a,b)}\n?\n#+END_SRC"))
+              org-structure-template-alist))
 
 ;;; Export language
 (setq org-export-default-language "zh-CN")
@@ -259,41 +259,41 @@
 (setq org-export-with-LaTeX-fragments 'imagemagick)
 (setq org-latex-create-formula-image-program 'imagemagick)
 (setq org-latex-commands '(("xelatex -interaction nonstopmode -output-directory %o %f"
-			    "bibtex %b"
-			    "xelatex -interaction nonstopmode -output-directory %o %f"
-			    "xelatex -interaction nonstopmode -output-directory %o %f")
-			   ("xelatex -interaction nonstopmode -output-directory %o %f")))
+                            "bibtex %b"
+                            "xelatex -interaction nonstopmode -output-directory %o %f"
+                            "xelatex -interaction nonstopmode -output-directory %o %f")
+                           ("xelatex -interaction nonstopmode -output-directory %o %f")))
 
 (setq org-latex-default-class "ctexart")
 (add-to-list 'org-latex-classes
-	     '("ctexart"
-	       "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
-	       ("\\section{%s}" . "\\section*{%s}")
-	       ("\\subsection{%s}" . "\\subsection*{%s}")
-	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-	       ("\\paragraph{%s}" . "\\paragraph*{%s}")
-	       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+             '("ctexart"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 (add-to-list 'org-latex-classes
-	     '("ctexrep"
-	       "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
-	       ("\\part{%s}" . "\\part*{%s}")
-	       ("\\chapter{%s}" . "\\chapter*{%s}")
-	       ("\\section{%s}" . "\\section*{%s}")
-	       ("\\subsection{%s}" . "\\subsection*{%s}")
-	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+             '("ctexrep"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
+               ("\\part{%s}" . "\\part*{%s}")
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 (add-to-list 'org-latex-classes
-	     '("ctexbook"
-	       "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
-	       ("\\part{%s}" . "\\part*{%s}")
-	       ("\\chapter{%s}" . "\\chapter*{%s}")
-	       ("\\section{%s}" . "\\section*{%s}")
-	       ("\\subsection{%s}" . "\\subsection*{%s}")
-	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+             '("ctexbook"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
+               ("\\part{%s}" . "\\part*{%s}")
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 (add-to-list 'org-latex-classes
-	     '("beamer"
-	       "\\documentclass{beamer}
-	       \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
-	       org-beamer-sectioning))
+             '("beamer"
+               "\\documentclass{beamer}
+           \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
+               org-beamer-sectioning))
 
 ;; org不建议自定义org-latex-default-package-alist变量，但"inputenc" and "fontenc"两个宏包似乎和
 ;; xelatex有冲突，调整默认值！
@@ -304,7 +304,7 @@
 (setf org-latex-default-packages-alist
       (remove '("normalem" "ulem" t) org-latex-default-packages-alist))
 (setcar (rassoc '("wasysym" t)
-		org-latex-default-packages-alist) "nointegrals")
+                org-latex-default-packages-alist) "nointegrals")
 
 (setq  org-latex-packages-alist
        '("
@@ -339,8 +339,8 @@
 
 (defun eh-org-latex-compile (orig-fun texfile &optional snippet)
   (let ((org-latex-pdf-process
-	 (if snippet (car (cdr org-latex-commands))
-	   (car org-latex-commands))))
+         (if snippet (car (cdr org-latex-commands))
+           (car org-latex-commands))))
     (funcall orig-fun texfile snippet)))
 
 (advice-add 'org-latex-compile :around #'eh-org-latex-compile)

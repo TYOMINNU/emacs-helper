@@ -34,8 +34,8 @@
 
 ;; Theme设置
 (add-to-list 'custom-theme-load-path
-	     (file-name-directory
-	      (locate-library "cyberpunk-theme.el")))
+             (file-name-directory
+              (locate-library "cyberpunk-theme.el")))
 ;; (load-theme 'cyberpunk)
 
 ;; Charset设置

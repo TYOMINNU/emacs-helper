@@ -42,12 +42,12 @@
   (interactive)
   (let* ((buffer (get-buffer-create eh-offlineimap-buffer-name)))
     (if (get-buffer-process buffer)
-	(message "offlineimap is running")
+        (message "offlineimap is running")
       (with-current-buffer buffer
-	(let ((inhibit-read-only t))
-	  (remove-overlays)
-	  (erase-buffer)
-	  (insert "###### offlineimap verbose log #####\n")))
+        (let ((inhibit-read-only t))
+          (remove-overlays)
+          (erase-buffer)
+          (insert "###### offlineimap verbose log #####\n")))
       (start-process-shell-command
        "offlineimap"
        buffer
@@ -59,11 +59,11 @@
   (when eh-offlineimap-timer
     (cancel-timer eh-offlineimap-timer))
   (setq eh-offlineimap-timer
-	(run-with-timer
-	 30 (* 5 60)
-	 '(lambda ()
-	    (message "Sync email with eh-offlineimap ...")
-	    (eh-offlineimap)))))
+        (run-with-timer
+         30 (* 5 60)
+         '(lambda ()
+            (message "Sync email with eh-offlineimap ...")
+            (eh-offlineimap)))))
 
 (provide 'eh-offlineimap)
 

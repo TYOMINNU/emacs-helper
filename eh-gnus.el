@@ -49,48 +49,48 @@
 (setq gnus-select-method '(nnml ""))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nnimap "gmail"
-		      (nnimap-address "localhost")
-		      (nnimap-stream network)))
+             '(nnimap "gmail"
+                      (nnimap-address "localhost")
+                      (nnimap-stream network)))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nntp "localhost"))
+             '(nntp "localhost"))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nnimap "rss"
-		      (nnimap-address "localhost")
-		      (nnimap-stream network)
-		      (nnimap-inbox "INBOX")
-		      (nnimap-split-methods 'nnmail-split-fancy)))
+             '(nnimap "rss"
+                      (nnimap-address "localhost")
+                      (nnimap-stream network)
+                      (nnimap-inbox "INBOX")
+                      (nnimap-split-methods 'nnmail-split-fancy)))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nnimap "163mail"
-		      (nnimap-address "localhost")
-		      (nnimap-stream network)))
+             '(nnimap "163mail"
+                      (nnimap-address "localhost")
+                      (nnimap-stream network)))
 
 (add-to-list 'gnus-secondary-select-methods
-	     '(nnimap "qqmail"
-		      (nnimap-address "localhost")
-		      (nnimap-stream network)))
+             '(nnimap "qqmail"
+                      (nnimap-address "localhost")
+                      (nnimap-stream network)))
 
 ;;; 其他一些常见的配置例子
 ;;
 ;; (add-to-list 'gnus-secondary-select-methods
-;;	     '(nnimap "RSS"
-;;		      (nnimap-address "localhost")
-;;		      (nnimap-stream shell)
-;;		      (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir/rss:LAYOUT=fs")))
+;;       '(nnimap "RSS"
+;;            (nnimap-address "localhost")
+;;            (nnimap-stream shell)
+;;            (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir/rss:LAYOUT=fs")))
 ;;
 ;; (setq gnus-select-method
 ;;       '(nnimap "gmail"
-;;	       (nnimap-address "imap.gmail.com")
-;;	       (nnimap-stream ssl)))
+;;         (nnimap-address "imap.gmail.com")
+;;         (nnimap-stream ssl)))
 ;;
 ;; (add-to-list 'gnus-secondary-select-methods
-;;	     '(nntp "news.gmane.org"))
+;;       '(nntp "news.gmane.org"))
 ;;
 ;; (add-to-list 'gnus-secondary-select-methods
-;;	     '(nntp "news.newsfan.net"))
+;;       '(nntp "news.newsfan.net"))
 
 ;;; 邮件分类设置
 (setq nnmail-treat-duplicates 'delete
@@ -101,41 +101,41 @@
 
 (setq nnmail-split-fancy
       `(| ("^From" ,(eh-build-fancy-regexp '("Cron")) "cron-log")
-	  ("^From" ,(eh-build-fancy-regexp '("gmane.mail.rss2email")) "rss2email")
-	  ("^From" ,(eh-build-fancy-regexp '("EmacsWiki")) "emacswiki")
-	  ("^From" ,(eh-build-fancy-regexp '("emacs\.git")) "emacs-git")
-	  ("^From" ,(eh-build-fancy-regexp '("org-mode.git")) "org-mode-git")
-	  ("^From" ,(eh-build-fancy-regexp '("emacs" "Emacs" "EMACS")) "emacs")
-	  ("^From" ,(eh-build-fancy-regexp '("Debian" "debian" "DEBIAN")) "debian")
-	  ("^From" ,(eh-build-fancy-regexp '("Gnome" "gnome" "GNOME")) "gnome")
-	  ;; baidu news
-	  ("^X-RSS-Feed" ".*baidu.*word.*"
-	   (| ("^X-Pinyin-Subject" ,(eh-build-fancy-regexp
-				     '("shanxi" "hebei" "chifen"))
-	       (| ("^X-Pinyin-Subject" ,(eh-build-fancy-regexp
-					 '("kaoshi" "zhaosheng"))
-		   (| ("^X-Pinyin-Subject"
-		       ,(eh-build-fancy-regexp
-			 '("gongwuyuan" "jiaoshi" "shiye" "yiyuan" "weishen" "laoshi"))
-		       "news-baidu-kaoshi")
-		      "news-baidu-other-kaoshi"))))
-	      ("^X-Pinyin-Subject"
-	       ,(eh-build-fancy-regexp '("zhence" "zhengce")) "news-baidu-zhengce")
-	      ("^X-Pinyin-Subject"
-	       ,(eh-build-fancy-regexp '("weisheng" "weishen" "yiliao" "yiyuan")) "news-baidu-weisheng")
-	      "news-baidu"))
+          ("^From" ,(eh-build-fancy-regexp '("gmane.mail.rss2email")) "rss2email")
+          ("^From" ,(eh-build-fancy-regexp '("EmacsWiki")) "emacswiki")
+          ("^From" ,(eh-build-fancy-regexp '("emacs\.git")) "emacs-git")
+          ("^From" ,(eh-build-fancy-regexp '("org-mode.git")) "org-mode-git")
+          ("^From" ,(eh-build-fancy-regexp '("emacs" "Emacs" "EMACS")) "emacs")
+          ("^From" ,(eh-build-fancy-regexp '("Debian" "debian" "DEBIAN")) "debian")
+          ("^From" ,(eh-build-fancy-regexp '("Gnome" "gnome" "GNOME")) "gnome")
+          ;; baidu news
+          ("^X-RSS-Feed" ".*baidu.*word.*"
+           (| ("^X-Pinyin-Subject" ,(eh-build-fancy-regexp
+                                     '("shanxi" "hebei" "chifen"))
+               (| ("^X-Pinyin-Subject" ,(eh-build-fancy-regexp
+                                         '("kaoshi" "zhaosheng"))
+                   (| ("^X-Pinyin-Subject"
+                       ,(eh-build-fancy-regexp
+                         '("gongwuyuan" "jiaoshi" "shiye" "yiyuan" "weishen" "laoshi"))
+                       "news-baidu-kaoshi")
+                      "news-baidu-other-kaoshi"))))
+              ("^X-Pinyin-Subject"
+               ,(eh-build-fancy-regexp '("zhence" "zhengce")) "news-baidu-zhengce")
+              ("^X-Pinyin-Subject"
+               ,(eh-build-fancy-regexp '("weisheng" "weishen" "yiliao" "yiyuan")) "news-baidu-weisheng")
+              "news-baidu"))
 
-	  ("^X-RSS-Feed" ".*baidu.*class.*"
-	   (| ("X-Pinyin-Subject"
-	       ,(eh-build-fancy-regexp
-		 '("shouji" "shanxi" "chifen" "pinguo" "pingguo" "arm" "ARM"
-		   "bijiben" "yumi" "chukong" "keji" "dashuju" "guge" "Google"
-		   "google" "PC" "diannao" "kexue" "lianxiang" "xiaomi"
-		   "Android" "anzhuo" "android" "xueshen" "heimei" "huawei"
-		   "xinji"))
-	       "news-baidu-interesting")
-	      "news-baidu"))
-	  "others"))
+          ("^X-RSS-Feed" ".*baidu.*class.*"
+           (| ("X-Pinyin-Subject"
+               ,(eh-build-fancy-regexp
+                 '("shouji" "shanxi" "chifen" "pinguo" "pingguo" "arm" "ARM"
+                   "bijiben" "yumi" "chukong" "keji" "dashuju" "guge" "Google"
+                   "google" "PC" "diannao" "kexue" "lianxiang" "xiaomi"
+                   "Android" "anzhuo" "android" "xueshen" "heimei" "huawei"
+                   "xinji"))
+               "news-baidu-interesting")
+              "news-baidu"))
+          "others"))
 
 ;; 存储设置
 (setq gnus-startup-file "~/Gnus/.newsrc")                  ;初始文件
@@ -177,7 +177,7 @@
 ;; 根据method来确定编码
 (setq gnus-group-name-charset-method-alist
       '(((nntp "news.newsfan.net") . gbk)
-	((nntp "news.cn99.com") . gbk)))
+        ((nntp "news.cn99.com") . gbk)))
 
 ;; 根据组名称来确定组名称解析使用的编码
 (setq gnus-group-name-charset-group-alist
@@ -190,9 +190,9 @@
 ;; 如果还有乱码，手动调整
 (setq gnus-summary-show-article-charset-alist
       '((1 . gbk)
-	(2 . utf-8)
-	(3 . big5)
-	(4 . utf-7)))
+        (2 . utf-8)
+        (3 . big5)
+        (4 . utf-7)))
 
 ;; 邮件MIME类型设置不正确时，gnus的处理方式。
 (setq gnus-newsgroup-ignored-charsets
@@ -203,19 +203,19 @@
 ;; 2. 发送邮件使用的方法.
 (setq gnus-posting-styles
       '(("\(^INBOX\)\|\(\\[Gmail\\].*\)"
-	 ("X-Message-SMTP-Method" "sendmail"))
-	(message-mail-p
-	 ("X-Message-SMTP-Method" "sendmail"))
-	(".*"
-	 (signature "")
-	 (eval (setq mm-coding-system-priorities
-		     '(iso-8859-1 utf-8 gb2312 gbk utf-8 gb18030))))
-	(".*newsfan.*"
-	 (eval (setq mm-coding-system-priorities
-		     '(iso-8859-1 gb2312 gbk gb18030 utf-8))))
-	(".*cn99.*"
-	 (eval (setq mm-coding-system-priorities
-		     '(iso-8859-1 gb2312 gbk gb18030 utf-8))))))
+         ("X-Message-SMTP-Method" "sendmail"))
+        (message-mail-p
+         ("X-Message-SMTP-Method" "sendmail"))
+        (".*"
+         (signature "")
+         (eval (setq mm-coding-system-priorities
+                     '(iso-8859-1 utf-8 gb2312 gbk utf-8 gb18030))))
+        (".*newsfan.*"
+         (eval (setq mm-coding-system-priorities
+                     '(iso-8859-1 gb2312 gbk gb18030 utf-8))))
+        (".*cn99.*"
+         (eval (setq mm-coding-system-priorities
+                     '(iso-8859-1 gb2312 gbk gb18030 utf-8))))))
 
 ;; 设置邮件附件文件名的编码方式以及邮件subject的编码方式
 (defalias 'mail-header-encode-parameter 'rfc2047-encode-parameter)
@@ -267,32 +267,32 @@
 ;; (gnus-add-configuration
 ;;  '(article
 ;;    (horizontal 1.0
-;;	       (summary 0.50 point)
-;;	       (article 1.0))))
+;;         (summary 0.50 point)
+;;         (article 1.0))))
 
 ;; 双窗口布局(水平)
 (gnus-add-configuration
  '(article
    (vertical 1.0
-	     (summary 0.25 point)
-	     (article 1.0))))
+             (summary 0.25 point)
+             (article 1.0))))
 
 ;; 三窗口布局
 ;; (gnus-add-configuration
 ;;  '(article
 ;;    (horizontal 1.0
-;;	       (vertical 25
-;;			 (group 1.0))
-;;	       (vertical 1.0
-;;			 (summary 0.25 point)
-;;			 (article 1.0)))))
+;;         (vertical 25
+;;           (group 1.0))
+;;         (vertical 1.0
+;;           (summary 0.25 point)
+;;           (article 1.0)))))
 ;; (gnus-add-configuration
 ;;  '(summary
 ;;    (horizontal 1.0
-;;	       (vertical 25
-;;			 (group 1.0))
-;;	       (vertical 1.0
-;;			 (summary 1.0 point)))))
+;;         (vertical 25
+;;           (group 1.0))
+;;         (vertical 1.0
+;;           (summary 1.0 point)))))
 
 ;; 设置图片显示方式
 (setq mm-inline-large-images t)
@@ -319,17 +319,17 @@
 
 (defun eh-gnus-find-invisible-foreground ()
   (let ((candidates
-	 (remove
-	  "unspecified-bg"
-	  (nconc
-	   (list (face-background 'default))
-	   (mapcar
-	    (lambda (alist)
-	      (when (boundp alist)
-		(cdr (assoc 'background-color (symbol-value alist)))))
-	    '(default-frame-alist initial-frame-alist
-	       window-system-default-frame-alist))
-	   (list (face-foreground 'eh-gnus-face-3))))))
+         (remove
+          "unspecified-bg"
+          (nconc
+           (list (face-background 'default))
+           (mapcar
+            (lambda (alist)
+              (when (boundp alist)
+                (cdr (assoc 'background-color (symbol-value alist)))))
+            '(default-frame-alist initial-frame-alist
+               window-system-default-frame-alist))
+           (list (face-foreground 'eh-gnus-face-3))))))
     (car (remove nil candidates))))
 
 (defface eh-gnus-face-2
@@ -347,22 +347,22 @@
 (defun gnus-user-format-function-a (header)
   (let ((date (mail-header-date header)))
     (if (zerop gnus-tmp-level)
-	"-> " "")))
+        "-> " "")))
 
 ;; 显示时间设置
 (defun gnus-user-format-function-b (header)
   (let ((date (mail-header-date header)))
     (if (zerop gnus-tmp-level)
-	"" (concat "     " (concat (gnus-user-date date) "  ")))))
+        "" (concat "     " (concat (gnus-user-date date) "  ")))))
 
 ;; 显示主题设置
 (defun gnus-user-format-function-c (header)
   (let ((date (mail-header-date header))
-	(subject (mail-header-subject header)))
+        (subject (mail-header-subject header)))
     (if (zerop gnus-tmp-level)
-	(concat subject
-		" ("
-		(gnus-user-date date)")") "")))
+        (concat subject
+                " ("
+                (gnus-user-date date)")") "")))
 
 ;; 提取From名字
 (defun eh-mail-header-from-name (from)
@@ -370,18 +370,18 @@
    ((string-match "<[^>]+> *$" from)
     (let ((beg (match-beginning 0)))
       (or (and (string-match "^\".+\"" from)
-	       (substring from 1 (1- (match-end 0))))
-	  (substring from 0 beg))))
+               (substring from 1 (1- (match-end 0))))
+          (substring from 0 beg))))
    ((string-match "(.+)" from)
     (substring from
-	       (1+ (match-beginning 0)) (1- (match-end 0))))
+               (1+ (match-beginning 0)) (1- (match-end 0))))
    (t from)))
 
 ;; 显示发件人设置
 (defun gnus-user-format-function-d (header)
   (let ((from (mail-header-from header)))
     (if (zerop gnus-tmp-level)
-	"" (eh-mail-header-from-name from))))
+        "" (eh-mail-header-from-name from))))
 
 ;; 显示箭头设置
 (defun gnus-user-format-function-e (header)
@@ -391,20 +391,20 @@
 ;; 显示隐藏Subject, 用于搜索
 (defun gnus-user-format-function-f (header)
   (let ((date (mail-header-date header))
-	(subject (mail-header-subject header)))
+        (subject (mail-header-subject header)))
     (if (zerop gnus-tmp-level)
-	""
+        ""
       subject)))
 
 (setq gnus-user-date-format-alist
       '(((gnus-seconds-today) . "%H:%M")
-	((+ (* 24 3600)    (gnus-seconds-today)) . "YD   ")
-	((- (gnus-seconds-month) (* 72 3600)) . "%dth ")
-	((- (gnus-seconds-month) (* 48 3600)) . "%drd ")
-	((- (gnus-seconds-month) (* 24 3600)) . "%dnd ")
-	((gnus-seconds-month) . "%dst ")
-	((gnus-seconds-year)  . "%m-%d")
-	(t . "%Y ")))
+        ((+ (* 24 3600)    (gnus-seconds-today)) . "YD   ")
+        ((- (gnus-seconds-month) (* 72 3600)) . "%dth ")
+        ((- (gnus-seconds-month) (* 48 3600)) . "%drd ")
+        ((- (gnus-seconds-month) (* 24 3600)) . "%dnd ")
+        ((gnus-seconds-month) . "%dst ")
+        ((gnus-seconds-year)  . "%m-%d")
+        (t . "%Y ")))
 
 ;; 设置threads的样式
 (setq gnus-thread-indent-level 0)
@@ -454,16 +454,16 @@
 (setq eh-eww-buffer-position-string-1 nil)
 (setq eh-eww-buffer-position-string-2
       '("责编" "责任编辑" "关键字" "更多相关消息" "新闻推荐"
-	"相关新闻" "频道精选" "最新评论" "相关资讯"
-	"相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
-	"分享编辑" "查看所有评论" "我来说两句" "我要发言"
-	"点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
-	"延伸阅读" "您对这篇文章的评价" "焦点阅读" "相关链接"
-	"点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
-	"热门推荐" "复制本网址推荐" "延伸阅读" "热门排行" "大中小"
-	"您可能感兴趣的文章" "今日热读" "版面编辑" "收藏此页"
-	"条评论" "提交文章" "往日文章" "过去的投票" "编辑介绍"
-	"隐私政策" "不得转载" "版权所有" "未经许可" "今日热点" "猜你喜欢"))
+        "相关新闻" "频道精选" "最新评论" "相关资讯"
+        "相关阅读" "相关文章" "看过本文的人还看过" "更多评论"
+        "分享编辑" "查看所有评论" "我来说两句" "我要发言"
+        "点击可以复制本篇文章的标题和链接" "查看所有收藏过的文章"
+        "延伸阅读" "您对这篇文章的评价" "焦点阅读" "相关链接"
+        "点击可以复制本篇文章的标题和链接" "发表评论" "查看全部评论"
+        "热门推荐" "复制本网址推荐" "延伸阅读" "热门排行" "大中小"
+        "您可能感兴趣的文章" "今日热读" "版面编辑" "收藏此页"
+        "条评论" "提交文章" "往日文章" "过去的投票" "编辑介绍"
+        "隐私政策" "不得转载" "版权所有" "未经许可" "今日热点" "猜你喜欢"))
 
 (defun eh-eww-build-regexp (str)
   (mapconcat (lambda (x) (concat "\n*" (list x))) str ""))
@@ -475,30 +475,30 @@
     (kill-buffer "*gnus-eww*"))
   (gnus-eval-in-buffer-window gnus-article-buffer
     (setq eh-gnus-current-article-subject
-	  (progn
-	    (message-narrow-to-headers)
-	    (message-fetch-field "Subject")))
+          (progn
+            (message-narrow-to-headers)
+            (message-fetch-field "Subject")))
     (setq eh-gnus-current-article-from
-	  (progn
-	    (message-narrow-to-headers)
-	    (message-fetch-field "From")))
+          (progn
+            (message-narrow-to-headers)
+            (message-fetch-field "From")))
     (setq eh-gnus-current-article-url
-	  (progn
-	    (message-narrow-to-headers)
-	    (eval (cons 'or (mapcar 'message-fetch-field
-				    eh-gnus-article-url-field)))))
+          (progn
+            (message-narrow-to-headers)
+            (eval (cons 'or (mapcar 'message-fetch-field
+                                    eh-gnus-article-url-field)))))
     (setq eh-eww-buffer-position-string-1
-	  (progn
-	    (message-goto-body)
-	    ;; 提取一个字符串, 用来构建文章定位regexp
-	    (let ((begin (point)))
-	      (forward-line 4)
-	      (replace-regexp-in-string
-	       "^ +\\|\n+" ""
-	       (buffer-substring-no-properties
-		begin (point)))))))
+          (progn
+            (message-goto-body)
+            ;; 提取一个字符串, 用来构建文章定位regexp
+            (let ((begin (point)))
+              (forward-line 4)
+              (replace-regexp-in-string
+               "^ +\\|\n+" ""
+               (buffer-substring-no-properties
+                begin (point)))))))
   (when (and (or force (string-match-p "\\cc" (or eh-gnus-current-article-subject "")))
-	     eh-gnus-current-article-url)
+             eh-gnus-current-article-url)
     (eh-gnus-eww eh-gnus-current-article-url)
     (delete-other-windows)))
 
@@ -508,23 +508,23 @@
     (remove-overlays)
     (erase-buffer))
   (url-retrieve url 'eww-render
-		(list url nil (current-buffer)))
+                (list url nil (current-buffer)))
   (unless (eq major-mode 'eww-mode)
     (eww-mode))
   (when eh-gnus-eww-timer
     (cancel-timer eh-gnus-eww-timer))
   (setq eh-gnus-eww-timer
-	(run-with-timer
-	 3 nil
-	 '(lambda ()
-	    (switch-to-buffer "*gnus-eww*")
-	    (setq header-line-format nil)
-	    (eh-eww-clean-view)
-	    (local-set-key (kbd "C-c C-c") 'eh-eww-toggle-clear-view)))))
+        (run-with-timer
+         3 nil
+         '(lambda ()
+            (switch-to-buffer "*gnus-eww*")
+            (setq header-line-format nil)
+            (eh-eww-clean-view)
+            (local-set-key (kbd "C-c C-c") 'eh-eww-toggle-clear-view)))))
 
 (defun eh-eww-narrow-to-region (position1 position2)
   (let ((new-overlay1 (make-overlay (point-min) position1))
-	(new-overlay2 (make-overlay position2 (point-max))))
+        (new-overlay2 (make-overlay position2 (point-max))))
     (push new-overlay1 eh-eww-hide-region-overlays)
     (push new-overlay2 eh-eww-hide-region-overlays)
     (overlay-put new-overlay1 'invisible t)
@@ -545,56 +545,56 @@
     (save-excursion
       (goto-char (point-min))
       (when (not
-	     (or (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-url)
-		 (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-from)
-		 (string-match-p eh-eww-buffer-ignore-wash-regexp
-				 eh-gnus-current-article-subject)))
-	;; 行距设置为0.2
-	(setq line-spacing 0.1)
-	;; 设置字号
-	;; (let ((text-scale-mode-amount 1.0))
-	;;   (text-scale-mode))
-	(goto-char (point-min))
-	(let* ((string eh-eww-buffer-position-string-1)
-	       (length (length string))
-	       (regexp1 (eh-eww-build-regexp
-			 (substring string 0 (if (< length 10) length 10))))
-	       (regexp2 (eh-eww-build-regexp
-			 (substring string (- length 10) length)))
-	       (boundary-search-p t)
-	       boundary1 boundary2)
-	  ;; find first narrow boundary
-	  (if (or (re-search-forward regexp2 nil t)
-		  (re-search-forward regexp1 nil t))
-	      (backward-paragraph)
-	    (goto-char (point-min)))
-	  (setq boundary1 (point))
-	  ;; find second narrow boundary
-	  (while (and (< (- (point) boundary1) 200)
-		      boundary-search-p)
-	    (unless (re-search-forward
-		     (mapconcat 'eh-eww-build-regexp
-				eh-eww-buffer-position-string-2
-				"\\|") nil t)
-	      (goto-char (point-max))
-	      (setq boundary-search-p nil)))
-	  (end-of-line)
-	  (setq boundary2 (point))
-	  ;; narrow到文章正文
-	  (eh-eww-narrow-to-region boundary1 boundary2))))))
+             (or (string-match-p eh-eww-buffer-ignore-wash-regexp
+                                 eh-gnus-current-article-url)
+                 (string-match-p eh-eww-buffer-ignore-wash-regexp
+                                 eh-gnus-current-article-from)
+                 (string-match-p eh-eww-buffer-ignore-wash-regexp
+                                 eh-gnus-current-article-subject)))
+        ;; 行距设置为0.2
+        (setq line-spacing 0.1)
+        ;; 设置字号
+        ;; (let ((text-scale-mode-amount 1.0))
+        ;;   (text-scale-mode))
+        (goto-char (point-min))
+        (let* ((string eh-eww-buffer-position-string-1)
+               (length (length string))
+               (regexp1 (eh-eww-build-regexp
+                         (substring string 0 (if (< length 10) length 10))))
+               (regexp2 (eh-eww-build-regexp
+                         (substring string (- length 10) length)))
+               (boundary-search-p t)
+               boundary1 boundary2)
+          ;; find first narrow boundary
+          (if (or (re-search-forward regexp2 nil t)
+                  (re-search-forward regexp1 nil t))
+              (backward-paragraph)
+            (goto-char (point-min)))
+          (setq boundary1 (point))
+          ;; find second narrow boundary
+          (while (and (< (- (point) boundary1) 200)
+                      boundary-search-p)
+            (unless (re-search-forward
+                     (mapconcat 'eh-eww-build-regexp
+                                eh-eww-buffer-position-string-2
+                                "\\|") nil t)
+              (goto-char (point-max))
+              (setq boundary-search-p nil)))
+          (end-of-line)
+          (setq boundary2 (point))
+          ;; narrow到文章正文
+          (eh-eww-narrow-to-region boundary1 boundary2))))))
 
 (defun eh-eww-toggle-clear-view ()
   (interactive)
   (when (string= (buffer-name) "*gnus-eww*")
     (if eh-eww-hide-region-overlays
-	(progn
-	  (eh-eww-widen)
-	  (message "Show all page"))
+        (progn
+          (eh-eww-widen)
+          (message "Show all page"))
       (progn
-	(eh-eww-clean-view)
-	(message "Show only article")))))
+        (eh-eww-clean-view)
+        (message "Show only article")))))
 
 (defun eh-gnus-summary-setup ()
   (interactive)
@@ -606,47 +606,47 @@
 
   ;; 设置一个face,用来隐藏不需要显示的文字
   (set-face-foreground 'eh-gnus-face-3
-		       (eh-gnus-find-invisible-foreground))
+                       (eh-gnus-find-invisible-foreground))
 
   ;; summary buffer不显示右fringe
   (set-fringe-style  '(nil . 0))
 
   ;; 重新定义键盘绑定
   (local-set-key (kbd "SPC")
-		 (lambda ()
-		   (interactive)
-		   (gnus-summary-next-page)
-		   (move-beginning-of-line 1)))
+                 (lambda ()
+                   (interactive)
+                   (gnus-summary-next-page)
+                   (move-beginning-of-line 1)))
   (local-set-key (kbd "C-p")
-		 (lambda ()
-		   (interactive)
-		   (delete-other-windows)
-		   (previous-line 1)))
+                 (lambda ()
+                   (interactive)
+                   (delete-other-windows)
+                   (previous-line 1)))
   (local-set-key (kbd "C-n")
-		 (lambda ()
-		   (interactive)
-		   (delete-other-windows)
-		   (next-line 1)))
+                 (lambda ()
+                   (interactive)
+                   (delete-other-windows)
+                   (next-line 1)))
   (local-set-key (kbd "<up>")
-		 (lambda ()
-		   (interactive)
-		   (delete-other-windows)
-		   (previous-line 1)))
+                 (lambda ()
+                   (interactive)
+                   (delete-other-windows)
+                   (previous-line 1)))
   (local-set-key (kbd "<down>")
-		 (lambda ()
-		   (interactive)
-		   (delete-other-windows)
-		   (next-line 1)))
+                 (lambda ()
+                   (interactive)
+                   (delete-other-windows)
+                   (next-line 1)))
   (local-set-key (kbd "<return>")
-		 (lambda ()
-		   (interactive)
-		   (eh-gnus-view-article-with-eww)
-		   (move-beginning-of-line 1)))
+                 (lambda ()
+                   (interactive)
+                   (eh-gnus-view-article-with-eww)
+                   (move-beginning-of-line 1)))
   (local-set-key (kbd "C-<return>")
-		 (lambda ()
-		   (interactive)
-		   (eh-gnus-view-article-with-eww t)
-		   (move-beginning-of-line 1)))
+                 (lambda ()
+                   (interactive)
+                   (eh-gnus-view-article-with-eww t)
+                   (move-beginning-of-line 1)))
   (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
   (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
   (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread))
@@ -673,23 +673,23 @@
 ;; 设置邮件报头显示的信息
 (setq gnus-visible-headers
       (mapconcat 'regexp-quote
-		 '("From:" "Newsgroups:" "Subject:" "Date:"
-		   "Organization:" "To:" "Cc:" "Followup-To" "Gnus-Warnings:"
-		   "X-Sent:" "X-URL:" "User-Agent:" "X-Newsreader:"
-		   "X-Mailer:" "Reply-To:" "X-Spam:" "X-Spam-Status:" "X-Now-Playing"
-		   "X-Attachments" "X-Diagnostic" "X-RSS-URL")
-		 "\\|"))
+                 '("From:" "Newsgroups:" "Subject:" "Date:"
+                   "Organization:" "To:" "Cc:" "Followup-To" "Gnus-Warnings:"
+                   "X-Sent:" "X-URL:" "User-Agent:" "X-Newsreader:"
+                   "X-Mailer:" "Reply-To:" "X-Spam:" "X-Spam-Status:" "X-Now-Playing"
+                   "X-Attachments" "X-Diagnostic" "X-RSS-URL")
+                 "\\|"))
 
 ;; 设置邮件日期显示格式,使用两行日期，一行具体日期时间，
 ;; 另一行显示article, 距现在多长时间
 (setq gnus-article-date-headers '(user-defined))
 (setq gnus-article-time-format
       (lambda (time)
-	(concat "X-Sent:   "
-		(format-time-string "%Y年%m月%d日 星期%u %R" time)
-		"\n"
-		"X-Lasped: "
-		(article-lapsed-string time))))
+        (concat "X-Sent:   "
+                (format-time-string "%Y年%m月%d日 星期%u %R" time)
+                "\n"
+                "X-Lasped: "
+                (article-lapsed-string time))))
 
 ;; 用 Supercite 显示多种多样的引文形式
 (setq sc-attrib-selection-list nil
@@ -725,18 +725,18 @@
 ;; Thread root排序
 (setq gnus-thread-sort-functions
       '(gnus-thread-sort-by-most-recent-number
-	gnus-thread-sort-by-most-recent-date))
+        gnus-thread-sort-by-most-recent-date))
 
 ;; Subthread排序
 (setq gnus-subthread-sort-functions
       '(gnus-thread-sort-by-number
-	gnus-thread-sort-by-date))
+        gnus-thread-sort-by-date))
 
 ;; 自动跳到第一个没有阅读的组
 (add-hook 'gnus-switch-on-after-hook
-	  'gnus-group-first-unread-group)
+          'gnus-group-first-unread-group)
 (add-hook 'gnus-summary-exit-hook
-	  'gnus-group-first-unread-group)
+          'gnus-group-first-unread-group)
 
 ;; 在message-mode中使用org-mode
 (add-hook 'message-mode-hook 'turn-on-orgstruct)
@@ -744,23 +744,23 @@
 
 ;; 每隔10分钟刷新一下
 (add-hook 'gnus-startup-hook
-	  '(lambda ()
-	     (progn (setq gnus-use-demon t)
-		    (gnus-demon-add-handler
-		     'gnus-demon-scan-news 10 nil))))
+          '(lambda ()
+             (progn (setq gnus-use-demon t)
+                    (gnus-demon-add-handler
+                     'gnus-demon-scan-news 10 nil))))
 
 ;; 启用桌面提醒功能
 (add-hook 'gnus-after-getting-new-news-hook
-	  'gnus-notifications)
+          'gnus-notifications)
 
 ;;;###autoload
 (add-hook 'gnus-before-startup-hook
-	  '(lambda ()
-	     (require 'eh-offlineimap)
-	     (require 'eh-rss2email)
-	     (require 'eh-gnus)
-	     (eh-offlineimap-cron)
-	     (eh-rss2email-cron)))
+          '(lambda ()
+             (require 'eh-offlineimap)
+             (require 'eh-rss2email)
+             (require 'eh-gnus)
+             (eh-offlineimap-cron)
+             (eh-rss2email-cron)))
 
 (provide 'eh-gnus)
 

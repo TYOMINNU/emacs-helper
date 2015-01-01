@@ -39,7 +39,7 @@
 ;; bibtex default style file
 (setq eh-org-bibtex-default-style-file
       (concat (file-name-directory
-	       (locate-library "eh-org.el")) "templates/GBT7714-2005-latex/GBT7714-2005NLang-UTF8.bst"))
+               (locate-library "eh-org.el")) "templates/GBT7714-2005-latex/GBT7714-2005NLang-UTF8.bst"))
 
 ;; bibtex2html default options
 (setq eh-org-bibtex-bibtex2html-options
@@ -54,7 +54,7 @@
   "Add extra arguments to `org-bibtex-get-arguments returned"
   (let ((orig-options (plist-get arguments :options)))
     (plist-put arguments :options
-	       (delete-dups (append eh-org-bibtex-bibtex2html-options orig-options)))))
+               (delete-dups (append eh-org-bibtex-bibtex2html-options orig-options)))))
 
 (advice-add 'org-bibtex-get-style :filter-return #'eh-org-bibtex-add-default-style)
 (advice-add 'org-bibtex-get-arguments :filter-return #'eh-org-bibtex-add-default-arguments)

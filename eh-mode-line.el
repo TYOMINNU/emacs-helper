@@ -35,45 +35,45 @@
 ;; 简化mode-line的显示(use setq-default to set it for /all/ modes)
 (setq eh-mode-line-coding-format
       '(:eval
-	(let* ((code (upcase (symbol-name buffer-file-coding-system)))
-	       (eol-type (coding-system-eol-type buffer-file-coding-system))
-	       (eol-string (if (eq 0 eol-type) "UNIX"
-			     (if (eq 1 eol-type) "DOS"
-			       (if (eq 2 eol-type) "MAC"
-				 "???")))))
-	  (if (string-match-p eol-string code)
-	      code
-	    (concat code " " eol)))))
+        (let* ((code (upcase (symbol-name buffer-file-coding-system)))
+               (eol-type (coding-system-eol-type buffer-file-coding-system))
+               (eol-string (if (eq 0 eol-type) "UNIX"
+                             (if (eq 1 eol-type) "DOS"
+                               (if (eq 2 eol-type) "MAC"
+                                 "???")))))
+          (if (string-match-p eol-string code)
+              code
+            (concat code " " eol)))))
 
 (setq eh-mode-line-format
       (list
        "+ "
        '(:eval (if buffer-read-only
-		   (propertize "只读  "
-			       'face 'font-lock-type-face
-			       'help-echo "Buffer is read-only")
-		 (if (buffer-modified-p)
-		     (propertize "更改  "
-				 'face 'font-lock-warning-face
-				 'help-echo "Buffer has been modified")
-		   (propertize (format-time-string "%H:%M ")
-			       'help-echo
-			       (concat (format-time-string "%c; ")
-				       (emacs-uptime "Uptime:%hh"))))))
+                   (propertize "只读  "
+                               'face 'font-lock-type-face
+                               'help-echo "Buffer is read-only")
+                 (if (buffer-modified-p)
+                     (propertize "更改  "
+                                 'face 'font-lock-warning-face
+                                 'help-echo "Buffer has been modified")
+                   (propertize (format-time-string "%H:%M ")
+                               'help-echo
+                               (concat (format-time-string "%c; ")
+                                       (emacs-uptime "Uptime:%hh"))))))
        ;; buffer name
        '(:eval (propertize "%b " 'face 'font-lock-keyword-face
-			   'help-echo (buffer-file-name)))
+                           'help-echo (buffer-file-name)))
        ;; line and column
        (propertize "(%02l,%02c) " 'face 'font-lock-type-face)
        ;; position and size
        (propertize "%p/%I " 'face 'font-lock-constant-face)
        ;; current major mode
        '(:eval (propertize "[%m] " 'face 'font-lock-string-face
-			   'help-echo (symbol-name buffer-file-coding-system)))
+                           'help-echo (symbol-name buffer-file-coding-system)))
        ;; current minor-mode, emms song info
        '(:eval (if emms-player-playing-p
-		   (list emms-mode-line-string " " emms-playing-time-string)
-		 (list "( " eh-mode-line-coding-format  minor-mode-alist " )")))
+                   (list emms-mode-line-string " " emms-playing-time-string)
+                 (list "( " eh-mode-line-coding-format  minor-mode-alist " )")))
        ;; show: -------
        " %-"))
 

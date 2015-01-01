@@ -55,7 +55,7 @@
   (interactive)
   (let ((word-regexp "\\sw"))
     (when (or (looking-at word-regexp)
-	      (looking-back word-regexp (line-beginning-position)))
+              (looking-back word-regexp (line-beginning-position)))
       (skip-syntax-forward "w")
       (set-mark (point))
       (skip-syntax-backward "w"))))
@@ -63,23 +63,23 @@
 (defun eh-directory-files-recursively (directory &optional type regexp)
   "recursively list all the files in a directory"
   (let* ((directory (or directory default-directory))
-	 (regexp  (if regexp regexp ".*"))
-	 (predfunc (case type
-		     (dir 'file-directory-p)
-		     (file 'file-regular-p)
-		     (otherwise 'identity)))
-	 (files (delete-if
-		 (lambda (s)
-		   (string-match (rx bol (repeat 1 2 ".") eol)
-				 (file-name-nondirectory s)))
-		 (directory-files directory t nil t))))
+         (regexp  (if regexp regexp ".*"))
+         (predfunc (case type
+                     (dir 'file-directory-p)
+                     (file 'file-regular-p)
+                     (otherwise 'identity)))
+         (files (delete-if
+                 (lambda (s)
+                   (string-match (rx bol (repeat 1 2 ".") eol)
+                                 (file-name-nondirectory s)))
+                 (directory-files directory t nil t))))
     (loop for file in files
-	  when (and (funcall predfunc file)
-		    (string-match regexp (file-name-nondirectory file)))
-	  collect file into ret
-	  when (file-directory-p file)
-	  nconc (eh-directory-files-recursively file type regexp) into ret
-	  finally return ret)))
+          when (and (funcall predfunc file)
+                    (string-match regexp (file-name-nondirectory file)))
+          collect file into ret
+          when (file-directory-p file)
+          nconc (eh-directory-files-recursively file type regexp) into ret
+          finally return ret)))
 
 (defun eh-wash-text (text &optional fill-width indent)
   "Insert text into a temp buffer and wash it,
@@ -105,22 +105,22 @@ this function  derived from `article-strip-multiple-blank-lines' in
     ;; Remove a leading blank line.
     (goto-char (point-min))
     (if (looking-at "\n")
-	(delete-region (match-beginning 0) (match-end 0)))
+        (delete-region (match-beginning 0) (match-end 0)))
 
     ;; Remove a trailing blank line.
     (goto-char (point-max))
     (if (looking-at "\n")
-	(delete-region (match-beginning 0) (match-end 0)))
+        (delete-region (match-beginning 0) (match-end 0)))
 
     ;; remove "{"
     (goto-char (point-min))
     (if (looking-at "^[[:space:]	\t]*{")
-	(delete-region (match-beginning 0) (match-end 0)))
+        (delete-region (match-beginning 0) (match-end 0)))
 
     ;; remove "}"
     (goto-char (point-max))
     (if (looking-at "}^[[:space:]	\t]*")
-	(delete-region (match-beginning 0) (match-end 0)))
+        (delete-region (match-beginning 0) (match-end 0)))
 
     ;; fill buffer
     (when fill-width
@@ -128,10 +128,10 @@ this function  derived from `article-strip-multiple-blank-lines' in
       (indent-region (point-min) (point-max) 0)
       ;; unfill the buffer
       (let ((fill-column 100000))
-	(fill-region (point-min) (point-max)))
+        (fill-region (point-min) (point-max)))
       ;; fill the buffer to fill-width
       (let ((fill-column fill-width))
-	(fill-region (point-min) (point-max))))
+        (fill-region (point-min) (point-max))))
 
     ;;indent buffer
     (when indent

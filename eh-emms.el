@@ -46,10 +46,10 @@
 (setq emms-stream-bookmarks-file "~/Music/.emms/streams")
 (setq emms-score-file "~/Music/.emms/scores")
 
-;设定EMMS主模式为Playlist模式
+                                        ;设定EMMS主模式为Playlist模式
 (setq emms-playlist-default-major-mode 'emms-playlist-mode)
 
-;修复播放完后的BUG
+                                        ;修复播放完后的BUG
 (setq emms-player-next-function 'emms-next)
 
 ;; 设定音轨初始化信息
@@ -105,10 +105,10 @@
 ;; 设置Playlist的显示方式
 (setq emms-last-played-format-alist
       '(((emms-last-played-seconds-today) . "%H:%M")
-	(604800                           . "%H:%M")
-	((emms-last-played-seconds-month) . "%d")
-	((emms-last-played-seconds-year)  . "%m-%d")
-	(t                                . "%Y")))
+        (604800                           . "%H:%M")
+        ((emms-last-played-seconds-month) . "%d")
+        ((emms-last-played-seconds-year)  . "%m-%d")
+        (t                                . "%Y")))
 
 (defun eh-emms-make-track-description (track)
   "Return a description of the current track."
@@ -148,10 +148,10 @@
       (emms-track-set track 'info-title (car (reverse info-list))))
     (with-temp-buffer
       (when (string= "0"
-             (format "%s" (let ((coding-system-for-read 'utf-8))
-                            (call-process emms-info-libtag-program-name
-                                          nil '(t nil) nil
-                                          (emms-track-name track)))))
+                     (format "%s" (let ((coding-system-for-read 'utf-8))
+                                    (call-process emms-info-libtag-program-name
+                                                  nil '(t nil) nil
+                                                  (emms-track-name track)))))
         (goto-char (point-min))
         ;; Crush the trailing whitespace
         (while (re-search-forward "[[:space:]]+$" nil t)
@@ -230,10 +230,10 @@ Return the previous point-max before adding."
   (let ((key (car entry))
         (track (cadr entry))
         artist title) ;; only the first track
-  (cond
-   ((eq type 'info-title)
-    (eh-emms-make-track-description track))
-   (t key))))
+    (cond
+     ((eq type 'info-title)
+      (eh-emms-make-track-description track))
+     (t key))))
 
 (advice-add 'emms-browser-make-name :override #'eh-emms-browser-make-name)
 
@@ -252,7 +252,7 @@ Return the previous point-max before adding."
 (defun eh-emms ()
   (interactive)
   (if (or (null emms-playlist-buffer)
-	  (not (buffer-live-p emms-playlist-buffer)))
+          (not (buffer-live-p emms-playlist-buffer)))
       (let ((playlist (concat
                        (file-name-as-directory emms-source-file-default-directory)
                        "default.playlist")))

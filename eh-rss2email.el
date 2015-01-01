@@ -42,12 +42,12 @@
   (interactive)
   (let* ((buffer (get-buffer-create eh-rss2email-buffer-name)))
     (if (get-buffer-process buffer)
-	(message "rss2email is running")
+        (message "rss2email is running")
       (with-current-buffer buffer
-	(let ((inhibit-read-only t))
-	  (remove-overlays)
-	  (erase-buffer)
-	  (insert "###### rss2email verbose log #####\n")))
+        (let ((inhibit-read-only t))
+          (remove-overlays)
+          (erase-buffer)
+          (insert "###### rss2email verbose log #####\n")))
       (start-process-shell-command
        "rss2email"
        buffer
@@ -58,11 +58,11 @@
   (when eh-rss2email-timer
     (cancel-timer eh-rss2email-timer))
   (setq eh-rss2email-timer
-	(run-with-timer
-	 nil (* 120 60)
-	 '(lambda ()
-	    (message "Download rss with eh-rss2email ...")
-	    (eh-rss2email)))))
+        (run-with-timer
+         nil (* 120 60)
+         '(lambda ()
+            (message "Download rss with eh-rss2email ...")
+            (eh-rss2email)))))
 
 (provide 'eh-rss2email)
 
