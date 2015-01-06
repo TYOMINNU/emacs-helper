@@ -49,7 +49,7 @@
 (set-terminal-coding-system 'utf-8-unix)
 
 ;; 默认显示菜单栏
-(menu-bar-mode 1)
+(menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 
