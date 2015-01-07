@@ -101,6 +101,8 @@
 
 ;;; stardict
 (require 'chinese-yasdcv)
+(setq yasdcv-chinese-wordsplit-command
+      "echo %string | python -m jieba -q -d ' '")
 
 ;;; ob-gtranslate
 (require 'org)

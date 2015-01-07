@@ -152,7 +152,9 @@
 
 (setq default-input-method "chinese-pyim")
 (global-set-key (kbd "C-<SPC>") 'toggle-input-method)
-(global-set-key (kbd ";") 'pyim-insert-ascii)
+;; (global-set-key (kbd "C-;") 'pyim-toggle-full-width-punctuation)
+;; (global-set-key (kbd "C-;") 'pyim-insert-ascii)
+(global-set-key (kbd "C-;") 'pyim-punctuation-translate-at-point)
 
 ;; recentf
 (require 'recentf)
