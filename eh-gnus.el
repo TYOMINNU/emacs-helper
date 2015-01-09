@@ -43,54 +43,18 @@
 (require 'gnus-demon)
 (require 'eww)
 
-;; 使用offlineimap, leafnode以及rss2email
-;; 将邮件，新闻组和rss订阅同步到本地dovecot服务器
-;; 然后使用gnus访问。
+;; Gnus邮件设置。
 (setq gnus-select-method '(nnml ""))
 
-(add-to-list 'gnus-secondary-select-methods
-             '(nnimap "gmail"
-                      (nnimap-address "localhost")
-                      (nnimap-stream network)))
+(defun eh-gnus-load-personal-file ()
+  (interactive)
+  (let ((file (expand-file-name "~/Gnus/gnus-personal.el")))
+    (if (file-exists-p file)
+        (load file)
+      (message "个人帐号文件加载失败！"))))
 
-(add-to-list 'gnus-secondary-select-methods
-             '(nntp "localhost"))
-
-(add-to-list 'gnus-secondary-select-methods
-             '(nnimap "rss"
-                      (nnimap-address "localhost")
-                      (nnimap-stream network)
-                      (nnimap-inbox "INBOX")
-                      (nnimap-split-methods 'nnmail-split-fancy)))
-
-(add-to-list 'gnus-secondary-select-methods
-             '(nnimap "163mail"
-                      (nnimap-address "localhost")
-                      (nnimap-stream network)))
-
-(add-to-list 'gnus-secondary-select-methods
-             '(nnimap "qqmail"
-                      (nnimap-address "localhost")
-                      (nnimap-stream network)))
-
-;;; 其他一些常见的配置例子
-;;
-;; (add-to-list 'gnus-secondary-select-methods
-;;       '(nnimap "RSS"
-;;            (nnimap-address "localhost")
-;;            (nnimap-stream shell)
-;;            (nnimap-shell-program "/usr/lib/dovecot/imap -o mail_location=maildir:$HOME/Maildir/rss:LAYOUT=fs")))
-;;
-;; (setq gnus-select-method
-;;       '(nnimap "gmail"
-;;         (nnimap-address "imap.gmail.com")
-;;         (nnimap-stream ssl)))
-;;
-;; (add-to-list 'gnus-secondary-select-methods
-;;       '(nntp "news.gmane.org"))
-;;
-;; (add-to-list 'gnus-secondary-select-methods
-;;       '(nntp "news.newsfan.net"))
+;; 加载个人帐号信息。
+(eh-gnus-load-personal-file)
 
 ;;; 邮件分类设置
 (setq nnmail-treat-duplicates 'delete
@@ -197,25 +161,6 @@
 ;; 邮件MIME类型设置不正确时，gnus的处理方式。
 (setq gnus-newsgroup-ignored-charsets
       '(unknown-8bit x-unknown x-gbk))
-
-;; gnus-posting-styles设置
-;; 1. 邮件发送时字符编码设置.
-;; 2. 发送邮件使用的方法.
-(setq gnus-posting-styles
-      '(("\(^INBOX\)\|\(\\[Gmail\\].*\)"
-         ("X-Message-SMTP-Method" "sendmail"))
-        (message-mail-p
-         ("X-Message-SMTP-Method" "sendmail"))
-        (".*"
-         (signature "")
-         (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1 utf-8 gb2312 gbk utf-8 gb18030))))
-        (".*newsfan.*"
-         (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1 gb2312 gbk gb18030 utf-8))))
-        (".*cn99.*"
-         (eval (setq mm-coding-system-priorities
-                     '(iso-8859-1 gb2312 gbk gb18030 utf-8))))))
 
 ;; 设置邮件附件文件名的编码方式以及邮件subject的编码方式
 (defalias 'mail-header-encode-parameter 'rfc2047-encode-parameter)
@@ -756,10 +701,10 @@
 ;;;###autoload
 (add-hook 'gnus-before-startup-hook
           '(lambda ()
-             (require 'eh-offlineimap)
+             ;; (require 'eh-offlineimap)
              (require 'eh-rss2email)
              (require 'eh-gnus)
-             (eh-offlineimap-cron)
+             ;; (eh-offlineimap-cron)
              (eh-rss2email-cron)))
 
 (provide 'eh-gnus)
