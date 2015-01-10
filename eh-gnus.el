@@ -43,24 +43,13 @@
 (require 'gnus-demon)
 (require 'eww)
 
-;; Gnus邮件设置。
-(setq gnus-select-method '(nnml ""))
-
+;;;###autoload
 (defun eh-gnus-load-personal-file ()
   (interactive)
   (let ((file (expand-file-name "~/Gnus/gnus-personal.el")))
     (if (file-exists-p file)
         (load file)
       (message "个人帐号文件加载失败!!!"))))
-
-;; 从authinfo文件中解析密码，避免密码明文保存
-(defun eh-gnus-get-password (host port)
-  (let* ((authinfo (netrc-parse (expand-file-name "~/.authinfo.gpg")))
-         (hostentry (netrc-machine authinfo host (format "%s" port) port)))
-    (when hostentry (netrc-get hostentry "password"))))
-
-;; 加载个人帐号信息。
-(eh-gnus-load-personal-file)
 
 ;;; 邮件分类设置
 (setq nnmail-treat-duplicates 'delete
@@ -709,6 +698,9 @@
           '(lambda ()
              ;; (require 'eh-offlineimap)
              (require 'eh-rss2email)
+             ;; 加载个人帐号信息。
+             (eh-gnus-load-personal-file)
+             ;; 加载gnus其它配置
              (require 'eh-gnus)
              ;; (eh-offlineimap-cron)
              (eh-rss2email-cron)))
