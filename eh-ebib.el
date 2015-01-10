@@ -34,7 +34,7 @@
 (require 'bibtex)
 (require 'reftex)
 (require 'ebib)
-(require 'eh-hanzi2pinyin)
+(require 'chinese-pyim-pinyin)
 
 ;; org cite link setting
 (org-add-link-type "cite" 'eh-ebib)
@@ -58,7 +58,7 @@
   (setq bibtex-autokey-titleword-separator "_")
   (setq bibtex-autokey-titleword-ignore nil)
   (setq bibtex-autokey-before-presentation-function
-        '(lambda (x) (downcase (eh-hanzi2pinyin-simple x)))))
+        '(lambda (x) (downcase (pyim-hanzi2pinyin-simple x)))))
 
 (defun eh-bibtex-english-autokey-setup ()
   (setq bibtex-autokey-titlewords 3)
@@ -191,8 +191,8 @@
          (let ((case-fold-search t)
                (string (replace-regexp-in-string "[ +-=_]+" "" s)))
            (not (or (string-match match-string string)
-                    (if (featurep 'eh-hanzi2pinyin)
-                        (string-match match-string (eh-hanzi2pinyin string)))))))
+                    (if (featurep 'chinese-pyim-pinyin)
+                        (string-match match-string (pyim-hanzi2pinyin string)))))))
        files-list))))
 
 (defun eh-ebib-view-file ()
@@ -420,7 +420,7 @@ Then this function will return the applicable database files."
               (list "alias" nil
                     (replace-regexp-in-string
                      "\n" ""
-                     (eh-hanzi2pinyin-simple
+                     (pyim-hanzi2pinyin-simple
                       (concat author ", " title) t)) nil) t))
 
            ;; Wash abstract field
@@ -473,13 +473,13 @@ Then this function will return the applicable database files."
 (defun eh-convert-cite-key-to-pinyin ()
   "Convert bibtex key to pinyin"
   (interactive)
-  (if (featurep 'eh-hanzi2pinyin)
+  (if (featurep 'chinese-pyim-pinyin)
       (progn
         (goto-char (point-min))
         (while (re-search-forward "\\\\cite{\\([^{}]+\\)}" nil t)
           (let ((string (match-string 1)))
-            (replace-match (concat "\\\\cite{" (downcase (eh-hanzi2pinyin-simple string)) "}") t))))
-    (message "Can't find eh-hanzi2pinyin")))
+            (replace-match (concat "\\\\cite{" (downcase (pyim-hanzi2pinyin-simple string)) "}") t))))
+    (message "Can't find pyim-hanzi2pinyin")))
 
 ;; ebib mode keybinding
 (ebib-key index "\C-xb" (lambda ()

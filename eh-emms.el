@@ -33,6 +33,7 @@
 ;;; Code:
 (require 'dired)
 (require 'emms-setup)
+(require 'chinese-pyim-pinyin)
 (emms-devel)
 (emms-default-players)
 (require 'emms-info-libtag)
@@ -171,11 +172,11 @@
 
 (defun eh-emms-info-add-pinyin-alias (track)
   "Add pinyin alias to the track"
-  (when (and (featurep 'eh-hanzi2pinyin)
+  (when (and (featurep 'chinese-pyim-pinyin)
              (eq 'file (emms-track-type track)))
-    (emms-track-set track 'info-artist-alias (eh-hanzi2pinyin (emms-track-get track 'info-artist) t))
-    (emms-track-set track 'info-album-alias (eh-hanzi2pinyin (emms-track-get track 'info-album) t))
-    (emms-track-set track 'info-title-alias (eh-hanzi2pinyin (emms-track-get track 'info-title) t))))
+    (emms-track-set track 'info-artist-alias (pyim-hanzi2pinyin (emms-track-get track 'info-artist) t))
+    (emms-track-set track 'info-album-alias (pyim-hanzi2pinyin (emms-track-get track 'info-album) t))
+    (emms-track-set track 'info-title-alias (pyim-hanzi2pinyin (emms-track-get track 'info-title) t))))
 
 ;;; 设置EMMS 浏览器
 ;; 默认显示方式为: 显示所有
