@@ -51,7 +51,13 @@
   (let ((file (expand-file-name "~/Gnus/gnus-personal.el")))
     (if (file-exists-p file)
         (load file)
-      (message "个人帐号文件加载失败！"))))
+      (message "个人帐号文件加载失败!!!"))))
+
+;; 从authinfo文件中解析密码，避免密码明文保存
+(defun eh-gnus-get-password (host port)
+  (let* ((authinfo (netrc-parse (expand-file-name "~/.authinfo.gpg")))
+         (hostentry (netrc-machine authinfo host (format "%s" port) port)))
+    (when hostentry (netrc-get hostentry "password"))))
 
 ;; 加载个人帐号信息。
 (eh-gnus-load-personal-file)

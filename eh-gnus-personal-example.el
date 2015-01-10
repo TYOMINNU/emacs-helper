@@ -1,15 +1,15 @@
 ;; 在summary中，按g时，gnus自动从下面两个地址下载邮件。
 (setq mail-sources
-      '((pop :server "pop.163.com"
+      `((pop :server "pop.163.com"
              :user "myname@163.com"
              :port 995
-             :password "password"
+             :password ,(eh-gnus-get-password "pop.163.com" 995)
              :stream ssl
              :leave t)
         (imap :server "imap.qq.com"
               :user "myname@qq.com"
-              :password "password"
               :port 993
+              :password ,(eh-gnus-get-password "imap.qq.com" 993)
               :stream ssl)))
 
 ;; 使用offlineimap, leafnode以及rss2email
