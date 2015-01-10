@@ -1,4 +1,11 @@
-;; 在summary中，按g时，gnus自动从下面两个地址下载邮件。
+;; 从authinfo文件中解析密码，避免密码明文保存
+(defun eh-gnus-get-password (host port)
+  (let* ((authinfo (netrc-parse (expand-file-name "~/.authinfo.gpg")))
+         (hostentry (netrc-machine authinfo host (format "%s" port) port)))
+    (when hostentry (netrc-get hostentry "password"))))
+
+;; Gnus邮件设置。
+(setq gnus-select-method '(nnml ""))
 (setq mail-sources
       `((pop :server "pop.163.com"
              :user "myname@163.com"
