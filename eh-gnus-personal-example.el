@@ -17,7 +17,8 @@
               :user "myname@qq.com"
               :port 993
               :password ,(eh-gnus-get-password "imap.qq.com" 993)
-              :stream ssl)))
+              :stream ssl
+              :fetchflag "\\Seen")))
 
 ;; 使用offlineimap, leafnode以及rss2email
 ;; 将邮件，新闻组和rss订阅同步到本地dovecot服务器
