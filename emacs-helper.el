@@ -11,7 +11,6 @@
 (load-library "eh-ebib")
 (load-library "eh-org-citation")
 (load-library "eh-complete")
-(load-library "eh-gnus")
 (load-library "eh-functions")
 (load-library "eh-keybindings")
 (load-library "eh-misc")
