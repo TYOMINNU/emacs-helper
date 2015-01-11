@@ -37,6 +37,7 @@
 (setq org-mobile-directory "~/Documents/org-mobile/")
 (setq org-mobile-inbox-for-pull "~/org/from-mobile.org")
 (setq org-mobile-remote-directory "/sdcard/org-mobile/")
+(setq org-contacts-files `(,eh-org-contacts-file))
 (setq org-contacts-vcard-file "~/Documents/org-mobile/contacts.vcf")
 (setq org-contacts-csv-file "~/Documents/org-mobile/contacts.csv")
 
