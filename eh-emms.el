@@ -33,7 +33,7 @@
 ;;; Code:
 (require 'dired)
 (require 'emms-setup)
-(require 'chinese-pyim-pinyin)
+(require 'chinese-pyim)
 (emms-devel)
 (emms-default-players)
 (require 'emms-info-libtag)
@@ -172,7 +172,7 @@
 
 (defun eh-emms-info-add-pinyin-alias (track)
   "Add pinyin alias to the track"
-  (when (and (featurep 'chinese-pyim-pinyin)
+  (when (and (featurep 'chinese-pyim)
              (eq 'file (emms-track-type track)))
     (emms-track-set track 'info-artist-alias (pyim-hanzi2pinyin (emms-track-get track 'info-artist) t))
     (emms-track-set track 'info-album-alias (pyim-hanzi2pinyin (emms-track-get track 'info-album) t))

@@ -34,7 +34,7 @@
 (require 'bibtex)
 (require 'reftex)
 (require 'ebib)
-(require 'chinese-pyim-pinyin)
+(require 'chinese-pyim)
 
 ;; org cite link setting
 (org-add-link-type "cite" 'eh-ebib)
@@ -191,7 +191,7 @@
          (let ((case-fold-search t)
                (string (replace-regexp-in-string "[ +-=_]+" "" s)))
            (not (or (string-match match-string string)
-                    (if (featurep 'chinese-pyim-pinyin)
+                    (if (featurep 'chinese-pyim)
                         (string-match match-string (pyim-hanzi2pinyin string)))))))
        files-list))))
 
@@ -473,7 +473,7 @@ Then this function will return the applicable database files."
 (defun eh-convert-cite-key-to-pinyin ()
   "Convert bibtex key to pinyin"
   (interactive)
-  (if (featurep 'chinese-pyim-pinyin)
+  (if (featurep 'chinese-pyim)
       (progn
         (goto-char (point-min))
         (while (re-search-forward "\\\\cite{\\([^{}]+\\)}" nil t)

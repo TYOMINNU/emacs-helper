@@ -166,7 +166,7 @@ is created and the VCard is written into that buffer."
                  (calendar-extract-day cal-bday))))
      (when nick (format "\"%s\", " nick))
      (when note (format "\"%s\"," (replace-regexp-in-string "\\, ?" ";" note)))
-     (when (featurep 'chinese-pyim-pinyin)
+     (when (featurep 'chinese-pyim)
        (format "\"(%s)\"" (pyim-hanzi2pinyin name t)))
      "\n")))
 
@@ -251,7 +251,7 @@ is created and the VCard is written into that buffer."
 (defun eh-org-contacts-add-pinyin-alias ()
   "Add pinyin alias to all head of current buffer"
   (interactive)
-  (if (featurep 'chinese-pyim-pinyin)
+  (if (featurep 'chinese-pyim)
       (org-map-entries '(lambda ()
                           (let ((pinyin-alias (pyim-hanzi2pinyin (org-get-heading 1 1) t)))
                             (when (string-match-p "[^[:space:]\t]+" pinyin-alias)
@@ -260,7 +260,7 @@ is created and the VCard is written into that buffer."
 (defun eh-org-contacts-generate-phone-and-email-links ()
   "Add pinyin alias to all head of current buffer"
   (interactive)
-  (if (featurep 'chinese-pyim-pinyin)
+  (if (featurep 'chinese-pyim)
       (org-map-entries '(lambda () (let ((email (org-entry-get nil org-contacts-email-property ))
                                          (tel (org-entry-get nil org-contacts-tel-property )))
                                      (when tel
