@@ -109,8 +109,7 @@
       '(company-sort-by-occurrence))
 
 (setq company-frontends
-      '(company-pseudo-tooltip-unless-just-one-frontend
-        company-preview-if-just-one-frontend
+      '(company-pseudo-tooltip-frontend
         company-echo-metadata-frontend))
 
 (defun eh-company-sidebar-format ()
