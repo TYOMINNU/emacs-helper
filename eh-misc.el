@@ -149,12 +149,17 @@
 
 ;; Pinyin Input Method
 (require 'chinese-pyim)
+(require 'chinese-pyim-company)
+
+(setq pyim-company-predict-words-number 0)
+(setq pyim-automatic-generate-word nil)
 
 (setq default-input-method "chinese-pyim")
 (global-set-key (kbd "C-<SPC>") 'toggle-input-method)
 ;; (global-set-key (kbd "C-;") 'pyim-toggle-full-width-punctuation)
 ;; (global-set-key (kbd "C-;") 'pyim-insert-ascii)
-(global-set-key (kbd "C-;") 'pyim-punctuation-translate-at-point)
+(global-set-key (kbd "C-;") 'pyim-toggle-input-ascii)
+(global-set-key (kbd "C-:") 'pyim-delete-word-from-personal-buffer)
 
 ;; recentf
 (require 'recentf)
