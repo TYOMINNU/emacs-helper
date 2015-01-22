@@ -150,6 +150,7 @@
 ;; Pinyin Input Method
 (require 'chinese-pyim)
 (require 'chinese-pyim-company)
+(require 'chinese-pyim-devtools)
 
 (setq pyim-company-predict-words-number 0)
 (setq pyim-automatic-generate-word nil)
