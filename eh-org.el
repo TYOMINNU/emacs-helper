@@ -235,6 +235,8 @@
 ;;; Add new easy templates
 (setq org-structure-template-alist
       (append '(("r" "#+BEGIN_SRC R\n?\n#+END_SRC")
+                ("e" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC")
+                ("ex" "#+BEGIN_EXAMPLE\n?\n#+END_EXAMPLE")
                 ("rh" "#+PROPERTY: header-args:R  :session *R* :tangle yes :colnames yes :rownames no :width 700 :height 500 :exports both")
                 ("rv" "#+BEGIN_SRC R :results value\n?\n#+END_SRC")
                 ("ro" "#+BEGIN_SRC R :results output verbatim\n?\n#+END_SRC")
