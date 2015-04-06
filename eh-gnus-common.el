@@ -45,7 +45,9 @@
 
 ;;; 邮件分类设置
 (setq nnmail-treat-duplicates 'delete
-      nnmail-split-fancy-match-partial-words t)
+      nnmail-split-fancy-match-partial-words t
+      nnmail-mail-splitting-decodes t
+      nnmail-mail-splitting-charset 'utf-8)
 
 (defun eh-build-fancy-regexp (list)
   (concat ".*\\(" (mapconcat 'regexp-quote list "\\|") "\\).*"))
@@ -61,29 +63,27 @@
           ("^From" ,(eh-build-fancy-regexp '("Gnome" "gnome" "GNOME")) "gnome")
           ;; baidu news
           ("^X-RSS-Feed" ".*baidu.*word.*"
-           (| ("^X-Pinyin-Subject" ,(eh-build-fancy-regexp
-                                     '("shanxi" "hebei" "chifen"))
-               (| ("^X-Pinyin-Subject" ,(eh-build-fancy-regexp
-                                         '("kaoshi" "zhaosheng"))
-                   (| ("^X-Pinyin-Subject"
+           (| ("^Subject" ,(eh-build-fancy-regexp
+                            '("山西" "河北" "赤峰"))
+               (| ("^Subject" ,(eh-build-fancy-regexp
+                                '("考试" "招生"))
+                   (| ("^Subject"
                        ,(eh-build-fancy-regexp
-                         '("gongwuyuan" "jiaoshi" "shiye" "yiyuan" "weishen" "laoshi"))
+                         '("公务员" "教师" "老师" "事业" "医院" "卫生"))
                        "news-baidu-kaoshi")
                       "news-baidu-other-kaoshi"))))
-              ("^X-Pinyin-Subject"
-               ,(eh-build-fancy-regexp '("zhence" "zhengce")) "news-baidu-zhengce")
-              ("^X-Pinyin-Subject"
-               ,(eh-build-fancy-regexp '("weisheng" "weishen" "yiliao" "yiyuan")) "news-baidu-weisheng")
+              ("^Subject"
+               ,(eh-build-fancy-regexp '("政策")) "news-baidu-zhengce")
+              ("^Subject"
+               ,(eh-build-fancy-regexp '("卫生" "医疗" "医院")) "news-baidu-weisheng")
               "news-baidu"))
-
           ("^X-RSS-Feed" ".*baidu.*class.*"
-           (| ("X-Pinyin-Subject"
+           (| ("Subject"
                ,(eh-build-fancy-regexp
-                 '("shouji" "shanxi" "chifen" "pinguo" "pingguo" "arm" "ARM"
-                   "bijiben" "yumi" "chukong" "keji" "dashuju" "guge" "Google"
-                   "google" "PC" "diannao" "kexue" "lianxiang" "xiaomi"
-                   "Android" "anzhuo" "android" "xueshen" "heimei" "huawei"
-                   "xinji"))
+                 '("手机" "山西" "赤峰" "苹果" "arm" "ARM" "笔记本"
+                   "玉米" "科技" "大数据" "谷歌" "Google" "google"
+                   "PC" "电脑" "科学" "联想" "小米" "Android" "安卓"
+                   "android" "学生" "华为" "新机"))
                "news-baidu-interesting")
               "news-baidu"))
           "others"))

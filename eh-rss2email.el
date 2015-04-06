@@ -33,7 +33,7 @@
 ;;; Code:
 
 (setq eh-rss2email-buffer-name "*eh-rss2email*")
-(setq eh-rss2email-command "export PYTHONPATH=~/project/emacs-packages/emacs-helper/doc/configs; r2e -V run")
+(setq eh-rss2email-command "r2e -V run")
 (defvar eh-rss2email-timer nil)
 
 ;;;###autoload
