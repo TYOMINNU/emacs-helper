@@ -53,40 +53,38 @@
   (concat ".*\\(" (mapconcat 'regexp-quote list "\\|") "\\).*"))
 
 (setq nnmail-split-fancy
-      `(| ("^From" ,(eh-build-fancy-regexp '("Cron")) "cron-log")
-          ("^From" ,(eh-build-fancy-regexp '("gmane.mail.rss2email")) "rss2email")
-          ("^From" ,(eh-build-fancy-regexp '("EmacsWiki")) "emacswiki")
-          ("^From" ,(eh-build-fancy-regexp '("emacs\.git")) "emacs-git")
-          ("^From" ,(eh-build-fancy-regexp '("org-mode.git")) "org-mode-git")
-          ("^From" ,(eh-build-fancy-regexp '("emacs" "Emacs" "EMACS")) "emacs")
-          ("^From" ,(eh-build-fancy-regexp '("Debian" "debian" "DEBIAN")) "debian")
-          ("^From" ,(eh-build-fancy-regexp '("Gnome" "gnome" "GNOME")) "gnome")
-          ;; baidu news
-          ("^X-RSS-Feed" ".*baidu.*word.*"
-           (| ("^Subject" ,(eh-build-fancy-regexp
-                            '("山西" "河北" "赤峰"))
-               (| ("^Subject" ,(eh-build-fancy-regexp
-                                '("考试" "招生"))
-                   (| ("^Subject"
-                       ,(eh-build-fancy-regexp
-                         '("公务员" "教师" "老师" "事业" "医院" "卫生"))
-                       "news-baidu-kaoshi")
-                      "news-baidu-other-kaoshi"))))
-              ("^Subject"
-               ,(eh-build-fancy-regexp '("政策")) "news-baidu-zhengce")
-              ("^Subject"
-               ,(eh-build-fancy-regexp '("卫生" "医疗" "医院")) "news-baidu-weisheng")
-              "news-baidu"))
-          ("^X-RSS-Feed" ".*baidu.*class.*"
-           (| ("Subject"
-               ,(eh-build-fancy-regexp
-                 '("手机" "山西" "赤峰" "苹果" "arm" "ARM" "笔记本"
-                   "玉米" "科技" "大数据" "谷歌" "Google" "google"
-                   "PC" "电脑" "科学" "联想" "小米" "Android" "安卓"
-                   "android" "学生" "华为" "新机"))
-               "news-baidu-interesting")
-              "news-baidu"))
-          "others"))
+      (let ((baidu-interesting-regexp
+             (eh-build-fancy-regexp
+              '("手机" "山西" "赤峰" "苹果" "arm" "ARM" "笔记本"
+                "玉米" "科技" "大数据" "谷歌" "Google" "google"
+                "PC" "电脑" "科学" "联想" "小米" "Android" "安卓"
+                "android" "学生" "华为" "新机" "智能" "微软" "window"
+                "微博" "三星" "移动" "发明" "app" "木马" "病毒"
+                "安全" "互联网" "机器人" "云平台" "云服务" "医疗"
+                "电视" "信息化"))))
+        `(| ("^From" ,(eh-build-fancy-regexp '("Cron")) "cron-log")
+            ("^From" ,(eh-build-fancy-regexp '("gmane.mail.rss2email")) "rss2email")
+            ("^From" ,(eh-build-fancy-regexp '("EmacsWiki")) "emacswiki")
+            ("^From" ,(eh-build-fancy-regexp '("emacs\.git")) "emacs-git")
+            ("^From" ,(eh-build-fancy-regexp '("org-mode.git")) "org-mode-git")
+            ("^From" ,(eh-build-fancy-regexp '("emacs" "Emacs" "EMACS")) "emacs")
+            ("^From" ,(eh-build-fancy-regexp '("Debian" "debian" "DEBIAN")) "debian")
+            ("^From" ,(eh-build-fancy-regexp '("Gnome" "gnome" "GNOME")) "gnome")
+            ;; baidu news
+            ("^X-RSS-Feed" ".*baidu.*word.*"
+             (| ("^Subject" ,(eh-build-fancy-regexp '("山西" "河北" "赤峰"))
+                 (| ("^Subject" ,(eh-build-fancy-regexp '("考试" "招生"))
+                     (| ("^Subject" ,(eh-build-fancy-regexp '("公务员" "教师" "老师" "事业" "医院" "卫生"))
+                         "news-baidu-kaoshi")
+                        "news-baidu-other-kaoshi"))))
+                ("^Subject" ,(eh-build-fancy-regexp '("政策")) "news-baidu-zhengce")
+                ("^Subject" ,(eh-build-fancy-regexp '("卫生" "医疗" "医院")) "news-baidu-weisheng")
+                ("^Subject" ,baidu-interesting-regexp "news-baidu-interesting")
+                "news-baidu"))
+            ("^X-RSS-Feed" ".*baidu.*class.*"
+             (| ("^Subject" ,baidu-interesting-regexp "news-baidu-interesting")
+                "news-baidu"))
+            "others")))
 
 ;; 存储设置
 (setq gnus-startup-file "~/Gnus/.newsrc")                  ;初始文件
