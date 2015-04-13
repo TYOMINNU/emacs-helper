@@ -94,18 +94,16 @@
 ;; allow the same keys
 (setq ebib-uniquify-keys nil)
 
-;; default column when wash bib file
-(setq eh-ebib-entry-buffer-abstact-fill-column 80)
-
-;; record the last opened bibfile name
-(setq eh-ebib-recently-opened-bibfile nil)
-
-;; record the last citation string
-(setq eh-ebib-the-last-entry-key "")
-
 ;; If this varible is `t', index buffer will highlight lines instead of autokey word
 ;; setting this varible to *a list of field* is *useless* in my configure
 (setq ebib-index-display-fields t)
+
+(defvar eh-ebib-entry-buffer-abstact-fill-column 80
+  "default column when wash bib file")
+(defvar eh-ebib-recently-opened-bibfile nil
+  "record the last opened bibfile name")
+(defvar eh-ebib-the-last-entry-key ""
+  "record the last citation string")
 
 (defun eh-ebib-get-abstract-field  (field key &optional match-str db)
   "Get abstract field of the entry"
@@ -154,31 +152,103 @@
     ((default)
      (beep))))
 
+(defface eh-ebib-display-key1-face
+  '((t (:inherit default :height 100 :box t)))
+  "Face to display key string"
+  :group 'eh-ebib)
+
+(defface eh-ebib-display-key2-face
+  '((t (:inherit default :height 30)))
+  "Face to display key string"
+  :group 'eh-ebib)
+
+(defface eh-ebib-display-key3-face
+  '((t (:inherit ,eh-ebib-display-key1-face :box nil)))
+  "Face to display key string"
+  :group 'eh-ebib)
+
+(defface eh-ebib-display-separator-face
+  '((t (:inherit default :family "Times")))
+  "Face to display separator string"
+  :group 'eh-ebib)
+
+(defface eh-ebib-display-author-face
+  '((t (:foreground "green" :family "Times")))
+  "Face to display author string"
+  :group 'eh-ebib)
+
+(defface eh-ebib-display-title-face
+  '((t (:inherit default :family "Times")))
+  "Face to display title string"
+  :group 'eh-ebib)
+
+(defface eh-ebib-display-publisher-face
+  '((t (:foreground "blue" :family "Times")))
+  "Face to display publisher string"
+  :group 'eh-ebib)
+
+(defface eh-ebib-display-year-face
+  '((t (:foreground "orange" :family "Times" :italic t)))
+  "Face to display year string"
+  :group 'eh-ebib)
+
+(defun eh-ebib--split-key (key)
+  (split-string
+   (replace-regexp-in-string
+    "\\(.*[0-9]\\)\\([a-z].*\\)"
+    "\\1@\\2" key)
+   "@"))
+
+(defun eh-ebib--remove-newlines (string)
+  (replace-regexp-in-string "\n+" " " string))
+
 ;; ebib index buffer format setting
 (defun eh-ebib--display-entry-key (entry-key)
   "Display entry-key, title, journal, publisher and school in the index buffer at POINT. "
   (with-current-ebib-buffer 'index
     (with-ebib-buffer-writable
       (setq cursor-type t)
-      (insert (format "%-30s %-15s %-45s %s\n"
-                      entry-key
-                      ;; author
-                      (car (split-string
-                            (or (ebib-db-get-field-value 'author entry-key ebib--cur-db 'noerror 'unbraced)
-                                "  ") "[ \t\n]+and[ \t\n]+\\|," ))
-                      ;; title
-                      (let ((title (or (ebib-db-get-field-value 'title entry-key ebib--cur-db 'noerror 'unbraced) "")))
-                        (if (> (string-width title) 40)
-                            (if (string-match-p "\\cc+" title)
-                                (concat (substring title 0 20) "...")
-                              (concat (substring title 0 40) "..."))
-                          title))
-                      ;; journal publisher or school
-                      (or (ebib-db-get-field-value 'journal entry-key ebib--cur-db 'noerror 'unbraced)
-                          (ebib-db-get-field-value 'publisher entry-key ebib--cur-db 'noerror 'unbraced)
-                          (ebib-db-get-field-value 'school entry-key ebib--cur-db 'noerror 'unbraced)
-                          "——————————")
-                      "")))))
+      (insert (concat
+               ;; entry key
+               (let* ((list (eh-ebib--split-key entry-key))
+                      (str1 (car list))
+                      (str2 (car (cdr list))))
+                 (concat
+                  (propertize str1 'face 'eh-ebib-display-key1-face)
+                  (propertize (format "%-20s" str2)
+                              'face 'eh-ebib-display-key2-face)
+                  (propertize (make-string (max (- 20 (length str1)) 0) ? )
+                              'face 'eh-ebib-display-key3-face)))
+               ;; author
+               (propertize
+                (car (split-string
+                      (or (ebib-db-get-field-value 'author entry-key ebib--cur-db 'noerror 'unbraced)
+                          "  ") "[ \t\n]+and[ \t\n]+" ))
+                'face 'eh-ebib-display-author-face)
+               ;; separator
+               (propertize ". " 'face 'eh-ebib-display-separator-face)
+               ;; year
+               (propertize
+                (or (ebib-db-get-field-value 'year entry-key ebib--cur-db 'noerror 'unbraced 'xref) "20??")
+                'face 'eh-ebib-display-year-face)
+               ;; separator
+               (propertize ". " 'face 'eh-ebib-display-separator-face)
+               ;; title
+               (propertize
+                (eh-ebib--remove-newlines
+                 (or (ebib-db-get-field-value 'title entry-key ebib--cur-db 'noerror 'unbraced) ""))
+                'face 'eh-ebib-display-title-face)
+               ;; separator
+               (propertize ". " 'face 'eh-ebib-display-separator-face)
+               ;; journal publisher or school
+               (propertize
+                (eh-ebib--remove-newlines
+                 (or (ebib-db-get-field-value 'journal entry-key ebib--cur-db 'noerror 'unbraced)
+                     (ebib-db-get-field-value 'publisher entry-key ebib--cur-db 'noerror 'unbraced)
+                     (ebib-db-get-field-value 'school entry-key ebib--cur-db 'noerror 'unbraced)
+                     ""))
+                'face 'eh-ebib-display-publisher-face)
+               "\n")))))
 
 (advice-add 'ebib--display-entry-key :override #'eh-ebib--display-entry-key)
 
@@ -186,7 +256,7 @@
   (let ((match-string (replace-regexp-in-string "[ +-=_]+" "" match-str)))
     (if (string= match-string "")
         ""
-      (delete-if
+      (cl-delete-if
        (lambda (s)
          (let ((case-fold-search t)
                (string (replace-regexp-in-string "[ +-=_]+" "" s)))
