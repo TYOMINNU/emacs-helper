@@ -189,7 +189,7 @@
                       (str2 (car (cdr list))))
                  (concat
                   (propertize str1 'face 'eh-ebib-display-key1-face)
-                  (propertize (format "%-20s" str2)
+                  (propertize (format "%-20s" (or str2 ""))
                               'face 'eh-ebib-display-key2-face)
                   (propertize (make-string (max (- 20 (length str1)) 0) ? )
                               'face 'eh-ebib-display-key3-face)))
