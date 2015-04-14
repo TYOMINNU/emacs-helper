@@ -119,58 +119,58 @@
 (defvar eh-ebib-the-last-entry-key ""
   "record the last citation string")
 
-(defun eh-ebib-get-abstract-field  (field key &optional match-str db)
-  "Get abstract field of the entry"
-  (or db (setq db ebib--cur-db))
-  (let* ((case-fold-search t)
-         (abstract-string (ebib-db-get-field-value field key db 'noerror nil 'xref)))
-    (eh-wash-text (or abstract-string "") 80 0)))
-
-(defun eh-ebib-quit-abstract-viewer ()
+(defun eh-ebib-view-and-edit-abstract ()
   (interactive)
-  (if (and (eq ebib-layout 'index-only)
-           ebib-popup-entry-window)
-      (delete-window)
-    (switch-to-buffer nil t))
-  (ebib--pop-to-buffer 'index)
-  (kill-buffer "*eh-ebib-abstract-viewer*"))
+  (eh-ebib-view-and-edit-field "abstract"))
 
-(defun eh-ebib-abstract-viewer ()
+(defun eh-ebib-view-and-edit-note ()
+  (interactive)
+  (eh-ebib-view-and-edit-field "annote"))
+
+(defun eh-ebib-view-and-edit-field (field)
+  "View and edit abstract quickly."
   (interactive)
   (ebib--execute-when
     ((entries)
-     ;; if the current entry is the first entry,
-     (let ((key (ebib--cur-entry-key))
-           (wnd (selected-window))
-           (buf (current-buffer)))
-       (pop-to-buffer (generate-new-buffer "*eh-ebib-abstract-viewer*")
-                      '((ebib--display-buffer-reuse-window
-                         ebib--display-buffer-largest-window
-                         display-buffer-pop-up-window
-                         display-buffer-pop-up-frame))
-                      t)
-       (insert (eh-ebib-get-abstract-field 'abstract key))
-       (goto-char (point-min))
-       ;; show cursor in entry buffer
-       (setq cursor-type t)
-       ;; reset font size to default
-       (text-scale-mode 0)
-       ;; add additional 0.2 pixels between two lines
-       (setq line-spacing 0.2)
-       ;; enable view-mode
-       (view-mode)
-       (use-local-map
-        (let ((map view-mode-map))
-          (define-key map (kbd "q") 'eh-ebib-quit-abstract-viewer)
-          map))))
+     (ebib--edit-entry-internal)
+     (let ((text (ebib-db-get-field-value
+                  field
+                  (ebib--cur-entry-key)
+                  ebib--cur-db 'noerror)))
+       (if (ebib-db-unbraced-p text) ; unbraced fields cannot be multiline
+           (beep)
+         (ebib--multiline-edit
+          (list 'field (ebib-db-get-filename ebib--cur-db)
+                (ebib--cur-entry-key) field)
+          (eh-wash-text (or (ebib-db-unbrace text) "")
+                        fill-column t))
+         (set (make-local-variable 'header-line-format)
+              (format "Edit %s buffer.  Finish `C-c C-c', Save `C-c C-s', abort `C-c C-k'." field))
+         (eh-ebib-multiline-set-key))))
     ((default)
      (beep))))
+
+(defun eh-ebib-multiline-set-key ()
+  (let ((keymap ebib-multiline-mode-map))
+    (define-key keymap "\C-c" nil)
+    (define-key keymap "\C-c\C-c" 'eh-ebib-quit-multiline-buffer-and-save)
+    (define-key keymap "\C-c\C-k" 'eh-ebib-cancel-multiline-buffer)
+    (define-key keymap "\C-c\C-s" 'ebib-save-from-multiline-buffer)))
+
+(defun eh-ebib-quit-multiline-buffer-and-save ()
+  (interactive)
+  (ebib-quit-multiline-buffer-and-save)
+  (ebib-quit-entry-buffer))
+
+(defun eh-ebib-cancel-multiline-buffer ()
+  (interactive)
+  (ebib-cancel-multiline-buffer)
+  (ebib-quit-entry-buffer))
 
 (defun eh-ebib--split-key (key)
   (split-string
    (replace-regexp-in-string
-    "\\(.*[0-9]\\)\\([a-z].*\\)"
-    "\\1@\\2" key)
+    "\\(.*[0-9]\\)\\([a-z].*\\)" "\\1@\\2" key)
    "@"))
 
 (defun eh-ebib--remove-newlines (string)
@@ -386,7 +386,8 @@
 (ebib-key index "\C-cb" eh-ebib)
 (ebib-key index "\C-xk" ebib-leave-ebib-windows)
 (ebib-key index "\C-xq" ebib-force-quit)
-(ebib-key index "v" eh-ebib-abstract-viewer)
+(ebib-key index "v" eh-ebib-view-and-edit-abstract)
+(ebib-key index "N" eh-ebib-view-and-edit-note)
 (ebib-key index "p" eh-ebib-push-bibtex-key)
 (ebib-key index "\C-c\C-c" (lambda () (interactive) (eh-ebib-push-bibtex-key t)))
 (ebib-key index "q" ebib-force-quit)
