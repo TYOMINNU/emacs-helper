@@ -32,6 +32,7 @@
 
 ;;; Code:
 (require 'bibtex)
+(require 'eh-bibtex)
 (require 'reftex)
 (require 'ebib)
 (require 'chinese-pyim)
@@ -39,69 +40,82 @@
 ;; org cite link setting
 (org-add-link-type "cite" 'eh-ebib)
 
-;; bibtex autokey rule
-;; the below will generate a auto named : xulinling2013
-;; [3] 徐琳玲. P公司标准成本制度研究[D]. 华东理工大学, 2013.
+(setq ebib-layout 'full
+      ebib-window-vertical-split nil
+      ebib-width 80
+      ebib-index-window-size 10
 
-(setq bibtex-autokey-names 1)
-(setq bibtex-autokey-name-separator "")
+      ;; allow the same keys
+      ebib-uniquify-keys nil
 
-(setq bibtex-autokey-year-length 4)
+      ;; If this varible is `t', index buffer will
+      ;; highlight lines instead of autokey word
+      ;; setting this varible to *a list of field*
+      ;; is *useless* in my configure
+      ebib-index-display-fields t
 
-(setq bibtex-autokey-name-year-separator "")
-(setq bibtex-autokey-year-title-separator "")
+      ;; ebib addition fields
+      ebib-extra-fields
+      '((BibTeX "keywords" "abstract" "timestamp"
+                "file"  "url" "crossref" "annote" "doi")
+        (biblatex "keywords" "abstract" "timestamp"
+                  "file"  "url" "crossref" "annote" "doi")))
 
-(defun eh-bibtex-chinese-autokey-setup ()
-  (setq bibtex-autokey-titlewords 2)
-  (setq bibtex-autokey-titleword-length 2)
-  (setq bibtex-autokey-titlewords-stretch 0)
-  (setq bibtex-autokey-titleword-separator "_")
-  (setq bibtex-autokey-titleword-ignore nil)
-  (setq bibtex-autokey-before-presentation-function
-        '(lambda (x) (downcase (pyim-hanzi2pinyin-simple x)))))
+(defface eh-ebib-display-default-face
+  '((t (:inherit default :family "Liberation Serif")))
+  "Face to display key string"
+  :group 'eh-ebib)
 
-(defun eh-bibtex-english-autokey-setup ()
-  (setq bibtex-autokey-titlewords 3)
-  (setq bibtex-autokey-titleword-length 5)
-  (setq bibtex-autokey-titlewords-stretch 0)
-  (setq bibtex-autokey-titleword-separator "_")
-  (setq bibtex-autokey-titleword-ignore
-        '("A" "An" "On" "The" "Eine?" "Der" "Die" "Das"
-          "[^[:upper:]].*" ".*[^[:upper:][:lower:]0-9].*")))
+(defface eh-ebib-display-key1-face
+  '((t (:inherit default
+                 :height 100
+                 :box t
+                 :bold t)))
+  "Face to display key string"
+  :group 'eh-ebib)
 
-(defun eh-bibtex-autokey-get-title (orig-fun &rest args)
-  (let ((case-fold-search t)
-        (titlestring
-         (bibtex-autokey-get-field "title")))
-    (if (string-match-p "\\cc" titlestring)
-        (eh-bibtex-chinese-autokey-setup)
-      (eh-bibtex-english-autokey-setup))
-    (apply orig-fun args)))
+(defface eh-ebib-display-key2-face
+  '((t (:inherit default :height 30)))
+  "Face to display key string"
+  :group 'eh-ebib)
 
-(advice-add 'bibtex-autokey-get-title :around #'eh-bibtex-autokey-get-title)
+(defface eh-ebib-display-key3-face
+  '((t (:inherit ,eh-ebib-display-key1-face :box nil)))
+  "Face to display key string"
+  :group 'eh-ebib)
 
-;; ebib window setting
-(setq ebib-layout 'full)
-(setq ebib-window-vertical-split nil)
-(setq ebib-width 80)
-(setq ebib-index-window-size 10)
+(defface eh-ebib-display-separator-face
+  '((t (:inherit ,eh-ebib-display-default-face)))
+  "Face to display separator string"
+  :group 'eh-ebib)
 
-;; ebib addition fields
-(setq ebib-extra-fields
-      '((BibTeX "keywords" "abstract" "timestamp" "file"  "url" "crossref" "annote" "doi")
-        (biblatex "keywords" "abstract" "timestamp" "file"  "url" "crossref" "annote" "doi")))
+(defface eh-ebib-display-author-face
+  '((t (:inherit ,eh-ebib-display-default-face
+                 :foreground "green")))
+  "Face to display author string"
+  :group 'eh-ebib)
 
-;; allow the same keys
-(setq ebib-uniquify-keys nil)
+(defface eh-ebib-display-title-face
+  '((t (:inherit ,eh-ebib-display-default-face)))
+  "Face to display title string"
+  :group 'eh-ebib)
 
-;; If this varible is `t', index buffer will highlight lines instead of autokey word
-;; setting this varible to *a list of field* is *useless* in my configure
-(setq ebib-index-display-fields t)
+(defface eh-ebib-display-publisher-face
+  '((t (:inherit ,eh-ebib-display-default-face
+                 :foreground "blue")))
+  "Face to display publisher string"
+  :group 'eh-ebib)
 
-(defvar eh-ebib-entry-buffer-abstact-fill-column 80
-  "default column when wash bib file")
+(defface eh-ebib-display-year-face
+  '((t (:inherit ,eh-ebib-display-default-face
+                 :foreground "orange"
+                 :italic t)))
+  "Face to display year string"
+  :group 'eh-ebib)
+
 (defvar eh-ebib-recently-opened-bibfile nil
   "record the last opened bibfile name")
+
 (defvar eh-ebib-the-last-entry-key ""
   "record the last citation string")
 
@@ -151,46 +165,6 @@
           map))))
     ((default)
      (beep))))
-
-(defface eh-ebib-display-key1-face
-  '((t (:inherit default :height 100 :box t)))
-  "Face to display key string"
-  :group 'eh-ebib)
-
-(defface eh-ebib-display-key2-face
-  '((t (:inherit default :height 30)))
-  "Face to display key string"
-  :group 'eh-ebib)
-
-(defface eh-ebib-display-key3-face
-  '((t (:inherit ,eh-ebib-display-key1-face :box nil)))
-  "Face to display key string"
-  :group 'eh-ebib)
-
-(defface eh-ebib-display-separator-face
-  '((t (:inherit default :family "Times")))
-  "Face to display separator string"
-  :group 'eh-ebib)
-
-(defface eh-ebib-display-author-face
-  '((t (:foreground "green" :family "Times")))
-  "Face to display author string"
-  :group 'eh-ebib)
-
-(defface eh-ebib-display-title-face
-  '((t (:inherit default :family "Times")))
-  "Face to display title string"
-  :group 'eh-ebib)
-
-(defface eh-ebib-display-publisher-face
-  '((t (:foreground "blue" :family "Times")))
-  "Face to display publisher string"
-  :group 'eh-ebib)
-
-(defface eh-ebib-display-year-face
-  '((t (:foreground "orange" :family "Times" :italic t)))
-  "Face to display year string"
-  :group 'eh-ebib)
 
 (defun eh-ebib--split-key (key)
   (split-string
@@ -313,81 +287,19 @@
   "Open ebib then search the marked string"
   (interactive)
   (let* ((bibfiles-list (eh-directory-files-recursively "." t ".bib$"))
-         (file
-          (or
-           (when (buffer-file-name)
-             (car (eh-reftex-get-bibfile-list)))
-           (when (and eh-ebib-recently-opened-bibfile
-                      (y-or-n-p (format "Load recently opened bibfile (%s)?  "
-                                        eh-ebib-recently-opened-bibfile)))
-             eh-ebib-recently-opened-bibfile)
-           (when bibfiles-list
-             (ido-completing-read "Open bibfile:" bibfiles-list))
-           (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs))))
-         (word (or (current-word nil t) ""))
-         (length (length word))
-         (search-string
-          (if (use-region-p)
-              (buffer-substring-no-properties (region-beginning) (region-end))
-            (if (and (string-match-p "\\cc+" word) (> length 3))
-                (buffer-substring-no-properties (- (point) 2) (point))
-              word))))
-    (deactivate-mark)
+         (file (or (when (buffer-file-name)
+                     (car (ignore-errors (reftex-get-bibfile-list))))
+                   (when (and eh-ebib-recently-opened-bibfile
+                              (y-or-n-p (format "Load recently opened bibfile (%s)?  "
+                                                eh-ebib-recently-opened-bibfile)))
+                     eh-ebib-recently-opened-bibfile)
+                   (when bibfiles-list
+                     (ido-completing-read "Open bibfile:" bibfiles-list))
+                   (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs)))))
     (setq eh-ebib-push-buffer (current-buffer))
     (ebib file (or key eh-ebib-the-last-entry-key))
     (setq eh-ebib-recently-opened-bibfile file)
     (ebib-select-and-popup-entry)))
-
-(defun eh-ebib-quit ()
-  "Quit Ebib.
-The Ebib buffers are killed, all variables except the keymaps are set to nil."
-  (interactive)
-  (when (if (ebib--modified-p)
-            (yes-or-no-p "There are modified databases. Quit anyway? ") t)
-    (ebib-keywords-save-all-new)
-    (ebib--filters-update-filters-file)
-    (mapc #'(lambda (buffer)
-              (kill-buffer buffer))
-          (mapcar #'cdr ebib--buffer-alist))
-    (setq ebib--databases nil
-          ebib--cur-db nil
-          ebib--buffer-alist nil
-          ebib--initialized nil
-          ebib--index-overlay nil
-          ebib--fields-overlay nil
-          ebib--strings-overlay nil
-          ebib--export-filename nil
-          ebib--window-before nil
-          ebib--buffer-before nil
-          ebib--cur-keys-list nil
-          ebib--keywords-files-alist nil
-          ebib--keywords-list-per-session nil
-          ebib--filters-alist nil
-          ebib--filters-modified nil)
-    (set-window-configuration ebib--saved-window-config)
-    (remove-hook 'kill-emacs-query-functions 'ebib--kill-emacs-query-function)
-    (message "")))
-
-(defun eh-reftex-get-bibfile-list ()
-  "Return list of bibfiles for current document.
-When using the chapterbib or bibunits package you should either
-use the same database files everywhere, or separate parts using
-different databases into different files (included into the mater file).
-Then this function will return the applicable database files."
-
-  ;; Ensure access to scanning info
-  (reftex-access-scan-info)
-  (or
-   ;; Try inside this file (and its includes)
-   (cdr (reftex-last-assoc-before-elt
-         'bib (list 'eof (buffer-file-name))
-         (member (list 'bof (buffer-file-name))
-                 (symbol-value reftex-docstruct-symbol))))
-   ;; Try after the beginning of this file
-   (cdr (assq 'bib (member (list 'bof (buffer-file-name))
-                           (symbol-value reftex-docstruct-symbol))))
-   ;; Anywhere in the entire document
-   (cdr (assq 'bib (symbol-value reftex-docstruct-symbol)))))
 
 (defun eh-ebib-push-bibtex-key (&optional leave-ebib-window)
   (interactive)
@@ -442,79 +354,6 @@ Then this function will return the applicable database files."
     ((default)
      (beep))))
 
-(defun eh-bibtex-wash-field (field)
-  "Wash the content of field"
-  (goto-char begin)
-  (let ((field-content (bibtex-autokey-get-field field))
-        (field-position (bibtex-search-forward-field field t)))
-    (when field-position
-      (goto-char (car (cdr field-position)))
-      (bibtex-kill-field))
-    (bibtex-make-field
-     (list field nil
-           (eh-wash-text
-            field-content
-            eh-ebib-entry-buffer-abstact-fill-column
-            (+ bibtex-text-indentation 1 )) nil) t)))
-
-(defun eh-bibtex-reformat ()
-  (interactive)
-  (goto-char (point-min))
-  ;; Clean elide blank lines of entries,
-  ;; which make abstrack field look beautiful
-  (save-restriction
-    (bibtex-map-entries
-     (lambda (key begin end)
-       (let ((case-fold-search t)
-             (entry-type (bibtex-type-in-head)))
-         (save-excursion
-           ;; Add language field
-           (goto-char begin)
-           (let ((language-field (bibtex-search-forward-field "language" t)))
-             (when language-field
-               (goto-char (car (cdr language-field)))
-               (bibtex-kill-field)))
-           (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
-             (bibtex-make-field '("language" nil "Chinese" nil) t))
-
-           ;; Add alias field
-           (goto-char begin)
-           (let ((alias-field (bibtex-search-forward-field "alias" t))
-                 (title (bibtex-autokey-get-field "title"))
-                 (author (bibtex-autokey-get-field "author")))
-             (when alias-field
-               (goto-char (car (cdr alias-field)))
-               (bibtex-kill-field))
-             (bibtex-make-field
-              (list "alias" nil
-                    (replace-regexp-in-string
-                     "\n" ""
-                     (pyim-hanzi2pinyin-simple
-                      (concat author ", " title) t)) nil) t))
-
-           ;; Wash abstract field
-           (eh-bibtex-wash-field "abstract")
-
-           ;; Add autokey
-           (goto-char begin)
-           (re-search-forward (if (bibtex-string= entry-type "string")
-                                  bbibtex-string-maybe-empty-head
-                                bibtex-entry-maybe-empty-head))
-           (if (match-beginning bibtex-key-in-head)
-               (delete-region (match-beginning bibtex-key-in-head)
-                              (match-end bibtex-key-in-head)))
-           (setq auto-key (bibtex-generate-autokey))
-           ;; Sometimes `bibtex-generate-autokey' returns an empty string
-           (if (string= "" auto-key)
-               (setq auto-key "!NEED_EDIT"))
-           (insert auto-key)
-           (let ((bibtex-entry-format
-                  ;; Don't add `realign' to this list
-                  '(opts-or-alts numerical-fields delimiters
-                                 last-comma page-dashes unify-case inherit-booktitle
-                                 braces strings sort-fields whitespace)))
-             (bibtex-clean-entry nil t))))))))
-
 (defun eh-ebib-reformat-all-entries ()
   "1. Add language field to all entries.
    2. Add alias field to all entries.
@@ -539,17 +378,6 @@ Then this function will return the applicable database files."
       ((default)
        (beep)))))
 
-(defun eh-convert-cite-key-to-pinyin ()
-  "Convert bibtex key to pinyin"
-  (interactive)
-  (if (featurep 'chinese-pyim)
-      (progn
-        (goto-char (point-min))
-        (while (re-search-forward "\\\\cite{\\([^{}]+\\)}" nil t)
-          (let ((string (match-string 1)))
-            (replace-match (concat "\\\\cite{" (downcase (pyim-hanzi2pinyin-simple string)) "}") t))))
-    (message "Can't find pyim-hanzi2pinyin")))
-
 ;; ebib mode keybinding
 (ebib-key index "\C-xb" (lambda ()
                           (interactive)
@@ -557,11 +385,11 @@ Then this function will return the applicable database files."
                           (ibuffer)))
 (ebib-key index "\C-cb" eh-ebib)
 (ebib-key index "\C-xk" ebib-leave-ebib-windows)
-(ebib-key index "\C-xq" eh-ebib-quit)
+(ebib-key index "\C-xq" ebib-force-quit)
 (ebib-key index "v" eh-ebib-abstract-viewer)
 (ebib-key index "p" eh-ebib-push-bibtex-key)
 (ebib-key index "\C-c\C-c" (lambda () (interactive) (eh-ebib-push-bibtex-key t)))
-(ebib-key index "q" eh-ebib-quit)
+(ebib-key index "q" ebib-force-quit)
 (ebib-key index "f" eh-ebib-view-file)
 (ebib-key index [(control k)] eh-ebib-reformat-all-entries)
 (ebib-key index [(return)] ebib-select-and-popup-entry)
