@@ -33,21 +33,20 @@
 ;;; Code:
 (require 'ox-bibtex)
 
-;; org cite link setting
-(org-add-link-type "cite" 'eh-ebib)
+(defvar eh-org-bibtex-default-style-file
+  (concat (file-name-directory
+           (locate-library "eh-org.el"))
+          "templates/GBT7714-2005-latex/GBT7714-2005NLang-UTF8.bst")
+  "emacs-helper default bibtex style file")
 
-;; bibtex default style file
-(setq eh-org-bibtex-default-style-file
-      (concat (file-name-directory
-               (locate-library "eh-org.el")) "templates/GBT7714-2005-latex/GBT7714-2005NLang-UTF8.bst"))
-
-;; bibtex2html default options
-(setq eh-org-bibtex-bibtex2html-options
-      '("-a" "-noabstract" "-nokeywords" "-i" "-nolinks"))
+(defvar eh-org-bibtex-bibtex2html-options
+  '("-a" "-noabstract" "-nokeywords" "-i" "-nolinks")
+  "emacs-helper bibtex2html default options")
 
 (defun eh-org-bibtex-add-default-style (style)
   "If `org-bibtex-get-style not return a valid style, return a default"
-  (when (not (org-not-nil style))
+  (if (org-not-nil style)
+      style
     eh-org-bibtex-default-style-file))
 
 (defun eh-org-bibtex-add-default-arguments (arguments)
@@ -60,6 +59,7 @@
 (advice-add 'org-bibtex-get-arguments :filter-return #'eh-org-bibtex-add-default-arguments)
 
 (provide 'eh-org-citation)
+
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:
