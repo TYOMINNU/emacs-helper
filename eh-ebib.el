@@ -121,13 +121,13 @@
 
 (defun eh-ebib-view-and-edit-abstract ()
   (interactive)
-  (eh-ebib-view-and-edit-field "abstract"))
+  (eh-ebib-view-and-edit-field "abstract" t))
 
 (defun eh-ebib-view-and-edit-note ()
   (interactive)
   (eh-ebib-view-and-edit-field "annote"))
 
-(defun eh-ebib-view-and-edit-field (field)
+(defun eh-ebib-view-and-edit-field (field &optional read-only)
   "View and edit abstract quickly."
   (interactive)
   (ebib--execute-when
@@ -145,8 +145,9 @@
           (eh-wash-text (or (ebib-db-unbrace text) "")
                         fill-column t))
          (set (make-local-variable 'header-line-format)
-              (format "View %s buffer. Edit `e', Save `s', Quit `q'. " field))
-         (setq buffer-read-only t)
+              (format "View %s buffer. Edit `C-c C-e', Save+Quit `C-c C-c', Abort `C-c C-k' " field))
+         (when read-only
+           (setq buffer-read-only t))
          (eh-ebib-multiline-mode-map-config))))
     ((default)
      (beep))))
@@ -154,9 +155,9 @@
 (defun eh-ebib-multiline-mode-map-config ()
   (use-local-map
    (let ((map ebib-multiline-mode-map))
-     (define-key map "e" 'eh-ebib-edit-multiline-buffer)
-     (define-key map "s" 'ebib-save-from-multiline-buffer)
-     (define-key map "q" 'eh-ebib-cancel-multiline-buffer)
+     (define-key map "\C-c\C-e" 'eh-ebib-edit-multiline-buffer)
+     (define-key map "\C-c\C-c" 'eh-ebib-quit-multiline-buffer-and-save)
+     (define-key map "\C-c\C-k" 'eh-ebib-cancel-multiline-buffer)
      map)))
 
 (defun eh-ebib-edit-multiline-buffer ()
