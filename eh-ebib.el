@@ -43,7 +43,7 @@
 (setq ebib-layout 'full
       ebib-window-vertical-split nil
       ebib-width 80
-      ebib-index-window-size 10
+      ebib-index-window-size 14
 
       ;; allow the same keys
       ebib-uniquify-keys nil
@@ -315,11 +315,16 @@
                      eh-ebib-recently-opened-bibfile)
                    (when bibfiles-list
                      (ido-completing-read "Open bibfile:" bibfiles-list))
-                   (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs)))))
+                   (ido-read-file-name "Open bibfile:" (car ebib-file-search-dirs))))
+         (line-content (buffer-substring
+                        (max (line-beginning-position)
+                             (- (point) 40))
+                        (point))))
     (setq eh-ebib-push-buffer (current-buffer))
     (ebib file (or key eh-ebib-the-last-entry-key))
     (setq eh-ebib-recently-opened-bibfile file)
-    (ebib-select-and-popup-entry)))
+    (set (make-local-variable 'header-line-format)
+         (format "引用文字: %s -A-" line-content))))
 
 (defun eh-ebib-push-bibtex-key (&optional leave-ebib-window)
   (interactive)
