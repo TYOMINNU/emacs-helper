@@ -267,6 +267,7 @@
                            ("xelatex -interaction nonstopmode -output-directory %o %f")))
 
 (setq org-latex-default-class "ctexart")
+
 (add-to-list 'org-latex-classes
              '("ctexart"
                "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
@@ -275,6 +276,7 @@
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                ("\\paragraph{%s}" . "\\paragraph*{%s}")
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
 (add-to-list 'org-latex-classes
              '("ctexrep"
                "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
@@ -283,6 +285,7 @@
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+
 (add-to-list 'org-latex-classes
              '("ctexbook"
                "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
@@ -291,6 +294,7 @@
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+
 (add-to-list 'org-latex-classes
              '("beamer"
                "\\documentclass{beamer}
