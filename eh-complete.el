@@ -51,7 +51,7 @@
       flx-ido-use-faces t
       tramp-default-method nil)
 
-(ido-mode 1)
+(ido-mode -1)
 (ido-ubiquitous)
 (flx-ido-mode 1)
 (ido-vertical-mode)
@@ -77,6 +77,15 @@
   (define-key ido-completion-map (kbd "C-@") nil)
   (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
   (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
+
+;; ivy-mode & swiper
+(require 'swiper)
+(ivy-mode 1)
+
+(setq magit-completing-read-function 'ivy-completing-read
+      projectile-completion-system 'ivy
+      smex-completion-method 'ivy
+      ivy-count-format "%-4d ")
 
 ;; company-mode
 (require 'company)

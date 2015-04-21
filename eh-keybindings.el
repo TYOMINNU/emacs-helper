@@ -46,6 +46,9 @@
 ;; ido
 (global-set-key (kbd "C-x C-b") 'ido-display-buffer)
 
+;; Search
+(global-set-key (kbd "C-s") 'swiper)
+
 ;; 放大字体，缩小字体
 (global-set-key (kbd "C--") 'cfs-decrease-fontsize)
 (global-set-key (kbd "C-=") 'cfs-increase-fontsize)
