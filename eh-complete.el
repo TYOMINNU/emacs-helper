@@ -36,29 +36,38 @@
 (smex-initialize)
 (global-set-key (kbd "M-x") 'smex)
 
-;; IDO & filecache: smart file name completion
+;; ido
 (require 'ido)
-(require 'ido-ubiquitous)
-(require 'flx-ido) ;Improved flex matching
-(require 'ido-vertical-mode) ;Vertical completion menu
+(require 'ido-ubiquitous)      ; ido-everywhere++
+(require 'flx-ido)             ; Improved flex matching
+(require 'ido-vertical-mode)   ; Vertical completion menu
 
 (setq ido-everywhere t
       ido-enable-flex-matching t
+      ido-enable-regexp t
+      ido-enable-prefix nil
       ido-create-new-buffer 'always
       ido-file-extensions-order '(".org" ".R" ".el" ".java" ".js" ".el" ".xml")
       ido-use-filename-at-point 'guess
+      ido-auto-merge-work-directories-length -1
+      ido-auto-merge-delay-time 2
+      ido-use-url-at-point t
       ido-use-faces nil
       flx-ido-use-faces t
-      tramp-default-method nil)
+      org-completion-use-ido t
+      magit-completing-read-function 'magit-ido-completing-read
+      tramp-default-method nil
+      gc-cons-threshold 20000000)
 
-(ido-mode -1)
-(ido-ubiquitous)
+(ido-mode 1)
+(ido-ubiquitous-mode 1)
 (flx-ido-mode 1)
-(ido-vertical-mode)
+(ido-vertical-mode 1)
 
-;; ido keybindings
-(add-hook 'ido-make-file-list-hook 'eh-ido-sort-mtime) ;文件的排序方法
-(add-hook 'ido-make-dir-list-hook 'eh-ido-sort-mtime) ;目录的排序方法
+;; ido sort
+(add-hook 'ido-make-file-list-hook 'eh-ido-sort-mtime) ; 文件的排序方法
+(add-hook 'ido-make-dir-list-hook 'eh-ido-sort-mtime)  ; 目录的排序方法
+
 (defun eh-ido-sort-mtime ()
   (setq ido-temp-list
         (sort ido-temp-list
@@ -71,6 +80,7 @@
               (lambda (x) (and (char-equal (string-to-char x) ?.) x))
               ido-temp-list))))
 
+;; ido keybindings
 (add-hook 'ido-setup-hook 'eh-ido-keybinding)
 (defun eh-ido-keybinding ()
   (define-key ido-completion-map (kbd "C-SPC") nil)
@@ -78,14 +88,14 @@
   (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
   (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
 
-;; ivy-mode & swiper
+;; swiper and ivy-mode
 (require 'swiper)
-(ivy-mode 1)
 
-(setq magit-completing-read-function 'ivy-completing-read
-      projectile-completion-system 'ivy
-      smex-completion-method 'ivy
-      ivy-count-format "%-4d ")
+;; (ivy-mode -1)
+;; (setq magit-completing-read-function 'ivy-completing-read
+;;       projectile-completion-system 'ivy
+;;       smex-completion-method 'ivy
+;;       ivy-count-format "%-4d ")
 
 ;; company-mode
 (require 'company)
