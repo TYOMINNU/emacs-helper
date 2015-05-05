@@ -61,6 +61,11 @@
 (setq-default tab-width 4)
 (setq tab-width 4)
 
+;; 默认不显示 *Async Shell Command* buffer
+;; (add-to-list 'display-buffer-alist
+;;              '("\\*Async Shell Command\\*.*"  display-buffer-no-window nil))
+
+
 ;; 保存文件之前，删除无用的空格
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))
