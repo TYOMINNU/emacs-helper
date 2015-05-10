@@ -99,17 +99,17 @@
       ivy-extra-directories nil)
 
 (defun ivy-sort-file-by-mtime (x y)
-  (if (get-text-property 0 'dirp x)
-      (if (get-text-property 0 'dirp y)
-          (time-less-p
-           (nth 5 (file-attributes (concat ivy--directory y)))
-           (nth 5 (file-attributes (concat ivy--directory x))))
-        t)
-    (if (get-text-property 0 'dirp y)
-        nil
-      (time-less-p
-       (nth 5 (file-attributes (concat ivy--directory y)))
-       (nth 5 (file-attributes (concat ivy--directory x)))))))
+  (let* ((x (concat ivy--directory x))
+         (y (concat ivy--directory y))
+         (x-mtime (nth 5 (file-attributes x)))
+         (y-mtime (nth 5 (file-attributes y))))
+    (if (file-directory-p x)
+        (if (file-directory-p y)
+            (time-less-p y-mtime x-mtime)
+          t)
+      (if (file-directory-p y)
+          nil
+        (time-less-p y-mtime x-mtime)))))
 
 (add-to-list 'ivy-sort-functions-alist
              '(read-file-name-internal . ivy-sort-file-by-mtime))
