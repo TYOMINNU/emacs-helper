@@ -98,6 +98,22 @@
       ivy-count-format "%-4d "
       ivy-extra-directories nil)
 
+(defun ivy-sort-file-by-mtime (x y)
+  (if (get-text-property 0 'dirp x)
+      (if (get-text-property 0 'dirp y)
+          (time-less-p
+           (nth 5 (file-attributes (concat ivy--directory y)))
+           (nth 5 (file-attributes (concat ivy--directory x))))
+        t)
+    (if (get-text-property 0 'dirp y)
+        nil
+      (time-less-p
+       (nth 5 (file-attributes (concat ivy--directory y)))
+       (nth 5 (file-attributes (concat ivy--directory x)))))))
+
+(add-to-list 'ivy-sort-functions-alist
+             '(read-file-name-internal . ivy-sort-file-by-mtime))
+
 (defun eh-ivy-partial-or-done ()
   (interactive)
   (or (ivy-partial)
