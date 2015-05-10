@@ -59,7 +59,7 @@
       tramp-default-method nil
       gc-cons-threshold 20000000)
 
-(ido-mode 1)
+(ido-mode -1)
 (ido-ubiquitous-mode 1)
 (flx-ido-mode 1)
 (ido-vertical-mode 1)
@@ -91,11 +91,20 @@
 ;; swiper and ivy-mode
 (require 'swiper)
 
-;; (ivy-mode -1)
-;; (setq magit-completing-read-function 'ivy-completing-read
-;;       projectile-completion-system 'ivy
-;;       smex-completion-method 'ivy
-;;       ivy-count-format "%-4d ")
+(ivy-mode 1)
+(setq magit-completing-read-function 'ivy-completing-read
+      projectile-completion-system 'ivy
+      smex-completion-method 'ivy
+      ivy-count-format "%-4d "
+      ivy-extra-directories nil)
+
+(defun eh-ivy-partial-or-done ()
+  (interactive)
+  (or (ivy-partial)
+      (ivy-alt-done)))
+
+(define-key ivy-minibuffer-map (kbd "TAB") 'eh-ivy-partial-or-done)
+(define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
 
 ;; company-mode
 (require 'company)
