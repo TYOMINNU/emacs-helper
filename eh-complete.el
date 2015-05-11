@@ -121,6 +121,15 @@
 
 (define-key ivy-minibuffer-map (kbd "TAB") 'eh-ivy-partial-or-done)
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
+(define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-current-directory)
+
+(defun eh-ivy-open-current-directory ()
+  (interactive)
+  (when ivy--directory
+    (let ((dir ivy--directory))
+      (message (format "Open directory: %s" dir))
+      (delete-minibuffer-contents)
+      (ivy--done dir))))
 
 ;; company-mode
 (require 'company)
