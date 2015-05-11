@@ -104,7 +104,7 @@
     (mapconcat
      (lambda (s)
        (concat (if (eq (cl-incf i) ivy--index)
-                   "  -> "
+                   " --> "
                  "     ")
                s))
      cands "\n")))
