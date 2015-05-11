@@ -96,9 +96,20 @@
       projectile-completion-system 'ivy
       smex-completion-method 'ivy
       ivy-count-format "%-4d "
-      ivy-extra-directories nil)
+      ivy-extra-directories nil
+      ivy-format-function 'eh-ivy-format-function)
 
-(defun ivy-sort-file-by-mtime (x y)
+(defun eh-ivy-format-function (cands)
+  (let ((i -1))
+    (mapconcat
+     (lambda (s)
+       (concat (if (eq (cl-incf i) ivy--index)
+                   "-> "
+                 "   ")
+               s))
+     cands "\n")))
+
+(defun eh-ivy-sort-file-by-mtime (x y)
   (let* ((x (concat ivy--directory x))
          (y (concat ivy--directory y))
          (x-mtime (nth 5 (file-attributes x)))
@@ -112,7 +123,7 @@
         (time-less-p y-mtime x-mtime)))))
 
 (add-to-list 'ivy-sort-functions-alist
-             '(read-file-name-internal . ivy-sort-file-by-mtime))
+             '(read-file-name-internal . eh-ivy-sort-file-by-mtime))
 
 (defun eh-ivy-partial-or-done ()
   (interactive)
