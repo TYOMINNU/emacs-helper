@@ -95,7 +95,8 @@
 (setq magit-completing-read-function 'ivy-completing-read
       projectile-completion-system 'ivy
       smex-completion-method 'ivy
-      ivy-count-format "%-4d "
+      ;; ivy-count-format "%-2d "
+      ivy-count-format ""
       ivy-extra-directories nil
       ivy-format-function 'eh-ivy-format-function)
 
@@ -104,8 +105,8 @@
     (mapconcat
      (lambda (s)
        (concat (if (eq (cl-incf i) ivy--index)
-                   " --> "
-                 "     ")
+                   "> "
+                 "  ")
                s))
      cands "\n")))
 
