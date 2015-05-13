@@ -131,17 +131,18 @@
   (or (ivy-partial)
       (ivy-alt-done)))
 
-(defun eh-ivy-open-current-directory ()
+(defun eh-ivy-open-current-typed-path ()
   (interactive)
   (when ivy--directory
-    (let ((dir ivy--directory))
-      (message (format "Open directory: %s" dir))
+    (let* ((dir ivy--directory)
+           (text-typed ivy-text)
+           (path (concat dir text-typed)))
       (delete-minibuffer-contents)
-      (ivy--done dir))))
+      (ivy--done path))))
 
 (define-key ivy-minibuffer-map (kbd "TAB") 'eh-ivy-partial-or-done)
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
-(define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-current-directory)
+(define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-current-typed-path)
 
 ;; company-mode
 (require 'company)
