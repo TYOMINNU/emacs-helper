@@ -111,16 +111,18 @@
      cands "\n")))
 
 (defun eh-ivy-return-recentf-index (dir)
-  (let ((files-list
-         (subseq recentf-list 0
-                 (min (- (length recentf-list) 1) 20)))
-        (index 0))
-    (while files-list
-      (if (string-match-p dir (car files-list))
-          (setq files-list nil)
-        (setq index (+ index 1))
-        (setq files-list (cdr files-list))))
-    index))
+  (when (and (boundp 'recentf-list)
+             recentf-list)
+    (let ((files-list
+           (cl-subseq recentf-list
+                      0 (min (- (length recentf-list) 1) 20)))
+          (index 0))
+      (while files-list
+        (if (string-match-p dir (car files-list))
+            (setq files-list nil)
+          (setq index (+ index 1))
+          (setq files-list (cdr files-list))))
+      index)))
 
 (defun eh-ivy-sort-file-function (x y)
   (let* ((x (concat ivy--directory x))
@@ -129,9 +131,12 @@
          (y-mtime (nth 5 (file-attributes y))))
     (if (file-directory-p x)
         (if (file-directory-p y)
-            ;; Directories is sorted by `recentf-list' index
-            (< (eh-ivy-return-recentf-index x)
-               (eh-ivy-return-recentf-index y))
+            (let ((x-recentf-index (eh-ivy-return-recentf-index x))
+                  (y-recentf-index (eh-ivy-return-recentf-index y)))
+              (if (and x-recentf-index y-recentf-index)
+                  ;; Directories is sorted by `recentf-list' index
+                  (< x-recentf-index y-recentf-index)
+                (string< x y)))
           t)
       (if (file-directory-p y)
           nil
@@ -140,11 +145,6 @@
 
 (add-to-list 'ivy-sort-functions-alist
              '(read-file-name-internal . eh-ivy-sort-file-function))
-
-(defun eh-ivy-partial-or-done ()
-  (interactive)
-  (or (ivy-partial)
-      (ivy-alt-done)))
 
 (defun eh-ivy-open-current-typed-path ()
   (interactive)
@@ -155,7 +155,6 @@
       (delete-minibuffer-contents)
       (ivy--done path))))
 
-(define-key ivy-minibuffer-map (kbd "TAB") 'eh-ivy-partial-or-done)
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
 (define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-current-typed-path)
 
