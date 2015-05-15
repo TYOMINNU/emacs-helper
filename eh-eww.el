@@ -33,7 +33,7 @@
 ;;; Code:
 
 ;; 设置Eww网页浏览器默认页面宽度
-(setq shr-width 110)
+(setq shr-width 90)
 
 ;; 搜狗:  http://www.sogou.com/sogou?query=
 ;; 百度:  http://m.baidu.com/ssid=0/s?word=
