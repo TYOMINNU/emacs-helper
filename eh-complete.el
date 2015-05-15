@@ -90,6 +90,7 @@
 
 ;; swiper and ivy-mode
 (require 'swiper)
+(require 'counsel)
 
 (ivy-mode 1)
 (setq magit-completing-read-function 'ivy-completing-read
