@@ -154,7 +154,9 @@
            (text-typed ivy-text)
            (path (concat dir text-typed)))
       (delete-minibuffer-contents)
-      (ivy--done path))))
+      (insert path)
+      (setq ivy-exit 'done)
+      (exit-minibuffer))))
 
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
 (define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-current-typed-path)
