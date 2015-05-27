@@ -185,7 +185,7 @@
 (add-to-list 'company-begin-commands 'ibus-handle-event)
 
 (setq company-backends
-      '((company-capf company-dabbrev company-files)
+      '((company-bbdb company-capf company-dabbrev company-files)
         (company-dabbrev-code company-gtags company-etags
                               company-keywords)))
 (setq company-transformers

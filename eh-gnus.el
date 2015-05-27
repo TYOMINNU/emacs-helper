@@ -49,6 +49,8 @@
       (progn
         ;; 加载个人帐号信息。
         (load eh-gnus-personal-file)
+        ;; bbdb
+        (require 'eh-bbdb3)
         ;; 加载 gnus 可共享的配置
         (require 'eh-gnus-common)
         ;; offlineimap同步脚本

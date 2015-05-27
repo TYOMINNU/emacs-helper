@@ -43,7 +43,6 @@
 (require 'ox-rss)
 (require 'ox-s5)
 
-(require 'org-contacts)
 (require 'org-mime)
 (require 'org-bookmark)
 (require 'org-protocol)
