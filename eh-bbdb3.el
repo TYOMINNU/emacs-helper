@@ -40,16 +40,18 @@
 
 ;; Variables
 (setq bbdb-file "~/contacts/contacts.bbdb"
-      bbdb-message-all-addresses t
       bbdb-phone-style nil
-      bbdb-pop-up-window-size 5
+      bbdb-pop-up-window-size 1.0
+      bbdb-mua-pop-up-window-size 1.0
       bbdb-mua-update-interactive-p '(query . create)  ;; Invoking bbdb interactively
       bbdb-message-all-addresses t
       bbdb-mua-summary-mark nil
       bbdb-completion-list t
       bbdb-complete-mail-allow-cycling t
       bbdb-layout 'multi-line
-      bbdb-pop-up-layout 'one-line)
+      bbdb-pop-up-layout 'multi-line
+      bbdb-mua-pop-up nil
+      bbdb-default-country "China")
 
 ;; initialization
 (bbdb-initialize 'gnus 'message)
