@@ -42,16 +42,18 @@
 (setq bbdb-file "~/contacts/contacts.bbdb"
       bbdb-message-all-addresses t
       bbdb-phone-style nil
-      bbdb-pop-up-window-size 0.5
+      bbdb-pop-up-window-size 5
       bbdb-mua-update-interactive-p '(query . create)  ;; Invoking bbdb interactively
       bbdb-message-all-addresses t
       bbdb-mua-summary-mark nil
       bbdb-completion-list t
-      bbdb-complete-mail-allow-cycling t)
+      bbdb-complete-mail-allow-cycling t
+      bbdb-layout 'multi-line
+      bbdb-pop-up-layout 'one-line)
 
 ;; initialization
 (bbdb-initialize 'gnus 'message)
-(bbdb-mua-auto-update-init 'gnus 'message)
+;; (bbdb-mua-auto-update-init 'gnus 'message)
 
 ;; BBDB setting for gnus
 (defun eh-bbdb-insinuate-gnus ()
