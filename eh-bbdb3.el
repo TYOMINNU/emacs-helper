@@ -30,27 +30,37 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+(require 'gnus)
+(require 'message)
 (require 'bbdb)
 (require 'bbdb-gnus)
 (require 'bbdb-vcard)
 (require 'bbdb-csv-import)
 (require 'bbdb-ext)
-(require 'gnus)
-(require 'message)
+
+;; Variables
+(setq bbdb-file "~/contacts/contacts.bbdb"
+      bbdb-message-all-addresses t
+      bbdb-phone-style nil
+      bbdb-pop-up-window-size 0.5
+      bbdb-mua-update-interactive-p '(query . create)  ;; Invoking bbdb interactively
+      bbdb-message-all-addresses t
+      bbdb-mua-summary-mark nil
+      bbdb-complete-mail-allow-cycling t)
 
 ;; initialization
 (bbdb-initialize 'gnus 'message)
 (bbdb-mua-auto-update-init 'gnus 'message)
 
-(setq bbdb-file "~/.emacs.d/bbdb"
-      bbdb-message-all-addresses t
-      bbdb-phone-style nil
-      bbdb-pop-up-window-size 10
-      bbdb-mua-update-interactive-p '(query . create)  ;; Invoking bbdb interactively
-      bbdb-message-all-addresses t)
-
 ;; BBDB setting for gnus
-(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+(defun eh-bbdb-insinuate-gnus ()
+  "BBDB setting for gnus, See `bbdb-insinuate-gnus' for details."
+  (define-key gnus-summary-mode-map ":" 'bbdb-mua-display-sender)
+  (define-key gnus-article-mode-map ":" 'bbdb-mua-display-sender)
+  (define-key gnus-summary-mode-map ";" 'bbdb-mua-edit-field)
+  (define-key gnus-article-mode-map ";" 'bbdb-mua-edit-field))
+
+(add-hook 'gnus-startup-hook 'eh-bbdb-insinuate-gnus)
 
 (provide 'eh-bbdb3)
 ;; Local Variables:

@@ -7,6 +7,7 @@
 (load-library "eh-org")
 (load-library "eh-org-capture")
 ;; (load-library "eh-org-contacts")
+(load-library "eh-bbdb3")
 (load-library "eh-ebib")
 (load-library "eh-org-citation")
 (load-library "eh-complete")
