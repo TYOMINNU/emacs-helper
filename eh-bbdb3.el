@@ -41,7 +41,7 @@
 ;; Variables
 (setq bbdb-file "~/contacts/contacts.bbdb"
       bbdb-phone-style nil
-      bbdb-pop-up-window-size 1.0
+      bbdb-pop-up-window-size 0.3
       bbdb-mua-pop-up-window-size 1.0
       bbdb-mua-update-interactive-p '(query . create)  ;; Invoking bbdb interactively
       bbdb-message-all-addresses t
@@ -54,7 +54,8 @@
       bbdb-default-country "China")
 
 ;; initialization
-(bbdb-initialize 'gnus 'message)
+;; (bbdb-initialize 'gnus 'message)
+(bbdb-initialize)
 ;; (bbdb-mua-auto-update-init 'gnus 'message)
 
 ;; BBDB setting for gnus
@@ -66,6 +67,53 @@
   (define-key gnus-article-mode-map ";" 'bbdb-mua-edit-field))
 
 (add-hook 'gnus-startup-hook 'eh-bbdb-insinuate-gnus)
+
+;; Push email to message-mode
+(defvar eh-bbdb-push-buffer nil)
+
+(defun eh-bbdb-push-mail (records &optional subject n verbose)
+  (interactive (list (bbdb-do-records) nil
+                     (or (consp current-prefix-arg)
+                         current-prefix-arg)
+                     t))
+  (setq records (bbdb-record-list records))
+  (if (not records)
+      (if verbose (message "No records"))
+    (let ((to (bbdb-mail-address records n nil verbose))
+          (buffer eh-bbdb-push-buffer))
+      (when (and buffer (not (string= "" to)))
+        (with-current-buffer buffer
+          (insert (concat to ", ")))
+        (message "Pushed [ %s ] to buffer %s" to buffer)))))
+
+(defun eh-bbdb-quit-window ()
+  (interactive)
+  (setq eh-bbdb-push-buffer nil)
+  (with-current-buffer bbdb-buffer-name
+    (setq header-line-format nil))
+  (quit-window))
+
+(defun eh-bbdb ()
+  (interactive)
+  (let ((buffer (current-buffer))
+        (bbdb-pop-up-window-size 1.0))
+    ;; Update `eh-bbdb-push-buffer'
+    (if (string= mode-name "Message")
+        (setq eh-bbdb-push-buffer buffer)
+      (setq eh-bbdb-push-buffer nil))
+    ;; Call bbdb
+    (bbdb "")
+    ;; Update `header-line-format'
+    (when (string= mode-name "Message")
+      (with-current-buffer bbdb-buffer-name
+        (setq header-line-format
+              (format "## Type `C-c C-c' or `p' to push email to buffer %s. ##"
+                      (buffer-name buffer)))))))
+
+(define-key bbdb-mode-map "q" 'eh-bbdb-quit-window)
+(define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
+(define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
+(define-key message-mode-map "\C-cb" 'eh-bbdb)
 
 ;; Add pinyin alias for gnus
 (defun eh-bbdb-add-pinyin-aka (record)
