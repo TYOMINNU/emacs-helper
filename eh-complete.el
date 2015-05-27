@@ -171,7 +171,7 @@
 (setq company-show-numbers t)
 (setq company-tooltip-limit 10)
 (setq company-echo-delay 0)
-(setq company-global-modes '(not git-commit-mode eshell-mode sfh/sawfish-console-mode))
+(setq company-global-modes '(not message-mode git-commit-mode eshell-mode sfh/sawfish-console-mode))
 
 (setq company-dabbrev-downcase nil)
 (setq company-dabbrev-ignore-case nil)
