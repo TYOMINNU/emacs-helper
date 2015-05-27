@@ -65,21 +65,22 @@
 
 ;; Add pinyin alias for gnus
 (defun eh-bbdb-add-pinyin-aka (record)
-  (let* ((bbdb-allow-duplicates t)
-         (first-name (eh-bbdb-return-chinese-string
-                      (bbdb-record-firstname record)))
-         (last-name (eh-bbdb-return-chinese-string
-                     (bbdb-record-lastname record)))
-         (aka (bbdb-record-aka record))
-         pinyin-alias)
-    (setq pinyin-alias
-          (delete-dups
-           `(,@aka
-             ,@(when first-name (pyim-hanzi2pinyin first-name t nil t))
-             ,@(when first-name (pyim-hanzi2pinyin first-name nil nil t))
-             ,@(when last-name (pyim-hanzi2pinyin last-name t nil t))
-             ,@(when last-name (pyim-hanzi2pinyin last-name nil nil t)))))
-    (bbdb-record-set-field record 'aka pinyin-alias)))
+  (when (featurep 'chinese-pyim)
+    (let* ((bbdb-allow-duplicates t)
+           (first-name (eh-bbdb-return-chinese-string
+                        (bbdb-record-firstname record)))
+           (last-name (eh-bbdb-return-chinese-string
+                       (bbdb-record-lastname record)))
+           (aka (bbdb-record-aka record))
+           pinyin-alias)
+      (setq pinyin-alias
+            (delete-dups
+             `(,@aka
+               ,@(when first-name (pyim-hanzi2pinyin first-name t nil t))
+               ,@(when first-name (pyim-hanzi2pinyin first-name nil nil t))
+               ,@(when last-name (pyim-hanzi2pinyin last-name t nil t))
+               ,@(when last-name (pyim-hanzi2pinyin last-name nil nil t)))))
+      (bbdb-record-set-field record 'aka pinyin-alias))))
 
 (defun eh-bbdb-return-chinese-string (str)
   (when (and str (string-match-p "\\cc" str))
