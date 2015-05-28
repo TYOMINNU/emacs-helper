@@ -133,6 +133,7 @@
 
 (define-key bbdb-mode-map "q" 'eh-bbdb-quit-window)
 (define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
+(define-key bbdb-mode-map "M" 'bbdb-merge-records)
 (define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
 (define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window)
 (define-key message-mode-map "\C-cb" 'eh-bbdb)
