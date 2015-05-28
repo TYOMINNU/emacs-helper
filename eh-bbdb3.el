@@ -36,7 +36,6 @@
 (require 'bbdb-gnus)
 (require 'bbdb-vcard)
 (require 'bbdb-csv-import)
-(require 'bbdb-ext)
 
 ;; Variables
 (setq bbdb-file "~/contacts/contacts.bbdb"
@@ -140,7 +139,6 @@
     (bbdb name)))
 
 (defun eh-bbdb-keybinding ()
-  (bbdb-ext-hook) ; bbdb-extra 里面的一些快捷键挺好用的。
   (define-key bbdb-mode-map "g" 'bbdb-display-all-records)
   (define-key bbdb-mode-map "q" 'eh-bbdb-quit-window)
   (define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
@@ -151,8 +149,6 @@
   (define-key message-mode-map "\C-cb" 'eh-bbdb)
   (define-key message-mode-map "\t" 'eh-bbdb-message-tab))
 
-;; 删除 bbdb-extra 添加的 hook。
-(remove-hook 'bbdb-mode-hook 'bbdb-ext-hook)
 (add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding)
 
 ;; Add pinyin alias for gnus
