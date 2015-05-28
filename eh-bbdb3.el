@@ -93,6 +93,13 @@
     (setq header-line-format nil))
   (quit-window))
 
+(defun eh-bbdb-push-mail-and-quit-window ()
+  (interactive)
+  (if eh-bbdb-push-buffer
+      (progn (call-interactively 'eh-bbdb-push-mail)
+             (eh-bbdb-quit-window))
+    (message "Can't find `eh-bbdb-push-buffer', Do Nothing!!")))
+
 (defun eh-bbdb ()
   (interactive)
   (let ((buffer (current-buffer))
@@ -127,6 +134,7 @@
 (define-key bbdb-mode-map "q" 'eh-bbdb-quit-window)
 (define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
 (define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
+(define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window)
 (define-key message-mode-map "\C-cb" 'eh-bbdb)
 (define-key message-mode-map "\t" 'eh-bbdb-message-tab)
 
