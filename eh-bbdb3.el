@@ -131,13 +131,29 @@
                    (lookup-key global-map "\t")
                    'indent-relative)))))
 
-(define-key bbdb-mode-map "q" 'eh-bbdb-quit-window)
-(define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
-(define-key bbdb-mode-map "M" 'bbdb-merge-records)
-(define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
-(define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window)
-(define-key message-mode-map "\C-cb" 'eh-bbdb)
-(define-key message-mode-map "\t" 'eh-bbdb-message-tab)
+(defun eh-bbdb-create ()
+  (interactive)
+  (let ((name (bbdb-read-string "联系人名称: "))
+        (mail (bbdb-split 'mail (bbdb-read-string "电子邮件: ")))
+        (phone (list (vector "work" (bbdb-read-string "电话号码: ")))))
+    (bbdb-create-internal name nil nil nil mail phone)
+    (bbdb name)))
+
+(defun eh-bbdb-keybinding ()
+  (bbdb-ext-hook) ; bbdb-extra 里面的一些快捷键挺好用的。
+  (define-key bbdb-mode-map "g" 'bbdb-display-all-records)
+  (define-key bbdb-mode-map "q" 'eh-bbdb-quit-window)
+  (define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
+  (define-key bbdb-mode-map "c" 'eh-bbdb-create)
+  (define-key bbdb-mode-map "M" 'bbdb-merge-records)
+  (define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
+  (define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window)
+  (define-key message-mode-map "\C-cb" 'eh-bbdb)
+  (define-key message-mode-map "\t" 'eh-bbdb-message-tab))
+
+;; 删除 bbdb-extra 添加的 hook。
+(remove-hook 'bbdb-mode-hook 'bbdb-ext-hook)
+(add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding)
 
 ;; Add pinyin alias for gnus
 (defun eh-bbdb-add-pinyin-abbreviation (record)
