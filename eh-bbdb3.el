@@ -110,10 +110,25 @@
               (format "## Type `C-c C-c' or `p' to push email to buffer %s. ##"
                       (buffer-name buffer)))))))
 
+(defun eh-bbdb-message-tab ()
+  (interactive)
+  (cond
+   ;; 在 header 中, 按 TAB 键调用 eh-bbdb.
+   ((save-excursion
+      (let ((point (point)))
+        (message-goto-body)
+        (> (point) point)))
+    (eh-bbdb))
+   (message-tab-body-function (funcall message-tab-body-function))
+   (t (funcall (or (lookup-key text-mode-map "\t")
+                   (lookup-key global-map "\t")
+                   'indent-relative)))))
+
 (define-key bbdb-mode-map "q" 'eh-bbdb-quit-window)
 (define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
 (define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
 (define-key message-mode-map "\C-cb" 'eh-bbdb)
+(define-key message-mode-map "\t" 'eh-bbdb-message-tab)
 
 ;; Add pinyin alias for gnus
 (defun eh-bbdb-add-pinyin-aka (record)
