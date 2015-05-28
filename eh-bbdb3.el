@@ -54,8 +54,8 @@
 
 ;; initialization
 ;; (bbdb-initialize 'gnus 'message)
-(bbdb-initialize)
 ;; (bbdb-mua-auto-update-init 'gnus 'message)
+(bbdb-initialize)
 
 ;; BBDB setting for gnus
 (defun eh-bbdb-insinuate-gnus ()
