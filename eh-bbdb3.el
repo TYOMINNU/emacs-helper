@@ -138,6 +138,11 @@
     (bbdb-create-internal name nil nil nil mail phone)
     (bbdb name)))
 
+(defun eh-bbdb-search-records ()
+  (interactive)
+  (call-interactively 'bbdb)
+  (message "Type `g', show all contacts records"))
+
 (defun eh-bbdb-display-all-records ()
   (interactive)
   (bbdb-display-all-records)
@@ -149,6 +154,8 @@
   (define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
   (define-key bbdb-mode-map "c" 'eh-bbdb-create)
   (define-key bbdb-mode-map "M" 'bbdb-merge-records)
+  (define-key bbdb-mode-map "\C-s" 'eh-bbdb-search-records)
+  (define-key bbdb-mode-map "b" 'eh-bbdb-search-records)
   (define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
   (define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window)
   (define-key message-mode-map "\C-cb" 'eh-bbdb)
