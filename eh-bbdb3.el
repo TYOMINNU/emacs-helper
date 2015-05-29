@@ -157,11 +157,12 @@
   (define-key bbdb-mode-map "\C-s" 'eh-bbdb-search-records)
   (define-key bbdb-mode-map "b" 'eh-bbdb-search-records)
   (define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
-  (define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window)
-  (define-key message-mode-map "\C-cb" 'eh-bbdb)
-  (define-key message-mode-map "\t" 'eh-bbdb-message-tab))
+  (define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window))
 
 (add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding)
+
+(define-key message-mode-map "\C-cb" 'eh-bbdb)
+(define-key message-mode-map "\t" 'eh-bbdb-message-tab)
 
 ;; Add pinyin alias for gnus
 (defun eh-bbdb-add-pinyin-abbreviation (record)
