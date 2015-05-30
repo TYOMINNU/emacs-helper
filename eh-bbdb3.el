@@ -177,6 +177,27 @@
                  (string-match regexp x))
              string-list)))
 
+(defun eh-bbdb-puthash (orig-fun key record)
+  (funcall orig-fun key record)
+  (when (and key (not (string= "" key))
+             (featurep 'chinese-pyim))
+    (let ((key-pinyin-1  (pyim-hanzi2pinyin key))
+          (key-pinyin-2  (pyim-hanzi2pinyin key t)))
+      (funcall orig-fun key-pinyin-1 record)
+      (funcall orig-fun key-pinyin-2 record))))
+
+(defun eh-bbdb-remhash (orig-fun key record)
+  (funcall orig-fun key record)
+  (when (and key (not (string= "" key))
+             (featurep 'chinese-pyim))
+    (let ((key-pinyin-1  (pyim-hanzi2pinyin key))
+          (key-pinyin-2  (pyim-hanzi2pinyin key t)))
+      (funcall orig-fun key-pinyin-1 record)
+      (funcall orig-fun key-pinyin-2 record))))
+
+(advice-add 'bbdb-puthash :around #'eh-bbdb-puthash)
+(advice-add 'bbdb-remhash :around #'eh-bbdb-remhash)
+
 ;; Add pinyin alias for gnus
 (defun eh-bbdb-add-pinyin-abbreviation (record)
   (when (featurep 'chinese-pyim)
