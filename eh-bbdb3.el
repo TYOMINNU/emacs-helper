@@ -50,7 +50,8 @@
       bbdb-layout 'multi-line
       bbdb-pop-up-layout 'multi-line
       bbdb-mua-pop-up nil
-      bbdb-default-country "China")
+      bbdb-default-country "China"
+      bbdb-vcard-export-addition-pruned-fields '(pinyin pinyin-abbrev))
 
 ;; initialization
 ;; (bbdb-initialize 'gnus 'message)
