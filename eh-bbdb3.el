@@ -51,7 +51,8 @@
       bbdb-pop-up-layout 'multi-line
       bbdb-mua-pop-up nil
       bbdb-default-country "China"
-      bbdb-vcard-export-addition-pruned-fields '(pinyin pinyin-abbrev))
+      bbdb-vcard-export-addition-pruned-fields '(pinyin pinyin-abbrev)
+      bbdb-string-match-function 'eh-bbdb-string-match)
 
 ;; initialization
 ;; (bbdb-initialize 'gnus 'message)
@@ -165,6 +166,17 @@
 (define-key message-mode-map "\C-cb" 'eh-bbdb)
 (define-key message-mode-map "\t" 'eh-bbdb-message-tab)
 
+(defun eh-bbdb-string-match (regexp string)
+  (let ((string-list
+         `(,string
+           ,@(when (and string (featurep 'chinese-pyim))
+               (pyim-hanzi2pinyin string t nil t))
+           ,@(when (and string (featurep 'chinese-pyim))
+               (pyim-hanzi2pinyin string nil nil t)))))
+    (cl-some #'(lambda (x)
+                 (string-match regexp x))
+             string-list)))
+
 ;; Add pinyin alias for gnus
 (defun eh-bbdb-add-pinyin-abbreviation (record)
   (when (featurep 'chinese-pyim)
@@ -176,34 +188,19 @@
            pinyin-list)
       (setq pinyin-list
             (delete-dups
-             `(,@(when first-name (pyim-hanzi2pinyin first-name t nil t))
+             `(,@(when first-name (pyim-hanzi2pinyin first-name nil nil t))
+               ,@(when last-name (pyim-hanzi2pinyin last-name nil nil t))
+               ,@(when first-name (pyim-hanzi2pinyin first-name t nil t))
                ,@(when last-name (pyim-hanzi2pinyin last-name t nil t)))))
       (bbdb-record-set-xfield
        record 'pinyin-abbrev (mapconcat 'identity pinyin-list ", ")))))
-
-(defun eh-bbdb-add-pinyin-aka (record)
-  (when (featurep 'chinese-pyim)
-    (let* ((bbdb-allow-duplicates t)
-           (first-name (eh-bbdb-return-chinese-string
-                        (bbdb-record-firstname record)))
-           (last-name (eh-bbdb-return-chinese-string
-                       (bbdb-record-lastname record)))
-           (aka (bbdb-record-aka record))
-           pinyin-alias)
-      (setq pinyin-alias
-            (delete-dups
-             `(,@aka
-               ,@(when first-name (pyim-hanzi2pinyin first-name nil nil t))
-               ,@(when last-name (pyim-hanzi2pinyin last-name nil nil t)))))
-      (bbdb-record-set-field record 'aka pinyin-alias))))
 
 (defun eh-bbdb-return-chinese-string (str)
   (when (and str (string-match-p "\\cc" str))
     str))
 
-(add-hook 'bbdb-change-hook 'eh-bbdb-add-pinyin-aka)
-(add-hook 'bbdb-change-hook 'eh-bbdb-add-pinyin-abbreviation)
-
+;; Pinyin abbreviation make search chinese easily.
+;; (add-hook 'bbdb-change-hook 'eh-bbdb-add-pinyin-abbreviation)
 
 (provide 'eh-bbdb3)
 ;; Local Variables:
