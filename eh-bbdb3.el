@@ -101,16 +101,33 @@
              (eh-bbdb-quit-window))
     (message "Can't find `eh-bbdb-push-buffer', Do Nothing!!")))
 
+(defun eh-bbdb-grab-word ()
+  (if (and (looking-at "\\>"))
+      (buffer-substring (point) (save-excursion (skip-syntax-backward "w")
+                                                (point)))
+    (unless (and (char-after) (eq (char-syntax (char-after)) ?w))
+      "")))
+
 (defun eh-bbdb ()
   (interactive)
   (let ((buffer (current-buffer))
-        (bbdb-pop-up-window-size 1.0))
+        (bbdb-pop-up-window-size 1.0)
+        prefix)
     ;; Update `eh-bbdb-push-buffer'
     (if (string= mode-name "Message")
-        (setq eh-bbdb-push-buffer buffer)
-      (setq eh-bbdb-push-buffer nil))
+        (progn
+          (setq eh-bbdb-push-buffer buffer)
+          (setq prefix (eh-bbdb-grab-word)))
+      (setq eh-bbdb-push-buffer nil)
+      (setq prefix nil))
+
     ;; Call bbdb
-    (bbdb "")
+    (if prefix
+        (progn
+          (delete-char (- 0 (length prefix)))
+          (bbdb prefix))
+      (bbdb ""))
+
     ;; Update `header-line-format'
     (when (string= mode-name "Message")
       (with-current-buffer bbdb-buffer-name
@@ -122,10 +139,13 @@
   (interactive)
   (cond
    ;; 在 header 中, 按 TAB 键调用 eh-bbdb.
-   ((save-excursion
-      (let ((point (point)))
-        (message-goto-body)
-        (> (point) point)))
+   ((and (save-excursion
+           (let ((point (point)))
+             (message-goto-body)
+             (> (point) point)))
+         (not (looking-back "^\\(Subject\\|From\\): *.*"
+                            (line-beginning-position)))
+         (not (looking-back "^" (line-beginning-position))))
     (eh-bbdb))
    (message-tab-body-function (funcall message-tab-body-function))
    (t (funcall (or (lookup-key text-mode-map "\t")
