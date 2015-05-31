@@ -85,7 +85,7 @@
       (when (and buffer (not (string= "" to)))
         (with-current-buffer buffer
           (insert (concat to ", ")))
-        (message "Pushed [ %s ] to buffer %s" to buffer)))))
+        (message "%s, will be push to buffer: %s" to buffer)))))
 
 (defun eh-bbdb-quit-window ()
   (interactive)
