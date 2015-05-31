@@ -102,11 +102,11 @@
     (message "Can't find `eh-bbdb-push-buffer', Do Nothing!!")))
 
 (defun eh-bbdb-grab-word ()
-  (if (and (looking-at "\\>"))
-      (buffer-substring (point) (save-excursion (skip-syntax-backward "w")
-                                                (point)))
-    (unless (and (char-after) (eq (char-syntax (char-after)) ?w))
-      "")))
+  (buffer-substring
+   (point)
+   (save-excursion
+     (skip-syntax-backward "w")
+     (point))))
 
 (defun eh-bbdb ()
   (interactive)
