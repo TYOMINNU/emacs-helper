@@ -52,6 +52,9 @@
       bbdb-mua-pop-up nil
       bbdb-default-country "China"
       bbdb-vcard-export-addition-pruned-fields '(pinyin pinyin-abbrev)
+      bbdb-vcard-use-fullname t
+      bbdb-vcard-skip-on-import '("^X-GSM-" "^X-RADICALE-" "^X-CONTACTSYNC-" "^PRODID" "^UID")
+      bbdb-vcard-skip-on-export '("^pinyin-abbrev")
       bbdb-string-match-function 'eh-bbdb-string-match)
 
 ;; initialization
