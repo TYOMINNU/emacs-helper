@@ -268,8 +268,9 @@
     (with-temp-buffer
       (dolist (record records)
         (insert (bbdb-vcard-from record)))
-      (bbdb-vcard-write-buffer file))
-    (if adb-connect
+      (bbdb-vcard-write-buffer file t))
+    (if (and adb-connect
+             (yes-or-no-p (format "Really export vcard to android: %s? " file)))
         (shell-command (format "adb push %s %s" file "/sdcard/ContactSync"))
       (message "Can't connect android device by adb command."))))
 
