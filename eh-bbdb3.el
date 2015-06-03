@@ -248,6 +248,32 @@
 ;; Pinyin abbreviation make search chinese easily.
 ;; (add-hook 'bbdb-change-hook 'eh-bbdb-add-pinyin-abbreviation)
 
+(defun eh-bbdb-import-vcard-file-from-radicale ()
+  "Import Radicale vcard with bbdb-vcard."
+  (interactive)
+  (let* ((directory (concat "~/.config/radicale/collections/"
+                            (user-real-login-name) "/"))
+         (files (directory-files directory t ".vcf$"))
+         (file (completing-read "Import vcard file: " files)))
+    (when (yes-or-no-p (format "Really import vcard file: %s? " file))
+      (bbdb-vcard-import-file file))))
+
+(defun eh-bbdb-export-vcard-file-to-android ()
+  "Export bbdb to vcard file and save to android with adb command."
+  (interactive)
+  (let ((adb-connect (not (= 1 (shell-command "adb devices | grep HC2CXW101748"))))
+        (records (bbdb-records))
+        (file (concat "~/exported-vcards/BBDB-vcard-file-"
+                      (format-time-string "%Y%m%d" nil t) ".vcf")))
+    (with-temp-buffer
+      (dolist (record records)
+        (insert (bbdb-vcard-from record)))
+      (bbdb-vcard-write-buffer file))
+    (if adb-connect
+        (shell-command (format "adb push %s %s" file "/sdcard/ContactSync"))
+      (message "Can't connect android device by adb command."))))
+
+
 (provide 'eh-bbdb3)
 ;; Local Variables:
 ;; coding: utf-8-unix
