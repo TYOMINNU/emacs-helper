@@ -51,10 +51,12 @@
       bbdb-pop-up-layout 'multi-line
       bbdb-mua-pop-up nil
       bbdb-default-country "China"
-      bbdb-vcard-export-addition-pruned-fields '(pinyin pinyin-abbrev)
-      bbdb-vcard-use-fullname t
+      bbdb-vcard-name-imported-priority '(formated-name first-last bbdb-vcard-generate-bbdb-name)
       bbdb-vcard-skip-on-import '("^X-GSM-" "^X-RADICALE-" "^X-CONTACTSYNC-" "^PRODID" "^UID")
       bbdb-vcard-skip-on-export '("^pinyin-abbrev")
+      bbdb-vcard-import-translation-table '(("CELL\\|CAR" . "cell")
+                                            ("WORK\\|pref" . "work")
+                                            ("DOM\\|HOME" . "home"))
       bbdb-string-match-function 'eh-bbdb-string-match)
 
 ;; initialization
