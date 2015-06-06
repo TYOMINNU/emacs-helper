@@ -51,13 +51,15 @@
       bbdb-pop-up-layout 'multi-line
       bbdb-mua-pop-up nil
       bbdb-default-country "China"
-      bbdb-vcard-name-imported-priority '(formated-name first-last bbdb-vcard-generate-bbdb-name)
+      bbdb-dial-function 'eh-bbdb-dia-with-adb
+      bbdb-string-match-function 'eh-bbdb-string-match)
+
+(setq bbdb-vcard-name-imported-priority '(formated-name first-last bbdb-vcard-generate-bbdb-name)
       bbdb-vcard-skip-on-import '("^X-GSM-" "^X-RADICALE-" "^X-CONTACTSYNC-" "^PRODID" "^UID")
       bbdb-vcard-skip-on-export '("^pinyin-abbrev")
       bbdb-vcard-import-translation-table '(("CELL\\|CAR" . "cell")
                                             ("WORK\\|pref" . "work")
-                                            ("DOM\\|HOME" . "home"))
-      bbdb-string-match-function 'eh-bbdb-string-match)
+                                            ("DOM\\|HOME" . "home")))
 
 ;; initialization
 ;; (bbdb-initialize 'gnus 'message)
@@ -260,16 +262,18 @@
     (when (yes-or-no-p (format "Really import vcard file: %s? " file))
       (bbdb-vcard-import-file file))))
 
+(defun eh-bbdb-adb-connect-p ()
+  (not (= 1 (shell-command "adb devices | grep HC2CXW101748"))))
+
 (defun eh-bbdb-import-vcard-file-from-android ()
   "Copy vcard file from android phone with adb, then import to bbdb."
   (interactive)
-  (let ((adb-connect (not (= 1 (shell-command "adb devices | grep HC2CXW101748"))))
-        (file (concat "~/exported-vcards/android-contacts-"
+  (let ((file (concat "~/exported-vcards/android-contacts-"
                       (format-time-string "%Y%m%d" nil t)
                       "-"
                       (make-temp-name "")
                       ".vcf")))
-    (if (and adb-connect
+    (if (and (eh-bbdb-adb-connect-p)
              (yes-or-no-p "Do you want to import from android phone? "))
         (progn
           (shell-command (format "adb pull %s %s" "/sdcard/backup.vcf" file))
@@ -277,23 +281,29 @@
           (delete-file file))
       (message "Can't connect android device by adb command."))))
 
-
 (defun eh-bbdb-export-vcard-file-to-android ()
   "Export bbdb to vcard file and save to android with adb command."
   (interactive)
-  (let ((adb-connect (not (= 1 (shell-command "adb devices | grep HC2CXW101748"))))
-        (records (bbdb-records))
+  (let ((records (bbdb-records))
         (file (concat "~/exported-vcards/BBDB-vcard-file-"
                       (format-time-string "%Y%m%d" nil t) ".vcf")))
     (with-temp-buffer
       (dolist (record records)
         (insert (bbdb-vcard-from record)))
       (bbdb-vcard-write-buffer file t))
-    (if (and adb-connect
-             (yes-or-no-p (format "Really export vcard to android: %s? " file)))
+    (if (and (eh-bbdb-adb-connect-p)
+             (yes-or-no-p "Really export vcard to android? "))
         (shell-command (format "adb push %s %s" file "/sdcard/contacts.vcf"))
       (message "Can't connect android device by adb command."))))
 
+(defun eh-bbdb-dia-with-adb (phone-number)
+  (if (eh-bbdb-adb-connect-p)
+      (progn
+        (shell-command
+         (format "adb shell am start -a android.intent.action.CALL -d tel:%s"
+                 phone-number))
+        (message "Dia phone number: %s ..." phone-number))
+    (message "Can't connect android device by adb command.")))
 
 (provide 'eh-bbdb3)
 ;; Local Variables:
