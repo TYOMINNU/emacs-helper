@@ -268,33 +268,67 @@
 (defun eh-bbdb-import-vcard-file-from-android ()
   "Copy vcard file from android phone with adb, then import to bbdb."
   (interactive)
-  (let ((file (concat "~/exported-vcards/android-contacts-"
-                      (format-time-string "%Y%m%d" nil t)
-                      "-"
-                      (make-temp-name "")
-                      ".vcf")))
+  (let* ((time-string (format-time-string "%Y%m%d" nil t))
+         (contacts-db-file-name
+          (concat "android-contacts-" time-string ".db"))
+         (vcard-file-name
+          (concat "android-contacts-" time-string ".vcf"))
+         (temp-contacts-db-1
+          (concat (file-name-as-directory "/sdcard/BBDB/") contacts-db-file-name))
+         (temp-contacts-db-2
+          (concat (file-name-as-directory "~/BBDB/") contacts-db-file-name))
+         (vcard-file
+          (concat (file-name-as-directory "~/BBDB/") vcard-file-name)))
     (if (and (eh-bbdb-adb-connect-p)
              (yes-or-no-p "Do you want to import from android phone? "))
         (progn
-          (shell-command (format "adb pull %s %s" "/sdcard/backup.vcf" file))
-          (bbdb-vcard-import-file file)
-          (delete-file file))
+          ;; Copy contacts database file to /sdcard directory
+          ;; NOTE: This require your android *rooted*.
+          (shell-command
+           (format "adb shell \"su -c 'cat %s > %s'\""
+                   "/data/data/com.android.providers.contacts/databases/contacts2.db"
+                   temp-contacts-db-1))
+          ;; Pull contacts db file to computer
+          (shell-command (format "adb pull %s %s" temp-contacts-db-1 temp-contacts-db-2))
+          ;; Convert contacts database info to vcard file by dump-contacts2db,
+          ;; NOTE: You should install sqlite3, perl, base64,
+          ;;       and [dump-contacts2db](https://github.com/stachre/dump-contacts2db)
+          ;;       Maybe we should rewrite dump-contacts2db with elisp ...
+          (shell-command (format "bash ~/project/dump-contacts2db/dump-contacts2db.sh %s > %s" temp-contacts-db-2 vcard-file))
+          ;; Import vcard file to BBDB
+          (bbdb-vcard-import-file vcard-file))
       (message "Can't connect android device by adb command."))))
 
 (defun eh-bbdb-export-vcard-file-to-android ()
   "Export bbdb to vcard file and save to android with adb command."
   (interactive)
-  (let ((records (bbdb-records))
-        (file (concat "~/exported-vcards/BBDB-vcard-file-"
-                      (format-time-string "%Y%m%d" nil t) ".vcf")))
+  (let* ((records (bbdb-records))
+         (vcard-file-name
+          (concat "bbdb-contacts-"
+                  (format-time-string "%Y%m%d" nil t) ".vcf"))
+         (temp-vcard-file
+          (concat (file-name-as-directory
+                   "~/BBDB/") vcard-file-name))
+         (remote-vcard-file
+          (concat (file-name-as-directory
+                   "/sdcard/BBDB/") vcard-file-name))
+         (remote-vcard-file-2
+          (concat (file-name-as-directory
+                   "file:///sdcard/BBDB/") vcard-file-name)))
     (with-temp-buffer
       (dolist (record records)
         (insert (bbdb-vcard-from record)))
-      (bbdb-vcard-write-buffer file t))
-    (if (and (eh-bbdb-adb-connect-p)
-             (yes-or-no-p "Really export vcard to android? "))
-        (shell-command (format "adb push %s %s" file "/sdcard/contacts.vcf"))
-      (message "Can't connect android device by adb command."))))
+      (bbdb-vcard-write-buffer temp-vcard-file t))
+    (if (not (eh-bbdb-adb-connect-p))
+        (message "Can't connect android device by adb command.")
+      (when (yes-or-no-p (format "Push temp vcard file to \"%s\" ? " remote-vcard-file))
+        (shell-command (format "adb push %s %s" temp-vcard-file remote-vcard-file)))
+      (when (yes-or-no-p "Delete all android contacts ? ")
+        (shell-command "adb shell pm clear com.android.providers.contacts"))
+      (when (yes-or-no-p (format "Import vcard file: \"%s\" ? " remote-vcard-file))
+        (shell-command (format "adb shell am start -t \"%s\" -d \"%s\" -a android.intent.action.VIEW"
+                               "text/x-vcard"
+                               remote-vcard-file-2))))))
 
 (defun eh-bbdb-dia-with-adb (phone-number)
   (if (eh-bbdb-adb-connect-p)
