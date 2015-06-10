@@ -186,6 +186,9 @@
   (define-key bbdb-mode-map "\C-s" 'eh-bbdb-search-records)
   (define-key bbdb-mode-map "b" 'eh-bbdb-search-records)
   (define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
+  (define-key bbdb-mode-map (kbd "x e") 'eh-bbdb-export-vcard-file-to-android)
+  (define-key bbdb-mode-map (kbd "x i") 'eh-bbdb-import-vcard-file-from-android)
+  (define-key bbdb-mode-map (kbd "x r") 'eh-bbdb-import-vcard-file-from-radicale)
   (define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window))
 
 (add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding)
@@ -289,12 +292,20 @@
                    "/data/data/com.android.providers.contacts/databases/contacts2.db"
                    temp-contacts-db-1))
           ;; Pull contacts db file to computer
-          (shell-command (format "adb pull %s %s" temp-contacts-db-1 temp-contacts-db-2))
+          (shell-command
+           (format "adb pull %s %s"
+                   temp-contacts-db-1
+                   temp-contacts-db-2))
+
           ;; Convert contacts database info to vcard file by dump-contacts2db,
           ;; NOTE: You should install sqlite3, perl, base64,
           ;;       and [dump-contacts2db](https://github.com/stachre/dump-contacts2db)
           ;;       Maybe we should rewrite dump-contacts2db with elisp ...
-          (shell-command (format "bash ~/project/dump-contacts2db/dump-contacts2db.sh %s > %s" temp-contacts-db-2 vcard-file))
+          (shell-command
+           (format "bash ~/project/dump-contacts2db/dump-contacts2db.sh %s > %s"
+                   temp-contacts-db-2
+                   vcard-file))
+
           ;; Import vcard file to BBDB
           (bbdb-vcard-import-file vcard-file))
       (message "Can't connect android device by adb command."))))
