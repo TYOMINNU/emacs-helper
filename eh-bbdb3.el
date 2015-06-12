@@ -391,7 +391,8 @@
                       contacts-list2)))
 
     ;; import scards to bbdb database
-    (mapc #'bbdb-vcard-import-vcard-internal scards-list)))
+    (mapc #'bbdb-vcard-import-vcard-internal scards-list)
+    (message "Import android contacts finished.")))
 
 (defun eh-bbdb-android-contact-scardize (list)
   "Convert list to scard"
