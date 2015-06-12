@@ -36,6 +36,7 @@
 (require 'bbdb-gnus)
 (require 'bbdb-vcard)
 (require 'bbdb-csv-import)
+(require 'hex-util)
 
 ;; Variables
 (setq bbdb-file "~/contacts/contacts.bbdb"
@@ -468,12 +469,24 @@
         (when (and data1 (string= mimetype "vnd.android.cursor.item/note"))
           (push `("NOTE" ((("content" ,data1)))) scard))
 
-        ;; TODO: Write a elisp function which do job like below command.
-        ;;
-        ;;   "perl -ne 's/([0-9a-f]{2})/print chr hex $1/gie' | base64 --wrap=0"
-        ;;
-        ;; (when (and data1 (string= mimetype "vnd.android.cursor.item/photo"))
-        ;;   (push `("PHOTO" ((("content" ,data15)))) scard))
+        ;; Photo-info in android contacts2.db is encoded by hex,
+        ;; Re-encode with base64.
+        (when (and data1 (string= mimetype "vnd.android.cursor.item/photo"))
+          (if (and (string-match-p "^X'" data15)
+                   (string-match-p "'$" data15))
+              ;; Deal with inline pictures or other media,
+              ;; which are encoded with hex, like: "X'FFD8FF..73FFD9'"
+              (let* ((string
+                      (replace-regexp-in-string
+                       "'$" ""
+                       (replace-regexp-in-string
+                        "^X'" "" data15)))
+                     (base64-string
+                      (base64-encode-string
+                       (decode-hex-string string) t)))
+                (push `("PHOTO" ((("encoding" "b")
+                                  ("content" ,base64-string)))) scard))
+            (push `("PHOTO" (("content" ,data15))) scard)))
 
         (when (and data1 (string= mimetype "vnd.android.cursor.item/organization"))
           (push `("ORG" ((("content" (,data1))))) scard))
