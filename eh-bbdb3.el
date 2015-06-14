@@ -78,7 +78,8 @@
 (add-hook 'gnus-startup-hook 'eh-bbdb-insinuate-gnus)
 
 ;; Push email to message-mode
-(defvar eh-bbdb-push-buffer nil)
+(defvar eh-bbdb-push-buffer nil
+  "An alist, record buffer, buffer-window and window-point")
 
 (defun eh-bbdb-push-mail (records &optional subject n verbose)
   (interactive (list (bbdb-do-records) nil
@@ -89,18 +90,24 @@
   (if (not records)
       (if verbose (message "No records"))
     (let ((to (bbdb-mail-address records n nil verbose))
-          (buffer eh-bbdb-push-buffer))
-      (when (and buffer (not (string= "" to)))
+          (buffer (cdr (assoc 'buffer eh-bbdb-push-buffer))))
+      (when buffer
         (with-current-buffer buffer
-          (insert (concat to ", ")))
-        (message "%s, will be push to buffer: %s" to buffer)))))
+          (when (not (string= "" to))
+            (insert (concat to ", "))
+            (message "%s, will be push to buffer: %s" to buffer))
+          (setcdr (assoc 'window-point eh-bbdb-push-buffer) (point)))))))
 
 (defun eh-bbdb-quit-window ()
   (interactive)
-  (setq eh-bbdb-push-buffer nil)
   (with-current-buffer bbdb-buffer-name
     (setq header-line-format nil))
-  (quit-window))
+  (quit-window)
+  ;; Update message window's point.
+  (set-window-point
+   (cdr (assoc 'window eh-bbdb-push-buffer))
+   (cdr (assoc 'window-point eh-bbdb-push-buffer)))
+  (setq eh-bbdb-push-buffer nil))
 
 (defun eh-bbdb-push-mail-and-quit-window ()
   (interactive)
@@ -121,13 +128,15 @@
   (let ((buffer (current-buffer))
         (bbdb-pop-up-window-size 1.0)
         prefix)
+
     ;; Update `eh-bbdb-push-buffer'
     (if (string= mode-name "Message")
-        (progn
-          (setq eh-bbdb-push-buffer buffer)
-          (setq prefix (eh-bbdb-grab-word)))
-      (setq eh-bbdb-push-buffer nil)
-      (setq prefix nil))
+        (setq prefix (eh-bbdb-grab-word)
+              eh-bbdb-push-buffer `((buffer . ,buffer)
+                                    (window . ,(get-buffer-window))
+                                    (window-point . ,(point))))
+      (setq eh-bbdb-push-buffer nil
+            prefix nil))
 
     ;; Call bbdb
     (if prefix
