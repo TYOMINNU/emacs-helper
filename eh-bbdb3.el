@@ -52,8 +52,7 @@
       bbdb-pop-up-layout 'multi-line
       bbdb-mua-pop-up nil
       bbdb-default-country "China"
-      bbdb-dial-function 'bbdb-android-dia-with-adb
-      bbdb-string-match-function 'eh-bbdb-string-match)
+      bbdb-dial-function 'bbdb-android-dia-with-adb)
 
 (setq bbdb-vcard-name-imported-priority '(formated-name first-last bbdb-vcard-generate-bbdb-name)
       bbdb-vcard-skip-on-import '("^X-GSM-" "^X-RADICALE-" "^X-CONTACTSYNC-" "^PRODID" "^UID")
@@ -206,17 +205,6 @@
 (define-key message-mode-map "\C-cb" 'eh-bbdb)
 (define-key message-mode-map "\t" 'eh-bbdb-message-tab)
 
-(defun eh-bbdb-string-match (regexp string)
-  (let ((string-list
-         `(,string
-           ,@(when (and string (featurep 'chinese-pyim))
-               (pyim-hanzi2pinyin string t nil t))
-           ,@(when (and string (featurep 'chinese-pyim))
-               (pyim-hanzi2pinyin string nil nil t)))))
-    (cl-some #'(lambda (x)
-                 (string-match regexp x))
-             string-list)))
-
 (defun eh-bbdb-puthash (orig-fun key record)
   (funcall orig-fun key record)
   (when (and key (not (string= "" key))
@@ -243,11 +231,12 @@
 ;; Add pinyin alias for gnus
 (defun eh-bbdb-add-pinyin-abbreviation (record)
   (when (featurep 'chinese-pyim)
-    (let* ((bbdb-allow-duplicates t)
-           (first-name (eh-bbdb-return-chinese-string
-                        (bbdb-record-firstname record)))
-           (last-name (eh-bbdb-return-chinese-string
-                       (bbdb-record-lastname record)))
+    (let* ((first-name
+            (eh-bbdb-return-chinese-string
+             (bbdb-record-firstname record)))
+           (last-name
+            (eh-bbdb-return-chinese-string
+             (bbdb-record-lastname record)))
            pinyin-list)
       (setq pinyin-list
             (delete-dups
@@ -262,9 +251,8 @@
   (when (and str (string-match-p "\\cc" str))
     str))
 
-;; Pinyin abbreviation make search chinese easily.
-;; (add-hook 'bbdb-change-hook 'eh-bbdb-add-pinyin-abbreviation)
-
+;; Add pinyin abbreviation, which make search chinese easily.
+(add-hook 'bbdb-change-hook 'eh-bbdb-add-pinyin-abbreviation)
 
 (provide 'eh-bbdb3)
 ;; Local Variables:
