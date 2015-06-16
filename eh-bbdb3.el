@@ -37,6 +37,8 @@
 (require 'bbdb-vcard)
 (require 'bbdb-android)
 (require 'bbdb-csv-import)
+(require 'bbdb-handy)
+(require 'bbdb-china)
 
 ;; Variables
 (setq bbdb-file "~/contacts/contacts.bbdb"
@@ -56,7 +58,6 @@
 
 (setq bbdb-vcard-name-imported-priority '(formated-name first-last bbdb-vcard-generate-bbdb-name)
       bbdb-vcard-skip-on-import '("^X-GSM-" "^X-RADICALE-" "^X-CONTACTSYNC-" "^PRODID" "^UID")
-      bbdb-vcard-skip-on-export '("^pinyin-abbrev")
       bbdb-vcard-import-translation-table '(("CELL\\|CAR" . "cell")
                                             ("WORK\\|pref" . "work")
                                             ("DOM\\|HOME" . "home")))
@@ -77,97 +78,6 @@
 (add-hook 'gnus-startup-hook 'eh-bbdb-insinuate-gnus)
 
 ;; Push email to message-mode
-(defvar eh-bbdb-push-buffer nil
-  "An alist, record buffer, buffer-window and window-point")
-
-(defun eh-bbdb-push-mail (records &optional subject n verbose)
-  (interactive (list (bbdb-do-records) nil
-                     (or (consp current-prefix-arg)
-                         current-prefix-arg)
-                     t))
-  (setq records (bbdb-record-list records))
-  (if (not records)
-      (if verbose (message "No records"))
-    (let ((to (bbdb-mail-address records n nil verbose))
-          (buffer (cdr (assoc 'buffer eh-bbdb-push-buffer))))
-      (when buffer
-        (with-current-buffer buffer
-          (when (not (string= "" to))
-            (insert (concat to ", "))
-            (message "%s, will be push to buffer: %s" to buffer))
-          (setcdr (assoc 'window-point eh-bbdb-push-buffer) (point)))))))
-
-(defun eh-bbdb-quit-window ()
-  (interactive)
-  (with-current-buffer bbdb-buffer-name
-    (setq header-line-format nil))
-  (quit-window)
-  ;; Update message window's point.
-  (set-window-point
-   (cdr (assoc 'window eh-bbdb-push-buffer))
-   (cdr (assoc 'window-point eh-bbdb-push-buffer)))
-  (setq eh-bbdb-push-buffer nil))
-
-(defun eh-bbdb-push-mail-and-quit-window ()
-  (interactive)
-  (if eh-bbdb-push-buffer
-      (progn (call-interactively 'eh-bbdb-push-mail)
-             (eh-bbdb-quit-window))
-    (message "Can't find `eh-bbdb-push-buffer', Do Nothing!!")))
-
-(defun eh-bbdb-grab-word ()
-  (buffer-substring
-   (point)
-   (save-excursion
-     (skip-syntax-backward "w")
-     (point))))
-
-(defun eh-bbdb ()
-  (interactive)
-  (let ((buffer (current-buffer))
-        (bbdb-pop-up-window-size 1.0)
-        prefix)
-
-    ;; Update `eh-bbdb-push-buffer'
-    (if (string= mode-name "Message")
-        (setq prefix (eh-bbdb-grab-word)
-              eh-bbdb-push-buffer `((buffer . ,buffer)
-                                    (window . ,(get-buffer-window))
-                                    (window-point . ,(point))))
-      (setq eh-bbdb-push-buffer nil
-            prefix nil))
-
-    ;; Call bbdb
-    (if prefix
-        (progn
-          (delete-char (- 0 (length prefix)))
-          (bbdb prefix))
-      (bbdb ""))
-
-    ;; Update `header-line-format'
-    (when (string= mode-name "Message")
-      (with-current-buffer bbdb-buffer-name
-        (setq header-line-format
-              (format "## Type `C-c C-c' or `p' to push email to buffer %s. ##"
-                      (buffer-name buffer)))))))
-
-(defun eh-bbdb-message-tab ()
-  (interactive)
-  (cond
-   ;; 在 header 中, 按 TAB 键调用 eh-bbdb.
-   ((and (save-excursion
-           (let ((point (point)))
-             (message-goto-body)
-             (> (point) point)))
-         (not (looking-back "^\\(Subject\\|From\\): *.*"
-                            (line-beginning-position)))
-         (not (looking-back "^" (line-beginning-position))))
-    (eh-bbdb))
-   (message-tab-body-function (funcall message-tab-body-function))
-   (t (funcall (or (lookup-key text-mode-map "\t")
-                   (lookup-key global-map "\t")
-                   'indent-relative)))))
-
 (defun eh-bbdb-create ()
   (interactive)
   (let ((name (bbdb-read-string "联系人名称: "))
@@ -176,83 +86,18 @@
     (bbdb-create-internal name nil nil nil mail phone)
     (bbdb name)))
 
-(defun eh-bbdb-search-records ()
-  (interactive)
-  (call-interactively 'bbdb)
-  (message "Type `g', show all contacts records"))
-
-(defun eh-bbdb-display-all-records ()
-  (interactive)
-  (bbdb-display-all-records)
-  (message "Show all contacts records ..."))
-
 (defun eh-bbdb-keybinding ()
-  (define-key bbdb-mode-map "g" 'eh-bbdb-display-all-records)
-  (define-key bbdb-mode-map "q" 'eh-bbdb-quit-window)
-  (define-key bbdb-mode-map "p" 'eh-bbdb-push-mail)
+  (bbdb-handy-keybinding-setup)
   (define-key bbdb-mode-map "c" 'eh-bbdb-create)
   (define-key bbdb-mode-map "M" 'bbdb-merge-records)
-  (define-key bbdb-mode-map "\C-s" 'eh-bbdb-search-records)
-  (define-key bbdb-mode-map "b" 'eh-bbdb-search-records)
-  (define-key bbdb-mode-map "\C-c\C-c" 'eh-bbdb-push-mail)
   (define-key bbdb-mode-map (kbd "x e") 'bbdb-android-export)
   (define-key bbdb-mode-map (kbd "x i") 'bbdb-android-import)
-  (define-key bbdb-mode-map (kbd "x r") 'bbdb-android-import-from-radicale)
-  (define-key bbdb-mode-map (kbd "RET") 'eh-bbdb-push-mail-and-quit-window))
+  (define-key bbdb-mode-map (kbd "x r") 'bbdb-android-import-from-radicale))
 
 (add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding)
 
-(define-key message-mode-map "\C-cb" 'eh-bbdb)
-(define-key message-mode-map "\t" 'eh-bbdb-message-tab)
-
-(defun eh-bbdb-puthash (orig-fun key record)
-  (funcall orig-fun key record)
-  (when (and key (not (string= "" key))
-             (string-match-p "\\cc" key)
-             (featurep 'chinese-pyim))
-    (let ((key-pinyin-1  (pyim-hanzi2pinyin key))
-          (key-pinyin-2  (pyim-hanzi2pinyin key t)))
-      (funcall orig-fun key-pinyin-1 record)
-      (funcall orig-fun key-pinyin-2 record))))
-
-(defun eh-bbdb-remhash (orig-fun key record)
-  (funcall orig-fun key record)
-  (when (and key (not (string= "" key))
-             (string-match-p "\\cc" key)
-             (featurep 'chinese-pyim))
-    (let ((key-pinyin-1  (pyim-hanzi2pinyin key))
-          (key-pinyin-2  (pyim-hanzi2pinyin key t)))
-      (funcall orig-fun key-pinyin-1 record)
-      (funcall orig-fun key-pinyin-2 record))))
-
-(advice-add 'bbdb-puthash :around #'eh-bbdb-puthash)
-(advice-add 'bbdb-remhash :around #'eh-bbdb-remhash)
-
-;; Add pinyin alias for gnus
-(defun eh-bbdb-add-pinyin-abbreviation (record)
-  (when (featurep 'chinese-pyim)
-    (let* ((first-name
-            (eh-bbdb-return-chinese-string
-             (bbdb-record-firstname record)))
-           (last-name
-            (eh-bbdb-return-chinese-string
-             (bbdb-record-lastname record)))
-           pinyin-list)
-      (setq pinyin-list
-            (delete-dups
-             `(,@(when first-name (pyim-hanzi2pinyin first-name nil nil t))
-               ,@(when last-name (pyim-hanzi2pinyin last-name nil nil t))
-               ,@(when first-name (pyim-hanzi2pinyin first-name t nil t))
-               ,@(when last-name (pyim-hanzi2pinyin last-name t nil t)))))
-      (bbdb-record-set-xfield
-       record 'pinyin-abbrev (mapconcat 'identity pinyin-list ", ")))))
-
-(defun eh-bbdb-return-chinese-string (str)
-  (when (and str (string-match-p "\\cc" str))
-    str))
-
-;; Add pinyin abbreviation, which make search chinese easily.
-(add-hook 'bbdb-change-hook 'eh-bbdb-add-pinyin-abbreviation)
+(define-key message-mode-map "\C-cb" 'bbdb-handy)
+(define-key message-mode-map "\t" 'bbdb-handy-message-tab)
 
 (provide 'eh-bbdb3)
 ;; Local Variables:
