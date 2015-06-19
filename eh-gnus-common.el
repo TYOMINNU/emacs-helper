@@ -599,7 +599,11 @@
                               (car (cdr (assoc account-used accounts)))))))
     (gnus-msg-mail to subject other-headers continue
                    switch-action yank-action send-actions
-                   return-action)))
+                   return-action)
+    ;; Sort headers
+    (message-sort-headers)
+    ;; Move cursor to "To: " header
+    (message-goto-to)))
 
 ;; visual
 (setq gnus-treat-emphasize t
