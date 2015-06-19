@@ -69,7 +69,7 @@
                    (interactive)
                    (unless (gnus-alive-p)
                      (gnus))
-                   (eh-gnus-msg-mail)))
+                   (gnus-msg-mail)))
 
 ;; ebib 相关快捷键
 (global-set-key (kbd "C-c b") 'eh-ebib)

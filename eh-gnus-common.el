@@ -117,7 +117,7 @@
 ;; 设置message-mode发信的方式，这里默认使用/usr/sbin/sendmail.
 ;; 在 `gnus-posting-styles' 中设置 "X-Message-SMTP-Method" 邮件头可以实现
 ;; 更为复杂的邮件发送方式。
-(setq message-send-mail-function 'message-send-mail-with-sendmail)
+(setq message-send-mail-function 'message-smtpmail-send-it)
 
 ;; 设置gnus默认编码: 如果常与国外联系，可以设置为utf-8
 ;; 如果只在本国使用，可以设置为本地编码，比如: gbk
@@ -653,69 +653,72 @@
             (forward-line 1))
           (nreverse result))))))
 
-;; Send mail with gnus, a modify `gnus-msg-mail'
-(defun eh-gnus-msg-mail (&optional to subject other-headers continue
-                                   switch-action yank-action send-actions
-                                   return-action)
+(defun eh-gnus-select-mail-account ()
   (interactive)
   (let* ((netrc-info
           (eh-netrc-parse
            (expand-file-name "~/.authinfo.gpg")))
          (account-used
-          (completing-read
-           "Which account will be used? "
-           (delq nil
-                 (mapcar
-                  #'(lambda (x)
-                      (cdr (assoc "user-mail-address" x)))
-                  netrc-info))))
+          (completing-read "Which account will be used? "
+                           `("# None"
+                             ,@(delq nil
+                                     (mapcar
+                                      #'(lambda (x)
+                                          (cdr (assoc "user-mail-address" x)))
+                                      netrc-info))
+                             "# Sendmail")))
          (account-info
           (when account-used
             (car (delq nil
                        (mapcar
                         #'(lambda (x)
-                            (when (member `("user-mail-address" . ,account-used) x)
-                              x))
-                        netrc-info)))))
-         (other-headers
-          (or other-headers
-              (when account-info
-                `(("From"
-                   ,(format "\"%s\" <%s>"
-                            (cdr (assoc "user-full-name" account-info))
-                            (cdr (assoc "user-mail-address" account-info))))
-                  ("Cc"
-                   ,(format "\"%s\" <%s>"
-                            (cdr (assoc "user-full-name" account-info))
-                            (cdr (assoc "user-mail-address" account-info))))
-                  ("X-Message-SMTP-Method"
-                   ,(format "smtp %s %s"
-                            (cdr (assoc "machine" account-info))
-                            (cdr (assoc "port" account-info)))))))))
-    (gnus-msg-mail to subject other-headers continue
-                   switch-action yank-action send-actions
-                   return-action)
-    ;; Sort headers
-    (let ((message-header-format-alist
-           `((To)
-             (Subject)
-             (Cc)
-             (From)
-             (Newsgroups)
-             (In-Reply-To)
-             (Fcc)
-             (Bcc)
-             (Date)
-             (Organization)
-             (Distribution)
-             (Lines)
-             (Expires)
-             (Message-ID)
-             (References . message-shorten-references)
-             (User-Agent))))
-      (message-sort-headers))
-    ;; Move cursor to "To: " header
-    (message-goto-to)))
+                            (cond
+                             ((and (not (string= account-used "# None"))
+                                   (member `("user-mail-address" . ,account-used) x))
+                              x)
+                             ((string= account-used "# Sendmail")
+                              'sendmail)))
+                        netrc-info))))))
+
+    (when account-info
+      (message-replace-header
+       "X-Message-SMTP-Method"
+       (if (eq account-info 'sendmail)
+           "sendmail"
+         (format "smtp %s %s %s"
+                 (cdr (assoc "machine" account-info))
+                 (cdr (assoc "port" account-info))
+                 (cdr (assoc "login" account-info)))) nil t)
+      (message-replace-header
+       "From"
+       (if (eq account-info 'sendmail)
+           "localhost"
+         (format "\"%s\" <%s>"
+                 (cdr (assoc "user-full-name" account-info))
+                 (cdr (assoc "user-mail-address" account-info)))) nil t)
+      ;; Sort headers
+      (let ((message-header-format-alist
+             `((To)
+               (Subject)
+               (Cc)
+               (From)
+               (Newsgroups)
+               (In-Reply-To)
+               (Fcc)
+               (Bcc)
+               (Date)
+               (Organization)
+               (Distribution)
+               (Lines)
+               (Expires)
+               (Message-ID)
+               (References . message-shorten-references)
+               (User-Agent))))
+        (message-sort-headers)
+        ;; Move cursor to "To: " header
+        (message-goto-to)))))
+
+(add-hook 'message-setup-hook 'eh-gnus-select-mail-account)
 
 ;; visual
 (setq gnus-treat-emphasize t

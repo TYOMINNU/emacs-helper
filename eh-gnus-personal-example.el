@@ -43,10 +43,10 @@
          (eval (setq mm-coding-system-priorities
                      '(iso-8859-1 utf-8 gb2312 gbk utf-8 gb18030))))
         (message-mail-p
-         ;; (name    "My Name")
-         ;; (address "myname@163.com")
-         ;; ("Cc" "My Name <myname@163.com>")
-         ;; ("X-Message-SMTP-Method" "smtp smtp.163.com 465")
+         (name    "My Name")
+         (address "myname@163.com")
+         ("Cc" "My Name <myname@163.com>")
+         ("X-Message-SMTP-Method" "smtp smtp.163.com 465")
          (eval (setq smtpmail-stream-type 'ssl)
                (setq mm-coding-system-priorities
                      '(iso-8859-1 utf-8 gb2312 gbk utf-8 gb18030))))
