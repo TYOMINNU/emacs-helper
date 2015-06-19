@@ -583,25 +583,137 @@
 
 (add-hook 'gnus-summary-mode-hook 'eh-gnus-summary-setup)
 
-;; Send mail with gnus
-(defvar eh-gnus-message-send-accounts nil)
+;; A modify `netrc-parse', parse user-full-name and user-mail-address properties
+(defun eh-netrc-parse (&optional file)
+  (interactive "fFile to Parse: ")
+  "Parse FILE and return a list of all entries in the file."
+  (unless file
+    (setq file netrc-file))
+  (if (listp file)
+      ;; We got already parsed contents; just return it.
+      file
+    (when (file-exists-p file)
+      (with-temp-buffer
+        (let ((tokens '("machine" "default" "login"
+                        "password" "account" "macdef" "force"
+                        "port"  "user-full-name" "user-mail-address"))
+              alist elem result pair)
+          (if (and netrc-cache
+                   (equal (car netrc-cache) (nth 5 (file-attributes file))))
+              (insert (base64-decode-string (rot13-string (cdr netrc-cache))))
+            (insert-file-contents file)
+            (when (string-match "\\.gpg\\'" file)
+              ;; Store the contents of the file heavily encrypted in memory.
+              (setq netrc-cache (cons (nth 5 (file-attributes file))
+                                      (rot13-string
+                                       (base64-encode-string
+                                        (buffer-string)))))))
+          (goto-char (point-min))
+          ;; Go through the file, line by line.
+          (while (not (eobp))
+            (narrow-to-region (point) (point-at-eol))
+            ;; For each line, get the tokens and values.
+            (while (not (eobp))
+              (skip-chars-forward "\t ")
+              ;; Skip lines that begin with a "#".
+              (if (eq (char-after) ?#)
+                  (goto-char (point-max))
+                (unless (eobp)
+                  (setq elem
+                        (if (= (following-char) ?\")
+                            (read (current-buffer))
+                          (buffer-substring
+                           (point) (progn (skip-chars-forward "^\t ")
+                                          (point)))))
+                  (cond
+                   ((equal elem "macdef")
+                    ;; We skip past the macro definition.
+                    (widen)
+                    (while (and (zerop (forward-line 1))
+                                (looking-at "$")))
+                    (narrow-to-region (point) (point)))
+                   ((member elem tokens)
+                    ;; Tokens that don't have a following value are ignored,
+                    ;; except "default".
+                    (when (and pair (or (cdr pair)
+                                        (equal (car pair) "default")))
+                      (push pair alist))
+                    (setq pair (list elem)))
+                   (t
+                    ;; Values that haven't got a preceding token are ignored.
+                    (when pair
+                      (setcdr pair elem)
+                      (push pair alist)
+                      (setq pair nil)))))))
+            (when alist
+              (push (nreverse alist) result))
+            (setq alist nil
+                  pair nil)
+            (widen)
+            (forward-line 1))
+          (nreverse result))))))
 
+;; Send mail with gnus, a modify `gnus-msg-mail'
 (defun eh-gnus-msg-mail (&optional to subject other-headers continue
                                    switch-action yank-action send-actions
                                    return-action)
   (interactive)
-  (let* ((accounts eh-gnus-message-send-accounts)
-         (account-used (when accounts
-                         (completing-read "Which account will be used? "
-                                          (mapcar #'car accounts))))
-         (other-headers (or other-headers
-                            (when account-used
-                              (car (cdr (assoc account-used accounts)))))))
+  (let* ((netrc-info
+          (eh-netrc-parse
+           (expand-file-name "~/.authinfo.gpg")))
+         (account-used
+          (completing-read
+           "Which account will be used? "
+           (delq nil
+                 (mapcar
+                  #'(lambda (x)
+                      (cdr (assoc "user-mail-address" x)))
+                  netrc-info))))
+         (account-info
+          (when account-used
+            (car (delq nil
+                       (mapcar
+                        #'(lambda (x)
+                            (when (member `("user-mail-address" . ,account-used) x)
+                              x))
+                        netrc-info)))))
+         (other-headers
+          (or other-headers
+              (when account-info
+                `(("From"
+                   ,(format "\"%s\" <%s>"
+                            (cdr (assoc "user-full-name" account-info))
+                            (cdr (assoc "user-mail-address" account-info))))
+                  ("Cc"
+                   ,(format "\"%s\" <%s>"
+                            (cdr (assoc "user-full-name" account-info))
+                            (cdr (assoc "user-mail-address" account-info))))
+                  ("X-Message-SMTP-Method"
+                   ,(format "smtp %s %s"
+                            (cdr (assoc "machine" account-info))
+                            (cdr (assoc "port" account-info)))))))))
     (gnus-msg-mail to subject other-headers continue
                    switch-action yank-action send-actions
                    return-action)
     ;; Sort headers
-    (message-sort-headers)
+    (let ((message-header-format-alist
+           `((To)
+             (Subject)
+             (Cc)
+             (From)
+             (Newsgroups)
+             (In-Reply-To)
+             (Fcc)
+             (Bcc)
+             (Date)
+             (Organization)
+             (Distribution)
+             (Lines)
+             (Expires)
+             (Message-ID)
+             (References . message-shorten-references)
+             (User-Agent))))
+      (message-sort-headers))
     ;; Move cursor to "To: " header
     (message-goto-to)))
 
