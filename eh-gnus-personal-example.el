@@ -20,6 +20,15 @@
               :stream ssl
               :fetchflag "\\Seen")))
 
+;; Accounts used to send mail.
+(setq eh-gnus-message-send-accounts
+      '(("163" (("From" "HelloWorld <HelloWorld@163.com>")
+                ("X-Message-SMTP-Method" "smtp smtp.163.com 465")
+                ("Cc" "HelloWorld <HelloWorld@163.com>")))
+        ("qq" (("From" "HelloWorld <HelloWorld@qq.com>")
+               ("X-Message-SMTP-Method" "smtp smtp.qq.com 465")
+               ("Cc" "HelloWorld <HelloWorld@qq.com>")))))
+
 ;; 使用offlineimap, leafnode以及rss2email
 ;; 将邮件，新闻组和rss订阅同步到本地dovecot服务器
 ;; 然后使用gnus访问。
@@ -43,10 +52,10 @@
          (eval (setq mm-coding-system-priorities
                      '(iso-8859-1 utf-8 gb2312 gbk utf-8 gb18030))))
         (message-mail-p
-         (name    "My Name")
-         (address "myname@163.com")
-         ("Cc" "My Name <myname@163.com>")
-         ("X-Message-SMTP-Method" "smtp smtp.163.com 465")
+         ;; (name    "My Name")
+         ;; (address "myname@163.com")
+         ;; ("Cc" "My Name <myname@163.com>")
+         ;; ("X-Message-SMTP-Method" "smtp smtp.163.com 465")
          (eval (setq smtpmail-stream-type 'ssl)
                (setq mm-coding-system-priorities
                      '(iso-8859-1 utf-8 gb2312 gbk utf-8 gb18030))))

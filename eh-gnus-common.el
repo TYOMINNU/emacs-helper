@@ -583,6 +583,24 @@
 
 (add-hook 'gnus-summary-mode-hook 'eh-gnus-summary-setup)
 
+;; Send mail with gnus
+(defvar eh-gnus-message-send-accounts nil)
+
+(defun eh-gnus-msg-mail (&optional to subject other-headers continue
+                                   switch-action yank-action send-actions
+                                   return-action)
+  (interactive)
+  (let* ((accounts eh-gnus-message-send-accounts)
+         (account-used (when accounts
+                         (completing-read "Which account will be used? "
+                                          (mapcar #'car accounts))))
+         (other-headers (or other-headers
+                            (when account-used
+                              (car (cdr (assoc account-used accounts)))))))
+    (gnus-msg-mail to subject other-headers continue
+                   switch-action yank-action send-actions
+                   return-action)))
+
 ;; visual
 (setq gnus-treat-emphasize t
       gnus-treat-buttonize t

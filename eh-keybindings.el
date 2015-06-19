@@ -64,7 +64,12 @@
 (global-set-key (kbd "C-x c") 'eshell)
 
 ;; 设置键盘绑定,发送邮件
-(global-set-key (kbd "C-x m") 'gnus-msg-mail)
+(global-set-key (kbd "C-x m")
+                '(lambda ()
+                   (interactive)
+                   (unless (gnus-alive-p)
+                     (gnus))
+                   (eh-gnus-msg-mail)))
 
 ;; ebib 相关快捷键
 (global-set-key (kbd "C-c b") 'eh-ebib)
