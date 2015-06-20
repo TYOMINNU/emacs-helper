@@ -583,80 +583,57 @@
 
 (add-hook 'gnus-summary-mode-hook 'eh-gnus-summary-setup)
 
-;; A modify `netrc-parse', parse user-full-name and user-mail-address properties
-(defun eh-netrc-parse (&optional file)
-  (interactive "fFile to Parse: ")
-  "Parse FILE and return a list of all entries in the file."
-  (unless file
-    (setq file netrc-file))
-  (if (listp file)
-      ;; We got already parsed contents; just return it.
-      file
-    (when (file-exists-p file)
-      (with-temp-buffer
-        (let ((tokens '("machine" "default" "login"
-                        "password" "account" "macdef" "force"
-                        "port"  "user-full-name" "user-mail-address"))
-              alist elem result pair)
-          (if (and netrc-cache
-                   (equal (car netrc-cache) (nth 5 (file-attributes file))))
-              (insert (base64-decode-string (rot13-string (cdr netrc-cache))))
-            (insert-file-contents file)
-            (when (string-match "\\.gpg\\'" file)
-              ;; Store the contents of the file heavily encrypted in memory.
-              (setq netrc-cache (cons (nth 5 (file-attributes file))
-                                      (rot13-string
-                                       (base64-encode-string
-                                        (buffer-string)))))))
-          (goto-char (point-min))
-          ;; Go through the file, line by line.
+(defun eh-gnus-parse-netrc-file (file)
+  "Parse netrc-file `file'."
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (let ((tokens '("machine" "login" "account" "port"
+                      "user-full-name" "user-mail-address"))
+            alist elem result pair)
+        (insert-file-contents file)
+        (goto-char (point-min))
+        ;; Go through the file, line by line.
+        (while (not (eobp))
+          (narrow-to-region (point) (point-at-eol))
+          ;; For each line, get the tokens and values.
           (while (not (eobp))
-            (narrow-to-region (point) (point-at-eol))
-            ;; For each line, get the tokens and values.
-            (while (not (eobp))
-              (skip-chars-forward "\t ")
-              ;; Skip lines that begin with a "#".
-              (if (eq (char-after) ?#)
-                  (goto-char (point-max))
-                (unless (eobp)
-                  (setq elem
-                        (if (= (following-char) ?\")
-                            (read (current-buffer))
-                          (buffer-substring
-                           (point) (progn (skip-chars-forward "^\t ")
-                                          (point)))))
-                  (cond
-                   ((equal elem "macdef")
-                    ;; We skip past the macro definition.
-                    (widen)
-                    (while (and (zerop (forward-line 1))
-                                (looking-at "$")))
-                    (narrow-to-region (point) (point)))
-                   ((member elem tokens)
-                    ;; Tokens that don't have a following value are ignored,
-                    ;; except "default".
-                    (when (and pair (or (cdr pair)
-                                        (equal (car pair) "default")))
-                      (push pair alist))
-                    (setq pair (list elem)))
-                   (t
-                    ;; Values that haven't got a preceding token are ignored.
-                    (when pair
-                      (setcdr pair elem)
-                      (push pair alist)
-                      (setq pair nil)))))))
-            (when alist
-              (push (nreverse alist) result))
-            (setq alist nil
-                  pair nil)
-            (widen)
-            (forward-line 1))
-          (nreverse result))))))
+            (skip-chars-forward "\t ")
+            ;; Skip lines that begin with a "#".
+            (if (eq (char-after) ?#)
+                (goto-char (point-max))
+              (unless (eobp)
+                (setq elem
+                      (if (= (following-char) ?\")
+                          (read (current-buffer))
+                        (buffer-substring
+                         (point) (progn (skip-chars-forward "^\t ")
+                                        (point)))))
+                (cond
+                 ((member elem tokens)
+                  ;; Tokens that don't have a following value are ignored,
+                  ;; except "default".
+                  (when (and pair (or (cdr pair)
+                                      (equal (car pair) "default")))
+                    (push pair alist))
+                  (setq pair (list elem)))
+                 (t
+                  ;; Values that haven't got a preceding token are ignored.
+                  (when pair
+                    (setcdr pair elem)
+                    (push pair alist)
+                    (setq pair nil)))))))
+          (when alist
+            (push (nreverse alist) result))
+          (setq alist nil
+                pair nil)
+          (widen)
+          (forward-line 1))
+        (nreverse result)))))
 
 (defun eh-gnus-select-mail-account ()
   (interactive)
   (let* ((netrc-info
-          (eh-netrc-parse
+          (eh-gnus-parse-netrc-file
            (expand-file-name "~/.authinfo.gpg")))
          (account-used
           (completing-read "Which account will be used? "
