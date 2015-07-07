@@ -37,6 +37,10 @@
 (global-set-key (kbd "C-x C-x <SPC>") 'rectangle-mark-mode)
 (global-set-key (kbd "C-x C-x C-x") 'exchange-point-and-mark)
 
+;; Forward and Backward word
+(global-set-key (kbd "M-f") 'pyim-forward-word)
+(global-set-key (kbd "M-b") 'pyim-backward-word)
+
 ;; 设置键盘绑定,使用Ctrl-x b激活ibuffer函数
 (global-set-key (kbd "C-x b") 'ibuffer)
 
