@@ -81,6 +81,13 @@
 ;; C-t被stumpwm占用, 重新绑定org-todo
 (org-defkey org-mode-map (kbd "C-c t") 'org-todo)
 
+;; counsel 增强命令的快捷键
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "C-h f") 'counsel-describe-function)
+(global-set-key (kbd "C-h v") 'counsel-describe-variable)
+
 ;; org-mode 相关快捷键
 (global-set-key (kbd "<f1>") '(lambda () (interactive) (org-agenda nil "l")))
 (global-set-key (kbd "<f7>") 'org-screenshot-take)
