@@ -149,12 +149,6 @@
 
 ;; Pinyin Input Method
 (require 'chinese-pyim)
-(require 'chinese-pyim-company)
-(require 'chinese-pyim-devtools)
-
-(setq pyim-company-predict-words-number 0)
-(setq pyim-automatic-generate-word nil)
-
 (setq default-input-method "chinese-pyim")
 (global-set-key (kbd "C-<SPC>") 'toggle-input-method)
 ;; (global-set-key (kbd "C-;") 'pyim-toggle-full-width-punctuation)
@@ -315,16 +309,6 @@ ask user for the window where move to and delete other windows"
   (define-key undo-tree-visualizer-mode-map (kbd "C-k") 'undo-tree-visualizer-quit)
   (define-key undo-tree-visualizer-mode-map (kbd "k") 'undo-tree-visualizer-quit)
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
-
-;; slime and stumpwm
-(require 'slime)
-(setq inferior-lisp-program "sbcl")
-(slime-setup)
-
-(defun eh-stumpwm-swank-connect ()
-  (interactive)
-  (shell-command "stumpish swank")
-  (slime-connect "127.0.0.1" "4005"))
 
 ;; calfw
 (require 'calfw-cal)

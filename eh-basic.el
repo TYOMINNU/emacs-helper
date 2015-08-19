@@ -48,6 +48,11 @@
 (set-selection-coding-system 'utf-8-unix)
 (set-terminal-coding-system 'utf-8-unix)
 
+(when (eq system-type 'windows-nt)
+  (set-selection-coding-system 'gbk-dos)
+  (set-next-selection-coding-system 'gbk-dos)
+  (set-clipboard-coding-system 'gbk-dos))
+
 ;; 默认显示菜单栏
 (menu-bar-mode 1)
 (tool-bar-mode -1)
