@@ -308,8 +308,6 @@
       (remove '("T1" "fontenc" t) org-latex-default-packages-alist))
 (setf org-latex-default-packages-alist
       (remove '("normalem" "ulem" t) org-latex-default-packages-alist))
-(setcar (rassoc '("wasysym" t)
-                org-latex-default-packages-alist) "nointegrals")
 
 (setq  org-latex-packages-alist
        '("
