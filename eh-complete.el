@@ -160,8 +160,9 @@
 
 (defun eh-ivy-open-typed-path ()
   (interactive)
-  (ivy-set-action 'eh-open-typed-path)
-  (ivy-done))
+  (when ivy--directory
+    (ivy-set-action 'eh-open-typed-path)
+    (ivy-done)))
 
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
 (define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-typed-path)
