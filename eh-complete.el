@@ -31,11 +31,6 @@
 
 ;;; Code:
 
-;; Completion for M-x
-(require 'smex)
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-
 ;; ido
 (require 'ido)
 (require 'ido-ubiquitous)      ; ido-everywhere++
@@ -91,6 +86,8 @@
 ;; swiper and ivy-mode
 (require 'swiper)
 (require 'counsel)
+(require 'smex)
+(smex-initialize)
 
 (ivy-mode 1)
 (setq magit-completing-read-function 'ivy-completing-read
