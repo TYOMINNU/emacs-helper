@@ -82,6 +82,8 @@
   (define-key ido-completion-map (kbd "C-@") nil)
   (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
   (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
+(global-set-key (kbd "C-x C-b") 'ido-display-buffer)
+
 
 ;; swiper and ivy-mode
 (require 'swiper)
@@ -163,6 +165,13 @@
 
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
 (define-key counsel-find-file-map (kbd "C-f") 'eh-ivy-open-typed-path)
+;; (global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "C-h f") 'counsel-describe-function)
+(global-set-key (kbd "C-h v") 'counsel-describe-variable)
+(org-defkey org-mode-map (kbd "C-c C-c") 'counsel-org-tag)
 
 ;; company-mode
 (require 'company)
