@@ -48,6 +48,11 @@
 (set-selection-coding-system 'utf-8-unix)
 (set-terminal-coding-system 'utf-8-unix)
 
+(when (eq system-type 'windows-nt)
+  (set-selection-coding-system 'gbk-dos)
+  (set-next-selection-coding-system 'gbk-dos)
+  (set-clipboard-coding-system 'gbk-dos))
+
 ;; 默认显示菜单栏
 (menu-bar-mode 1)
 (tool-bar-mode -1)
@@ -70,8 +75,17 @@
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))
 
-;;;###autoload(require 'eh-basic)
+;; Basic keybinding
+(global-unset-key (kbd "C-x C-x"))
+(global-set-key (kbd "C-x <SPC>") 'set-mark-command)
+(global-set-key (kbd "C-x C-x <SPC>") 'rectangle-mark-mode)
+(global-set-key (kbd "C-x C-x C-x") 'exchange-point-and-mark)
+(global-set-key (kbd "C-x b") 'ibuffer)
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
+(global-set-key (kbd "C-x c") 'eshell)
 
+
+;;;###autoload(require 'eh-basic)
 (provide 'eh-basic)
 
 ;; Local Variables:

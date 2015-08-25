@@ -31,8 +31,55 @@
 
 ;;; Code:
 
+;; eww
+(require 'eww)
+(setq shr-width 90)
+
+;; 搜狗:  http://www.sogou.com/sogou?query=
+;; 百度:  http://m.baidu.com/ssid=0/s?word=
+;; 必应:  http://cn.bing.com/search?q=
+(setq eww-search-prefix "http://www.sogou.com/sogou?query=")
+
+;; org-contrib
+(defun eh-enable-org-contrib ()
+  (interactive)
+  (require 'ox-extra)
+  (require 'ox-deck)
+  (require 'ox-rss)
+  (require 'ox-s5)
+  (require 'org-mime)
+  (require 'org-bookmark)
+  (require 'org-protocol)
+  (require 'org-screenshot)
+  (require 'ob-R)
+  (require 'ob-plantuml)
+  (require 'eh-org-citation)
+
+  ;; 如果一个标题包含TAG: “ignore” ,导出latex时直接忽略这个标题，
+  ;; 但对它的内容没有影响，这个可以使用在这种情况下：
+  ;; * 摘要
+  ;; #+LATEX: \abstract{摘\quad要}
+  ;; 这个功能包含在ox-extra.el中。
+  (ox-extras-activate '(latex-header-blocks ignore-headlines)))
+
+;; bbdb sdcv and emms
+(unless (eq system-type 'windows-nt)
+  ;; eh-bbdb
+  (require 'eh-ebib)
+  (global-set-key (kbd "C-c b") 'eh-ebib)
+
+  ;; chinese-yasdcv
+  (require 'chinese-yasdcv)
+  (global-set-key (kbd "C-c d") 'yasdcv-translate-at-point)
+
+  ;; eh-emms
+  (load-library "eh-emms"))
+
 ;; Chinese fonts setup
 (require 'chinese-fonts-setup)
+(global-set-key (kbd "C--") 'cfs-decrease-fontsize)
+(global-set-key (kbd "C-=") 'cfs-increase-fontsize)
+(global-set-key (kbd "C-+") 'cfs-next-profile)
 
 ;; elisp setting
 (defun eh-elisp-setup ()
@@ -112,9 +159,15 @@
 (require 'em-term)
 (require 'em-unix)
 
-;; (setenv "PATH" (concat "/usr/local/texlive/2014/bin/i386-linux:" (getenv "PATH")))
-;; (setenv "PYTHONPATH" (concat "~/project/emacs-packages/emacs-helper/doc/configs:" (getenv "PYTHONPATH")))
-;; (setq exec-path (append '("/usr/local/texlive/2014/bin/i386-linux") exec-path))
+;; (setenv "PATH"
+;;         (concat "/usr/local/texlive/2014/bin/i386-linux:"
+;;                 (getenv "PATH")))
+;; (setenv "PYTHONPATH"
+;;         (concat "~/project/emacs-packages/emacs-helper/doc/configs:"
+;;                 (getenv "PYTHONPATH")))
+;; (setq exec-path
+;;       (append '("/usr/local/texlive/2014/bin/i386-linux")
+;;               exec-path))
 
 (setq eshell-visual-commands
       (append '("aptitude" "mutt" "nano" "crontab" "vim" "less")
@@ -135,26 +188,8 @@
   (eshell-command "less")
   (eshell arg))
 
-;; ;; 在emacs中使用ibus
-;; (require 'ibus)
-;; (add-hook 'after-init-hook 'ibus-mode-on)
-;; ;; Change cursor color depending on IBus status
-;; (setq ibus-cursor-color "red")
-;; ;; daemon模式下使用ibus
-;; (if (and (fboundp 'daemonp) (daemonp))
-;;     (add-hook 'after-make-frame-functions
-;;        (lambda (frame)
-;;		(with-selected-frame frame
-;;        (or ibus-mode (ibus-mode-on))))))
-
 ;; Pinyin Input Method
 (require 'chinese-pyim)
-(require 'chinese-pyim-company)
-(require 'chinese-pyim-devtools)
-
-(setq pyim-company-predict-words-number 0)
-(setq pyim-automatic-generate-word nil)
-
 (setq default-input-method "chinese-pyim")
 (global-set-key (kbd "C-<SPC>") 'toggle-input-method)
 ;; (global-set-key (kbd "C-;") 'pyim-toggle-full-width-punctuation)
@@ -188,11 +223,11 @@
 
 ;; 自动保存recentf文件。
 (add-hook 'find-file-hook 'recentf-save-list)
-
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 
 ;; magit
 (require 'magit)
+(global-set-key (kbd "C-c g") 'magit-status)
 
 ;; wdired
 (require 'wdired)
@@ -247,8 +282,6 @@
   "Display an overlay in each window showing a unique key, then
 ask user for the window where move to and delete other windows"
   (interactive)
-  (when (featurep 'eh-complete)
-    (eh-company-sidebar-hide))
   (if (<= (length (window-list)) switch-window-threshold)
       (call-interactively 'delete-other-windows)
     (progn
@@ -316,22 +349,11 @@ ask user for the window where move to and delete other windows"
   (define-key undo-tree-visualizer-mode-map (kbd "k") 'undo-tree-visualizer-quit)
   (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort))
 
-;; slime and stumpwm
-(require 'slime)
-(setq inferior-lisp-program "sbcl")
-(slime-setup)
-
-(defun eh-stumpwm-swank-connect ()
-  (interactive)
-  (shell-command "stumpish swank")
-  (slime-connect "127.0.0.1" "4005"))
-
 ;; calfw
 (require 'calfw-cal)
 (require 'calfw-ical)
 (require 'calfw-org)
 (require 'cal-china-x)
-
 
 (setq eh-calendar-holidays
       '(;;公历节日
