@@ -31,6 +31,10 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+(require 'use-package)
+(if (eq system-type 'windows-nt)
+    (setq use-package-always-ensure t)
+  (setq use-package-always-ensure nil))
 
 ;; Theme设置
 (add-to-list 'custom-theme-load-path
@@ -75,6 +79,97 @@
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))
 
+;; eshell
+(use-package eshell
+  :ensure nil
+  :config
+  (require 'em-term)
+  (require 'em-unix)
+  (setq eshell-visual-commands
+        (append '("aptitude" "mutt" "nano" "crontab" "vim" "less")
+                eshell-visual-commands))
+  (setq eshell-visual-subcommands
+        (list (append '("sudo") eshell-visual-commands)
+              '("git" "log" "diff" "show")))
+  (setq eshell-visual-options
+        '(("git" "--help")))
+
+  (defun eh-eshell (&optional arg)
+    (interactive)
+    ;; 使用eshell-exec-visual第一次打开term时，
+    ;; 不能使用multi-term的键盘绑定，原因不知，
+    ;; 首先运行一下less, 从而让multi-term的键盘绑定生效。
+    (eshell-command "less")
+    (eshell arg)))
+
+;; (setenv "PATH"
+;;         (concat "/usr/local/texlive/2014/bin/i386-linux:"
+;;                 (getenv "PATH")))
+;; (setenv "PYTHONPATH"
+;;         (concat "~/project/emacs-packages/emacs-helper/doc/configs:"
+;;                 (getenv "PYTHONPATH")))
+;; (setq exec-path
+;;       (append '("/usr/local/texlive/2014/bin/i386-linux")
+;;               exec-path))
+
+;; eww
+(use-package eww
+  :ensure nil
+  :config
+  (setq shr-width 90)
+  ;; 搜狗:  http://www.sogou.com/sogou?query=
+  ;; 百度:  http://m.baidu.com/ssid=0/s?word=
+  ;; 必应:  http://cn.bing.com/search?q=
+  (setq eww-search-prefix "http://www.sogou.com/sogou?query="))
+
+;; Pinyin Input Method
+(use-package chinese-pyim
+  :ensure t
+  :config
+  (setq default-input-method "chinese-pyim")
+  :bind
+  (("C-<SPC>" . toggle-input-method)
+   ("C-;" . pyim-toggle-input-ascii)
+   ("C-:" . pyim-delete-word-from-personal-buffer)))
+
+;; Chinese fonts setup
+(use-package chinese-fonts-setup
+  :ensure t
+  :bind (("C--" . cfs-decrease-fontsize)
+         ("C-=" . cfs-increase-fontsize)
+         ("C-+" . cfs-next-profile)))
+
+;; recentf
+(use-package recentf
+  :ensure nil
+  :bind (("C-x f" . recentf-open-files))
+  :config
+  (setq recentf-auto-cleanup 'never)
+  (recentf-mode 1)
+  (setq recentf-max-saved-items 99)
+  (setq recentf-max-menu-items 99)
+  (setq recentf-exclude
+        '("COMMIT" "autoloads" "archive-contents" "eld" "newsrc"
+          ".recentf" "emacs-font-size.conf"))
+  (setq recentf-menu-filter 'eh-recentf-buffer-filter)
+  (setq recentf-show-file-shortcuts-flag nil)
+
+  (defun eh-recentf-buffer-filter (l)
+    (let ((index 0)
+          filtered-list element list name recentf-string)
+      (dolist (elt l (nreverse filtered-list))
+        (setq index (1+ index)
+              element (recentf-menu-element-value elt)
+              list (reverse (split-string element "/"))
+              name (if (> (length (nth 0 list)) 0)
+                       (format "%s" (nth 0 list))
+                     (format "%s/" (nth 1 list)))
+              recentf-string (format "[%2s]:  %-30s (%s)" index name element))
+        (push (recentf-make-menu-element recentf-string element) filtered-list))))
+
+  ;; 自动保存recentf文件。
+  (add-hook 'find-file-hook 'recentf-save-list))
+
 ;; Basic keybinding
 (global-unset-key (kbd "C-x C-x"))
 (global-set-key (kbd "C-x <SPC>") 'set-mark-command)
@@ -83,7 +178,6 @@
 (global-set-key (kbd "C-x b") 'ibuffer)
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 (global-set-key (kbd "C-x c") 'eshell)
-
 
 ;;;###autoload(require 'eh-basic)
 (provide 'eh-basic)

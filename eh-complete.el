@@ -32,185 +32,195 @@
 ;;; Code:
 
 ;; ido
-(require 'ido)
-(require 'ido-ubiquitous)      ; ido-everywhere++
-(require 'flx-ido)             ; Improved flex matching
-(require 'ido-vertical-mode)   ; Vertical completion menu
+(use-package ido
+  :ensure nil
+  :config
 
-(setq ido-everywhere t
-      ido-enable-flex-matching t
-      ido-enable-regexp t
-      ido-enable-prefix nil
-      ido-create-new-buffer 'always
-      ido-file-extensions-order '(".org" ".R" ".el" ".java" ".js" ".el" ".xml")
-      ido-use-filename-at-point 'guess
-      ido-auto-merge-work-directories-length -1
-      ido-auto-merge-delay-time 2
-      ido-use-url-at-point t
-      ido-use-faces nil
-      flx-ido-use-faces t
-      org-completion-use-ido t
-      magit-completing-read-function 'magit-ido-completing-read
-      tramp-default-method nil
-      gc-cons-threshold 20000000)
+  (use-package ido-ubiquitous)      ; ido-everywhere++
+  (use-package flx-ido)             ; Improved flex matching
+  (use-package ido-vertical-mode)
 
-(ido-mode -1)
-(ido-ubiquitous-mode 1)
-(flx-ido-mode 1)
-(ido-vertical-mode 1)
+  (setq ido-everywhere t
+        ido-enable-flex-matching t
+        ido-enable-regexp t
+        ido-enable-prefix nil
+        ido-create-new-buffer 'always
+        ido-file-extensions-order '(".org" ".R" ".el" ".java" ".js" ".el" ".xml")
+        ido-use-filename-at-point 'guess
+        ido-auto-merge-work-directories-length -1
+        ido-auto-merge-delay-time 2
+        ido-use-url-at-point t
+        ido-use-faces nil
+        flx-ido-use-faces t
+        org-completion-use-ido t
+        magit-completing-read-function 'magit-ido-completing-read
+        tramp-default-method nil
+        gc-cons-threshold 20000000)
 
-;; ido sort
-(add-hook 'ido-make-file-list-hook 'eh-ido-sort-mtime) ; 文件的排序方法
-(add-hook 'ido-make-dir-list-hook 'eh-ido-sort-mtime)  ; 目录的排序方法
+  (ido-mode -1)
+  (ido-ubiquitous-mode 1)
+  (flx-ido-mode 1)
+  (ido-vertical-mode 1)
 
-(defun eh-ido-sort-mtime ()
-  (setq ido-temp-list
-        (sort ido-temp-list
-              (lambda (a b)
-                (time-less-p
-                 (sixth (file-attributes (concat ido-current-directory b)))
-                 (sixth (file-attributes (concat ido-current-directory a)))))))
-  (ido-to-end  ;move . files to end (again)
-   (delq nil (mapcar
-              (lambda (x) (and (char-equal (string-to-char x) ?.) x))
-              ido-temp-list))))
+  ;; ido sort
+  (add-hook 'ido-make-file-list-hook 'eh-ido-sort-mtime) ; 文件的排序方法
+  (add-hook 'ido-make-dir-list-hook 'eh-ido-sort-mtime)  ; 目录的排序方法
 
-;; ido keybindings
-(add-hook 'ido-setup-hook 'eh-ido-keybinding)
-(defun eh-ido-keybinding ()
-  (define-key ido-completion-map (kbd "C-SPC") nil)
-  (define-key ido-completion-map (kbd "C-@") nil)
-  (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
-  (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
-(global-set-key (kbd "C-x C-b") 'ido-display-buffer)
+  (defun eh-ido-sort-mtime ()
+    (setq ido-temp-list
+          (sort ido-temp-list
+                (lambda (a b)
+                  (time-less-p
+                   (sixth (file-attributes (concat ido-current-directory b)))
+                   (sixth (file-attributes (concat ido-current-directory a)))))))
+    (ido-to-end  ;move . files to end (again)
+     (delq nil (mapcar
+                (lambda (x) (and (char-equal (string-to-char x) ?.) x))
+                ido-temp-list))))
 
+  ;; ido keybindings
+  (add-hook 'ido-setup-hook 'eh-ido-keybinding)
+  (defun eh-ido-keybinding ()
+    (define-key ido-completion-map (kbd "C-SPC") nil)
+    (define-key ido-completion-map (kbd "C-@") nil)
+    (define-key ido-completion-map (kbd "C-i") 'ido-edit-input)
+    (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
+  (global-set-key (kbd "C-x C-b") 'ido-display-buffer))
 
-;; swiper and ivy-mode
-(require 'swiper)
-(require 'counsel)
-(require 'smex)
-(smex-initialize)
+;; smex swiper and ivy-mode
+(use-package swiper
+  :config
 
-(ivy-mode 1)
-(setq magit-completing-read-function 'ivy-completing-read
-      projectile-completion-system 'ivy
-      smex-completion-method 'ivy
-      ;; ivy-count-format "%-2d "
-      ivy-count-format ""
-      ivy-extra-directories nil
-      ivy-format-function 'eh-ivy-format-function)
+  (use-package smex
+    :config (smex-initialize))
 
-(defun eh-ivy-format-function (cands)
-  (let ((i -1))
-    (mapconcat
-     (lambda (s)
-       (concat (if (eq (cl-incf i) ivy--index)
-                   "> "
-                 "  ")
-               s))
-     cands "\n")))
+  (use-package counsel
+    :config
+    (define-key counsel-find-file-map (kbd "C-f") 'eh-ivy-open-typed-path)
+    :bind
+    (("C-c C-r" . ivy-resume)
+     ("M-x" . counsel-M-x)
+     ("C-x C-f" . counsel-find-file)
+     ("C-h f" . counsel-describe-function)
+     ("C-h v" . counsel-describe-variable)))
 
-(defun eh-ivy-return-recentf-index (dir)
-  (when (and (boundp 'recentf-list)
-             recentf-list)
-    (let ((files-list
-           (cl-subseq recentf-list
-                      0 (min (- (length recentf-list) 1) 20)))
-          (index 0))
-      (while files-list
-        (if (string-match-p dir (car files-list))
-            (setq files-list nil)
-          (setq index (+ index 1))
-          (setq files-list (cdr files-list))))
-      index)))
+  (require 'org)
+  (org-defkey org-mode-map (kbd "C-c C-c") 'counsel-org-tag)
 
-(defun eh-ivy-sort-file-function (x y)
-  (let* ((x (concat ivy--directory x))
-         (y (concat ivy--directory y))
-         (x-mtime (nth 5 (file-attributes x)))
-         (y-mtime (nth 5 (file-attributes y))))
-    (if (file-directory-p x)
+  (ivy-mode 1)
+  (setq magit-completing-read-function 'ivy-completing-read
+        projectile-completion-system 'ivy
+        smex-completion-method 'ivy
+        ;; ivy-count-format "%-2d "
+        ivy-count-format ""
+        ivy-extra-directories nil
+        ivy-format-function 'eh-ivy-format-function)
+
+  (defun eh-ivy-format-function (cands)
+    (let ((i -1))
+      (mapconcat
+       (lambda (s)
+         (concat (if (eq (cl-incf i) ivy--index)
+                     "> "
+                   "  ")
+                 s))
+       cands "\n")))
+
+  (defun eh-ivy-return-recentf-index (dir)
+    (when (and (boundp 'recentf-list)
+               recentf-list)
+      (let ((files-list
+             (cl-subseq recentf-list
+                        0 (min (- (length recentf-list) 1) 20)))
+            (index 0))
+        (while files-list
+          (if (string-match-p dir (car files-list))
+              (setq files-list nil)
+            (setq index (+ index 1))
+            (setq files-list (cdr files-list))))
+        index)))
+
+  (defun eh-ivy-sort-file-function (x y)
+    (let* ((x (concat ivy--directory x))
+           (y (concat ivy--directory y))
+           (x-mtime (nth 5 (file-attributes x)))
+           (y-mtime (nth 5 (file-attributes y))))
+      (if (file-directory-p x)
+          (if (file-directory-p y)
+              (let ((x-recentf-index (eh-ivy-return-recentf-index x))
+                    (y-recentf-index (eh-ivy-return-recentf-index y)))
+                (if (and x-recentf-index y-recentf-index)
+                    ;; Directories is sorted by `recentf-list' index
+                    (< x-recentf-index y-recentf-index)
+                  (string< x y)))
+            t)
         (if (file-directory-p y)
-            (let ((x-recentf-index (eh-ivy-return-recentf-index x))
-                  (y-recentf-index (eh-ivy-return-recentf-index y)))
-              (if (and x-recentf-index y-recentf-index)
-                  ;; Directories is sorted by `recentf-list' index
-                  (< x-recentf-index y-recentf-index)
-                (string< x y)))
-          t)
-      (if (file-directory-p y)
-          nil
-        ;; Files is sorted by mtime
-        (time-less-p y-mtime x-mtime)))))
+            nil
+          ;; Files is sorted by mtime
+          (time-less-p y-mtime x-mtime)))))
 
-(add-to-list 'ivy-sort-functions-alist
-             '(read-file-name-internal . eh-ivy-sort-file-function))
+  (add-to-list 'ivy-sort-functions-alist
+               '(read-file-name-internal . eh-ivy-sort-file-function))
 
-(defun eh-open-typed-path (path)
-  (let ((parent-directory
-         (if (file-directory-p path)
-             (file-name-directory (directory-file-name path))
-           (file-name-directory path))))
-    (find-file (concat parent-directory ivy-text))))
+  (defun eh-open-typed-path (path)
+    (let ((parent-directory
+           (if (file-directory-p path)
+               (file-name-directory (directory-file-name path))
+             (file-name-directory path))))
+      (find-file (concat parent-directory ivy-text))))
 
-(ivy-set-actions
- 'counsel-find-file
- '(("f" eh-open-typed-path  "Open typed path")))
+  (ivy-set-actions
+   'counsel-find-file
+   '(("f" eh-open-typed-path  "Open typed path")))
 
-(defun eh-ivy-open-typed-path ()
-  (interactive)
-  (when ivy--directory
-    (ivy-set-action 'eh-open-typed-path)
-    (ivy-done)))
+  (defun eh-ivy-open-typed-path ()
+    (interactive)
+    (when ivy--directory
+      (ivy-set-action 'eh-open-typed-path)
+      (ivy-done)))
 
-(define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
-(define-key counsel-find-file-map (kbd "C-f") 'eh-ivy-open-typed-path)
-;; (global-set-key (kbd "C-s") 'swiper)
-(global-set-key (kbd "C-c C-r") 'ivy-resume)
-(global-set-key (kbd "M-x") 'counsel-M-x)
-(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-(global-set-key (kbd "C-h f") 'counsel-describe-function)
-(global-set-key (kbd "C-h v") 'counsel-describe-variable)
-(org-defkey org-mode-map (kbd "C-c C-c") 'counsel-org-tag)
+  (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done))
 
 ;; company-mode
-(require 'company)
+(use-package company
+  :config
+  (setq company-idle-delay 0.2)
+  (setq company-minimum-prefix-length 2)
+  (setq company-selection-wrap-around t)
+  (setq company-show-numbers t)
+  (setq company-tooltip-limit 10)
+  (setq company-echo-delay 0)
+  (setq company-global-modes
+        '(not message-mode git-commit-mode eshell-mode
+              sfh/sawfish-console-mode))
 
-(setq company-idle-delay 0.2)
-(setq company-minimum-prefix-length 2)
-(setq company-selection-wrap-around t)
-(setq company-show-numbers t)
-(setq company-tooltip-limit 10)
-(setq company-echo-delay 0)
-(setq company-global-modes '(not message-mode git-commit-mode eshell-mode sfh/sawfish-console-mode))
+  (setq company-dabbrev-downcase nil)
+  (setq company-dabbrev-ignore-case nil)
+  (setq company-require-match nil)
 
-(setq company-dabbrev-downcase nil)
-(setq company-dabbrev-ignore-case nil)
-(setq company-require-match nil)
+  (setq company-backends
+        '((company-capf company-dabbrev company-files)
+          (company-dabbrev-code company-gtags company-etags
+                                company-keywords)))
+  (setq company-transformers
+        '(company-sort-by-occurrence))
 
-(setq company-backends
-      '((company-capf company-dabbrev company-files)
-        (company-dabbrev-code company-gtags company-etags
-                              company-keywords)))
-(setq company-transformers
-      '(company-sort-by-occurrence))
+  (setq company-frontends
+        '(company-pseudo-tooltip-frontend
+          company-echo-metadata-frontend))
 
-(setq company-frontends
-      '(company-pseudo-tooltip-frontend
-        company-echo-metadata-frontend))
+  (global-set-key (kbd "M-/") 'company-complete)
+  (define-key company-active-map (kbd "M-i") 'company-complete-selection)
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p")'company-select-previous)
+  (define-key company-active-map (kbd "M-n") 'company-select-next)
+  (define-key company-active-map (kbd "M-p")'company-select-previous)
 
-(global-set-key (kbd "M-/") 'company-complete)
-(define-key company-active-map (kbd "M-i") 'company-complete-selection)
-(define-key company-active-map (kbd "C-n") 'company-select-next)
-(define-key company-active-map (kbd "C-p")'company-select-previous)
-(define-key company-active-map (kbd "M-n") 'company-select-next)
-(define-key company-active-map (kbd "M-p")'company-select-previous)
-
-(if (and (fboundp 'daemonp) (daemonp))
-    (add-hook 'after-make-frame-functions
-              (lambda (x)
-                (global-company-mode)))
-  (global-company-mode))
+  (if (and (fboundp 'daemonp) (daemonp))
+      (add-hook 'after-make-frame-functions
+                (lambda (x)
+                  (global-company-mode)))
+    (global-company-mode)))
 
 ;;;autoload(require 'eh-complete)
 (provide 'eh-complete)
