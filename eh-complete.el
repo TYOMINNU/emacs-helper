@@ -169,7 +169,6 @@
 
 ;; company-mode
 (require 'company)
-(require 'adaptive-wrap)
 
 (setq company-idle-delay 0.2)
 (setq company-minimum-prefix-length 2)
@@ -183,13 +182,6 @@
 (setq company-dabbrev-ignore-case nil)
 (setq company-require-match nil)
 
-(setq eh-company-buffer-name "*eh-company-buffer*")
-(setq eh-company-sidebar-side 'right)
-(setq eh-company-sidebar-width 25)
-
-(add-to-list 'company-begin-commands 'ibus-exec-callback)
-(add-to-list 'company-begin-commands 'ibus-handle-event)
-
 (setq company-backends
       '((company-capf company-dabbrev company-files)
         (company-dabbrev-code company-gtags company-etags
@@ -200,119 +192,6 @@
 (setq company-frontends
       '(company-pseudo-tooltip-frontend
         company-echo-metadata-frontend))
-
-(defun eh-company-sidebar-format ()
-  "show candidates in sidebar"
-  (let ((lines 0)
-        ;; Roll to selection.
-        (candidates (nthcdr company-selection company-candidates))
-        (i (if company-show-numbers company-selection 99999))
-        (metadata (company-fetch-metadata))
-        comp msg)
-    (while candidates
-      (setq comp (company-reformat (pop candidates))
-            lines (+ lines 1))
-      (if (< i 10)
-          ;; Add number.
-          (progn
-            (setq comp (propertize (format "%d　%s\n\n" i comp)
-                                   'face 'company-echo))
-            (cl-incf i)
-            (add-text-properties 3 (+ 3 (length company-common))
-                                 '(face company-echo-common) comp))
-        (setq comp (propertize (format "+　%s\n\n" comp)
-                               'face 'company-echo))
-        (add-text-properties 0 (length company-common)
-                             '(face company-echo-common) comp))
-      (if (>= lines 30)
-          (setq candidates nil)
-        (push comp msg)))
-    (concat
-     (when company-search-string
-       (format "Search: %s\n"
-               company-search-string))
-     (mapconcat 'identity (nreverse msg) ""))))
-
-(defun eh-company-sidebar-show (&optional string)
-  (let* ((origin-window (selected-window))
-         (buffer (get-buffer-create eh-company-buffer-name))
-         existing-window window)
-
-    (cl-dolist (win (window-list))
-      (and (string= (buffer-name (window-buffer win))
-                    eh-company-buffer-name)
-           (not (window-parameter win 'window-side))
-           (eq t (window-deletable-p win))
-           (delete-window win)))
-
-    (setq existing-window
-          (cl-find-if
-           (lambda (win)
-             (and (string= (buffer-name (window-buffer win))
-                           eh-company-buffer-name)
-                  (window-parameter win 'window-side)))
-           (window-list)))
-
-    (setq window
-          (or existing-window
-              (display-buffer-in-side-window
-               buffer
-               `((side . ,eh-company-sidebar-side)
-                 (window-width . ,eh-company-sidebar-width)))))
-
-    (when existing-window
-      (setf (window-dedicated-p window) nil
-            (window-buffer window) buffer))
-    (setf (window-dedicated-p window) t)
-
-    (with-current-buffer buffer
-      (visual-line-mode 1)
-      (adaptive-wrap-prefix-mode t)
-      (setq adaptive-wrap-extra-indent 3)
-
-      ;; hide fringe and vertical-border
-      ;; (let ((color (face-attribute 'default :background)))
-      ;;	(set-face-attribute 'vertical-border nil
-      ;;                :foreground color)
-      ;;	(set-face-attribute 'fringe nil
-      ;;                :background color))
-
-      ;; hide cursor
-      (setq cursor-type nil)
-      (setq mode-line-format
-            (list "  "
-                  '(:eval (propertize "%b " 'face 'font-lock-keyword-)
-                          'help-echo (buffer-file-name))))
-      (delete-region (point-min) (point-max))
-      (when string
-        (insert string)))
-    (select-window origin-window)))
-
-(defun eh-company-sidebar-hide ()
-  (interactive)
-  (let ((window
-         (cl-find-if
-          (lambda (window)
-            (and (string= (buffer-name (window-buffer window))
-                          eh-company-buffer-name)
-                 (window-parameter window 'window-side)))
-          (window-list))))
-    (and (window-live-p window)
-         (window-deletable-p window)
-         (delete-window window))))
-
-(defun eh-display-buffer (orig-fun &rest args)
-  "hide company sidebar before pop to buffer"
-  (eh-company-sidebar-hide)
-  (apply orig-fun args))
-
-(advice-add 'display-buffer :around #'eh-display-buffer)
-
-(defun eh-company-sidebar-frontend (command)
-  (pcase command
-    (`post-command (eh-company-sidebar-show
-                    (eh-company-sidebar-format)))
-    (`hide (eh-company-sidebar-show ""))))
 
 (global-set-key (kbd "M-/") 'company-complete)
 (define-key company-active-map (kbd "M-i") 'company-complete-selection)
