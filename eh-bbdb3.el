@@ -30,19 +30,11 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
+(use-package gnus)
+(use-package message)
+
 (use-package bbdb
   :config
-  (require 'gnus)
-  (require 'message)
-  (require 'bbdb-gnus)
-
-  (use-package bbdb-vcard)
-  (use-package bbdb-android)
-  (use-package bbdb-csv-import)
-  (use-package bbdb-handy)
-  (use-package bbdb-china)
-
-  ;; Variables
   (setq bbdb-file "~/contacts/contacts.bbdb"
         bbdb-phone-style nil
         bbdb-pop-up-window-size 0.3
@@ -69,16 +61,6 @@
   ;; (bbdb-mua-auto-update-init 'gnus 'message)
   (bbdb-initialize)
 
-  ;; BBDB setting for gnus
-  (defun eh-bbdb-insinuate-gnus ()
-    "BBDB setting for gnus, See `bbdb-insinuate-gnus' for details."
-    (define-key gnus-summary-mode-map ":" 'bbdb-mua-display-sender)
-    (define-key gnus-article-mode-map ":" 'bbdb-mua-display-sender)
-    (define-key gnus-summary-mode-map ";" 'bbdb-mua-edit-field)
-    (define-key gnus-article-mode-map ";" 'bbdb-mua-edit-field))
-
-  (add-hook 'gnus-startup-hook 'eh-bbdb-insinuate-gnus)
-
   ;; Push email to message-mode
   (defun eh-bbdb-create ()
     (interactive)
@@ -86,8 +68,25 @@
           (mail (bbdb-split 'mail (bbdb-read-string "电子邮件: ")))
           (phone (list (vector "work" (bbdb-read-string "电话号码: ")))))
       (bbdb-create-internal name nil nil nil mail phone)
-      (bbdb name)))
+      (bbdb name))))
 
+(use-package bbdb-gnus
+  :config
+  (defun eh-bbdb-insinuate-gnus ()
+    "BBDB setting for gnus, See `bbdb-insinuate-gnus' for details."
+    (define-key gnus-summary-mode-map ":" 'bbdb-mua-display-sender)
+    (define-key gnus-article-mode-map ":" 'bbdb-mua-display-sender)
+    (define-key gnus-summary-mode-map ";" 'bbdb-mua-edit-field)
+    (define-key gnus-article-mode-map ";" 'bbdb-mua-edit-field))
+
+  (add-hook 'gnus-startup-hook 'eh-bbdb-insinuate-gnus))
+
+(use-package bbdb-vcard)
+(use-package bbdb-csv-import)
+(use-package bbdb-china)
+
+(use-package bbdb-android
+  :config
   (defun eh-bbdb-keybinding ()
     (bbdb-handy-keybinding-setup)
     (define-key bbdb-mode-map "c" 'eh-bbdb-create)
@@ -95,9 +94,10 @@
     (define-key bbdb-mode-map (kbd "x e") 'bbdb-android-export)
     (define-key bbdb-mode-map (kbd "x i") 'bbdb-android-import)
     (define-key bbdb-mode-map (kbd "x r") 'bbdb-android-import-from-radicale))
+  (add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding))
 
-  (add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding)
-
+(use-package bbdb-handy
+  :config
   (define-key message-mode-map "\C-cb" 'bbdb-handy)
   (define-key message-mode-map "\t" 'bbdb-handy-message-tab))
 

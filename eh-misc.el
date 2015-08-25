@@ -100,11 +100,11 @@
   (autopair-global-mode 1))
 
 ;; visual-regexp
-(use-package visual-regexp-steroids)
 (use-package visual-regexp
   :bind (("C-c r" . vr/replace)
          ("C-c q" . vr/query-replace)
          ("C-c m" . vr/mc-mark)))
+(use-package visual-regexp-steroids)
 
 ;; multi-term
 (use-package multi-term
@@ -150,6 +150,9 @@
 
 ;; magit
 (use-package magit
+  :config
+  (setq magit-completing-read-function 'magit-ido-completing-read)
+  (setq magit-completing-read-function 'ivy-completing-read)
   :bind (("C-c g" . magit-status)))
 
 ;; wdired
@@ -252,7 +255,9 @@ ask user for the window where move to and delete other windows"
         (message "kill ring is empty")))))
 
 ;; General project support
-(use-package projectile)
+(use-package projectile
+  :config
+  (setq projectile-completion-system 'ivy))
 
 (use-package wgrep
   :config
@@ -277,14 +282,9 @@ ask user for the window where move to and delete other windows"
     (define-key undo-tree-visualizer-mode-map (kbd "C-g") 'undo-tree-visualizer-abort)))
 
 ;; calfw
-(use-package calfw
+(use-package holidays
   :config
-
-  (require 'calfw-cal)
-  (require 'calfw-ical)
-  (require 'calfw-org)
-  (require 'cal-china-x)
-
+  (defvar eh-calendar-holidays nil)
   (setq eh-calendar-holidays
         '(;;公历节日
           (holiday-fixed 1 1 "元旦")
@@ -336,8 +336,10 @@ ask user for the window where move to and delete other windows"
           (holiday-lunar 9 9 "重阳节" 0)
           (holiday-lunar 12 22 "冬至" 0)))
 
-  (setq calendar-holidays eh-calendar-holidays)
+  (setq calendar-holidays eh-calendar-holidays))
 
+(use-package calendar
+  :config
   (setq calendar-month-name-array
         ["一月" "二月" "三月" "四月" "五月" "六月"
          "七月" "八月" "九月" "十月" "十一月" "十二月"])
@@ -345,16 +347,10 @@ ask user for the window where move to and delete other windows"
         ["星期日" "星期一" "星期二" "星期三" "星期四" "星期五" "星期六"])
 
   ;; 一周第一天，0表示星期天, 1表示星期一
-  (setq calendar-week-start-day 0)
+  (setq calendar-week-start-day 0))
 
-  ;; 为calfw设置一个capture模板并添加到org-capture-templates
-  (setq cfw:org-capture-template
-        '("calfw2org" "calfw2org" entry (file+headline eh-org-schedule-file "Schedule")
-          "* %?\n %(cfw:org-capture-day)\n %a"))
-
-  (setq org-capture-templates
-        (append org-capture-templates (list cfw:org-capture-template)))
-
+(use-package calfw
+  :config
   ;; 日历表格边框设置
   (setq cfw:fchar-junction ?+
         cfw:fchar-vertical-line ?|
@@ -400,6 +396,19 @@ ask user for the window where move to and delete other windows"
       ;; orgmode source
       (cfw:org-create-source "Green")))))
 
+(use-package org-capture
+  :config
+  ;; 为calfw设置一个capture模板并添加到org-capture-templates
+  (setq cfw:org-capture-template
+        '("calfw2org" "calfw2org" entry (file+headline eh-org-schedule-file "Schedule")
+          "* %?\n %(cfw:org-capture-day)\n %a"))
+  (setq org-capture-templates
+        (append org-capture-templates (list cfw:org-capture-template))))
+
+(use-package calfw-cal)
+(use-package calfw-ical)
+(use-package calfw-org)
+(use-package cal-china-x)
 
 ;;;autoload (require 'eh-misc)
 (provide 'eh-misc)

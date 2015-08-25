@@ -32,16 +32,18 @@
 ;;; Code:
 
 ;; ido
+(use-package tramp
+  :config
+  (setq tramp-default-method nil))
+
+(use-package org
+  :config
+  (setq org-completion-use-ido t))
+
 (use-package ido
   :ensure nil
   :config
-
-  (use-package ido-ubiquitous)      ; ido-everywhere++
-  (use-package flx-ido)             ; Improved flex matching
-  (use-package ido-vertical-mode)
-
-  (setq ido-everywhere t
-        ido-enable-flex-matching t
+  (setq ido-enable-flex-matching t
         ido-enable-regexp t
         ido-enable-prefix nil
         ido-create-new-buffer 'always
@@ -51,20 +53,15 @@
         ido-auto-merge-delay-time 2
         ido-use-url-at-point t
         ido-use-faces nil
-        flx-ido-use-faces t
-        org-completion-use-ido t
-        magit-completing-read-function 'magit-ido-completing-read
-        tramp-default-method nil
         gc-cons-threshold 20000000)
 
   (ido-mode -1)
-  (ido-ubiquitous-mode 1)
-  (flx-ido-mode 1)
-  (ido-vertical-mode 1)
 
   ;; ido sort
-  (add-hook 'ido-make-file-list-hook 'eh-ido-sort-mtime) ; 文件的排序方法
-  (add-hook 'ido-make-dir-list-hook 'eh-ido-sort-mtime)  ; 目录的排序方法
+  (add-hook 'ido-make-file-list-hook
+            'eh-ido-sort-mtime) ; 文件的排序方法
+  (add-hook 'ido-make-dir-list-hook
+            'eh-ido-sort-mtime)  ; 目录的排序方法
 
   (defun eh-ido-sort-mtime ()
     (setq ido-temp-list
@@ -87,32 +84,34 @@
     (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
   (global-set-key (kbd "C-x C-b") 'ido-display-buffer))
 
+(use-package ido-ubiquitous
+  :config
+  (setq ido-everywhere t)
+  (ido-ubiquitous-mode 1))
+
+(use-package flx-ido
+  :config
+  (setq flx-ido-use-faces t)
+  (flx-ido-mode 1))
+
+(use-package ido-vertical-mode
+  :config
+  (ido-vertical-mode 1))
+
 ;; smex swiper and ivy-mode
+(use-package smex
+  :config
+  (setq smex-completion-method 'ivy)
+  (smex-initialize))
+
 (use-package swiper
   :config
-
-  (use-package smex
-    :config (smex-initialize))
-
-  (use-package counsel
-    :config
-    (define-key counsel-find-file-map (kbd "C-f") 'eh-ivy-open-typed-path)
-    :bind
-    (("C-c C-r" . ivy-resume)
-     ("M-x" . counsel-M-x)
-     ("C-x C-f" . counsel-find-file)
-     ("C-h f" . counsel-describe-function)
-     ("C-h v" . counsel-describe-variable)))
-
   (require 'org)
   (org-defkey org-mode-map (kbd "C-c C-c") 'counsel-org-tag)
 
   (ivy-mode 1)
-  (setq magit-completing-read-function 'ivy-completing-read
-        projectile-completion-system 'ivy
-        smex-completion-method 'ivy
+  (setq ivy-count-format ""
         ;; ivy-count-format "%-2d "
-        ivy-count-format ""
         ivy-extra-directories nil
         ivy-format-function 'eh-ivy-format-function)
 
@@ -180,6 +179,16 @@
       (ivy-done)))
 
   (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done))
+
+(use-package counsel
+  :config
+  (define-key counsel-find-file-map (kbd "C-f") 'eh-ivy-open-typed-path)
+  :bind
+  (("C-c C-r" . ivy-resume)
+   ("M-x" . counsel-M-x)
+   ("C-x C-f" . counsel-find-file)
+   ("C-h f" . counsel-describe-function)
+   ("C-h v" . counsel-describe-variable)))
 
 ;; company-mode
 (use-package company
