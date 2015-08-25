@@ -165,7 +165,7 @@
     (ivy-done)))
 
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
-(define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-typed-path)
+(define-key counsel-find-file-map (kbd "C-f") 'eh-ivy-open-typed-path)
 
 ;; company-mode
 (require 'company)
