@@ -147,19 +147,24 @@
 (add-to-list 'ivy-sort-functions-alist
              '(read-file-name-internal . eh-ivy-sort-file-function))
 
-(defun eh-ivy-open-current-typed-path ()
+(defun eh-open-typed-path (path)
+  (let ((parent-directory
+         (if (file-directory-p path)
+             (file-name-directory (directory-file-name path))
+           (file-name-directory path))))
+    (find-file (concat parent-directory ivy-text))))
+
+(ivy-set-actions
+ 'counsel-find-file
+ '(("f" eh-open-typed-path  "Open typed path")))
+
+(defun eh-ivy-open-typed-path ()
   (interactive)
-  (when ivy--directory
-    (let* ((dir ivy--directory)
-           (text-typed ivy-text)
-           (path (concat dir text-typed)))
-      (delete-minibuffer-contents)
-      (insert path)
-      (setq ivy-exit 'done)
-      (exit-minibuffer))))
+  (ivy-set-action 'eh-open-typed-path)
+  (ivy-done))
 
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
-(define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-current-typed-path)
+(define-key ivy-minibuffer-map (kbd "C-f") 'eh-ivy-open-typed-path)
 
 ;; company-mode
 (require 'company)
