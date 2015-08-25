@@ -53,13 +53,17 @@
         (require 'eh-bbdb3)
         ;; 加载 gnus 可共享的配置
         (require 'eh-gnus-common)
-        ;; offlineimap同步脚本
-        (require 'eh-offlineimap)
-        ;; (eh-offlineimap-cron)
         ;; rss2email同步脚本
         (require 'eh-rss2email)
         (eh-rss2email-cron))
     (message "eh-gnus个人帐号文件不存在，eh-gnus启动失败!!!")))
+
+(global-set-key (kbd "C-x m")
+                '(lambda ()
+                   (interactive)
+                   (unless (gnus-alive-p)
+                     (gnus))
+                   (gnus-msg-mail)))
 
 (provide 'eh-gnus)
 ;; Local Variables:

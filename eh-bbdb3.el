@@ -30,74 +30,76 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(require 'gnus)
-(require 'message)
-(require 'bbdb)
-(require 'bbdb-gnus)
-(require 'bbdb-vcard)
-(require 'bbdb-android)
-(require 'bbdb-csv-import)
-(require 'bbdb-handy)
-(require 'bbdb-china)
+(use-package gnus)
+(use-package message)
 
-;; Variables
-(setq bbdb-file "~/contacts/contacts.bbdb"
-      bbdb-phone-style nil
-      bbdb-pop-up-window-size 0.3
-      bbdb-mua-pop-up-window-size 1.0
-      bbdb-mua-update-interactive-p '(query . create)  ;; Invoking bbdb interactively
-      bbdb-message-all-addresses t
-      bbdb-mua-summary-mark nil
-      bbdb-completion-list t
-      bbdb-complete-mail-allow-cycling t
-      bbdb-layout 'multi-line
-      bbdb-pop-up-layout 'multi-line
-      bbdb-mua-pop-up nil
-      bbdb-default-country "China"
-      bbdb-dial-function 'bbdb-android-dia-with-adb)
+(use-package bbdb
+  :config
+  (setq bbdb-file "~/contacts/contacts.bbdb"
+        bbdb-phone-style nil
+        bbdb-pop-up-window-size 0.3
+        bbdb-mua-pop-up-window-size 1.0
+        bbdb-mua-update-interactive-p '(query . create)  ;; Invoking bbdb interactively
+        bbdb-message-all-addresses t
+        bbdb-mua-summary-mark nil
+        bbdb-completion-list t
+        bbdb-complete-mail-allow-cycling t
+        bbdb-layout 'multi-line
+        bbdb-pop-up-layout 'multi-line
+        bbdb-mua-pop-up nil
+        bbdb-default-country "China"
+        bbdb-dial-function 'bbdb-android-dia-with-adb)
 
-(setq bbdb-vcard-name-imported-priority '(formated-name first-last bbdb-vcard-generate-bbdb-name)
-      bbdb-vcard-skip-on-import '("^X-GSM-" "^X-RADICALE-" "^X-CONTACTSYNC-" "^PRODID" "^UID")
-      bbdb-vcard-import-translation-table '(("CELL\\|CAR" . "cell")
-                                            ("WORK\\|pref" . "work")
-                                            ("DOM\\|HOME" . "home")))
+  (setq bbdb-vcard-name-imported-priority '(formated-name first-last bbdb-vcard-generate-bbdb-name)
+        bbdb-vcard-skip-on-import '("^X-GSM-" "^X-RADICALE-" "^X-CONTACTSYNC-" "^PRODID" "^UID")
+        bbdb-vcard-import-translation-table '(("CELL\\|CAR" . "cell")
+                                              ("WORK\\|pref" . "work")
+                                              ("DOM\\|HOME" . "home")))
 
-;; initialization
-;; (bbdb-initialize 'gnus 'message)
-;; (bbdb-mua-auto-update-init 'gnus 'message)
-(bbdb-initialize)
+  ;; initialization
+  ;; (bbdb-initialize 'gnus 'message)
+  ;; (bbdb-mua-auto-update-init 'gnus 'message)
+  (bbdb-initialize)
 
-;; BBDB setting for gnus
-(defun eh-bbdb-insinuate-gnus ()
-  "BBDB setting for gnus, See `bbdb-insinuate-gnus' for details."
-  (define-key gnus-summary-mode-map ":" 'bbdb-mua-display-sender)
-  (define-key gnus-article-mode-map ":" 'bbdb-mua-display-sender)
-  (define-key gnus-summary-mode-map ";" 'bbdb-mua-edit-field)
-  (define-key gnus-article-mode-map ";" 'bbdb-mua-edit-field))
+  ;; Push email to message-mode
+  (defun eh-bbdb-create ()
+    (interactive)
+    (let ((name (bbdb-read-string "联系人名称: "))
+          (mail (bbdb-split 'mail (bbdb-read-string "电子邮件: ")))
+          (phone (list (vector "work" (bbdb-read-string "电话号码: ")))))
+      (bbdb-create-internal name nil nil nil mail phone)
+      (bbdb name))))
 
-(add-hook 'gnus-startup-hook 'eh-bbdb-insinuate-gnus)
+(use-package bbdb-gnus
+  :config
+  (defun eh-bbdb-insinuate-gnus ()
+    "BBDB setting for gnus, See `bbdb-insinuate-gnus' for details."
+    (define-key gnus-summary-mode-map ":" 'bbdb-mua-display-sender)
+    (define-key gnus-article-mode-map ":" 'bbdb-mua-display-sender)
+    (define-key gnus-summary-mode-map ";" 'bbdb-mua-edit-field)
+    (define-key gnus-article-mode-map ";" 'bbdb-mua-edit-field))
 
-;; Push email to message-mode
-(defun eh-bbdb-create ()
-  (interactive)
-  (let ((name (bbdb-read-string "联系人名称: "))
-        (mail (bbdb-split 'mail (bbdb-read-string "电子邮件: ")))
-        (phone (list (vector "work" (bbdb-read-string "电话号码: ")))))
-    (bbdb-create-internal name nil nil nil mail phone)
-    (bbdb name)))
+  (add-hook 'gnus-startup-hook 'eh-bbdb-insinuate-gnus))
 
-(defun eh-bbdb-keybinding ()
-  (bbdb-handy-keybinding-setup)
-  (define-key bbdb-mode-map "c" 'eh-bbdb-create)
-  (define-key bbdb-mode-map "M" 'bbdb-merge-records)
-  (define-key bbdb-mode-map (kbd "x e") 'bbdb-android-export)
-  (define-key bbdb-mode-map (kbd "x i") 'bbdb-android-import)
-  (define-key bbdb-mode-map (kbd "x r") 'bbdb-android-import-from-radicale))
+(use-package bbdb-vcard)
+(use-package bbdb-csv-import)
+(use-package bbdb-china)
 
-(add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding)
+(use-package bbdb-android
+  :config
+  (defun eh-bbdb-keybinding ()
+    (bbdb-handy-keybinding-setup)
+    (define-key bbdb-mode-map "c" 'eh-bbdb-create)
+    (define-key bbdb-mode-map "M" 'bbdb-merge-records)
+    (define-key bbdb-mode-map (kbd "x e") 'bbdb-android-export)
+    (define-key bbdb-mode-map (kbd "x i") 'bbdb-android-import)
+    (define-key bbdb-mode-map (kbd "x r") 'bbdb-android-import-from-radicale))
+  (add-hook 'bbdb-mode-hook 'eh-bbdb-keybinding))
 
-(define-key message-mode-map "\C-cb" 'bbdb-handy)
-(define-key message-mode-map "\t" 'bbdb-handy-message-tab)
+(use-package bbdb-handy
+  :config
+  (define-key message-mode-map "\C-cb" 'bbdb-handy)
+  (define-key message-mode-map "\t" 'bbdb-handy-message-tab))
 
 (provide 'eh-bbdb3)
 ;; Local Variables:

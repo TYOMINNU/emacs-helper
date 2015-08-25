@@ -349,6 +349,7 @@ Return the previous point-max before adding."
 (define-key emms-playlist-mode-map (kbd "S t") 'emms-score-set-tolerance)
 (define-key emms-playlist-mode-map (kbd "S s") 'emms-score-show-playing)
 
+(provide 'eh-emms)
 ;; Local Variables:
 ;; coding: utf-8-unix
 ;; End:

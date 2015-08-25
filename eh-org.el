@@ -33,22 +33,11 @@
 (require 'org)
 
 (require 'ox)
-(require 'ox-extra)
 (require 'ox-ascii)
 (require 'ox-beamer)
 (require 'ox-html)
 (require 'ox-latex)
 (require 'ox-md)
-(require 'ox-deck)
-(require 'ox-rss)
-(require 'ox-s5)
-
-(require 'org-mime)
-(require 'org-bookmark)
-(require 'org-protocol)
-(require 'org-screenshot)
-(require 'ob-R)
-(require 'ob-plantuml)
 
 ;;; 自定义变量
 (setq eh-org-mathtoweb-file "~/bin/mathtoweb.jar")
@@ -140,12 +129,14 @@
 
 ;;; org-bable设置
 (setq org-src-fontify-natively t)
+
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((R . t)
+ '(
+   ;; (R . t)
    (org . t)
-   (ditaa . t)
-   (dot . t)
+   (ditaa . nil)
+   (dot . nil)
    (emacs-lisp . t)
    (gnuplot . t)
    (haskell . nil)
@@ -153,7 +144,7 @@
    (latex . t)
    (ocaml . nil)
    (perl . t)
-   (python . t)
+   (python . nil)
    (ruby . nil)
    (screen . nil)
    (shell . t)
@@ -308,8 +299,6 @@
       (remove '("T1" "fontenc" t) org-latex-default-packages-alist))
 (setf org-latex-default-packages-alist
       (remove '("normalem" "ulem" t) org-latex-default-packages-alist))
-(setcar (rassoc '("wasysym" t)
-                org-latex-default-packages-alist) "nointegrals")
 
 (setq  org-latex-packages-alist
        '("
@@ -333,14 +322,6 @@
        "\\\\documentclass{.*}"
        "\\\\documentclass[nofonts,UTF8]{ctexart}"
        org-format-latex-header))
-
-
-;; 如果一个标题包含TAG: “ignore” ,导出latex时直接忽略这个标题，
-;; 但对它的内容没有影响，这个可以使用在这种情况下：
-;; * 摘要
-;; #+LATEX: \abstract{摘\quad要}
-;; 这个功能包含在ox-extra.el中。
-(ox-extras-activate '(latex-header-blocks ignore-headlines))
 
 (defun eh-org-latex-compile (orig-fun texfile &optional snippet)
   (let ((org-latex-pdf-process
