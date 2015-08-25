@@ -159,9 +159,15 @@
 (require 'em-term)
 (require 'em-unix)
 
-;; (setenv "PATH" (concat "/usr/local/texlive/2014/bin/i386-linux:" (getenv "PATH")))
-;; (setenv "PYTHONPATH" (concat "~/project/emacs-packages/emacs-helper/doc/configs:" (getenv "PYTHONPATH")))
-;; (setq exec-path (append '("/usr/local/texlive/2014/bin/i386-linux") exec-path))
+;; (setenv "PATH"
+;;         (concat "/usr/local/texlive/2014/bin/i386-linux:"
+;;                 (getenv "PATH")))
+;; (setenv "PYTHONPATH"
+;;         (concat "~/project/emacs-packages/emacs-helper/doc/configs:"
+;;                 (getenv "PYTHONPATH")))
+;; (setq exec-path
+;;       (append '("/usr/local/texlive/2014/bin/i386-linux")
+;;               exec-path))
 
 (setq eshell-visual-commands
       (append '("aptitude" "mutt" "nano" "crontab" "vim" "less")
