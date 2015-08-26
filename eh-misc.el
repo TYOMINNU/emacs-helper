@@ -34,12 +34,17 @@
 ;; eh-website
 (use-package org-webpage
   :config
+  ;; my website's owp config
   (use-package eh-website
+    :ensure nil)
+  ;; org-webpage's owp config
+  (use-package owp-devtools
     :ensure nil)
   (use-package chinese-pyim
     :ensure nil
     :config
-    (use-package owp-devtools
+    ;; chinese-pyim owp config
+    (use-package chinese-pyim-devtools
       :ensure nil)))
 
 ;; bbdb
