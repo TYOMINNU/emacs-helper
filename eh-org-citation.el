@@ -31,32 +31,33 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(require 'ox-bibtex)
+(use-package ox-bibtex
+  :ensure nil
+  :config
+  (defvar eh-org-bibtex-default-style-file
+    (concat (file-name-directory
+             (locate-library "eh-org.el"))
+            "templates/GBT7714-2005-latex/GBT7714-2005NLang-UTF8.bst")
+    "emacs-helper default bibtex style file")
 
-(defvar eh-org-bibtex-default-style-file
-  (concat (file-name-directory
-           (locate-library "eh-org.el"))
-          "templates/GBT7714-2005-latex/GBT7714-2005NLang-UTF8.bst")
-  "emacs-helper default bibtex style file")
+  (defvar eh-org-bibtex-bibtex2html-options
+    '("-a" "-noabstract" "-nokeywords" "-i" "-nolinks")
+    "emacs-helper bibtex2html default options")
 
-(defvar eh-org-bibtex-bibtex2html-options
-  '("-a" "-noabstract" "-nokeywords" "-i" "-nolinks")
-  "emacs-helper bibtex2html default options")
+  (defun eh-org-bibtex-add-default-style (style)
+    "If `org-bibtex-get-style not return a valid style, return a default"
+    (if (org-not-nil style)
+        style
+      eh-org-bibtex-default-style-file))
 
-(defun eh-org-bibtex-add-default-style (style)
-  "If `org-bibtex-get-style not return a valid style, return a default"
-  (if (org-not-nil style)
-      style
-    eh-org-bibtex-default-style-file))
+  (defun eh-org-bibtex-add-default-arguments (arguments)
+    "Add extra arguments to `org-bibtex-get-arguments returned"
+    (let ((orig-options (plist-get arguments :options)))
+      (plist-put arguments :options
+                 (delete-dups (append eh-org-bibtex-bibtex2html-options orig-options)))))
 
-(defun eh-org-bibtex-add-default-arguments (arguments)
-  "Add extra arguments to `org-bibtex-get-arguments returned"
-  (let ((orig-options (plist-get arguments :options)))
-    (plist-put arguments :options
-               (delete-dups (append eh-org-bibtex-bibtex2html-options orig-options)))))
-
-(advice-add 'org-bibtex-get-style :filter-return #'eh-org-bibtex-add-default-style)
-(advice-add 'org-bibtex-get-arguments :filter-return #'eh-org-bibtex-add-default-arguments)
+  (advice-add 'org-bibtex-get-style :filter-return #'eh-org-bibtex-add-default-style)
+  (advice-add 'org-bibtex-get-arguments :filter-return #'eh-org-bibtex-add-default-arguments))
 
 (provide 'eh-org-citation)
 

@@ -33,54 +33,57 @@
 ;;; Code:
 
 ;; 自定义变量
-(setq eh-org-todo-file "~/org/i-todo.org")
-(setq eh-org-note-file "~/org/i-notes.org")
-(setq eh-org-contacts-file "~/org/i-contacts.org")
-(setq eh-org-account-file "~/org/i-account.org")
-(setq eh-org-journal-file "~/org/i-journal.org")
-(setq eh-org-schedule-file "~/org/i-schedule.org")
+(use-package org-capture
+  :ensure nil
+  :config
+  (setq eh-org-todo-file "~/org/i-todo.org")
+  (setq eh-org-note-file "~/org/i-notes.org")
+  (setq eh-org-contacts-file "~/org/i-contacts.org")
+  (setq eh-org-account-file "~/org/i-account.org")
+  (setq eh-org-journal-file "~/org/i-journal.org")
+  (setq eh-org-schedule-file "~/org/i-schedule.org")
 
-;; capture模板
-(setq org-capture-templates
-      '(("t" "Todo" entry (file+headline eh-org-todo-file "Tasks")
-         "* TODO %? \n %i \n %a")
+  ;; capture模板
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline eh-org-todo-file "Tasks")
+           "* TODO %? \n %i \n %a")
 
-        ("l" "Link" entry (file+olp eh-org-note-file "Web Links")
-         "* %a\n %?\n %i")
+          ("l" "Link" entry (file+olp eh-org-note-file "Web Links")
+           "* %a\n %?\n %i")
 
-        ("a" "account" table-line (file+headline eh-org-account-file "Account")
-         "|%?||||||%u|")
+          ("a" "account" table-line (file+headline eh-org-account-file "Account")
+           "|%?||||||%u|")
 
-        ("j" "Journal" entry (file+datetree eh-org-journal-file)
-         "* %?\n %U\n %i\n  %a")
+          ("j" "Journal" entry (file+datetree eh-org-journal-file)
+           "* %?\n %U\n %i\n  %a")
 
-        ("s" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
-         "* %?\n %T\n  %a")
+          ("s" "Schedule" entry (file+headline eh-org-schedule-file "Schedule")
+           "* %?\n %T\n  %a")
 
-        ("n" "Notes" entry  (file+headline eh-org-note-file "Notes")
-         "** %?
+          ("n" "Notes" entry  (file+headline eh-org-note-file "Notes")
+           "** %?
    :PROPERTIES:
    :DATE: %u
    :END:
 "
-         :empty-lines 1)
-        ("f" "firefox-org-capture" entry  (file+headline eh-org-note-file "Notes-from-web")
-         "** %?
+           :empty-lines 1)
+          ("f" "firefox-org-capture" entry  (file+headline eh-org-note-file "Notes-from-web")
+           "** %?
    :PROPERTIES:
    :DATE: %u
    :END:
 
 %i
 
-(原始链接: %a)
+原始链接: %a
 "
-     :empty-lines 1)
+           :empty-lines 1)
 
-        ("d" "Simple-Notes" entry  (file+headline eh-org-note-file "Simple-Notes")
-     "** %?"
-     :empty-lines 1)
-        ("c" "Contacts" entry (file eh-org-contacts-file)
-     "* %?
+          ("d" "Simple-Notes" entry  (file+headline eh-org-note-file "Simple-Notes")
+           "** %?"
+           :empty-lines 1)
+          ("c" "Contacts" entry (file eh-org-contacts-file)
+           "* %?
 :PROPERTIES:
 :ALIAS:
 :PHONE:
@@ -88,65 +91,65 @@
 :NOTE:
 :END:")))
 
-(setq eh-org-capture-frame-name "org-capture")
+  (setq eh-org-capture-frame-name "org-capture")
 
-(defun eh-org-capture-clean-text (text)
-  (replace-regexp-in-string
-   "\\(\\cc\\) *\n *\\(\\cc\\)" "\\1\\2"
-   (replace-regexp-in-string
-    " +" " "
+  (defun eh-org-capture-clean-text (text)
     (replace-regexp-in-string
-     "\\(\\cc\\) +" "\\1"
+     "\\(\\cc\\) *\n *\\(\\cc\\)" "\\1\\2"
      (replace-regexp-in-string
-      "^ +\\(\\cc\\)" "\\1"
+      " +" " "
       (replace-regexp-in-string
-       "\r" ""
-       text))))))
+       "\\(\\cc\\) +" "\\1"
+       (replace-regexp-in-string
+        "^ +\\(\\cc\\)" "\\1"
+        (replace-regexp-in-string
+         "\r" ""
+         text))))))
 
-(defun eh-org-capture-delete-frame (&rest args)
-  "Close capture frame"
-  (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
-      (delete-frame)))
+  (defun eh-org-capture-delete-frame (&rest args)
+    "Close capture frame"
+    (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
+        (delete-frame)))
 
-(defun eh-org-capture-delete-other-windows (&rest args)
-  "Delete the extra window if we're in a capture frame"
-  (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
-      (delete-other-windows)))
+  (defun eh-org-capture-delete-other-windows (&rest args)
+    "Delete the extra window if we're in a capture frame"
+    (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
+        (delete-other-windows)))
 
-(advice-add 'org-capture-finalize :after #'eh-org-capture-delete-frame)
-(advice-add 'org-capture-destroy :after #'eh-org-capture-delete-frame)
-(advice-add 'org-switch-to-buffer-other-window :after #'eh-org-capture-delete-other-windows)
+  (advice-add 'org-capture-finalize :after #'eh-org-capture-delete-frame)
+  (advice-add 'org-capture-destroy :after #'eh-org-capture-delete-frame)
+  (advice-add 'org-switch-to-buffer-other-window :after #'eh-org-capture-delete-other-windows)
 
-(defun eh-org-capture (&optional goto keys)
-  "Create a new frame and run org-capture."
-  (interactive)
-  (let ((after-make-frame-functions
-         (lambda (frame)
-           (progn
-             (select-frame frame)
-             (setq word-wrap nil)
-             (setq truncate-lines nil)
-             (org-capture goto keys)))))
-    (make-frame `((name . ,eh-org-capture-frame-name)
-                  (window-system . x)
-                  (width . 120)
-                  (height . 15)))))
+  (defun eh-org-capture (&optional goto keys)
+    "Create a new frame and run org-capture."
+    (interactive)
+    (let ((after-make-frame-functions
+           (lambda (frame)
+             (progn
+               (select-frame frame)
+               (setq word-wrap nil)
+               (setq truncate-lines nil)
+               (org-capture goto keys)))))
+      (make-frame `((name . ,eh-org-capture-frame-name)
+                    (window-system . x)
+                    (width . 120)
+                    (height . 15)))))
 
-;; keybinding
-(define-key global-map "\C-ct"
-  (lambda () (interactive) (eh-org-capture nil "t")))
-(define-key global-map "\C-cj"
-  (lambda () (interactive) (eh-org-capture nil "j")))
-(define-key global-map "\C-cs"
-  (lambda () (interactive) (eh-org-capture nil "s")))
-(define-key global-map "\C-cl"
-  (lambda () (interactive) (eh-org-capture nil "l")))
-(define-key global-map "\C-cn"
-  (lambda () (interactive) (eh-org-capture nil "n")))
-(define-key global-map "\C-cc"
-  (lambda () (interactive) (eh-org-capture nil "c")))
-(define-key global-map "\C-ca"
-  (lambda () (interactive) (eh-org-capture nil "a")))
+  ;; keybinding
+  (define-key global-map "\C-ct"
+    (lambda () (interactive) (eh-org-capture nil "t")))
+  (define-key global-map "\C-cj"
+    (lambda () (interactive) (eh-org-capture nil "j")))
+  (define-key global-map "\C-cs"
+    (lambda () (interactive) (eh-org-capture nil "s")))
+  (define-key global-map "\C-cl"
+    (lambda () (interactive) (eh-org-capture nil "l")))
+  (define-key global-map "\C-cn"
+    (lambda () (interactive) (eh-org-capture nil "n")))
+  (define-key global-map "\C-cc"
+    (lambda () (interactive) (eh-org-capture nil "c")))
+  (define-key global-map "\C-ca"
+    (lambda () (interactive) (eh-org-capture nil "a"))))
 
 (provide 'eh-org-capture)
 

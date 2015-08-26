@@ -45,7 +45,17 @@
     :ensure nil
     :config
     ;; org cite link setting
-    (org-add-link-type "cite" 'eh-ebib))
+    (org-add-link-type "cite" 'eh-ebib)
+
+    ;; (defun eh-org-open-cite-link (key)
+    ;;   "Get bibfile from \\bibliography{...} and open it with ebib"
+    ;;   (let* ((path (car (reftex-get-bibfile-list))))
+    ;;     (ebib path)
+    ;;     (eh-isearch-string key)
+    ;;     (ebib-select-and-popup-entry)))
+
+    ;; (org-add-link-type "cite" 'eh-org-open-cite-link)
+    )
 
   (setq ebib-layout 'full
         ebib-window-vertical-split nil
@@ -138,25 +148,25 @@
     "View and edit abstract quickly."
     (interactive)
     (ebib--execute-when
-      ((entries)
-       (ebib--edit-entry-internal)
-       (let ((text (ebib-db-get-field-value
-                    field
-                    (ebib--cur-entry-key)
-                    ebib--cur-db 'noerror)))
-         (if (ebib-db-unbraced-p text) ; unbraced fields cannot be multiline
-             (beep)
-           (ebib--multiline-edit
-            (list 'field (ebib-db-get-filename ebib--cur-db)
-                  (ebib--cur-entry-key) field)
-            (eh-wash-text (or (ebib-db-unbrace text) "")
-                          fill-column t))
-           (set (make-local-variable 'header-line-format)
-                (format "* View %s buffer. Edit `e', Save `S', Quit `q'. " field))
-           (view-mode 1)
-           (eh-ebib-view-mode-map-config))))
-      ((default)
-       (beep))))
+     ((entries)
+      (ebib--edit-entry-internal)
+      (let ((text (ebib-db-get-field-value
+                   field
+                   (ebib--cur-entry-key)
+                   ebib--cur-db 'noerror)))
+        (if (ebib-db-unbraced-p text) ; unbraced fields cannot be multiline
+            (beep)
+          (ebib--multiline-edit
+           (list 'field (ebib-db-get-filename ebib--cur-db)
+                 (ebib--cur-entry-key) field)
+           (eh-wash-text (or (ebib-db-unbrace text) "")
+                         fill-column t))
+          (set (make-local-variable 'header-line-format)
+               (format "* View %s buffer. Edit `e', Save `S', Quit `q'. " field))
+          (view-mode 1)
+          (eh-ebib-view-mode-map-config))))
+     ((default)
+      (beep))))
 
   (defun eh-ebib-view-mode-map-config ()
     (use-local-map
@@ -207,49 +217,49 @@
   (defun eh-ebib--display-entry-key (entry-key)
     "Display entry-key, title, journal, publisher and school in the index buffer at POINT. "
     (with-current-ebib-buffer 'index
-      (with-ebib-buffer-writable
-        (setq cursor-type t)
-        (insert (concat
-                 ;; entry key
-                 (let* ((list (eh-ebib--split-key entry-key))
-                        (str1 (car list))
-                        (str2 (car (cdr list))))
-                   (concat
-                    (propertize str1 'face 'eh-ebib-display-key1-face)
-                    (propertize (format "%-20s" (or str2 ""))
-                                'face 'eh-ebib-display-key2-face)
-                    (propertize (make-string (max (- 20 (length str1)) 0) ? )
-                                'face 'eh-ebib-display-key3-face)))
-                 ;; author
-                 (propertize
-                  (car (split-string
-                        (or (ebib-db-get-field-value 'author entry-key ebib--cur-db 'noerror 'unbraced)
-                            "  ") "[ \t\n]+and[ \t\n]+" ))
-                  'face 'eh-ebib-display-author-face)
-                 ;; separator
-                 (propertize ". " 'face 'eh-ebib-display-separator-face)
-                 ;; year
-                 (propertize
-                  (or (ebib-db-get-field-value 'year entry-key ebib--cur-db 'noerror 'unbraced 'xref) "20??")
-                  'face 'eh-ebib-display-year-face)
-                 ;; separator
-                 (propertize ". " 'face 'eh-ebib-display-separator-face)
-                 ;; title
-                 (propertize
-                  (eh-ebib--remove-newlines
-                   (or (ebib-db-get-field-value 'title entry-key ebib--cur-db 'noerror 'unbraced) ""))
-                  'face 'eh-ebib-display-title-face)
-                 ;; separator
-                 (propertize ". " 'face 'eh-ebib-display-separator-face)
-                 ;; journal publisher or school
-                 (propertize
-                  (eh-ebib--remove-newlines
-                   (or (ebib-db-get-field-value 'journal entry-key ebib--cur-db 'noerror 'unbraced)
-                       (ebib-db-get-field-value 'publisher entry-key ebib--cur-db 'noerror 'unbraced)
-                       (ebib-db-get-field-value 'school entry-key ebib--cur-db 'noerror 'unbraced)
-                       ""))
-                  'face 'eh-ebib-display-publisher-face)
-                 "\n")))))
+                              (with-ebib-buffer-writable
+                               (setq cursor-type t)
+                               (insert (concat
+                                        ;; entry key
+                                        (let* ((list (eh-ebib--split-key entry-key))
+                                               (str1 (car list))
+                                               (str2 (car (cdr list))))
+                                          (concat
+                                           (propertize str1 'face 'eh-ebib-display-key1-face)
+                                           (propertize (format "%-20s" (or str2 ""))
+                                                       'face 'eh-ebib-display-key2-face)
+                                           (propertize (make-string (max (- 20 (length str1)) 0) ? )
+                                                       'face 'eh-ebib-display-key3-face)))
+                                        ;; author
+                                        (propertize
+                                         (car (split-string
+                                               (or (ebib-db-get-field-value 'author entry-key ebib--cur-db 'noerror 'unbraced)
+                                                   "  ") "[ \t\n]+and[ \t\n]+" ))
+                                         'face 'eh-ebib-display-author-face)
+                                        ;; separator
+                                        (propertize ". " 'face 'eh-ebib-display-separator-face)
+                                        ;; year
+                                        (propertize
+                                         (or (ebib-db-get-field-value 'year entry-key ebib--cur-db 'noerror 'unbraced 'xref) "20??")
+                                         'face 'eh-ebib-display-year-face)
+                                        ;; separator
+                                        (propertize ". " 'face 'eh-ebib-display-separator-face)
+                                        ;; title
+                                        (propertize
+                                         (eh-ebib--remove-newlines
+                                          (or (ebib-db-get-field-value 'title entry-key ebib--cur-db 'noerror 'unbraced) ""))
+                                         'face 'eh-ebib-display-title-face)
+                                        ;; separator
+                                        (propertize ". " 'face 'eh-ebib-display-separator-face)
+                                        ;; journal publisher or school
+                                        (propertize
+                                         (eh-ebib--remove-newlines
+                                          (or (ebib-db-get-field-value 'journal entry-key ebib--cur-db 'noerror 'unbraced)
+                                              (ebib-db-get-field-value 'publisher entry-key ebib--cur-db 'noerror 'unbraced)
+                                              (ebib-db-get-field-value 'school entry-key ebib--cur-db 'noerror 'unbraced)
+                                              ""))
+                                         'face 'eh-ebib-display-publisher-face)
+                                        "\n")))))
 
   (advice-add 'ebib--display-entry-key :override #'eh-ebib--display-entry-key)
 
@@ -269,31 +279,31 @@
   (defun eh-ebib-view-file ()
     (interactive)
     (ebib--execute-when
-      ((entries)
-       (let* ((key (ebib--cur-entry-key))
-              (db ebib--cur-db)
-              (name-string
-               (car (split-string
-                     (or (ebib-db-get-field-value 'author key db 'noerror 'unbraced 'xref)
-                         "  ") "[ \t\n]+and[ \t\n]+\\|," )))
-              (all-files (eh-directory-files-recursively (file-name-directory (ebib-db-get-filename db)) t))
-              (files-matched (eh-ebib-get-matched-files all-files name-string)))
-         (cond
-          ((> (length files-matched) 1)
-           (let ((file (ido-completing-read "Open file:" files-matched)))
-             ;; (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
-             ;; (ebib-save-database db)
-             (start-process "" nil "xdg-open" file)))
-          ((= (length files-matched) 1)
-           (let ((file (car files-matched)))
-             (message "Opening file: %s" file)
-             ;; (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
-             ;; (ebib-save-database db)
-             (start-process "" nil "xdg-open" file)))
-          ((< (length files-matched) 1)
-           (message "Can't find the corresponding file")))))
-      ((default)
-       (beep))))
+     ((entries)
+      (let* ((key (ebib--cur-entry-key))
+             (db ebib--cur-db)
+             (name-string
+              (car (split-string
+                    (or (ebib-db-get-field-value 'author key db 'noerror 'unbraced 'xref)
+                        "  ") "[ \t\n]+and[ \t\n]+\\|," )))
+             (all-files (eh-directory-files-recursively (file-name-directory (ebib-db-get-filename db)) t))
+             (files-matched (eh-ebib-get-matched-files all-files name-string)))
+        (cond
+         ((> (length files-matched) 1)
+          (let ((file (ido-completing-read "Open file:" files-matched)))
+            ;; (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
+            ;; (ebib-save-database db)
+            (start-process "" nil "xdg-open" file)))
+         ((= (length files-matched) 1)
+          (let ((file (car files-matched)))
+            (message "Opening file: %s" file)
+            ;; (ebib-db-set-field-value 'file (file-relative-name file (expand-file-name ".")) key db 'overwrite)
+            ;; (ebib-save-database db)
+            (start-process "" nil "xdg-open" file)))
+         ((< (length files-matched) 1)
+          (message "Can't find the corresponding file")))))
+     ((default)
+      (beep))))
 
   (defun eh-ebib-insert-bibfile-info ()
     (interactive)
@@ -358,33 +368,33 @@
     "Pushes the cite link of current entry to a org-mode buffer."
     (interactive)
     (ebib--execute-when
-      ((entries)
-       (let* ((key (ebib--cur-entry-key))
-              (citation-string
-               (if (ebib-db-marked-entries-p ebib--cur-db)
-                   (mapconcat #'eh-ebib-format-org-cite-link (ebib-db-list-marked-entries ebib--cur-db) " ")
-                 (eh-ebib-format-org-cite-link key))))
-         ;; 将citation-string插入到eh-ebib-push-buffer变量所
-         ;; 对应的buffer, (调用eh-ebib命令时,会设置eh-ebib-push-buffer变量)
-         (when citation-string
-           (with-current-buffer eh-ebib-push-buffer
-             ;; (let* ((point1 (or (save-excursion (search-forward "[[" nil t)) (+ 1 (point-max))))
-             ;;         (point2 (save-excursion (search-forward "]]" nil t)))
-             ;;         (point3 (save-excursion (search-backward "[[" nil t)))
-             ;;         (point4 (or (save-excursion (search-backward "]]" nil t)) -1)))
-             ;;   (when (and point2 point3 (> point1 point2) (> point3 point4))
-             ;;      (search-forward "]]" nil t)))
-             (insert citation-string)
-             (message "Pushed \"%s\" to buffer: \"%s\"" citation-string eh-ebib-push-buffer))
-           (setq eh-ebib-the-last-entry-key (ebib--cur-entry-key))
-           ;; 隐藏ebib窗口
-           (when leave-ebib-window
-             (ebib-db-unmark-entry 'all ebib--cur-db)
-             (ebib--fill-index-buffer)
-             (setq eh-ebib-push-buffer nil)
-             (ebib-leave-ebib-windows)))))
-      ((default)
-       (beep))))
+     ((entries)
+      (let* ((key (ebib--cur-entry-key))
+             (citation-string
+              (if (ebib-db-marked-entries-p ebib--cur-db)
+                  (mapconcat #'eh-ebib-format-org-cite-link (ebib-db-list-marked-entries ebib--cur-db) " ")
+                (eh-ebib-format-org-cite-link key))))
+        ;; 将citation-string插入到eh-ebib-push-buffer变量所
+        ;; 对应的buffer, (调用eh-ebib命令时,会设置eh-ebib-push-buffer变量)
+        (when citation-string
+          (with-current-buffer eh-ebib-push-buffer
+            ;; (let* ((point1 (or (save-excursion (search-forward "[[" nil t)) (+ 1 (point-max))))
+            ;;         (point2 (save-excursion (search-forward "]]" nil t)))
+            ;;         (point3 (save-excursion (search-backward "[[" nil t)))
+            ;;         (point4 (or (save-excursion (search-backward "]]" nil t)) -1)))
+            ;;   (when (and point2 point3 (> point1 point2) (> point3 point4))
+            ;;      (search-forward "]]" nil t)))
+            (insert citation-string)
+            (message "Pushed \"%s\" to buffer: \"%s\"" citation-string eh-ebib-push-buffer))
+          (setq eh-ebib-the-last-entry-key (ebib--cur-entry-key))
+          ;; 隐藏ebib窗口
+          (when leave-ebib-window
+            (ebib-db-unmark-entry 'all ebib--cur-db)
+            (ebib--fill-index-buffer)
+            (setq eh-ebib-push-buffer nil)
+            (ebib-leave-ebib-windows)))))
+     ((default)
+      (beep))))
 
   (defun eh-ebib-reformat-all-entries ()
     "1. Add language field to all entries.
@@ -393,22 +403,22 @@
     (interactive)
     (let* ((current-bib-file (ebib-db-get-filename ebib--cur-db)))
       (ebib--execute-when
-        ((entries)
-         (when (yes-or-no-p (concat (format "Reformat bibfile: %s  " current-bib-file)))
-           (ebib-save-current-database)
-           (message "Reformat ... ")
-           (with-current-buffer (find-file-noselect current-bib-file)
-             (goto-char (point-min))
-             (eh-bibtex-reformat)
-             (save-buffer)
-             (kill-buffer))
-           ;; reload the current database
-           (ebib--reload-database ebib--cur-db)
-           (ebib--set-modified nil)
-           (ebib--redisplay)
-           (message "Reformat complete")))
-        ((default)
-         (beep)))))
+       ((entries)
+        (when (yes-or-no-p (concat (format "Reformat bibfile: %s  " current-bib-file)))
+          (ebib-save-current-database)
+          (message "Reformat ... ")
+          (with-current-buffer (find-file-noselect current-bib-file)
+            (goto-char (point-min))
+            (eh-bibtex-reformat)
+            (save-buffer)
+            (kill-buffer))
+          ;; reload the current database
+          (ebib--reload-database ebib--cur-db)
+          (ebib--set-modified nil)
+          (ebib--redisplay)
+          (message "Reformat complete")))
+       ((default)
+        (beep)))))
 
   ;; ebib mode keybinding
   (ebib-key index "\C-xb" (lambda ()

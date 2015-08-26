@@ -31,28 +31,6 @@
 
 ;;; Code:
 
-;; org-contrib
-(defun eh-enable-org-contrib ()
-  (interactive)
-  (require 'ox-extra)
-  (require 'ox-deck)
-  (require 'ox-rss)
-  (require 'ox-s5)
-  (require 'org-mime)
-  (require 'org-bookmark)
-  (require 'org-protocol)
-  (require 'org-screenshot)
-  (require 'ob-R)
-  (require 'ob-plantuml)
-  (require 'eh-org-citation)
-
-  ;; 如果一个标题包含TAG: “ignore” ,导出latex时直接忽略这个标题，
-  ;; 但对它的内容没有影响，这个可以使用在这种情况下：
-  ;; * 摘要
-  ;; #+LATEX: \abstract{摘\quad要}
-  ;; 这个功能包含在ox-extra.el中。
-  (ox-extras-activate '(latex-header-blocks ignore-headlines)))
-
 ;; eh-website
 (use-package org-webpage
   :config

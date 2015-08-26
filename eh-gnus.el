@@ -50,12 +50,16 @@
         ;; 加载个人帐号信息。
         (load eh-gnus-personal-file)
         ;; bbdb
-        (require 'eh-bbdb3)
+        (use-package eh-bbdb3
+          :ensure nil)
         ;; 加载 gnus 可共享的配置
-        (require 'eh-gnus-common)
+        (use-package eh-gnus-common
+          :ensure nil)
         ;; rss2email同步脚本
-        (require 'eh-rss2email)
-        (eh-rss2email-cron))
+        (use-package eh-rss2email
+          :ensure nil
+          :config
+          (eh-rss2email-cron)))
     (message "eh-gnus个人帐号文件不存在，eh-gnus启动失败!!!")))
 
 (global-set-key (kbd "C-x m")
