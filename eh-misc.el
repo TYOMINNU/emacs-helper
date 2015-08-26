@@ -259,9 +259,12 @@ ask user for the window where move to and delete other windows"
 
   (defun eh-browse-kill-ring ()
     (interactive)
-    (let ((clipboard-output (x-get-clipboard)))
-      (unless
-          (string= (car kill-ring) clipboard-output)
+    (let ((clipboard-output
+           (if (string= system-type "windows-nt")
+               (w32-get-clipboard-data)
+             (x-get-clipboard))))
+      (when (and clipboard-output
+                 (not (string= (car kill-ring) clipboard-output)))
         (kill-new clipboard-output))
       (if (car kill-ring)
           (browse-kill-ring)
