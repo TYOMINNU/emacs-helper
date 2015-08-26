@@ -31,60 +31,120 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(require 'use-package)
-(if (eq system-type 'windows-nt)
-    (setq use-package-always-ensure t)
-  (setq use-package-always-ensure nil))
 
-;; Theme设置
-(add-to-list 'custom-theme-load-path
-             (file-name-directory
-              (locate-library "cyberpunk-theme.el")))
-;; (load-theme 'cyberpunk)
-
-;; Charset设置
-(set-language-environment "UTF-8")
-(set-buffer-file-coding-system 'utf-8-unix)
-(set-clipboard-coding-system 'utf-8-unix)
-(set-file-name-coding-system 'utf-8-unix)
-(set-keyboard-coding-system 'utf-8-unix)
-(set-next-selection-coding-system 'utf-8-unix)
-(set-selection-coding-system 'utf-8-unix)
-(set-terminal-coding-system 'utf-8-unix)
-
-(when (eq system-type 'windows-nt)
-  (set-selection-coding-system 'gbk-dos)
-  (set-next-selection-coding-system 'gbk-dos)
-  (set-clipboard-coding-system 'gbk-dos))
-
-;; 默认显示菜单栏
-(menu-bar-mode 1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-
-;; 高亮配对的括号
-(show-paren-mode 1)
+;; Full name and email
+(setq user-full-name "Feng Shu")
+(setq user-mail-address "tumashu@163.com")
 
 ;; 使用空格缩进
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 (setq tab-width 4)
 
+;; package
+(require 'package)
+(add-to-list 'package-archives
+             '(("melpa" . "http://melpa.org/packages/")
+               ("org" . "http://orgmode.org/elpa/")) t)
+
+(package-initialize)
+(setq package-unsigned-archives '("gnu"))
+
+;; use-package
+(require 'use-package)
+(if (eq system-type 'windows-nt)
+    (setq use-package-always-ensure t)
+  (setq use-package-always-ensure nil))
+
+;; load-path
+(defun eh-hack-load-path ()
+  ;; Delete buildin org's PATH
+  (setq load-path
+        (delq nil (mapcar
+                   #'(lambda (p)
+                       (unless (or (string-match "lisp/org$" p))
+                         p))
+                   load-path)))
+  ;; Demove property lists to defeat cus-load and remove autoloads
+  (mapatoms #'(lambda (s)
+                (let ((sn (symbol-name s)))
+                  (when (string-match "^\\(org\\|ob\\|ox\\)-?" sn)
+                    (setplist s nil)
+                    (when (autoloadp s)
+                      (unintern s)))))))
+
+(dolist (directory '("~/projects/" "~/project"
+                     "c:/project/" "c:/projects/"
+                     "d:/project/" "d:/projects/"
+                     "e:/project/" "e:/projects/"
+                     "f:/project/" "f:/projects/"
+                     "g:/project/" "g:/projects/"))
+  (let* ((dir (expand-file-name directory))
+         (default-directory dir)
+         hack-load-path)
+    (eh-hack-load-path)
+    (when (file-directory-p dir)
+      (add-to-list 'load-path dir)
+      (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
+          (normal-top-level-add-subdirs-to-load-path)))))
+
 ;; 默认不显示 *Async Shell Command* buffer
 ;; (add-to-list 'display-buffer-alist
 ;;              '("\\*Async Shell Command\\*.*"  display-buffer-no-window nil))
 
+;; Theme 设置
+(use-package custom
+  :ensure nil
+  :config
+  (add-to-list 'custom-theme-load-path
+               (file-name-directory
+                (locate-library "cyberpunk-theme.el")))
+  ;; (load-theme 'cyberpunk)
+  )
+
+;; Charset 设置
+(use-package mule
+  :ensure nil
+  :config
+
+  (set-language-environment "UTF-8")
+  (set-buffer-file-coding-system 'utf-8-unix)
+  (set-clipboard-coding-system 'utf-8-unix)
+  (set-file-name-coding-system 'utf-8-unix)
+  (set-keyboard-coding-system 'utf-8-unix)
+  (set-next-selection-coding-system 'utf-8-unix)
+  (set-selection-coding-system 'utf-8-unix)
+  (set-terminal-coding-system 'utf-8-unix)
+
+  (when (eq system-type 'windows-nt)
+    (set-selection-coding-system 'gbk-dos)
+    (set-next-selection-coding-system 'gbk-dos)
+    (set-clipboard-coding-system 'gbk-dos)))
 
 ;; 保存文件之前，删除无用的空格
-(add-hook 'before-save-hook 'whitespace-cleanup)
-(add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))
+(use-package files
+  :ensure nil
+  :config
+  (use-package whitespace
+    :ensure nil
+    :config
+    (add-hook 'before-save-hook 'whitespace-cleanup))
+  (use-package simple
+    :ensure nil
+    :config
+    (add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))))
 
 ;; eshell
 (use-package eshell
+  :bind (("C-x c" . eshell))
   :ensure nil
   :config
-  (require 'em-term)
-  (require 'em-unix)
+
+  (use-package em-term
+    :ensure nil)
+  (use-package em-unix
+    :ensure nil)
+
   (setq eshell-visual-commands
         (append '("aptitude" "mutt" "nano" "crontab" "vim" "less")
                 eshell-visual-commands))
@@ -127,6 +187,9 @@
   :ensure t
   :config
   (setq default-input-method "chinese-pyim")
+  (when (eq system-type 'windows-nt)
+    (setq pyim-use-tooltip nil)
+    (setq pyim-page-length 7))
   :bind
   (("C-<SPC>" . toggle-input-method)
    ("C-;" . pyim-toggle-input-ascii)
@@ -135,6 +198,7 @@
 ;; Chinese fonts setup
 (use-package chinese-fonts-setup
   :ensure t
+  :demand t
   :bind (("C--" . cfs-decrease-fontsize)
          ("C-=" . cfs-increase-fontsize)
          ("C-+" . cfs-next-profile)))
@@ -170,14 +234,45 @@
   ;; 自动保存recentf文件。
   (add-hook 'find-file-hook 'recentf-save-list))
 
-;; Basic keybinding
-(global-unset-key (kbd "C-x C-x"))
-(global-set-key (kbd "C-x <SPC>") 'set-mark-command)
-(global-set-key (kbd "C-x C-x <SPC>") 'rectangle-mark-mode)
-(global-set-key (kbd "C-x C-x C-x") 'exchange-point-and-mark)
-(global-set-key (kbd "C-x b") 'ibuffer)
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
-(global-set-key (kbd "C-x c") 'eshell)
+;; ibuffer
+(use-package ibuffer
+  :ensure nil
+  :bind (("C-x b" . ibuffer)))
+
+(use-package simple
+  :ensure nil
+  :init (global-unset-key (kbd "C-x C-x"))
+  :bind
+  (("C-x <SPC>" . set-mark-command)
+   ("C-x C-x C-x" . exchange-point-and-mark)))
+
+(use-package rect
+  :ensure nil
+  :bind (("C-x C-x <SPC>" . rectangle-mark-mode)))
+
+(use-package tool-bar
+  :ensure nil
+  :config
+  (tool-bar-mode -1)
+  :bind (("C-x k" . kill-this-buffer)))
+
+(use-package menu-bar
+  :ensure nil
+  :config
+  (menu-bar-mode 1)
+  :bind (("C-x k" . kill-this-buffer)))
+
+(use-package scroll-bar
+  :ensure nil
+  :config
+  (scroll-bar-mode -1))
+
+(use-package paren
+  :ensure nil
+  :config
+  ;; 高亮配对的括号
+  (show-paren-mode 1))
+
 
 ;;;###autoload(require 'eh-basic)
 (provide 'eh-basic)

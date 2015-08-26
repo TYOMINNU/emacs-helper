@@ -32,17 +32,28 @@
 ;;; Code:
 
 ;; ido
-(use-package tramp
-  :config
-  (setq tramp-default-method nil))
-
-(use-package org
-  :config
-  (setq org-completion-use-ido t))
-
 (use-package ido
   :ensure nil
   :config
+
+  (use-package tramp
+    :config
+    (setq tramp-default-method nil))
+  (use-package org
+    :config
+    (setq org-completion-use-ido t))
+  (use-package ido-ubiquitous
+    :config
+    (setq ido-everywhere t)
+    (ido-ubiquitous-mode 1))
+  (use-package flx-ido
+    :config
+    (setq flx-ido-use-faces t)
+    (flx-ido-mode 1))
+  (use-package ido-vertical-mode
+    :config
+    (ido-vertical-mode 1))
+
   (setq ido-enable-flex-matching t
         ido-enable-regexp t
         ido-enable-prefix nil
@@ -84,20 +95,6 @@
     (define-key ido-completion-map (kbd "C-l") 'ido-delete-backward-updir))
   (global-set-key (kbd "C-x C-b") 'ido-display-buffer))
 
-(use-package ido-ubiquitous
-  :config
-  (setq ido-everywhere t)
-  (ido-ubiquitous-mode 1))
-
-(use-package flx-ido
-  :config
-  (setq flx-ido-use-faces t)
-  (flx-ido-mode 1))
-
-(use-package ido-vertical-mode
-  :config
-  (ido-vertical-mode 1))
-
 ;; smex swiper and ivy-mode
 (use-package smex
   :config
@@ -106,8 +103,25 @@
 
 (use-package swiper
   :config
-  (require 'org)
-  (org-defkey org-mode-map (kbd "C-c C-c") 'counsel-org-tag)
+
+  (use-package counsel
+    :config
+    (use-package smex
+      :config
+      (setq smex-completion-method 'ivy)
+      (smex-initialize))
+    (define-key counsel-find-file-map (kbd "C-f") 'eh-ivy-open-typed-path)
+    :bind
+    (("C-c C-r" . ivy-resume)
+     ("M-x" . counsel-M-x)
+     ("C-x C-f" . counsel-find-file)
+     ("C-h f" . counsel-describe-function)
+     ("C-h v" . counsel-describe-variable)))
+
+  (use-package org
+    :ensure nil
+    :config
+    (org-defkey org-mode-map (kbd "C-c C-c") 'counsel-org-tag))
 
   (ivy-mode 1)
   (setq ivy-count-format ""
@@ -179,16 +193,6 @@
       (ivy-done)))
 
   (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done))
-
-(use-package counsel
-  :config
-  (define-key counsel-find-file-map (kbd "C-f") 'eh-ivy-open-typed-path)
-  :bind
-  (("C-c C-r" . ivy-resume)
-   ("M-x" . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)
-   ("C-h f" . counsel-describe-function)
-   ("C-h v" . counsel-describe-variable)))
 
 ;; company-mode
 (use-package company

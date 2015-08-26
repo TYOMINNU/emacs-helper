@@ -1,4 +1,3 @@
-(load-library "eh-package")
 (load-library "eh-basic")
 (load-library "eh-org")
 (load-library "eh-org-capture")

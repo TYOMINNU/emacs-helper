@@ -53,6 +53,17 @@
   ;; 这个功能包含在ox-extra.el中。
   (ox-extras-activate '(latex-header-blocks ignore-headlines)))
 
+;; eh-website
+(use-package org-webpage
+  :config
+  (use-package eh-website
+    :ensure nil)
+  (use-package chinese-pyim
+    :ensure nil
+    :config
+    (use-package owp-devtools
+      :ensure nil)))
+
 ;; bbdb
 (use-package eh-ebib
   :ensure nil
@@ -69,19 +80,41 @@
 (use-package eh-emms
   :ensure nil)
 
+;; xah-fly-keys
+(use-package xah-fly-keys
+  :ensure nil
+  :disabled t)
+
 ;; elisp setting
-(use-package elisp-mode
+(use-package lisp-mode
   :ensure nil
   :config
-  (defun eh-elisp-setup ()
-    ;; 跟踪行尾空格
-    (setq show-trailing-whitespace t)
-    ;; 高亮TAB
-    (setq highlight-tabs t)
-    ;; 自动缩进
-    (aggressive-indent-mode))
-  (add-hook 'emacs-lisp-mode-hook
-            #'eh-elisp-setup))
+  (use-package aggressive-indent
+    :config
+    (defun eh-elisp-setup ()
+      ;; 跟踪行尾空格
+      (setq show-trailing-whitespace t)
+      ;; 高亮TAB
+      (setq highlight-tabs t)
+      ;; 自动缩进
+      (aggressive-indent-mode))
+    (add-hook 'emacs-lisp-mode-hook
+              #'eh-elisp-setup)))
+
+;; org-journal
+(use-package org-journal
+  :config
+  (use-package org
+    :ensure nil)
+  (use-package org-agenda
+   :ensure nil)
+  (setq org-journal-dir "E:/doc/journal/")
+  (setq org-journal-file-format "%Y%m%d.org")
+  (setq org-agenda-files
+      (append (directory-files org-journal-dir t ".org$")
+              org-agenda-files))
+  :bind
+  (("C-c j" . org-journal-new-entry)))
 
 ;; ESS
 (use-package ess-site
@@ -101,10 +134,11 @@
 
 ;; visual-regexp
 (use-package visual-regexp
+  :config
+  (use-package visual-regexp-steroids)
   :bind (("C-c r" . vr/replace)
          ("C-c q" . vr/query-replace)
          ("C-c m" . vr/mc-mark)))
-(use-package visual-regexp-steroids)
 
 ;; multi-term
 (use-package multi-term
@@ -155,11 +189,12 @@
   (setq magit-completing-read-function 'ivy-completing-read)
   :bind (("C-c g" . magit-status)))
 
-;; wdired
-(use-package wdired)
-
-;; dired-ranger
-(use-package dired-ranger)
+;; wdired and dired-ranger
+(use-package dired
+  :ensure nil
+  :config
+  (use-package wdired)
+  (use-package dired-ranger))
 
 ;; multiple-cursors
 (use-package multiple-cursors
@@ -257,15 +292,14 @@ ask user for the window where move to and delete other windows"
 ;; General project support
 (use-package projectile
   :config
-  (setq projectile-completion-system 'ivy))
-
-(use-package wgrep
-  :config
-  (projectile-global-mode 1)
-  (setq projectile-enable-caching nil)
-  :bind
-  (("C-x F" . projectile-find-file)
-   ("C-S-s" . projectile-grep)))
+  (setq projectile-completion-system 'ivy)
+  (use-package wgrep
+    :config
+    (projectile-global-mode 1)
+    (setq projectile-enable-caching nil)
+    :bind
+    (("C-x F" . projectile-find-file)
+     ("C-S-s" . projectile-grep))))
 
 ;; undo tree
 (use-package undo-tree
@@ -283,6 +317,7 @@ ask user for the window where move to and delete other windows"
 
 ;; calfw
 (use-package holidays
+  :ensure nil
   :config
   (defvar eh-calendar-holidays nil)
   (setq eh-calendar-holidays
@@ -339,6 +374,7 @@ ask user for the window where move to and delete other windows"
   (setq calendar-holidays eh-calendar-holidays))
 
 (use-package calendar
+  :ensure nil
   :config
   (setq calendar-month-name-array
         ["一月" "二月" "三月" "四月" "五月" "六月"
@@ -351,6 +387,22 @@ ask user for the window where move to and delete other windows"
 
 (use-package calfw
   :config
+
+  (use-package calfw-cal :ensure calfw)
+  (use-package calfw-ical :ensure calfw)
+  (use-package calfw-org :ensure calfw)
+  (use-package cal-china-x)
+
+  (use-package org-capture
+    :ensure org
+    :config
+    ;; 为calfw设置一个capture模板并添加到org-capture-templates
+    (setq cfw:org-capture-template
+          '("calfw2org" "calfw2org" entry (file+headline eh-org-schedule-file "Schedule")
+            "* %?\n %(cfw:org-capture-day)\n %a"))
+    (setq org-capture-templates
+          (append org-capture-templates (list cfw:org-capture-template))))
+
   ;; 日历表格边框设置
   (setq cfw:fchar-junction ?+
         cfw:fchar-vertical-line ?|
@@ -395,20 +447,6 @@ ask user for the window where move to and delete other windows"
      (list
       ;; orgmode source
       (cfw:org-create-source "Green")))))
-
-(use-package org-capture
-  :config
-  ;; 为calfw设置一个capture模板并添加到org-capture-templates
-  (setq cfw:org-capture-template
-        '("calfw2org" "calfw2org" entry (file+headline eh-org-schedule-file "Schedule")
-          "* %?\n %(cfw:org-capture-day)\n %a"))
-  (setq org-capture-templates
-        (append org-capture-templates (list cfw:org-capture-template))))
-
-(use-package calfw-cal)
-(use-package calfw-ical)
-(use-package calfw-org)
-(use-package cal-china-x)
 
 ;;;autoload (require 'eh-misc)
 (provide 'eh-misc)

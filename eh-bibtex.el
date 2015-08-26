@@ -31,13 +31,15 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Codes
-(require 'bibtex)
+(use-package bibtex
+  :ensure nil
+  :config
 
-(defvar eh-bibtex-abstact-fill-column 80
-  "default column when wash bib file")
+  (defvar eh-bibtex-abstact-fill-column 80
+    "default column when wash bib file")
 
-(defun eh-bibtex-chinese-autokey-setup ()
-  "Bibtex 中文文献 autokey 生成规则：
+  (defun eh-bibtex-chinese-autokey-setup ()
+    "Bibtex 中文文献 autokey 生成规则：
 
     <第一作者拼音><年份><标题前两个汉字字符拼音>
 
@@ -45,133 +47,133 @@
 将生成：xulinling2013pgong
 
 注：bibtex开启了词法绑定。"
-  (setq bibtex-autokey-names 1
-        bibtex-autokey-name-separator ""
-        bibtex-autokey-year-length 4
-        bibtex-autokey-name-year-separator ""
-        bibtex-autokey-year-title-separator ""
-        bibtex-autokey-titlewords 2
-        bibtex-autokey-titleword-length 2
-        bibtex-autokey-titlewords-stretch 0
-        bibtex-autokey-titleword-separator "_"
-        bibtex-autokey-titleword-ignore nil
-        bibtex-autokey-before-presentation-function
-        '(lambda (x) (downcase (pyim-hanzi2pinyin-simple x)))))
+    (setq bibtex-autokey-names 1
+          bibtex-autokey-name-separator ""
+          bibtex-autokey-year-length 4
+          bibtex-autokey-name-year-separator ""
+          bibtex-autokey-year-title-separator ""
+          bibtex-autokey-titlewords 2
+          bibtex-autokey-titleword-length 2
+          bibtex-autokey-titlewords-stretch 0
+          bibtex-autokey-titleword-separator "_"
+          bibtex-autokey-titleword-ignore nil
+          bibtex-autokey-before-presentation-function
+          '(lambda (x) (downcase (pyim-hanzi2pinyin-simple x)))))
 
-(defun eh-bibtex-english-autokey-setup ()
-  "Bibtex 英文文献 autokey 生成规则。"
-  (setq bibtex-autokey-names 1
-        bibtex-autokey-name-separator ""
-        bibtex-autokey-year-length 4
-        bibtex-autokey-name-year-separator ""
-        bibtex-autokey-year-title-separator ""
-        bibtex-autokey-titlewords 3
-        bibtex-autokey-titleword-length 5
-        bibtex-autokey-titlewords-stretch 0
-        bibtex-autokey-titleword-separator "_"
-        bibtex-autokey-titleword-ignore
-        '("A" "An" "On" "The" "Eine?" "Der" "Die" "Das"
-          "[^[:upper:]].*" ".*[^[:upper:][:lower:]0-9].*")))
+  (defun eh-bibtex-english-autokey-setup ()
+    "Bibtex 英文文献 autokey 生成规则。"
+    (setq bibtex-autokey-names 1
+          bibtex-autokey-name-separator ""
+          bibtex-autokey-year-length 4
+          bibtex-autokey-name-year-separator ""
+          bibtex-autokey-year-title-separator ""
+          bibtex-autokey-titlewords 3
+          bibtex-autokey-titleword-length 5
+          bibtex-autokey-titlewords-stretch 0
+          bibtex-autokey-titleword-separator "_"
+          bibtex-autokey-titleword-ignore
+          '("A" "An" "On" "The" "Eine?" "Der" "Die" "Das"
+            "[^[:upper:]].*" ".*[^[:upper:][:lower:]0-9].*")))
 
-(defun eh-bibtex-autokey-get-title (orig-fun &rest args)
-  (let ((case-fold-search t)
-        (titlestring (bibtex-autokey-get-field "title")))
-    (if (string-match-p "\\cc" titlestring)
-        (eh-bibtex-chinese-autokey-setup)
-      (eh-bibtex-english-autokey-setup))
-    (apply orig-fun args)))
+  (defun eh-bibtex-autokey-get-title (orig-fun &rest args)
+    (let ((case-fold-search t)
+          (titlestring (bibtex-autokey-get-field "title")))
+      (if (string-match-p "\\cc" titlestring)
+          (eh-bibtex-chinese-autokey-setup)
+        (eh-bibtex-english-autokey-setup))
+      (apply orig-fun args)))
 
-(advice-add 'bibtex-autokey-get-title :around #'eh-bibtex-autokey-get-title)
+  (advice-add 'bibtex-autokey-get-title :around #'eh-bibtex-autokey-get-title)
 
-(defun eh-bibtex-wash-field (field)
-  "Wash the content of field"
-  (goto-char begin)
-  (let ((field-content (bibtex-autokey-get-field field))
-        (field-position (bibtex-search-forward-field field t)))
-    (when field-position
-      (goto-char (car (cdr field-position)))
-      (bibtex-kill-field))
-    (bibtex-make-field
-     (list field nil
-           (eh-wash-text
-            field-content
-            eh-bibtex-abstact-fill-column
-            (+ bibtex-text-indentation 1 )) nil) t)))
+  (defun eh-bibtex-wash-field (field)
+    "Wash the content of field"
+    (goto-char begin)
+    (let ((field-content (bibtex-autokey-get-field field))
+          (field-position (bibtex-search-forward-field field t)))
+      (when field-position
+        (goto-char (car (cdr field-position)))
+        (bibtex-kill-field))
+      (bibtex-make-field
+       (list field nil
+             (eh-wash-text
+              field-content
+              eh-bibtex-abstact-fill-column
+              (+ bibtex-text-indentation 1 )) nil) t)))
 
-(defun eh-bibtex-reformat ()
-  (interactive)
-  (goto-char (point-min))
-  ;; Clean elide blank lines of entries,
-  ;; which make abstrack field look beautiful
-  (save-restriction
-    (bibtex-map-entries
-     (lambda (key begin end)
-       (let ((case-fold-search t)
-             (entry-type (bibtex-type-in-head)))
-         (save-excursion
-           ;; Add language field
-           (goto-char begin)
-           (let ((language-field (bibtex-search-forward-field "language" t)))
-             (when language-field
-               (goto-char (car (cdr language-field)))
-               (bibtex-kill-field)))
-           (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
-             (bibtex-make-field '("language" nil "Chinese" nil) t))
+  (defun eh-bibtex-reformat ()
+    (interactive)
+    (goto-char (point-min))
+    ;; Clean elide blank lines of entries,
+    ;; which make abstrack field look beautiful
+    (save-restriction
+      (bibtex-map-entries
+       (lambda (key begin end)
+         (let ((case-fold-search t)
+               (entry-type (bibtex-type-in-head)))
+           (save-excursion
+             ;; Add language field
+             (goto-char begin)
+             (let ((language-field (bibtex-search-forward-field "language" t)))
+               (when language-field
+                 (goto-char (car (cdr language-field)))
+                 (bibtex-kill-field)))
+             (when (string-match-p "\\cc+" (bibtex-autokey-get-field "title"))
+               (bibtex-make-field '("language" nil "Chinese" nil) t))
 
-           ;; Add alias field
-           (goto-char begin)
-           (let ((alias-field (bibtex-search-forward-field "alias" t))
-                 (title (bibtex-autokey-get-field "title"))
-                 (author (bibtex-autokey-get-field "author")))
-             (when alias-field
-               (goto-char (car (cdr alias-field)))
-               (bibtex-kill-field))
-             (bibtex-make-field
-              (list "alias" nil
-                    (replace-regexp-in-string
-                     "\n" ""
-                     (pyim-hanzi2pinyin-simple
-                      (concat author ", " title) t)) nil) t))
-
-           ;; Wash abstract field
-           (eh-bibtex-wash-field "abstract")
-
-           ;; Add autokey
-           (goto-char begin)
-           (let (auto-key)
-             (re-search-forward (if (bibtex-string= entry-type "string")
-                                    bbibtex-string-maybe-empty-head
-                                  bibtex-entry-maybe-empty-head))
-             (if (match-beginning bibtex-key-in-head)
-                 (delete-region (match-beginning bibtex-key-in-head)
-                                (match-end bibtex-key-in-head)))
-             (setq auto-key (bibtex-generate-autokey))
-
-             ;; Sometimes `bibtex-generate-autokey' returns an empty string
-             (if (string= "" auto-key)
-                 (setq auto-key "!NEED_EDIT"))
-             (insert auto-key)
-             (let ((bibtex-entry-format
-                    ;; Don't add `realign' to this list
-                    '(opts-or-alts  delimiters
-                                    last-comma page-dashes unify-case inherit-booktitle
-                                    braces strings sort-fields whitespace
-                                    ;; numerical-fields
-                                    )))
-               (bibtex-clean-entry nil t))
-
-             ;; Add keyhistory field
-             (let ((keyhistory-field (bibtex-search-forward-field "keyhistory" t))
-                   (keyhistory (bibtex-autokey-get-field "keyhistory")))
-               (when keyhistory-field
-                 (goto-char (car (cdr keyhistory-field)))
+             ;; Add alias field
+             (goto-char begin)
+             (let ((alias-field (bibtex-search-forward-field "alias" t))
+                   (title (bibtex-autokey-get-field "title"))
+                   (author (bibtex-autokey-get-field "author")))
+               (when alias-field
+                 (goto-char (car (cdr alias-field)))
                  (bibtex-kill-field))
                (bibtex-make-field
-                (list "keyhistory" nil
-                      (mapconcat #'identity
-                                 (delq "" (delete-dups
-                                           (cons auto-key (split-string (or keyhistory "") "; "))))
-                                 "; ") nil) t)))))))))
+                (list "alias" nil
+                      (replace-regexp-in-string
+                       "\n" ""
+                       (pyim-hanzi2pinyin-simple
+                        (concat author ", " title) t)) nil) t))
+
+             ;; Wash abstract field
+             (eh-bibtex-wash-field "abstract")
+
+             ;; Add autokey
+             (goto-char begin)
+             (let (auto-key)
+               (re-search-forward (if (bibtex-string= entry-type "string")
+                                      bbibtex-string-maybe-empty-head
+                                    bibtex-entry-maybe-empty-head))
+               (if (match-beginning bibtex-key-in-head)
+                   (delete-region (match-beginning bibtex-key-in-head)
+                                  (match-end bibtex-key-in-head)))
+               (setq auto-key (bibtex-generate-autokey))
+
+               ;; Sometimes `bibtex-generate-autokey' returns an empty string
+               (if (string= "" auto-key)
+                   (setq auto-key "!NEED_EDIT"))
+               (insert auto-key)
+               (let ((bibtex-entry-format
+                      ;; Don't add `realign' to this list
+                      '(opts-or-alts  delimiters
+                                      last-comma page-dashes unify-case inherit-booktitle
+                                      braces strings sort-fields whitespace
+                                      ;; numerical-fields
+                                      )))
+                 (bibtex-clean-entry nil t))
+
+               ;; Add keyhistory field
+               (let ((keyhistory-field (bibtex-search-forward-field "keyhistory" t))
+                     (keyhistory (bibtex-autokey-get-field "keyhistory")))
+                 (when keyhistory-field
+                   (goto-char (car (cdr keyhistory-field)))
+                   (bibtex-kill-field))
+                 (bibtex-make-field
+                  (list "keyhistory" nil
+                        (mapconcat #'identity
+                                   (delq "" (delete-dups
+                                             (cons auto-key (split-string (or keyhistory "") "; "))))
+                                   "; ") nil) t))))))))))
 
 (provide 'eh-bibtex)
 

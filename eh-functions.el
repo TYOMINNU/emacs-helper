@@ -31,8 +31,6 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-;; require
-;; (require 'starter-kit-defuns)
 
 ;; 常用函数
 (defun eh-shutdown-emacs-server ()
