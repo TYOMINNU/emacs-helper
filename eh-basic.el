@@ -71,6 +71,8 @@
   (setq use-package-always-ensure nil))
 
 ;; load-path
+(defvar eh-enable-load-path-hack t)
+
 (defun eh-hack-load-path ()
   ;; Delete buildin org's PATH
   (setq load-path
@@ -87,20 +89,25 @@
                     (when (autoloadp s)
                       (unintern s)))))))
 
-(dolist (directory '("~/projects/" "~/project"
-                     "c:/project/" "c:/projects/"
-                     "d:/project/" "d:/projects/"
-                     "e:/project/" "e:/projects/"
-                     "f:/project/" "f:/projects/"
-                     "g:/project/" "g:/projects/"))
-  (let* ((dir (expand-file-name directory))
-         (default-directory dir)
-         hack-load-path)
-    (eh-hack-load-path)
-    (when (file-directory-p dir)
-      (add-to-list 'load-path dir)
-      (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
-          (normal-top-level-add-subdirs-to-load-path)))))
+(let* ((output nil)
+       (dirs (progn
+               (dolist (x '("~" "c:" "d:" "e:" "f:" "g:"))
+                 (push (file-name-as-directory
+                        (concat x "/projects"))
+                       output)
+                 (push (file-name-as-directory
+                        (concat x "/project"))
+                       output))
+               (reverse output))))
+  (dolist (directory dirs)
+    (let* ((dir (expand-file-name directory))
+           (default-directory dir))
+      (when eh-enable-load-path-hack
+        (eh-hack-load-path))
+      (when (file-directory-p dir)
+        (add-to-list 'load-path dir)
+        (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
+            (normal-top-level-add-subdirs-to-load-path))))))
 
 ;; 默认不显示 *Async Shell Command* buffer
 ;; (add-to-list 'display-buffer-alist
