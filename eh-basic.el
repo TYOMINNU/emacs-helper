@@ -38,7 +38,8 @@
 
 ;; Startup screen
 (setq inhibit-startup-screen t)
-(setq  initial-buffer-choice nil)
+(setq initial-buffer-choice nil)
+(setq initial-scratch-message ";; This is *scratch* buffer.\n\n")
 
 ;; 使用空格缩进
 (setq-default indent-tabs-mode nil)
@@ -47,9 +48,10 @@
 
 ;; Don't delete *scratch* buffer
 (defun eh-unkillable-scratch-buffer ()
-  (if (equal (buffer-name (current-buffer)) "*scratch*")
+  (if (string= (buffer-name (current-buffer)) "*scratch*")
       (progn
         (delete-region (point-min) (point-max))
+        (insert initial-scratch-message)
         nil)
     t))
 
