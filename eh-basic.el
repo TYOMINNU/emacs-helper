@@ -36,6 +36,10 @@
 (setq user-full-name "Feng Shu")
 (setq user-mail-address "tumashu@163.com")
 
+;; Startup screen
+(setq inhibit-startup-screen t)
+(setq  initial-buffer-choice nil)
+
 ;; 使用空格缩进
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
