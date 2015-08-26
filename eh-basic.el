@@ -45,6 +45,16 @@
 (setq-default tab-width 4)
 (setq tab-width 4)
 
+;; Don't delete *scratch* buffer
+(defun eh-unkillable-scratch-buffer ()
+  (if (equal (buffer-name (current-buffer)) "*scratch*")
+      (progn
+        (delete-region (point-min) (point-max))
+        nil)
+    t))
+
+(add-hook 'kill-buffer-query-functions 'eh-unkillable-scratch-buffer)
+
 ;; package
 (require 'package)
 (add-to-list 'package-archives
