@@ -118,11 +118,6 @@
      ("C-h f" . counsel-describe-function)
      ("C-h v" . counsel-describe-variable)))
 
-  (use-package org
-    :ensure nil
-    :config
-    (org-defkey org-mode-map (kbd "C-c C-c") 'counsel-org-tag))
-
   (ivy-mode 1)
   (setq ivy-count-format ""
         ;; ivy-count-format "%-2d "
