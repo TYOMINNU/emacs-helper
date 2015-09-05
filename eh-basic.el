@@ -67,9 +67,7 @@
 
 ;; use-package
 (require 'use-package)
-(if (eq system-type 'windows-nt)
-    (setq use-package-always-ensure t)
-  (setq use-package-always-ensure nil))
+(setq use-package-always-ensure t)
 
 ;; load-path
 (defvar eh-enable-load-path-hack t)
