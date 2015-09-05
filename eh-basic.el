@@ -204,7 +204,6 @@
 
 ;; Pinyin Input Method
 (use-package chinese-pyim
-  :ensure t
   :config
   (setq default-input-method "chinese-pyim")
   (when (eq system-type 'windows-nt)
@@ -217,7 +216,6 @@
 
 ;; Chinese fonts setup
 (use-package chinese-fonts-setup
-  :ensure t
   :demand t
   :bind (("C--" . cfs-decrease-fontsize)
          ("C-=" . cfs-increase-fontsize)
