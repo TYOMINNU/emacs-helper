@@ -122,7 +122,8 @@
   (setq ivy-count-format ""
         ;; ivy-count-format "%-2d "
         ivy-extra-directories nil
-        ivy-format-function 'eh-ivy-format-function)
+        ivy-format-function 'eh-ivy-format-function
+        ivy-display-style 'fancy)
 
   (defun eh-ivy-format-function (cands)
     (let ((i -1))
