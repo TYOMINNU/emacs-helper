@@ -45,6 +45,9 @@
   ;; Shrink fringes to 1 pixel
   (fringe-mode 1)
 
+  ;; Disable dialog boxes since they are unusable in EXWM
+  (setq use-dialog-box nil)
+
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
   ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
   ;; when a new window class name or title is available. Here's some advice on
@@ -61,20 +64,16 @@
   ;; In the following example, we use class names for all windows expect for
   ;; Java applications and GIMP.
   (add-hook 'exwm-update-class-hook
-            (lambda ()
-              (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                          (string= "gimp" exwm-instance-name))
-                (rename-buffer exwm-class-name t))))
-  (add-hook 'exwm-update-title-hook
-            (lambda ()
-              (when (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                        (string= "gimp" exwm-instance-name))
-                (rename-buffer exwm-title t))))
-
-  (add-hook 'exwm-floating-setup-hook
             #'(lambda ()
-                (when (string-match-p "stalonetray" exwm-instance-name)
-                  (setq mode-line-format ":->"))))
+                (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                            (string= "gimp" exwm-instance-name))
+                  (exwm-workspace-rename-buffer (concat "Exwm:" exwm-class-name)))))
+  (add-hook 'exwm-update-title-hook
+            #'(lambda ()
+                (when (or (not exwm-instance-name)
+                          (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                          (string= "gimp" exwm-instance-name))
+                  (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
 
   ;; `exwm-input-set-key' allows you to set a global key binding (available in
   ;; any case). Following are a few examples.
@@ -84,24 +83,34 @@
   (exwm-input-set-key (kbd "s-w") 'exwm-workspace-switch)
   ;; + Set shortcuts to switch to a certain workspace.
   (exwm-input-set-key (kbd "s-0")
-                      (lambda () (interactive) (exwm-workspace-switch 0)))
+                      #'(lambda ()
+                          (interactive)
+                          (exwm-workspace-switch 0)))
   (exwm-input-set-key (kbd "s-1")
-                      (lambda () (interactive) (exwm-workspace-switch 1)))
+                      #'(lambda ()
+                          (interactive)
+                          (exwm-workspace-switch 1)))
   (exwm-input-set-key (kbd "s-2")
-                      (lambda () (interactive) (exwm-workspace-switch 2)))
+                      #'(lambda ()
+                          (interactive)
+                          (exwm-workspace-switch 2)))
   (exwm-input-set-key (kbd "s-3")
-                      (lambda () (interactive) (exwm-workspace-switch 3)))
+                      #'(lambda ()
+                          (interactive)
+                          (exwm-workspace-switch 3)))
   ;; + Application launcher ('M-&' also works if the output buffer does not
   ;;   bother you). Note that there is no need for processes to be created by
   ;;   Emacs.
   (exwm-input-set-key (kbd "s-&")
-                      (lambda (command)
-                        (interactive (list (read-shell-command "$ ")))
-                        (start-process-shell-command command nil command)))
+                      #'(lambda (command)
+                          (interactive (list (read-shell-command "$ ")))
+                          (start-process-shell-command command nil command)))
   ;; + 'slock' is a simple X display locker provided by suckless tools. 'i3lock'
   ;;   is a more feature-rich alternative.
   (exwm-input-set-key (kbd "s-<f2>")
-                      (lambda () (interactive) (start-process "" nil "slock")))
+                      #'(lambda ()
+                          (interactive)
+                          (start-process "" nil "slock")))
 
   ;; The following example demonstrates how to set a key binding only available
   ;; in line mode. It's simply done by first push the prefix key to
