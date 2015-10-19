@@ -102,18 +102,6 @@
               nil
             clone-return))))
 
-    (defmethod lentic-convert
-      ((conf lentic-org2el-configuration)
-       location)
-      (let ((converted (call-next-method conf location)))
-        (m-buffer-with-current-position
-            (oref conf :this-buffer)
-            location
-          (beginning-of-line)
-          (if (looking-at "[*] +\\w*$")
-              (- converted 1)
-            converted))))
-
     (defmethod lentic-invert
       ((conf lentic-org2el-configuration))
       (lentic-m-oset
