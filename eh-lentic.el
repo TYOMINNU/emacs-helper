@@ -36,157 +36,142 @@
   :ensure nil
   :config
 
-  (defclass lentic-org2el-configuration
-    (lentic-unmatched-chunk-configuration
-     lentic-uncommented-chunk-configuration)
-    ())
+  (use-package lentic-org
+    :ensure nil
+    :config
 
-  (defun lentic-org2el--fixup-extra-semicolon (conf)
-    "Fixup ';; ;;;'."
-    (m-buffer-replace-match
-     (m-buffer-match
-      (lentic-that conf)
-      "^;; ;;; ")
-     ";;; "))
+    (defclass lentic-org2el-configuration
+      (lentic-unmatched-chunk-configuration
+       lentic-uncommented-chunk-configuration)
+      ())
 
-  (defmethod lentic-clone
-    ((conf lentic-org2el-configuration)
-     &optional start stop length-before
-     start-converted stop-converted)
-    ;; do everything else to the buffer
-    (m-buffer-with-markers
-        ((first-line
-          (m-buffer-match-first-line
-           (lentic-this conf)))
-         (header-one-line
-          (m-buffer-match
-           (lentic-this conf)
-           (rx line-start
-               "* " (0+ word)
-               (optional (1+ " ")
-                         ":" (1+ word) ":")
-               line-end)
-           :begin (cl-cadar first-line)))
-         (special-lines
-          (-concat first-line header-one-line)))
-      ;; check whether we are in a special line -- if so widen the change extent
-      (let* ((start-in-special
-              (when (and start
-                         (m-buffer-in-match-p
-                          special-lines start))
-                (m-buffer-at-line-beginning-position
-                 (lentic-this conf)
-                 start)))
-             (start (or start-in-special start))
-             (start-converted
-              (if start-in-special
+    (defmethod lentic-clone
+      ((conf lentic-org2el-configuration)
+       &optional start stop length-before
+       start-converted stop-converted)
+      ;; do everything else to the buffer
+      (m-buffer-with-markers
+          ((first-line
+            (m-buffer-match-first-line
+             (lentic-this conf)))
+           (header-one-line
+            (m-buffer-match
+             (lentic-this conf)
+             "^[*] +\\(\\w*\\)$"
+             :begin (cl-cadar first-line)))
+           (special-lines
+            (-concat first-line header-one-line)))
+        ;; check whether we are in a special line -- if so widen the change extent
+        (let* ((start-in-special
+                (when (and start
+                           (m-buffer-in-match-p
+                            special-lines start))
                   (m-buffer-at-line-beginning-position
-                   (lentic-that conf)
-                   start-converted)
-                start-converted))
-             (stop-in-special
-              (when (and stop
-                         (m-buffer-in-match-p
-                          special-lines stop))
-                (m-buffer-at-line-end-position
-                 (lentic-this conf)
-                 stop)))
-             (stop (or stop-in-special stop))
-             (stop-converted
-              (if stop-in-special
+                   (lentic-this conf)
+                   start)))
+               (start (or start-in-special start))
+               (start-converted
+                (if start-in-special
+                    (m-buffer-at-line-beginning-position
+                     (lentic-that conf)
+                     start-converted)
+                  start-converted))
+               (stop-in-special
+                (when (and stop
+                           (m-buffer-in-match-p
+                            special-lines stop))
                   (m-buffer-at-line-end-position
-                   (lentic-that conf)
-                   stop-converted)
-                stop-converted))
-             (clone-return
-              (call-next-method conf start stop length-before
-                                start-converted stop-converted))
-             (c1 (lentic-org2el--fixup-extra-semicolon conf)))
-        (if (or start-in-special stop-in-special c1)
-            nil
-          clone-return))))
+                   (lentic-this conf)
+                   stop)))
+               (stop (or stop-in-special stop))
+               (stop-converted
+                (if stop-in-special
+                    (m-buffer-at-line-end-position
+                     (lentic-that conf)
+                     stop-converted)
+                  stop-converted))
+               (clone-return
+                (call-next-method conf start stop length-before
+                                  start-converted stop-converted))
+               (c1 (m-buffer-replace-match
+                    (m-buffer-match
+                     (lentic-that conf)
+                     "^;; ;;; ")
+                    ";;; ")))
+          (if (or start-in-special stop-in-special c1)
+              nil
+            clone-return))))
 
-  (defmethod lentic-convert
-    ((conf lentic-org2el-configuration)
-     location)
-    (let ((converted (call-next-method conf location)))
-      (m-buffer-with-current-position
-          (oref conf :this-buffer)
-          location
-        (beginning-of-line)
-        (if (looking-at
-             (rx (submatch "* ")
-                 (submatch (1+ word))
-                 (optional (1+ " ")
-                           ":" (1+ word) ":")
-                 line-end))
-            (cond ((= location (nth 2 (match-data)))
-                   (m-buffer-at-line-beginning-position
-                    (oref conf :that-buffer)
-                    converted))
-                  ((< location (nth 5 (match-data)))
-                   (- converted 1))
-                  (t converted))
-          converted))))
+    (defmethod lentic-convert
+      ((conf lentic-org2el-configuration)
+       location)
+      (let ((converted (call-next-method conf location)))
+        (m-buffer-with-current-position
+            (oref conf :this-buffer)
+            location
+          (beginning-of-line)
+          (if (looking-at "[*] +\\w*$")
+              (- converted 1)
+            converted))))
 
-  (defmethod lentic-invert
-    ((conf lentic-org2el-configuration))
-    (lentic-m-oset
-     (lentic-el2org-init)
-     :that-buffer
-     (lentic-this conf)))
+    (defmethod lentic-invert
+      ((conf lentic-org2el-configuration))
+      (lentic-m-oset
+       (lentic-el2org-init)
+       :that-buffer
+       (lentic-this conf)))
 
-  (defun lentic-org2el-and-el2org-oset (conf)
-    (lentic-m-oset
-     conf
-     :this-buffer (current-buffer)
-     :comment ";; "
-     :comment-stop "#\\\+BEGIN_SRC emacs-lisp.*"
-     :comment-start "#\\\+END_SRC"))
-
-;;;###autoload
-  (defun lentic-org2el-init ()
-    (lentic-org2el-and-el2org-oset
-     (lentic-org2el-configuration
-      "lb-org2el"
-      :lentic-file
-      (concat
-       (file-name-sans-extension
-        (buffer-file-name))
-       ".el"))))
-
-  (add-to-list 'lentic-init-functions
-               'lentic-org2el-init)
-
-  (defclass lentic-el2org-configuration
-    (lentic-unmatched-chunk-configuration
-     lentic-commented-chunk-configuration)
-    ())
-
-  (defmethod lentic-invert
-    ((conf lentic-el2org-configuration))
-    (lentic-m-oset
-     (lentic-org2el-init)
-     :delete-on-exit t
-     :that-buffer (lentic-this conf)))
+    (defun lentic-org2el-and-el2org-oset (conf)
+      (lentic-m-oset
+       conf
+       :this-buffer (current-buffer)
+       :comment ";; "
+       :comment-stop "#\\\+BEGIN_SRC emacs-lisp.*"
+       :comment-start "#\\\+END_SRC"))
 
 ;;;###autoload
-  (defun lentic-el2org-init ()
-    (lentic-org2el-and-el2org-oset
-     (lentic-el2org-configuration
-      "lb-el2org"
-      ;; we don't really need a file and could cope without, but org mode assumes
-      ;; that the buffer is file name bound when it exports. As it happens, this
-      ;; also means that file saving is possible which in turn saves the el file
-      :lentic-file
-      (concat
-       (file-name-sans-extension
-        (buffer-file-name))
-       ".org"))))
+    (defun lentic-org2el-init ()
+      (lentic-org2el-and-el2org-oset
+       (lentic-org2el-configuration
+        "lb-org2el"
+        :lentic-file
+        (concat
+         (file-name-sans-extension
+          (buffer-file-name))
+         ".el"))))
 
-  (add-to-list 'lentic-init-functions
-               'lentic-el2org-init)
-  )
+    (add-to-list 'lentic-init-functions
+                 'lentic-org2el-init)
+
+    (defclass lentic-el2org-configuration
+      (lentic-unmatched-chunk-configuration
+       lentic-commented-chunk-configuration)
+      ())
+
+    (defmethod lentic-invert
+      ((conf lentic-el2org-configuration))
+      (lentic-m-oset
+       (lentic-org2el-init)
+       :delete-on-exit t
+       :that-buffer (lentic-this conf)))
+
+;;;###autoload
+    (defun lentic-el2org-init ()
+      (lentic-org2el-and-el2org-oset
+       (lentic-el2org-configuration
+        "lb-el2org"
+        ;; we don't really need a file and could cope without, but org mode assumes
+        ;; that the buffer is file name bound when it exports. As it happens, this
+        ;; also means that file saving is possible which in turn saves the el file
+        :lentic-file
+        (concat
+         (file-name-sans-extension
+          (buffer-file-name))
+         ".org"))))
+
+    (add-to-list 'lentic-init-functions
+                 'lentic-el2org-init)
+    ))
 
 ;;;###autoload(require 'eh-lentic)
 (provide 'eh-lentic)
