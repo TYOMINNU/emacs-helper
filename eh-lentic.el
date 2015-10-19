@@ -121,17 +121,9 @@
        :that-buffer
        (lentic-this conf)))
 
-    (defun lentic-org2el-and-el2org-oset (conf)
-      (lentic-m-oset
-       conf
-       :this-buffer (current-buffer)
-       :comment ";; "
-       :comment-stop "#\\\+BEGIN_SRC emacs-lisp.*"
-       :comment-start "#\\\+END_SRC"))
-
 ;;;###autoload
     (defun lentic-org2el-init ()
-      (lentic-org2el-and-el2org-oset
+      (lentic-org-oset
        (lentic-org2el-configuration
         "lb-org2el"
         :lentic-file
@@ -157,7 +149,7 @@
 
 ;;;###autoload
     (defun lentic-el2org-init ()
-      (lentic-org2el-and-el2org-oset
+      (lentic-org-oset
        (lentic-el2org-configuration
         "lb-el2org"
         ;; we don't really need a file and could cope without, but org mode assumes
