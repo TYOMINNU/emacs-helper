@@ -155,7 +155,13 @@
     (defun eh-lentic ()
       (interactive)
       (lentic-mode-create-from-init)
-      (lentic-mode-split-window-below))
+      (lentic-mode-split-window-below)
+      (let ((window
+             (get-buffer-window
+              (lentic-mode-find-next-visible-lentic-buffer
+               (current-buffer)))))
+        (when (window-live-p window)
+          (select-window window))))
 
     ))
 
