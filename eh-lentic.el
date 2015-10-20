@@ -151,6 +151,12 @@
 
     (add-to-list 'lentic-init-functions
                  'lentic-el2org-init)
+
+    (defun eh-lentic ()
+      (interactive)
+      (lentic-mode-create-from-init)
+      (lentic-mode-split-window-below))
+
     ))
 
 ;;;###autoload(require 'eh-lentic)
